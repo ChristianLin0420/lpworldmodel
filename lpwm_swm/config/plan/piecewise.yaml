@@ -1,0 +1,51 @@
+defaults:
+  - launcher: local
+  - solver: cem
+  - objective: goal_mse
+  - _self_
+
+# Dataset-driven MPC eval on swm/Piecewise-v0 (sanity check): goals are taken
+# from a collected trajectory (start + goal_offset_steps), so they are
+# guaranteed reachable. eval.py sets world.max_episode_steps = 2 * eval_budget.
+# grid_n MUST match the checkpoint/dataset (this targets the grid_n=2 no-render
+# run). For grid_n=3, override world.grid_n and eval.dataset_name on the CLI.
+
+world:
+  env_name: swm/Piecewise-v0
+  num_envs: ${eval.num_eval}
+  max_episode_steps: ???  # set by eval.py from 2 * eval.eval_budget
+  grid_n: 2
+
+seed: 42
+policy: random  # checkpoint name (under $STABLEWM_HOME/checkpoints) or "random"
+
+plan_config:
+  horizon: 5
+  receding_horizon: 5
+  action_block: 5      # frameskip (must match training frameskip)
+  history_len: 3       # context frames fed to the world model (= training history_size)
+
+dataset:
+  stats: ${eval.dataset_name}
+  keys_to_cache:
+    - action
+    - state
+
+eval:
+  num_eval: 50
+  goal_offset_steps: 25
+  eval_budget: 50
+  img_size: 224
+  dataset_name: piecewise/random_grid_n_2_render_none_2222_heldout.h5
+  callables:
+    - method: _set_state
+      args:
+        state:
+          value: state
+    - method: _set_goal_state
+      args:
+        goal_state:
+          value: goal_state
+
+output:
+  filename: piecewise_results.txt

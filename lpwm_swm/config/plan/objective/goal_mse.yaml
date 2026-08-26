@@ -1,0 +1,3 @@
+_target_: stable_worldmodel.planning.GoalMSE
+# Last-step MSE between predicted_emb and goal_emb (reduction='sum'), the
+# behavior-preserving extraction of the old model-owned criterion.

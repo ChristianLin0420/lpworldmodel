@@ -1,0 +1,38 @@
+lpwm_swm — attribution
+======================
+
+This subpackage (the LpWM Piecewise / OGBench-Cube experiments) is built on and
+depends on **stable-worldmodel**, an MIT-licensed library by the GalilAI-group:
+
+    stable-worldmodel
+    Copyright (c) 2026 GalilAI-group
+    https://github.com/galilai-group/stable-worldmodel
+    Licensed under the MIT License.
+
+It also follows and ports code from **le-wm** (Lucas Maes) — the LpWM neural-module,
+loss, and predictor code here is adapted from it:
+
+    le-wm
+    Copyright (c) 2026 Lucas Maes
+    https://github.com/lucas-maes/le-wm
+    Licensed under the MIT License.
+
+What is used from stable-worldmodel (imported as a dependency, not vendored):
+  - the training/eval/planning infrastructure (World, EnvPool, WorldModelPolicy,
+    the planning ShootingCostEvaluator + Objective + solvers, the dataset/format
+    registry) and the `stable_pretraining` training loop;
+  - the **Piecewise** (`swm/Piecewise-v0`) and **OGBench-Cube** (`swm/OGBCube-v0`)
+    environments, which are upstream stable-worldmodel components (unmodified).
+
+What is original to this subpackage (the LpWM method):
+  - the `LpWM` world model (`model.py`), the sparse `RepReLU` link and the
+    predictor/projector blocks (`module.py`), and the `RDMReg`
+    regularizer (`loss.py`);
+  - the training/eval entry points and Hydra configs.
+
+The neural-module and loss code here is ported from the LpWM stable-worldmodel
+fork and re-wired to the public stable-worldmodel `Dynamics` / planning API.
+
+This subpackage is released under the same MIT license as the rest of this
+repository (see the top-level LICENSE). The full MIT copyright and permission
+notices for le-wm and stable-worldmodel are reproduced in the top-level NOTICE.

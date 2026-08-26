@@ -1,0 +1,3 @@
+_target_: models.infojepa_modules.SIGReg
+knots: 17
+num_proj: 1024

@@ -1,0 +1,8 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# P2 rung: action-conditioned LINEAR dynamics z_{t+1}=P(a)z_t with
+# P(a)=diag(d(a))+U(a)V(a)^T (per-action diagonal rescale + rank-r mixing). Linear in z;
+# only the current frame is used. input_dim/output_dim/num_frames/num_patches injected by
+# train.py. VWorldModel applies the link (relu) afterward -> z_{t+1}=relu(P(a)z_t).
+mode: action_linear
+rank: 16          # low-rank width r of the action-conditioned mixing (sweep me)
+act_hidden: 256   # hidden width of the small a->{d,U,V} MLPs

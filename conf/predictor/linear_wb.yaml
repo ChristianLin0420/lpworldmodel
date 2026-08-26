@@ -1,0 +1,4 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# P3 rung: FULLY linear dynamics z_{t+1}=W z_t + B a_t (single learned W, additive action).
+# The simplest predictor on the ladder. input_dim/output_dim/... injected by train.py.
+mode: additive

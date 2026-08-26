@@ -1,0 +1,13 @@
+dataset:
+  num_steps: ${eval:'${wm.num_preds} + ${wm.history_size}'}
+  frameskip: 5
+  # Collected with scripts/collect_piecewise.py (see lpwm_swm/README.md).
+  # Change this to point at a different collected grid_n / render variant.
+  name: piecewise/random_grid_n_2_render_none_2222_train.h5
+  keys_to_load:
+    - pixels
+    - action
+    - state
+  keys_to_cache:
+    - action
+    - state

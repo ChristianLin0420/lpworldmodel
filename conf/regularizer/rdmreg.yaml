@@ -1,0 +1,8 @@
+_target_: models.infojepa_modules.RDMReg
+# Unified target: sample zero-mean unit-variance Generalized Gaussian GN_p, then apply
+# the SAME link h(.) (identity/relu/reprelu) to form the target. So the link
+# (conf/link/) selects the family; target_p only sets the base shape.
+target_p: ${target_p}   # 2 -> Gaussian, 1 -> Laplace (mu=0, sigma auto = unit variance)
+num_projections: 8192
+agg: ${agg}             # SWD sample/batch layout: btp | b | bp | bt (see AGG_PATTERNS)
+mu: ${mu}                # target-mean shift (relu link): mu<0 -> sparser rectified code

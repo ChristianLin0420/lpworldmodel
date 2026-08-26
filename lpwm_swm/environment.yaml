@@ -1,0 +1,27 @@
+name: lpwm_swm
+# SEPARATE environment for lpwm_swm/ (Piecewise / OGBench-Cube on stable-worldmodel).
+# It is intentionally distinct from the main lpwm env (../environment.yaml): a different
+# torch (2.7.1 vs 2.3.0) and a different stack (stable-worldmodel / stable-pretraining +
+# gymnasium, vs DINO-WM + gym), so the two must NOT share one environment.
+#
+# System prerequisites (install on the host BEFORE `conda env create`; needed by the
+# mujoco EGL renderer, video IO, and the box2d build):
+#   Debian/Ubuntu:  sudo apt-get install -y libegl1 libopengl0 libgles2 libglib2.0-0 ffmpeg swig git
+#
+# stable-worldmodel is installed from upstream git, NOT PyPI: the 0.1.1 PyPI release
+# predates the `stable_worldmodel.planning` module that lpwm_swm/eval.py imports. The
+# commit below is the known-good upstream `main` this code was developed and validated against.
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      # torch/torchvision pinned to the versions lpwm_swm was validated on. If you need a
+      # specific CUDA build, install torch first from https://pytorch.org, then run the
+      # stable-worldmodel line below with `--no-deps`-friendly constraints.
+      - torch==2.7.1
+      - torchvision==0.22.1
+      # stable-worldmodel[train,env,format] pulls stable-pretraining, the env deps
+      # (mujoco / gymnasium / box2d), and the dataset format backends (hdf5 / lance).
+      - "stable-worldmodel[train,env,format] @ git+https://github.com/galilai-group/stable-worldmodel.git@addbab40377da680dadbfbc90250fe749f6f57e3"

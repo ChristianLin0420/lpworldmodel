@@ -1,0 +1,10 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# NONLINEAR-READOUT VAR rung: z_{t+1} = W ReLU(sum_{k=0}^{H-1} A_k z_{t-k} + B a_t), a 1-hidden-layer
+# MLP on the history-aware linear (VAR) features (H = num_frames = num_hist, injected by train.py).
+# The nonlinear CORE (W ReLU(.)) is SHARED by dense & sparse -- only the output link differs (identity
+# vs reprelu) -- so the dense/sparse comparison is complexity-matched (fixes `linear_var`, where sparse
+# secretly gets a RepReLU nonlinearity dense lacks). Sits between `linear_var` (fully linear) and P1
+# (attention) on the predictor-complexity ladder. NON-identity init: muP fan_in-scaled N(0, 1/sqrt(D))
+# (the inner ReLU precludes a clean identity map on a signed code). input_dim / output_dim / num_frames
+# / num_patches injected by train.py.
+mode: mlp_var

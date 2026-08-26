@@ -1,0 +1,9 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# P3-VAR rung: history-aware LINEAR dynamics  z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k} + B a_t
+# over the num_hist causal lags (H = num_frames = num_hist, injected by train.py). A first-order
+# linear system on the stacked history [z_t..z_{t-H+1}] (state-augmentation) -> can capture 2nd-order
+# dynamics (velocity via z_t,z_{t-1}). The fair linear analog of the transformer's num_hist window for
+# envs where one frame is not a Markov-sufficient state (pusht: velocity). CAUSAL: rollout cold-start
+# (T<H) drops the missing lags, mirroring the transformer's min(num_hist,L). H=1 -> exactly Wz+Ba (wall).
+# input_dim / output_dim / num_frames / num_patches injected by train.py.
+mode: var

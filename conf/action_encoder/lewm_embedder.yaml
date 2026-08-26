@@ -1,0 +1,3 @@
+_target_: models.infojepa_modules.Embedder
+# in_chans / emb_dim are injected by train.py (action_dim, action_emb_dim)
+mlp_scale: 4

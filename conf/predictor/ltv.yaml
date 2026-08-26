@@ -1,0 +1,12 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# DATA-DEPENDENT linear-time-varying VAR + nonlinear readout:
+#   z_{t+1} = W ReLU( sum_{k=0}^{H-1} A_k(z_t) z_{t-k} + B(z_t) a_t )
+# with A_k(z_t) = A_k + U_k( g_k(z_t) ⊙ (V_k^T ·) ), B(z_t) similarly, g(z_t)=sigmoid(gate·z_t)∈R^r.
+# The state z_t only produces a small gate vector (never a matrix); the gate selects among r fixed
+# low-rank "modes" -> genuine input-dependent dynamics at O(D·r) cost,
+# no D^3. `rank` = r = number of state-selected modes. Up-projections U are zero-inited (LoRA-style) so
+# the predictor starts EXACTLY as mlp_var and learns the LTV from there. Shared nonlinear core (W ReLU)
+# across dense & sparse -> only the output link differs (complexity-matched). H = num_frames = num_hist,
+# input_dim/output_dim/num_patches injected by train.py.
+mode: ltv
+rank: 16

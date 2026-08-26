@@ -1,0 +1,14 @@
+_target_: models.infojepa_modules.ARPredictor
+# P1 rung of the predictor-complexity ladder (docs/sparsity_linear_dynamics.md): a DEPTH-1
+# AdaLN transformer -- the minimal nonlinear rung, one attention+MLP block with AdaLN-zero
+# action conditioning, sitting just above the fully-linear P3 (Wz+Ba) and below P0 (depth-6).
+# input_dim/hidden_dim/output_dim/num_frames/num_patches injected by train.py (all == encoder
+# emb_dim). head=mlp (dense pred_proj); the VWorldModel link (reprelu for the sparse arm) is
+# applied afterward.
+depth: 1
+heads: 16
+mlp_dim: 2048
+dim_head: 64
+dropout: 0.1
+emb_dropout: 0.0
+pred_proj_hidden: 2048

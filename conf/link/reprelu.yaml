@@ -1,0 +1,5 @@
+_target_: models.infojepa_modules.Link
+# reprelu: relu(u) on the forward pass (exact zeros, sparse), GELU gradient on the backward
+# so thresholded/zeroed coordinates keep receiving gradient (vs plain relu's dead zero region).
+# Same rectified representation space as `relu` -> pairs with the rectified-GG target (relu(dist(mu,sigma))).
+kind: reprelu

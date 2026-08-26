@@ -1,0 +1,87 @@
+defaults:
+  - _self_
+  - env: pusht
+  - encoder: vit_scratch
+  - action_encoder: lewm_embedder
+  - proprio_encoder: proprio   # instantiated but unused in the adaln path
+  - decoder: vqvae             # not built (has_decoder: False)
+  - predictor: ar_adaln
+  - regularizer: sigreg
+  - override hydra/launcher: submitit_slurm
+
+# base path to save model outputs. Checkpoints will be saved to ${ckpt_base_path}/outputs.
+ckpt_base_path: ./ # put absolute path here
+
+hydra:
+  run:
+    dir: ${ckpt_base_path}/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${ckpt_base_path}/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+    nodes: 1
+    tasks_per_node: 1
+    cpus_per_task: 8
+    mem_gb: 512
+    gres: "gpu:h100:1"
+    timeout_min: 2880
+    setup: ["export DEBUGVAR=$(scontrol show hostnames $SLURM_JOB_NODELIST)",
+            export MASTER_ADDR="$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)",
+            "export MASTER_PORT=$(for port in $(shuf -i 30000-65500 -n 20); do if [[ $(netstat -tupln 2>&1 | grep $port | wc -l) -eq 0 ]] ; then echo $port; break; fi; done;)",]
+
+training:
+  seed: 0
+  epochs: 100
+  batch_size: 32 # should >= nodes * tasks_per_node
+  save_every_x_epoch: 1
+  reconstruct_every_x_batch: 500
+  num_reconstruct_samples: 6
+  encoder_lr: 5e-5      # from-scratch encoder (LeWM uses a single AdamW lr=5e-5)
+  decoder_lr: 3e-4      # unused (has_decoder: False)
+  predictor_lr: 5e-5
+  action_encoder_lr: 5e-5
+
+img_size: 224 # should be a multiple of 224
+frameskip: 5
+concat_dim: 0       # irrelevant for adaln (actions conditioned via AdaLN, not concatenated)
+embed_dim: 384      # ViT-tiny latent / projector output dim
+
+normalize_action: True
+
+# --- LeWM (adaln) settings ---
+action_conditioning: adaln  # "concat" (DINO-WM) or "adaln" (LeWM)
+reg_weight: 0.09            # SIGReg weight (lambda)
+detach_target: False       # no stop-grad: target embeddings receive gradient
+
+# action encoder (Embedder); emb_dim must equal embed_dim for adaln conditioning
+action_emb_dim: 384
+num_action_repeat: 1
+
+# proprio encoder (unused in adaln)
+proprio_emb_dim: 10
+num_proprio_repeat: 1
+
+num_hist: 3
+num_pred: 1 # only supports 1
+has_predictor: True
+has_decoder: False  # LeWM is decoder-free (pure latent)
+
+model:
+  _target_: models.visual_world_model.VWorldModel
+  image_size: ${img_size}
+  num_hist: ${num_hist}
+  num_pred: ${num_pred}
+  train_encoder: True
+  train_predictor: True
+  train_decoder: False
+
+debug: False
+
+# Planning params for planning eval jobs launched during training
+plan_settings:
+  plan_cfg_path: null
+  planner: ['gd', 'cem']
+  goal_source: ['dset', 'random_state']
+  goal_H: [5]
+  alpha: [0.1, 1]

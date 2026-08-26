@@ -1,0 +1,46 @@
+LpWM — Third-Party Notices
+==========================
+
+LpWM is released under the MIT License (see ./LICENSE). It incorporates, is
+derived from, or depends on the following third-party components, each licensed
+under the MIT License. Their copyright notices are reproduced below, and the MIT
+permission notice that follows applies to all of them, as that license requires.
+
+  - DINO-WM              Copyright (c) 2025 gaoyuezhou
+                         https://github.com/gaoyuezhou/dino_wm
+                         The top-level training / planning infrastructure (Hydra
+                         configs, model stack, datasets, planners, environments)
+                         is derived from DINO-WM.
+
+  - le-wm                Copyright (c) 2026 Lucas Maes
+                         https://github.com/lucas-maes/le-wm
+                         The lpwm_swm/ neural-module, loss, and predictor code is
+                         adapted / ported from le-wm.
+
+  - stable-worldmodel    Copyright (c) 2026 GalilAI-group
+                         https://github.com/galilai-group/stable-worldmodel
+                         lpwm_swm/ depends on stable-worldmodel (imported as a
+                         dependency, not vendored); listed here for attribution.
+
+See also lpwm_swm/NOTICE for the attribution specific to that subpackage.
+
+--------------------------------------------------------------------------------
+MIT License (applies to each component listed above)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
