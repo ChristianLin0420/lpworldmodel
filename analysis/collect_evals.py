@@ -35,10 +35,68 @@ from analysis import figures as FG  # noqa: E402
 from analysis import panels as P  # noqa: E402
 
 #: plan_outputs dir name: "<YYYYmmddHHMMSS>_<RUN_NAME>_gH<goal_H>"
-_DIR = re.compile(r"^\d{8,}_(?P<run>.+)_gH(?P<gh>\d+)$")
+_DIR = re.compile(r"^(?P<stamp>\d{8,})_(?P<run>.+)_gH(?P<gh>\d+)$")
 
 #: The metric the gates are defined on. NOT "mpc/success_rate" -- see module docstring.
 SUCCESS_KEY = "final_eval/success_rate"
+
+#: plan.py:134 used to build eval_seed as [seed*n + 1 for n in range(n_evals)], which
+#: DEGENERATES at seed 0 to [1]*n_evals -- all 50 "episodes" were one initial condition,
+#: so a seed-0 number measured planner stochasticity on a single task instance rather
+#: than a 50-episode success rate. It also made the episode SETS differ per seed
+#: ([1..50] for seed 1, [1,3,5,...] for seed 2), so eval noise was not common-mode and
+#: did not cancel in a paired difference. Fixed in 49a3e55 to disjoint blocks.
+#:
+#: Evals from before that commit are therefore on a DIFFERENT measurement instrument
+#: and must not be pooled with later ones.
+#:
+#: GROUND TRUTH is the `eval_seed: [...]` line every planning job prints, recovered
+#: from slurm_logs/: post-fix runs start at seed*n_evals+1 (s3 -> 151, s10 -> 501),
+#: pre-fix runs always start at 1. Two weaker rules were tried and both misclassify:
+#:   * the <YYYYmmddHHMMSS> in the plan_outputs dir name is written in a different
+#:     timezone from git and stat (a dir stamped 151403 has mtime 22:14:04, a 7h
+#:     offset), so comparing it to a commit time marks EVERY run as pre-fix;
+#:   * logs.json mtime marks 6 runs wrong -- sparse-matched s0-2 and LeWM-ltv s0-2
+#:     STARTED before the fix and FINISHED after it, so they wrote a post-fix mtime
+#:     while actually running the degenerate eval_seed.
+#: mtime is kept only as a fallback for runs whose slurm log has been rotated away.
+EVAL_SCHEME_FIX_EPOCH = 1788275140.0   # 49a3e55, 2026-09-01 16:05:40 local
+_SLURM_TRUTH = None
+
+
+def _slurm_scheme_table(slurm_logs="slurm_logs"):
+    """{run_name: 'fixed'|'buggy'} from the eval_seed line each job prints."""
+    global _SLURM_TRUTH
+    if _SLURM_TRUTH is not None:
+        return _SLURM_TRUTH
+    table = {}
+    for f in Path(slurm_logs).glob("eval_*.out"):
+        run = re.sub(r"_\d+\.out$", "", f.name)[len("eval_"):]
+        try:
+            seed = int(run.rsplit("_s", 1)[-1])
+        except ValueError:
+            continue
+        try:
+            line = next(l for l in f.open() if l.startswith("eval_seed:"))
+            seeds = json.loads(line.split(":", 1)[1].strip())
+        except Exception:
+            continue
+        # a run whose 2nd episode seed is seed*50+2 used the disjoint-block scheme
+        if len(seeds) > 1:
+            table[run] = "fixed" if seeds[1] == seed * len(seeds) + 2 else "buggy"
+    _SLURM_TRUTH = table
+    return table
+
+
+def eval_scheme(run, log_path):
+    """'fixed' if this eval ran on the repaired eval_seed, else 'buggy'."""
+    hit = _slurm_scheme_table().get(run)
+    if hit is not None:
+        return hit
+    try:
+        return "fixed" if Path(log_path).stat().st_mtime >= EVAL_SCHEME_FIX_EPOCH else "buggy"
+    except OSError:
+        return "buggy"
 
 
 def read_logs(path):
@@ -67,8 +125,13 @@ def final_success(records, key=SUCCESS_KEY):
     return None
 
 
-def collect(plan_outputs="plan_outputs", key=SUCCESS_KEY):
-    """{arm: {seed: success}} plus the per-run detail, newest eval per run winning."""
+def collect(plan_outputs="plan_outputs", key=SUCCESS_KEY, scheme="fixed"):
+    """{arm: {seed: success}} plus the per-run detail, newest eval per run winning.
+
+    `scheme` selects the eval instrument: "fixed" (default, the only one valid for a
+    paired test), "buggy" (historical, seed 0 degenerate), or "all" (do NOT use for
+    inference -- it pools two different measurement instruments).
+    """
     arms, detail, pending = {}, {}, []
     for d in sorted(Path(plan_outputs).glob("*")):
         m = _DIR.match(d.name)
@@ -78,6 +141,9 @@ def collect(plan_outputs="plan_outputs", key=SUCCESS_KEY):
         log = d / "logs.json"
         if not log.exists():
             pending.append(run)
+            continue
+        sch = eval_scheme(run, log)
+        if scheme != "all" and sch != scheme:
             continue
         recs = read_logs(log)
         s = final_success(recs, key)
@@ -90,7 +156,7 @@ def collect(plan_outputs="plan_outputs", key=SUCCESS_KEY):
         # sorted() puts the newest timestamp last, so a re-run overwrites an older one
         arms.setdefault(arm, {})[str(seed)] = s
         detail[run] = {"success": s, "goal_H": int(m.group("gh")), "dir": str(d),
-                       "n_records": len(recs)}
+                       "n_records": len(recs), "eval_scheme": sch}
     return arms, detail, sorted(set(pending))
 
 
@@ -130,9 +196,16 @@ def main(argv=None):
                     help="metric the gates are defined on (default: %(default)s)")
     ap.add_argument("--threshold", type=float, default=0.0,
                     help="pre-registered gate threshold on the paired effect")
+    ap.add_argument("--scheme", default="fixed", choices=("fixed", "buggy", "all"),
+                    help="which eval instrument to report (default: %(default)s). "
+                         "'all' pools pre- and post-49a3e55 evals and is not valid "
+                         "for inference.")
     a = ap.parse_args(argv)
 
-    arms, detail, pending = collect(a.plan_outputs, a.key)
+    arms, detail, pending = collect(a.plan_outputs, a.key, a.scheme)
+    if a.scheme == "all":
+        print("WARNING --scheme=all pools two different eval instruments "
+              "(see EVAL_SCHEME_FIX); paired tests over it are not valid.\n")
     if not arms:
         print(f"no completed evals under {a.plan_outputs}/ "
               f"(looked for '{a.key}' in each logs.json)")
