@@ -1,0 +1,86 @@
+{
+  "arms": {
+    "LpWM-ltv": {
+      "0": 0.52,
+      "1": 0.0,
+      "2": 0.38
+    },
+    "PiWM-gate-sup-sigmoid": {
+      "0": 0.4,
+      "1": 0.02,
+      "2": 0.24
+    },
+    "PiWM-gate-sup-softmax": {
+      "1": 0.0,
+      "2": 0.14,
+      "0": 0.3
+    },
+    "PiWM-union4-entropy": {
+      "1": 0.06,
+      "0": 0.0,
+      "2": 0.02
+    },
+    "PiWM-gate-mag-softmax": {
+      "0": 0.44,
+      "1": 0.04,
+      "2": 0.24
+    },
+    "PiWM-union4": {
+      "1": 0.0,
+      "2": 0.06,
+      "0": 0.0
+    }
+  },
+  "gates": [
+    {
+      "name": "Support gating: PiWM-gate-sup-sigmoid vs LpWM-ltv",
+      "arm": "PiWM-gate-sup-sigmoid",
+      "observed": -0.08,
+      "lo": -0.2965795838331336,
+      "hi": 0.13657958383313362,
+      "threshold": 0.0,
+      "direction": "above",
+      "n": 3
+    },
+    {
+      "name": "Support gating: PiWM-gate-sup-softmax vs LpWM-ltv",
+      "arm": "PiWM-gate-sup-softmax",
+      "observed": -0.15333333333333335,
+      "lo": -0.48416411229912293,
+      "hi": 0.1774974456324562,
+      "threshold": 0.0,
+      "direction": "above",
+      "n": 3
+    },
+    {
+      "name": "Support gating: PiWM-gate-mag-softmax vs LpWM-ltv",
+      "arm": "PiWM-gate-mag-softmax",
+      "observed": -0.060000000000000005,
+      "lo": -0.2876933578302187,
+      "hi": 0.16769335783021871,
+      "threshold": 0.0,
+      "direction": "above",
+      "n": 3
+    },
+    {
+      "name": "Union head: PiWM-union4-entropy vs LpWM-ltv",
+      "arm": "PiWM-union4-entropy",
+      "observed": -0.2733333333333334,
+      "lo": -1.017529826412353,
+      "hi": 0.4708631597456861,
+      "threshold": 0.0,
+      "direction": "above",
+      "n": 3
+    },
+    {
+      "name": "Union head: PiWM-union4 vs LpWM-ltv",
+      "arm": "PiWM-union4",
+      "observed": -0.28,
+      "lo": -0.9316358029860955,
+      "hi": 0.37163580298609544,
+      "threshold": 0.0,
+      "direction": "above",
+      "n": 3
+    }
+  ]
+}
