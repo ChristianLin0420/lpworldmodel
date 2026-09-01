@@ -103,6 +103,63 @@ wave2_arms() {
     ARMS[PiWM-union4-kwta8]="ltv 1.0 5e-4 N_HEADS=4 KWTA_K=${K}"
 }
 
+# wave3: the HIGH-POWER gate round. Exactly three arms -- the control, the Step 3
+# proposal, and its repair -- so a paired contrast is available on one substrate.
+#
+# Deliberately NOT ORDER[gate]: that has four arms, so running it at extra seeds
+# would also submit PiWM-gate-sup-sigmoid, which nothing here asks about.
+#
+# PiWM-gate-both feeds the gate [z ; 1[z>0]] -- support AND magnitude. Step 3 gates
+# on 1[z>0] alone, which is a deterministic function of z, so by the data-processing
+# inequality I(supp;Y) <= I(z;Y): support gating is bounded ABOVE by magnitude gating
+# and can only win as an inductive bias. Measured on trained codes, binarising
+# discards 76% of per-unit bits and keeps 63% of the one-step predictive information.
+# "both" makes the gate input a strict SUPERSET, removing that bound.
+wave3_arms() {
+    ORDER[wave3]="LpWM-ltv PiWM-gate-sup-softmax PiWM-gate-mag-softmax PiWM-gate-both"
+    ARMS[LpWM-ltv]="ltv 1.0 5e-4"
+    ARMS[PiWM-gate-sup-softmax]="ltv 1.0 5e-4 GATE_INPUT=support GATE_NORM=softmax"
+    # The magnitude@softmax cell. gate-both is (both + softmax) but the control
+    # LpWM-ltv is (magnitude + sigmoid), so "both vs control" confounds the gate_input
+    # repair with the -0.067 softmax nuisance. With this arm the ladder is
+    # support -> magnitude -> both at FIXED normalisation, and (both - mag) isolates
+    # the only open question: does the support add value once it costs nothing?
+    ARMS[PiWM-gate-mag-softmax]="ltv 1.0 5e-4 GATE_NORM=softmax"
+    ARMS[PiWM-gate-both]="ltv 1.0 5e-4 GATE_INPUT=both GATE_NORM=softmax"
+}
+
+# wave4: does preventing code death rescue the union head? PiWM-union4 ends at
+# rho=0.0000 / effective_dim 0.0 because min_j L_j admits z==0 as a GLOBAL optimum
+# (every head is then exactly right). No aggregator change removes that -- min, mean
+# and softmin are all 0 there -- so the repair has to make a dead code expensive.
+#
+# var_gamma=0.2 is calibrated, not the VICReg default: healthy per-dim std(z) here is
+# 0.45-0.49, so gamma=1.0 would be always-on at full strength and would rescale the
+# code rather than floor it, turning the control into a different model.
+# VAR_SPACE=z is load-bearing: on pre-link u an all-negative code still has full
+# spread, so the floor is SATISFIED by exactly the failure it must prevent.
+wave4_arms() {
+    ORDER[wave4]="LpWM-ltv-vfloor PiWM-union4-vfloor PiWM-kwta8-J1"
+    ARMS[LpWM-ltv-vfloor]="ltv 1.0 5e-4 LAMB_VAR=1.0 VAR_GAMMA=0.2 VAR_SPACE=z"
+    ARMS[PiWM-union4-vfloor]="ltv 1.0 5e-4 N_HEADS=4 LAMB_VAR=1.0 VAR_GAMMA=0.2 VAR_SPACE=z"
+    # J=1 + ltv + k-WTA(k=8): the control that never existed. Without it,
+    # PiWM-union4-kwta8 = 0.00 is fully explained by the k-WTA main effect and
+    # attributes NOTHING to the union head.
+    ARMS[PiWM-kwta8-J1]="ltv 1.0 5e-4 KWTA_K=8"
+}
+
+# wave5 (run with PROJ_D=2048): the SDR-regime test. PiWM-sparse-2pct put k-WTA at 2%
+# of D=384 -> w=8 active units at n=384, which is outside Numenta's viable SDR band
+# (n=2048-10000, w=10-40) on BOTH axes. "Sparsity hurts" was therefore never measured
+# on an actual SDR. At D=2048, 2% gives w=41 -- in band. LpWM-ltv-d2048 is the dense
+# control that separates width from sparsity.
+wave5_arms() {
+    local K; K=$(python -c "print(round(0.02*${PROJ_D}))")
+    ORDER[wave5]="LpWM-ltv-d${PROJ_D} PiWM-sdr-d${PROJ_D}-k${K}"
+    ARMS[LpWM-ltv-d${PROJ_D}]="ltv 1.0 5e-4"
+    ARMS[PiWM-sdr-d${PROJ_D}-k${K}]="ltv 1.0 5e-4 KWTA_K=${K}"
+}
+
 submit_arm() {  # $1 = arm name, $2 = seed
     local arm=$1 seed=$2
     read -r pred rw mlr extra <<< "${ARMS[$arm]}"
@@ -122,6 +179,14 @@ submit_arm() {  # $1 = arm name, $2 = seed
         # no GPU. plan_slurm.sbatch gives it a real allocation.
         if squeue -u "${USER}" -h -o "%j" 2>/dev/null | grep -q "^eval_${run}$"; then
             echo "  eval in flight already, skipping: ${run}"
+            return
+        fi
+        # Already evaluated? The DONE sentinel says training finished, NOT that the
+        # eval ran. Without this, a blanket `EVAL=1 run_campaign.sh <gate>` resubmits
+        # completed evals, and collect_evals.py (sorted(), newest-timestamp-wins)
+        # silently REPLACES the recorded success rate with a fresh noisy draw.
+        if compgen -G "plan_outputs/*_${run}_gH*/logs.json" >/dev/null 2>&1; then
+            echo "  already evaluated, skipping: ${run}"
             return
         fi
         echo "  eval ${run}"
@@ -165,7 +230,10 @@ for gate in "$@"; do
         gate|step3)   gate_arms;   gate=gate   ;;
         union|step4)  union_arms;  gate=union  ;;
         wave2)        wave2_arms;  gate=wave2  ;;
-        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2)" >&2; exit 1 ;;
+        wave3)        wave3_arms;  gate=wave3  ;;
+        wave4)        wave4_arms;  gate=wave4  ;;
+        wave5)        wave5_arms;  gate=wave5  ;;
+        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2|wave3|wave4|wave5)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do

@@ -112,6 +112,23 @@ ARM_SPEC = {
     # Step 2 x Step 4: a union head at k-WTA sparsity. Green family (union head) with
     # a distinct marker+dash, because its two lightness steps are already spoken for.
     "PiWM-union4-kwta8": ("green",   1, "^", True),
+    # Wave 3. gate-both feeds [z ; 1[z>0]] -- the information-lossless gate. Magenta
+    # (support-gating family) at the darker step, square marker: it is the repair of
+    # the two magenta variants above, not a third variant of them.
+    "PiWM-gate-both":    ("magenta", 1, "s", False),
+    # Wave 4. Variance-floor arms. LpWM-ltv-vfloor is a CONTROL (below): it exists to
+    # show the floor does nothing to a healthy code, so it must stay neutral.
+    "LpWM-ltv-vfloor":   (None,      0, "P", False),
+    "PiWM-union4-vfloor": ("green",  0, "s", False),
+    # J=1 + ltv + k-WTA: the control that was missing under union4-kwta8, without which
+    # that arm's 0.00 is fully explained by the k-WTA main effect and attributes
+    # nothing to the union. Blue (k-WTA family), since that is the factor it isolates.
+    "PiWM-kwta8-J1":     ("blue",    1, "D", False),
+    # Wave 5, D=2048: k-WTA at 2% gives w=41 active units, inside Numenta's SDR band
+    # (n=2048-10000, w=10-40). The D=384 sparse arms sat at w=8, OUTSIDE it on both
+    # axes -- so "sparsity hurts" was never measured on an actual SDR.
+    "LpWM-ltv-d2048":    (None,      0, "X", False),
+    "PiWM-sdr-d2048-k41": ("blue",   0, "*", False),
 }
 
 #: Human-readable family label, for legends and facet headers.
@@ -122,7 +139,10 @@ FAMILY_LABEL = {None: "baseline (LpWM)", "blue": "sparse codes (k-WTA)",
 #: neutral rather than hued: a control is context you read a variant against, and
 #: demoting them is what leaves enough separable palette for the variants. "LeWM-ltv"
 #: is here because the dense baseline is a reference too, not a PiWM intervention.
-CONTROL_ARMS = ("LpWM-base", "LpWM-ltv", "LeWM-ltv")
+CONTROL_ARMS = ("LpWM-base", "LpWM-ltv", "LeWM-ltv",
+                # matched controls for the wave-4/5 interventions: each exists only to
+                # isolate its variant's one changed factor, so it is drawn neutral.
+                "LpWM-ltv-vfloor", "LpWM-ltv-d2048")
 
 #: How many series may share one axis before hue stops working. Derived: three
 #: lightness steps of a single family measure dE 12.9 against normal vision, under

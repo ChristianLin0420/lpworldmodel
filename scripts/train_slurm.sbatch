@@ -52,6 +52,29 @@ fi
 cd "${REPO}"
 mkdir -p slurm_logs
 
+# Campaign defaults + a guard against the run name LYING about the substrate.
+#
+# run_campaign.sh exports PRECISION/WANDB_PROJECT and builds the run name as
+# "<arm>_pd<D>_${PRECISION}_s<seed>". Calling submit_until_done.sh (or this file)
+# DIRECTLY bypasses that, so on 2026-09-01 a hand-rolled loop submitted 42 runs
+# with neither exported: train.sh:72 omitted precision=, hydra fell back to its
+# "no" default (fp32), wandb_project stayed null -- and every directory was still
+# named "_bf16_" because the caller hardcoded that token. Two substrates, one
+# naming scheme, invisible in squeue and in the run dirs.
+#
+# Defaulting here makes a direct call behave like the campaign; the assert makes a
+# mismatch fail LOUDLY at submit rather than 7 hours later in the analysis.
+export PRECISION=${PRECISION:-bf16}
+export WANDB_PROJECT=${WANDB_PROJECT:-PiWM-pushT}
+if [ -n "${RUN_NAME:-}" ] && [ "${RUN_NAME}" != "${RUN_NAME/_${PRECISION}_/}" ] ; then
+    :   # name carries the active precision -- consistent
+elif [ -n "${RUN_NAME:-}" ]; then
+    echo "ERROR: RUN_NAME='${RUN_NAME}' does not contain '_${PRECISION}_'." >&2
+    echo "       The directory name would misreport the substrate. Set PRECISION to match" >&2
+    echo "       the name, or rename the run." >&2
+    exit 1
+fi
+
 # secrets + paths (WANDB_API_KEY, HF_TOKEN, DATASET_DIR, CKPT_BASE, LPWM_CONDA_ENV)
 if [ -f "${REPO}/.env" ]; then
     set -a; . "${REPO}/.env"; set +a
