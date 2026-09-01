@@ -8,3 +8,4 @@ _target_: models.infojepa_modules.LinearDynamicsPredictor
 # (the inner ReLU precludes a clean identity map on a signed code). input_dim / output_dim / num_frames
 # / num_patches injected by train.py.
 mode: mlp_var
+n_heads: ${oc.select:n_heads,1}   # Step 4: union-head count (1 = upstream)

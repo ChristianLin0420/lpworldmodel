@@ -102,9 +102,12 @@ class PlanEvaluator:  # evaluator for planning
             self.preprocessor.transform_obs(self.obs_g), self.device
         )
         with torch.no_grad():
+            # same goal-conditioned head selection the planner used, so the
+            # reported wm rollout matches the one the actions were chosen under
             i_z_obses, _ = self.wm.rollout(
                 obs_0=trans_obs_0,
                 act=actions,
+                z_goal=self.wm.encode_obs_linked(trans_obs_g)["visual"],
             )
         i_final_z_obs = self._get_trajdict_last(i_z_obses, action_len + 1)
 

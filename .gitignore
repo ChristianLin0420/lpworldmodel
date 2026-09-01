@@ -79,6 +79,14 @@ venv.bak/
 # environment for planning
 !env/
 
+# Run outputs (outputs/ and wandb/ are already covered below). Checkpoints are
+# ~167 MB each and run dirs also hold rollout plots and the analysis npz.
+runs/
+slurm_logs/
+figures/
+analysis_step1.json
+analysis_step1.npz
+
 # mypy / pyre / pytype
 .mypy_cache/
 .dmypy.json

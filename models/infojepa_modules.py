@@ -433,6 +433,9 @@ class LinearDynamicsPredictor(nn.Module):
         mode="action_linear",
         rank=16,
         act_hidden=256,
+        gate_input="magnitude",
+        gate_norm="sigmoid",
+        n_heads=1,
         **kwargs,
     ):
         super().__init__()
@@ -440,8 +443,15 @@ class LinearDynamicsPredictor(nn.Module):
         out = output_dim or input_dim
         assert out == D, f"linear predictor assumes output_dim==input_dim (code space), got {out} vs {D}"
         assert mode in {"action_linear", "additive", "var", "mlp_var", "ltv"}, f"mode {mode} not supported"
+        assert gate_input in {"magnitude", "support"}, f"gate_input {gate_input} not supported"
+        assert gate_norm in {"sigmoid", "softmax"}, f"gate_norm {gate_norm} not supported"
         self.mode = mode
         self.rank = rank
+        # Step 3, ltv only. Factorized deliberately: the original single flag changed
+        # the gate's INPUT and its NORMALIZATION at the same time, so a result could
+        # not be attributed to either. (magnitude, sigmoid) == upstream.
+        self.gate_input = gate_input
+        self.gate_norm = gate_norm
         if mode == "additive":  # LTI(1): z' = W z + B a
             self.W = nn.Linear(D, D, bias=True)
             self.B = nn.Linear(D, D, bias=False)   # action embedding has dim D (adaln)
@@ -493,6 +503,95 @@ class LinearDynamicsPredictor(nn.Module):
             nn.init.zeros_(self.to_d[-1].weight); nn.init.ones_(self.to_d[-1].bias)
             nn.init.zeros_(self.to_uv[-1].weight); nn.init.zeros_(self.to_uv[-1].bias)
 
+        # Step 4, union head. Head 0 keeps the existing `W` (and `B`) attribute names and
+        # the extras live in a separate ModuleList, so at n_heads=1 nothing is added and
+        # the state dict stays byte-identical to upstream.
+        self.n_heads = n_heads
+        if n_heads > 1:
+            if mode in {"mlp_var", "ltv"}:
+                self.W_heads = nn.ModuleList(
+                    [nn.Linear(D, D, bias=True) for _ in range(n_heads - 1)]
+                )
+                for lin in self.W_heads:
+                    nn.init.normal_(lin.weight, mean=0.0, std=D ** -0.5)
+                    nn.init.zeros_(lin.bias)
+            elif mode == "additive":
+                # LTI(1) is z' = W z + B a and has NO trunk -- W *is* the predictor. So
+                # J heads here is J copies of (W_j, B_j), i.e. a switching linear system:
+                # a different and strictly stronger model than "J readouts on a shared
+                # trunk". Step 4 results on this rung must be read with that in mind.
+                self.W_heads = nn.ModuleList(
+                    [nn.Linear(D, D, bias=True) for _ in range(n_heads - 1)]
+                )
+                self.B_heads = nn.ModuleList(
+                    [nn.Linear(D, D, bias=False) for _ in range(n_heads - 1)]
+                )
+                for lin in self.W_heads:
+                    nn.init.eye_(lin.weight)
+                    nn.init.zeros_(lin.bias)
+                for lin in self.B_heads:
+                    nn.init.zeros_(lin.weight)
+            else:
+                raise ValueError(f"n_heads>1 not supported for mode={mode}")
+
+    def _trunk(self, x, c):
+        """Pre-readout core for mlp_var / ltv: the value fed to ReLU then W."""
+        B, T, P, D = x.shape
+        if self.mode == "mlp_var":
+            u = self.lags[0](x)
+            for k in range(1, self.n_lags):
+                if k >= T:
+                    break
+                xk = self.lags[k](x[:, : T - k])
+                u = u + torch.cat([x.new_zeros(B, k, P, D), xk], dim=1)
+            return u + self.B(c).unsqueeze(2)
+
+        g = self.gates(x)                            # ltv: gates g(z_t) from this frame
+        core = self.lags[0](x) + self.Ulag[0](g[..., 0, :] * self.Vlag[0](x))
+        for k in range(1, self.n_lags):
+            if k >= T:
+                break                                # z_{t-k} unavailable (cold-start)
+            xk = x[:, : T - k]                       # z_{t-k} feeds output positions [k:]
+            base_k = self.lags[k](xk)                # A_k z_{t-k}
+            corr_k = self.Ulag[k](g[:, k:, :, k, :] * self.Vlag[k](xk))
+            core = core + torch.cat([x.new_zeros(B, k, P, D), base_k + corr_k], dim=1)
+        corr_B = self.UB(g[..., self.n_lags, :] * self.VB(c).unsqueeze(2))
+        return core + self.B(c).unsqueeze(2) + corr_B
+
+    def forward_heads(self, x, c):
+        """(J,B,T,P,D): every head's PRE-link output. Index 0 equals forward(x, c)."""
+        if self.mode in {"mlp_var", "ltv"}:
+            core = torch.relu(self._trunk(x, c))
+            outs = [self.W(core)] + [Wj(core) for Wj in self.W_heads]
+        elif self.mode == "additive":
+            Ba = self.B(c).unsqueeze(2)
+            outs = [self.W(x) + Ba] + [
+                Wj(x) + Bj(c).unsqueeze(2)
+                for Wj, Bj in zip(self.W_heads, self.B_heads)
+            ]
+        else:
+            raise ValueError(f"n_heads>1 not supported for mode={self.mode}")
+        return torch.stack(outs, dim=0)
+
+    def gates(self, x):
+        """LTV mode selectors g(z_t), shaped (B,T,P,n_lags+1,r).
+
+        gate_input="support" feeds the binary support s_t = 1[z_t > 0] instead of z_t,
+        making the gate exactly invariant to any support-preserving rescaling of the
+        code. Note RDMReg already pins z's scale, so the defensible claim for this is
+        inductive bias, not identifiability.
+        """
+        B, T, P, _ = x.shape
+        src = (x > 0).to(x.dtype) if self.gate_input == "support" else x
+        logits = self.gate(src).view(B, T, P, self.n_lags + 1, self.rank)
+        if self.gate_norm == "softmax":
+            # r * softmax, not bare softmax: softmax over r modes has mean 1/r
+            # (0.0625 at r=16) against sigmoid's ~0.5. That ~8x shrink of the
+            # U_k(g * V_k z) gradient path is, at EPOCHS=2, indistinguishable from
+            # "support gating is worse". The r factor sets mean gate magnitude to 1.
+            return self.rank * torch.softmax(logits, dim=-1)
+        return torch.sigmoid(logits)
+
     def forward(self, x, c):
         """x: (B,T,P,D) codes; c: (B,T,D) action embeddings -> (B,T,P,D)."""
         B, T, P, D = x.shape
@@ -504,30 +603,11 @@ class LinearDynamicsPredictor(nn.Module):
                 xk = self.lags[k](x[:, : T - k])        # lag-k on frames [0 .. T-1-k]
                 out = out + torch.cat([x.new_zeros(B, k, P, D), xk], dim=1)  # place at output positions [k:]
             return out + self.B(c).unsqueeze(2)         # + B a_t   (B,T,1,D) broadcast over patches
-        if self.mode == "mlp_var":
-            u = self.lags[0](x)                          # A z_t                       (B,T,P,D)
-            for k in range(1, self.n_lags):
-                if k >= T:
-                    break                                # z_{t-k} unavailable (cold-start T<num_hist)
-                xk = self.lags[k](x[:, : T - k])
-                u = u + torch.cat([x.new_zeros(B, k, P, D), xk], dim=1)
-            u = u + self.B(c).unsqueeze(2)               # + B a_t
-            return self.W(torch.relu(u))
-        if self.mode == "ltv":  # state-gated low-rank VAR core -> ReLU -> readout W
-            r = self.rank
-            g = torch.sigmoid(self.gate(x)).view(B, T, P, self.n_lags + 1, r)   # gates g(z_t) from current frame
-            core = self.lags[0](x) + self.Ulag[0](g[..., 0, :] * self.Vlag[0](x))   # k=0 (no shift)
-            for k in range(1, self.n_lags):
-                if k >= T:
-                    break                                # z_{t-k} unavailable (cold-start T<num_hist)
-                xk = x[:, : T - k]                       # z_{t-k} feeding output positions [k:]
-                base_k = self.lags[k](xk)                # A_k z_{t-k}
-                corr_k = self.Ulag[k](g[:, k:, :, k, :] * self.Vlag[k](xk))   # U_k( g_k(z_t) ⊙ V_k z_{t-k} )
-                core = core + torch.cat([x.new_zeros(B, k, P, D), base_k + corr_k], dim=1)
-            Ba = self.B(c).unsqueeze(2)                  # base B a_t                 (B,T,1,D)
-            corr_B = self.UB(g[..., self.n_lags, :] * self.VB(c).unsqueeze(2))   # U_B( g_B(z_t) ⊙ V_B a_t )
-            core = core + Ba + corr_B
-            return self.W(torch.relu(core))              # PRE-link; VWorldModel applies identity/reprelu
+        if self.mode in {"mlp_var", "ltv"}:
+            # z' = W ReLU(trunk); trunk is shared with forward_heads so the single-head
+            # and multi-head paths cannot drift apart.
+            # PRE-link; VWorldModel applies identity/reprelu.
+            return self.W(torch.relu(self._trunk(x, c)))
         if self.mode == "additive":
             Wz = self.W(x)                          # (B,T,P,D)
             Ba = self.B(c).unsqueeze(2)             # (B,T,1,D) broadcast over patches
@@ -552,6 +632,27 @@ def reprelu(x):
     receiving gradient instead of a dead zero. Drop-in for a max(., 0) whose zero region
     would otherwise stop learning."""
     return torch.relu(x).detach() + F.gelu(x) - F.gelu(x).detach()
+
+
+def kwta(x, k):
+    """k-Winners-Take-All along the last axis: keep the k largest entries, zero the rest.
+
+    Straight-through backward (forward value is the hard top-k, gradient flows to every
+    coordinate) for the same reason reprelu uses a GELU backward: a coordinate that lost
+    this round still needs gradient, or it can never win again.
+
+    Selection is by scatter on topk indices rather than an `x >= kth_value` comparison.
+    After rectification many entries are exactly 0, and a threshold test would admit all
+    of them at once whenever fewer than k coordinates are positive; scatter always marks
+    exactly k positions.
+    """
+    D = x.shape[-1]
+    if k is None or k >= D:
+        return x
+    idx = x.topk(k, dim=-1).indices
+    mask = torch.zeros_like(x).scatter_(-1, idx, 1.0)
+    hard = x * mask
+    return hard.detach() + x - x.detach()
 
 
 def swd(z, target, num_projections=8192):
@@ -603,19 +704,32 @@ class Link(nn.Module):
       relu           -> relu(u)                         (rectified; pairs with rectified-GG)
       reprelu        -> relu(u) fwd, gelu-grad bwd         (rectified, straight-through;
                         zeroed coords keep receiving gradient -- pairs with rectified-GG)
+
+    Optional k-WTA (kwta_k, default None = upstream): keeps only the k largest
+    coordinates. It lives HERE, in the one shared instance, so z and z_hat are both
+    exactly k-sparse and the tied-threshold invariant between encoder and predictor
+    outputs is preserved. RDMReg builds its target as link(GN_p + mu) with this same
+    instance, so the target is k-sparse too and its density matches by construction
+    -- mu matching (train.py) then aligns the surviving MAGNITUDES rather than the
+    density. Stateless: no parameters, so state_dicts stay byte-identical.
     """
 
-    def __init__(self, kind="identity"):
+    def __init__(self, kind="identity", kwta_k=None):
         super().__init__()
         assert kind in ("identity", "relu", "reprelu"), f"link {kind} not supported"
         self.kind = kind
+        self.kwta_k = kwta_k
 
     def forward(self, u):
         if self.kind == "identity":
-            return u
-        if self.kind == "relu":
-            return F.relu(u)
-        return reprelu(u)
+            z = u
+        elif self.kind == "relu":
+            z = F.relu(u)
+        else:
+            z = reprelu(u)
+        if self.kwta_k is not None:
+            z = kwta(z, self.kwta_k)
+        return z
 
 
 AGG_PATTERNS = {

@@ -32,6 +32,9 @@ class VWorldModel(nn.Module):
         lamb_cov=0.0,
         lamb_decode=1.0,
         var_space="u",
+        n_heads=1,
+        head_entropy_coef=0.0,
+        burst_tau=0.5,
     ):
         super().__init__()
         self.num_hist = num_hist
@@ -52,6 +55,10 @@ class VWorldModel(nn.Module):
         self.reg_weight = reg_weight
         self.detach_target = detach_target
         self.link = link
+        # Step 4 union head. n_heads=1 + coef=0 is upstream exactly.
+        self.n_heads = n_heads
+        self.head_entropy_coef = head_entropy_coef
+        self.burst_tau = burst_tau
         self.lamb_var = lamb_var
         self.lamb_cov = lamb_cov
         self.lamb_decode = lamb_decode
@@ -93,6 +100,12 @@ class VWorldModel(nn.Module):
         self.decoder_criterion = nn.MSELoss()
         self.decoder_latent_loss_weight = 0.25
         self.emb_criterion = nn.MSELoss()
+
+        # Diagnostics-only views of the last forward, for train.py's live logging.
+        # Plain attributes, NOT buffers, so the state dict stays byte-identical to
+        # upstream and the bit-identity fixtures are unaffected.
+        self._diag = None
+        self._diag_heads = None
 
     def train(self, mode=True):
         super().train(mode)
@@ -263,6 +276,88 @@ class VWorldModel(nn.Module):
         off = cov - torch.diag(torch.diag(cov))
         return (off ** 2).sum() / (d * (d - 1))           # mean of squared off-diagonal covariances
 
+    @property
+    def _pred(self):
+        """The predictor with any parallel wrapper stripped off.
+
+        accelerate wraps the predictor in DistributedDataParallel (train.sh sets
+        WORLD_SIZE/RANK, so a 1-process group is still created), and a DDP wrapper
+        only proxies forward() -- reaching a custom entry point like forward_heads
+        through it raises AttributeError. At world_size 1 the wrapper's allreduce is
+        a no-op, so calling the inner module is numerically identical; with real
+        DDP the union head would need its gradients synced explicitly, which is one
+        more reason this project stays single-GPU per run.
+        """
+        return getattr(self.predictor, "module", self.predictor)
+
+    def _union_head_loss(self, z_src, act_src, target):
+        """Union head: J parallel readouts, loss = mean_{b,t} min_j L_j(b,t).
+
+        Returns (z_pred_of_best_head, z_loss, logs).
+
+        j* is per-(SAMPLE, TIMESTEP). That is the only granularity where the
+        head-switch rate is well defined (num_hist-1 transitions per sample), where
+        p_bar can average over (b,t), and which reduces exactly to the upstream
+        emb_criterion at J=1 -- both are uniform means over the same elements.
+
+        Each head is LINKED before the min, because the upstream loss is on the
+        linked value and Pi = union_j supp(z_hat_j) needs post-link supports.
+        """
+        u_all = self._pred.forward_heads(z_src, act_src)       # (J,B,T,P,D) pre-link
+        z_all = self._link(u_all)                              # same shared link
+        # per-head, per-(sample, timestep) error: mean over patches and features
+        per_head = ((z_all - target.unsqueeze(0)) ** 2).mean(dim=(-1, -2))  # (J,B,T)
+        l_min, j_star = per_head.min(dim=0)                    # (B,T), (B,T)
+        z_loss = l_min.mean()
+
+        # gather the winning head's prediction for downstream metrics/plots
+        idx = j_star[None, ..., None, None].expand(1, *z_all.shape[1:])
+        z_pred = torch.gather(z_all, 0, idx).squeeze(0)         # (B,T,P,D)
+
+        with torch.no_grad():
+            usage = torch.nn.functional.one_hot(j_star, self.n_heads).float()
+            p_bar = usage.mean(dim=(0, 1))                      # (J,)
+            switch = (
+                (j_star[:, 1:] != j_star[:, :-1]).float().mean()
+                if j_star.shape[1] > 1
+                else torch.zeros((), device=z_loss.device)
+            )
+            # burst = support-change spike, the same statistic Step 1 measures:
+            # S = 1 - J_S(z_hat, z) above tau. tau is provisional (see plan open items).
+            num = torch.minimum(z_pred, target).sum(-1)
+            den = torch.maximum(z_pred, target).sum(-1).clamp_min(1e-8)
+            burst = ((1.0 - num / den) > self.burst_tau).float().mean()
+
+        # The entropy bonus needs a gradient, and one_hot(argmin) has none, so the
+        # gradient rides on SOFT responsibilities q_j = softmax(-L_j / tau). The
+        # temperature is the detached mean loss, which keeps the softmax argument O(1)
+        # whatever the absolute MSE scale is (otherwise q is uniform, the entropy sits
+        # at its maximum, and the bonus exerts no force). Hard p_bar above is what the
+        # collapse precondition is judged on; this is only the optimization surrogate.
+        tau_ent = per_head.detach().mean().clamp_min(1e-8)
+        q = torch.softmax(-per_head / tau_ent, dim=0)          # (J,B,T)
+        p_soft = q.mean(dim=(1, 2))                            # (J,)
+        entropy = -(p_soft * (p_soft + 1e-12).log()).sum()
+
+        # per-head views for train.py's head diagnostics (usage bars, loss
+        # distribution, j* raster, per-head specialisation). Detached, so nothing
+        # here holds an autograd graph alive past the backward.
+        self._diag_heads = {
+            "per_head": per_head.detach(),
+            "j_star": j_star.detach(),
+            "z_all": z_all.detach(),
+        }
+
+        logs = {
+            "head_switch_rate": switch,
+            "head_burst_rate": burst,
+            "head_usage_max": p_bar.max(),
+            "head_usage_entropy": entropy,
+        }
+        for j in range(self.n_heads):
+            logs[f"head_usage_p{j}"] = p_bar[j]
+        return z_pred, z_loss, logs
+
     def _forward_adaln(self, obs, act):
         """LeWM/RDMReg forward: AR predictor + AdaLN action conditioning, link h(.)
         on encoder & predictor outputs, no stop-grad (configurable), anti-collapse
@@ -276,15 +371,37 @@ class VWorldModel(nn.Module):
         act_src = act_emb[:, : self.num_hist]   # (b, num_hist, act_emb_dim)
         z_tgt = z_emb[:, self.num_pred :]       # (b, num_hist, p, d)
 
-        u_pred = self.predict(z_src, act_src)   # predictor output (pre-link)
-        z_pred = self._link(u_pred)             # linked (SAME link -> tied threshold)
-
         target = z_tgt.detach() if self.detach_target else z_tgt
-        z_loss = self.emb_criterion(z_pred, target)
+
+        if self.n_heads > 1:
+            z_pred, z_loss, head_logs = self._union_head_loss(z_src, act_src, target)
+            loss_components.update(head_logs)
+        else:
+            u_pred = self.predict(z_src, act_src)   # predictor output (pre-link)
+            z_pred = self._link(u_pred)             # linked (SAME link -> tied threshold)
+            z_loss = self.emb_criterion(z_pred, target)
+            self._diag_heads = None
+
+        # The encoder code and the loss's own target are not on the return path, and
+        # they are what almost every live diagnostic is about (sparsity, predictive
+        # Jaccard, per-support error). Stashing detached references costs no maths
+        # and no copy; recomputing them in train.py would cost a second ViT pass.
+        self._diag = {
+            "u": u_emb.detach(),
+            "z": z_emb.detach(),
+            "z_pred": z_pred.detach(),
+            "target": target.detach(),
+        }
 
         loss = z_loss
         loss_components["z_loss"] = z_loss
         loss_components["z_visual_loss"] = z_loss  # CLS-only: all of z is visual
+
+        if self.n_heads > 1 and self.head_entropy_coef > 0:
+            # Maximize entropy of per-head usage: min_j alone is winner-take-all and
+            # collapses to one head, which would make J=4 numerically identical to
+            # J=1 and rig the gate to produce its own falsifying result.
+            loss = loss - self.head_entropy_coef * loss_components["head_usage_entropy"]
 
         loss_components["l0_frac"] = (z_emb != 0).float().mean()
 
@@ -425,7 +542,7 @@ class VWorldModel(nn.Module):
         return z
 
 
-    def _predict_next_adaln(self, emb, act_emb_all):
+    def _predict_next_adaln(self, emb, act_emb_all, z_goal=None):
         """Predict the next frame embedding from the last num_hist frames.
         emb: LINKED (b, L, p, d); act_emb_all: (b, T_total, a). Frame i is conditioned
         on action i (causal: output at frame j predicts frame j+1). Returns the next
@@ -434,29 +551,59 @@ class VWorldModel(nn.Module):
         h = min(self.num_hist, L)
         emb_win = emb[:, L - h :]  # (b, h, p, d) linked
         act_win = act_emb_all[:, L - h : L]  # (b, h, a)
+        if self.n_heads > 1 and z_goal is not None:
+            return self._optimistic_next(emb_win, act_win, z_goal)
         pred = self.predictor(emb_win, act_win)  # (b, h, p, d) pre-link
         return self._link(pred[:, -1:])  # (b, 1, p, d) linked
 
-    def _rollout_adaln(self, obs_0, act):
+    def _optimistic_next(self, emb_win, act_win, z_goal):
+        """Union-head rollout step: advance with the head whose prediction lands
+        nearest the goal latent.
+
+        Training says the model is right if ANY head is right (loss = min_j L_j),
+        so at plan time -- where there is no target to run that argmin against --
+        the corresponding rule is a min over heads too, against the goal. Using
+        head 0 instead would advance a J-head model with the head that owns only
+        ~1/J of transitions, so the arm would lose for a reason unrelated to
+        multimodality. Optimism does not flatter the arm either: CEM's success is
+        scored by replaying the chosen actions in the real environment, so an
+        over-optimistic model simply picks worse actions.
+
+        Greedy per step, i.e. O(J) instead of the O(J^H) min over head sequences.
+        """
+        u_all = self._pred.forward_heads(emb_win, act_win)        # (J,b,h,p,d)
+        z_all = self._link(u_all[:, :, -1:])                     # (J,b,1,p,d)
+        g = z_goal if z_goal.dim() == z_all.dim() - 1 else z_goal.unsqueeze(1)
+        d = ((z_all - g.unsqueeze(0)) ** 2).mean(dim=(-1, -2))   # (J,b,1)
+        idx = d.argmin(dim=0)[None, ..., None, None].expand(1, *z_all.shape[1:])
+        return torch.gather(z_all, 0, idx).squeeze(0)            # (b,1,p,d)
+
+    def _rollout_adaln(self, obs_0, act, z_goal=None):
         act_emb_all = self.encode_act(act)  # (b, T_total, a)
         emb = self._link(self.encode_obs(obs_0)["visual"])  # (b, n, p, d) linked
         while emb.shape[1] < act.shape[1]:
-            emb = torch.cat([emb, self._predict_next_adaln(emb, act_emb_all)], dim=1)
-        emb = torch.cat([emb, self._predict_next_adaln(emb, act_emb_all)], dim=1)
+            emb = torch.cat(
+                [emb, self._predict_next_adaln(emb, act_emb_all, z_goal)], dim=1
+            )
+        emb = torch.cat([emb, self._predict_next_adaln(emb, act_emb_all, z_goal)], dim=1)
         z = emb  # (b, T_total + 1, p, d)
         z_obses, _ = self.separate_emb(z)
         return z_obses, z
 
-    def rollout(self, obs_0, act):
+    def rollout(self, obs_0, act, z_goal=None):
         """
         input:  obs_0 (dict): (b, n, 3, img_size, img_size)
                   act: (b, t+n, action_dim)
+                z_goal: (b, p, d) or (b, 1, p, d) linked goal embedding. Only used
+                  when n_heads > 1, to pick which head advances each step; see
+                  _optimistic_next. Ignored at n_heads == 1, so the default path
+                  is bit-identical to upstream.
         output: embeddings of rollout obs
                 visuals: (b, t+n+1, 3, img_size, img_size)
                 z: (b, t+n+1, num_patches, emb_dim)
         """
         if self.action_conditioning == "adaln":
-            return self._rollout_adaln(obs_0, act)
+            return self._rollout_adaln(obs_0, act, z_goal)
 
         num_obs_init = obs_0['visual'].shape[1]
         act_0 = act[:, :num_obs_init]

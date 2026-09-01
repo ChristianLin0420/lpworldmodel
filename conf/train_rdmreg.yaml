@@ -21,12 +21,19 @@ hydra:
     subdir: ${hydra.job.num}
   launcher:
     submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+    account: edgeai_tao-ptm_image-foundation-model-clip
+    partition: polar4,polar3,polar,batch_block1,grizzly,batch_block2,batch_block3
     nodes: 1
     tasks_per_node: 1
-    cpus_per_task: 8
-    mem_gb: 512
-    gres: "gpu:h100:1"
-    timeout_min: 2880
+    cpus_per_task: 16
+    mem_gb: 200
+    # NB: no gres type. These partitions expose GRES as "gpu:8" with no type
+    # defined, so "gpu:h100:1" matches nothing and never schedules.
+    gpus_per_node: 1
+    # Every GPU partition here caps at 4h; anything larger is rejected at submit.
+    timeout_min: 240
+    signal_delay_s: 300     # USR1 this many seconds before the wall limit
+    max_num_timeout: 20     # submitit auto-requeue budget
     setup: ["export DEBUGVAR=$(scontrol show hostnames $SLURM_JOB_NODELIST)",
             export MASTER_ADDR="$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)",
             "export MASTER_PORT=$(for port in $(shuf -i 30000-65500 -n 20); do if [[ $(netstat -tupln 2>&1 | grep $port | wc -l) -eq 0 ]] ; then echo $port; break; fi; done;)",]
@@ -36,6 +43,23 @@ training:
   epochs: 100
   batch_size: 32
   save_every_x_epoch: 1
+  save_every_x_min: 20      # mid-epoch wall-clock checkpointing (0 disables)
+  # An epoch is ~30k batches (~2h), so epoch-only logging leaves every wandb panel
+  # empty for hours, which looks exactly like a broken run. Three tiers, priced by
+  # what each one actually costs on a node whose CPUs (not the GPU) are the
+  # bottleneck: tier 1 is GPU reductions, tier 2 copies tensors to the host, tier 3
+  # builds 2-D images. Any of them can be disabled with 0.
+  log_every_x_batch: 50       # tier 1: scalars (losses, sparsity, Jaccard, opt, perf)
+  diag_every_x_batch: 1000    # tier 2: wandb.Histogram distributions + self-similarity map
+  heavy_every_x_batch: 2500  # tier 3: code / co-activation / gate / head-raster images
+  video_every_x_batch: 5000   # real PushT rollout + rendered video (~1% of a window)
+  video_episodes: 4            # episodes tiled side by side per clip
+  video_max_frames: 50         # frames per episode
+  diag_hist_max: 20000        # element cap per histogram payload
+  diag_selfsim_n: 96          # rows in the J_S(z_a, z_b) self-similarity image
+  diag_swd_proj: 256          # projections for the per-projection W2 breakdown (0 disables)
+  diag_img_rows: 64           # rows in the code / gate / head-raster images
+  diag_coact_units: 384       # unit cap for the co-activation matrix image
   reconstruct_every_x_batch: 500
   num_reconstruct_samples: 6
   encoder_lr: 5e-5
@@ -45,6 +69,13 @@ training:
   mup_base_width: 384       # fixed global reference width (tuned base = embed_dim); NOT the swept code dim D
   mup_weight_decay: 0.01    # muP weight decay (AdamW, all 3 opts; held constant with width; effective decay = lr*wd, ~negligible at 2ep)
   action_encoder_lr: 5e-5
+
+# Accelerate mixed_precision: "no" (fp32, upstream) | "bf16" | "fp16". Must be the
+# same on every arm of a contrast; bf16 perturbs numerics, so a mixed comparison
+# would confound precision with the intervention.
+# Quoted: bare `no` is YAML 1.1 for False, which made the default value fail the
+# precision assert, so any run that did not set PRECISION died at startup.
+precision: "no"
 
 img_size: 224
 frameskip: 5
@@ -66,6 +97,14 @@ var_space: u               # variance floor on pre-link "u" | post-link "z" | "b
 target_p: 1.0              # GN_p base shape for the target: 2 -> Gaussian, 1 -> Laplace
 mu: 0.0                    # target-mean shift for the relu link: mu<0 -> sparser code (0 = doc default)
 agg: btp                   # SWD aggregation: btp (pool) | b | bp | bt (see AGG_PATTERNS)
+
+# --- Pi-WM interventions (all default to upstream behaviour) ---
+kwta_k: null               # Step 2: k-WTA in the shared link; null => off. When set,
+                           # train.py overrides mu to sigma*ln(2k/D) (density match).
+gate_input: magnitude      # Step 3: ltv gate input, magnitude (upstream) | support
+gate_norm: sigmoid         # Step 3: ltv gate normalization, sigmoid (upstream) | softmax
+n_heads: 1                 # Step 4: union head count; 1 => upstream single head
+head_entropy_coef: 0.0     # Step 4: entropy bonus on per-head usage; 0 => off
 
 # action encoder (Embedder); emb_dim must equal embed_dim for adaln conditioning
 action_emb_dim: 384
@@ -101,3 +140,4 @@ plan_settings:
 # Optional dedicated W&B project name; null => per-env default InfoJEPA_train_<env>.
 mup: false                # Maximal Update Parametrization (width transfer): per-param lr=mup_lr/fan_in + muP init. See models/mup.py.
 wandb_project: null
+burst_tau: 0.5             # Step 4 burst readout threshold on 1 - J_S (provisional)

@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 import submitit
 from itertools import product
+from collections.abc import Mapping
 from pathlib import Path
 from einops import rearrange
 from omegaconf import OmegaConf, open_dict
@@ -353,63 +354,143 @@ class PlanWorkspace:
 def load_ckpt(snapshot_path, device):
     with snapshot_path.open("rb") as f:
         payload = torch.load(f, map_location=device)
-    loaded_keys = []
-    result = {}
-    for k, v in payload.items():
-        if k in ALL_MODEL_KEYS:
-            loaded_keys.append(k)
-            result[k] = v.to(device)
-    result["epoch"] = payload["epoch"]
+    result = {k: v for k, v in payload.items() if k in ALL_MODEL_KEYS}
+    result["epoch"] = payload.get("epoch")
     return result
 
 
+def _in_chans_from(sd):
+    """Recover in_chans from a proprio/action encoder state_dict.
+
+    Both ProprioceptiveEmbedding and Embedder start with nn.Conv1d(in_chans, ...),
+    whose weight is (out, in_chans, k). Reading it here means planning does not
+    need the training dataset just to rebuild the module.
+    """
+    if not isinstance(sd, Mapping):
+        return None
+    w = sd.get("patch_embed.weight")
+    return None if w is None else w.shape[1]
+
+
 def load_model(model_ckpt, train_cfg, num_action_repeat, device):
-    result = {}
-    if model_ckpt.exists():
-        result = load_ckpt(model_ckpt, device)
-        print(f"Resuming from epoch {result['epoch']}: {model_ckpt}")
+    """Rebuild the world model from train_cfg and restore its weights.
 
-    if "encoder" not in result:
-        result["encoder"] = hydra.utils.instantiate(
-            train_cfg.encoder,
+    Checkpoints hold state_dicts (see train.py save_ckpt), so every submodule is
+    constructed from config here and then loaded. Checkpoints from before that
+    change pickled whole modules; those are still accepted.
+    """
+    model_ckpt = Path(model_ckpt)  # callers pass either a str or a Path
+    if not model_ckpt.exists():
+        raise FileNotFoundError(f"No checkpoint at {model_ckpt}")
+    payload = load_ckpt(model_ckpt, device)
+    print(f"Loading model from epoch {payload.get('epoch')}: {model_ckpt}")
+
+    def restore(name, module):
+        """Return the legacy pickled module, or load a state_dict into `module`."""
+        v = payload.get(name)
+        if isinstance(v, torch.nn.Module):
+            return v.to(device)
+        if module is None:
+            return None
+        if isinstance(v, Mapping):
+            module.load_state_dict(v)
+        else:
+            print(f"WARNING: '{name}' absent from checkpoint; using fresh init")
+        return module.to(device)
+
+    encoder = restore("encoder", hydra.utils.instantiate(train_cfg.encoder))
+
+    proprio_encoder = restore(
+        "proprio_encoder",
+        hydra.utils.instantiate(
+            train_cfg.proprio_encoder,
+            in_chans=_in_chans_from(payload.get("proprio_encoder")) or 1,
+            emb_dim=train_cfg.proprio_emb_dim,
+        ),
+    )
+    action_encoder = restore(
+        "action_encoder",
+        hydra.utils.instantiate(
+            train_cfg.action_encoder,
+            in_chans=_in_chans_from(payload.get("action_encoder")) or 1,
+            emb_dim=train_cfg.action_emb_dim,
+        ),
+    )
+
+    action_conditioning = train_cfg.get("action_conditioning", "concat")
+    if not train_cfg.has_predictor:
+        raise ValueError("Planning requires a predictor")
+    # mirrors train.py init_models so the shapes match the checkpoint
+    if action_conditioning == "adaln":
+        predictor = hydra.utils.instantiate(
+            train_cfg.predictor,
+            num_frames=train_cfg.num_hist,
+            num_patches=encoder.num_patches,
+            input_dim=encoder.emb_dim,
+            hidden_dim=encoder.emb_dim,
+            output_dim=encoder.emb_dim,
         )
-    if "predictor" not in result:
-        raise ValueError("Predictor not found in model checkpoint")
+    else:
+        num_patches = 1 if encoder.latent_ndim == 1 else (train_cfg.img_size // 16) ** 2
+        if train_cfg.concat_dim == 0:
+            num_patches += 2
+        predictor = hydra.utils.instantiate(
+            train_cfg.predictor,
+            num_patches=num_patches,
+            num_frames=train_cfg.num_hist,
+            dim=encoder.emb_dim
+            + (
+                proprio_encoder.emb_dim * train_cfg.num_proprio_repeat
+                + action_encoder.emb_dim * num_action_repeat
+            )
+            * train_cfg.concat_dim,
+        )
+    predictor = restore("predictor", predictor)
 
-    if train_cfg.has_decoder and "decoder" not in result:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        if train_cfg.env.decoder_path is not None:
-            decoder_path = os.path.join(base_path, train_cfg.env.decoder_path)
-            ckpt = torch.load(decoder_path)
-            if isinstance(ckpt, dict):
-                result["decoder"] = ckpt["decoder"]
-            else:
-                result["decoder"] = torch.load(decoder_path)
+    link_cfg = train_cfg.get("link", None)
+    link = None
+    if link_cfg is not None and link_cfg.get("_target_", None) is not None:
+        link = restore("link", hydra.utils.instantiate(link_cfg))
+
+    decoder = None
+    if train_cfg.has_decoder:
+        if isinstance(payload.get("decoder"), torch.nn.Module):
+            decoder = payload["decoder"].to(device)
+        elif train_cfg.env.decoder_path is not None:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            ckpt = torch.load(os.path.join(base_path, train_cfg.env.decoder_path))
+            decoder = (ckpt["decoder"] if isinstance(ckpt, dict) else ckpt).to(device)
+            if isinstance(payload.get("decoder"), Mapping):
+                decoder.load_state_dict(payload["decoder"])
         else:
             raise ValueError(
-                "Decoder path not found in model checkpoint \
-                                and is not provided in config"
+                "Decoder path not found in model checkpoint and is not provided in config"
             )
-    elif not train_cfg.has_decoder:
-        result["decoder"] = None
 
     model = hydra.utils.instantiate(
         train_cfg.model,
-        encoder=result["encoder"],
-        proprio_encoder=result["proprio_encoder"],
-        action_encoder=result["action_encoder"],
-        predictor=result["predictor"],
-        decoder=result["decoder"],
+        encoder=encoder,
+        proprio_encoder=proprio_encoder,
+        action_encoder=action_encoder,
+        predictor=predictor,
+        decoder=decoder,
         proprio_dim=train_cfg.proprio_emb_dim,
         action_dim=train_cfg.action_emb_dim,
         concat_dim=train_cfg.concat_dim,
         num_action_repeat=num_action_repeat,
         num_proprio_repeat=train_cfg.num_proprio_repeat,
-        action_conditioning=train_cfg.get("action_conditioning", "concat"),
+        action_conditioning=action_conditioning,
         regularizer=None,
         reg_weight=0.0,
         detach_target=train_cfg.get("detach_target", True),
-        link=result.get("link", None),
+        link=link,
+        # n_heads must come across: the predictor is built with J readouts either
+        # way, but a model left at n_heads=1 takes the single-head forward and
+        # plans with head 0 only, so a union-head run would be evaluated as if
+        # the intervention were absent -- silently, with no shape error.
+        n_heads=train_cfg.get("n_heads", 1),
+        head_entropy_coef=train_cfg.get("head_entropy_coef", 0.0),
+        burst_tau=train_cfg.get("burst_tau", 0.5),
     )
     model.to(device)
     return model

@@ -94,6 +94,7 @@ class GDPlanner(BasePlanner):
             i_z_obses, i_zs = self.wm.rollout(
                 obs_0=trans_obs_0,
                 act=actions,
+                z_goal=z_obs_g_detached["visual"],
             )
             loss = self.objective_fn(i_z_obses, z_obs_g_detached)  # (n_evals, )
             total_loss = loss.mean() * n_evals  # loss for each eval is independent

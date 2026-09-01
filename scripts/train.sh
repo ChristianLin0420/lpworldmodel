@@ -31,6 +31,13 @@ case "${FEATURE}" in cls) ENCODER=vit_scratch;; patch) ENCODER=vit_scratch_patch
 ENCODER=${ENCODER_OVERRIDE:-${ENCODER}}
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
+# local secrets + paths; already-exported values win so sbatch/CLI can override
+if [ -f "${REPO}/.env" ]; then
+    _pre_ds=${DATASET_DIR:-}; _pre_cb=${CKPT_BASE:-}
+    set -a; . "${REPO}/.env"; set +a
+    [ -n "${_pre_ds}" ] && DATASET_DIR=${_pre_ds}
+    [ -n "${_pre_cb}" ] && CKPT_BASE=${_pre_cb}
+fi
 : "${DATASET_DIR:?set DATASET_DIR to the dataset root (contains pusht_noise/ and wall_single/)}"
 CKPT_BASE=${CKPT_BASE:-${REPO}/runs}
 
@@ -55,7 +62,16 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${SAVE_EVERY:-}" ] && add "training.save_every_x_epoch=${SAVE_EVERY}"
 [ -n "${TRAIN_ENCODER:-}" ] && add "model.train_encoder=${TRAIN_ENCODER}"
 [ -n "${WANDB_PROJECT:-}" ] && add "wandb_project=${WANDB_PROJECT}"
+# Pi-WM intervention flags; unset => upstream behaviour (bit-identical)
+[ -n "${KWTA_K:-}" ]     && { add "kwta_k=${KWTA_K}"; TAG="${TAG}_k${KWTA_K}"; }
+[ -n "${GATE_INPUT:-}" ] && { add "gate_input=${GATE_INPUT}"; TAG="${TAG}_gi${GATE_INPUT}"; }
+[ -n "${GATE_NORM:-}" ]  && { add "gate_norm=${GATE_NORM}"; TAG="${TAG}_gn${GATE_NORM}"; }
+[ -n "${N_HEADS:-}" ]    && { add "n_heads=${N_HEADS}"; TAG="${TAG}_J${N_HEADS}"; }
+[ -n "${HEAD_ENT:-}" ]   && { add "head_entropy_coef=${HEAD_ENT}"; TAG="${TAG}_ent${HEAD_ENT}"; }
+[ -n "${PRECISION:-}" ] && { add "precision=${PRECISION}"; TAG="${TAG}_${PRECISION}"; }
 [ "${DEBUG:-0}" = "1" ]  && add "debug=True"
+# free-form hydra overrides, e.g. OVERRIDES="env.dataset.n_rollout=40 training.save_every_x_min=1"
+[ -n "${OVERRIDES:-}" ]  && add "${OVERRIDES}"
 REGULARIZER=${REGULARIZER:-rdmreg}
 
 STAMP=$(date +%Y%m%d-%H%M%S); RAND=$(python3 -c 'import secrets; print(secrets.token_hex(3))')
@@ -63,7 +79,9 @@ RUNDIR=${CKPT_BASE}/outputs/lpwm_${LINK}_${FEATURE}_${ENV}_p${TARGET_P}_${AGG}${
 [ -n "${RUN_NAME:-}" ] && RUNDIR=${CKPT_BASE}/outputs/${RUN_NAME}
 
 cd "${REPO}"
-python train.py --config-name train_rdmreg.yaml \
+# exec so python replaces this shell: SIGUSR1 from the sbatch preemption trap must
+# reach train.py's handler, not an intermediate bash that would just die on it.
+exec python train.py --config-name train_rdmreg.yaml \
     env="${ENV}" frameskip="${FRAMESKIP}" num_hist="${NUM_HIST}" \
     encoder="${ENCODER}" link="${LINK}" regularizer="${REGULARIZER}" \
     target_p="${TARGET_P}" agg="${AGG}" \

@@ -1,2 +1,3 @@
 _target_: models.infojepa_modules.Link
 kind: identity
+kwta_k: ${oc.select:kwta_k,null}   # k-WTA sparsity (null = upstream, no k-WTA)
