@@ -443,7 +443,7 @@ class LinearDynamicsPredictor(nn.Module):
         out = output_dim or input_dim
         assert out == D, f"linear predictor assumes output_dim==input_dim (code space), got {out} vs {D}"
         assert mode in {"action_linear", "additive", "var", "mlp_var", "ltv"}, f"mode {mode} not supported"
-        assert gate_input in {"magnitude", "support"}, f"gate_input {gate_input} not supported"
+        assert gate_input in {"magnitude", "support", "both"}, f"gate_input {gate_input} not supported"
         assert gate_norm in {"sigmoid", "softmax"}, f"gate_norm {gate_norm} not supported"
         self.mode = mode
         self.rank = rank
@@ -486,11 +486,19 @@ class LinearDynamicsPredictor(nn.Module):
             self.Ulag = nn.ModuleList([nn.Linear(r, D, bias=False) for _ in range(num_frames)])  # up-proj (0-init)
             self.VB = nn.Linear(D, r, bias=False)
             self.UB = nn.Linear(r, D, bias=False)                                 # up-proj (0-init)
-            self.gate = nn.Linear(D, (num_frames + 1) * r)                        # per-lag + B gates, from z_t
-            for m in (*self.lags, self.B, self.W, *self.Vlag, self.VB, self.gate):
+            # gate_input="both" feeds [z_t ; 1[z_t>0]], so the gate's fan-in is 2D.
+            gate_in = 2 * D if gate_input == "both" else D
+            self.gate = nn.Linear(gate_in, (num_frames + 1) * r)                  # per-lag + B gates, from z_t
+            # NB the gate is initialised OUTSIDE the loop below. That loop hardcodes
+            # std = D**-0.5, which is muP's fan_in rule only while fan_in == D; with
+            # "both" the gate would start sqrt(2) too large and the arm would measure
+            # an init change on top of the gate change.
+            for m in (*self.lags, self.B, self.W, *self.Vlag, self.VB):
                 nn.init.normal_(m.weight, mean=0.0, std=D ** -0.5)                # muP fan_in init
                 if getattr(m, "bias", None) is not None:
                     nn.init.zeros_(m.bias)
+            nn.init.normal_(self.gate.weight, mean=0.0, std=gate_in ** -0.5)      # muP on the REAL fan_in
+            nn.init.zeros_(self.gate.bias)
             for m in (*self.Ulag, self.UB):
                 nn.init.zeros_(m.weight)                                          # LoRA-style: LTV off at init
         else:
@@ -582,7 +590,16 @@ class LinearDynamicsPredictor(nn.Module):
         inductive bias, not identifiability.
         """
         B, T, P, _ = x.shape
-        src = (x > 0).to(x.dtype) if self.gate_input == "support" else x
+        if self.gate_input == "both":
+            # support AND magnitude. The support alone is a deterministic function of
+            # x, so by the data-processing inequality a support-only gate is bounded
+            # ABOVE by a magnitude gate -- it can only ever win as an inductive bias.
+            # Concatenating makes the gate's input a strict SUPERSET of either, which
+            # removes the information penalty and isolates whether the support carries
+            # inductive value once it is no longer paid for.
+            src = torch.cat([x, (x > 0).to(x.dtype)], dim=-1)
+        else:
+            src = (x > 0).to(x.dtype) if self.gate_input == "support" else x
         logits = self.gate(src).view(B, T, P, self.n_lags + 1, self.rank)
         if self.gate_norm == "softmax":
             # r * softmax, not bare softmax: softmax over r modes has mean 1/r

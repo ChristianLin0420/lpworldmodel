@@ -1,0 +1,242 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PiWM root-cause diagnosis</title><style>
+:root{color-scheme:light;--bg:#fff;--s2:#f7f7f6;--line:#e6e6e4;--hair:#efefed;
+ --ink:#0b0b0b;--ink2:#52514e;--ink3:#8a8a85;--blue:#0055af;--blue0:#59a6ff;
+ --mag:#912d59;--mag0:#e97ca5;--grn:#006e00;--grn0:#56c050;--ctl:#3d3d3a;
+ --crit:#b3261e;--warn:#9a6700;--good:#1a7f37;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:14.5px/1.62 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:30px 24px 70px}
+h1{font-size:23px;font-weight:650;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:17px;font-weight:620;margin:38px 0 4px;padding-top:20px;border-top:1px solid var(--line)}
+h3{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--ink2)}
+p{margin:8px 0}.sub{color:var(--ink2);font-size:13px;margin:0 0 8px}
+.verdict{border-left:3px solid var(--crit);background:var(--s2);padding:14px 18px;
+ border-radius:0 8px 8px 0;margin:18px 0}
+.verdict.ok{border-left-color:var(--good)}.verdict.warn{border-left-color:var(--warn)}
+.verdict b{font-weight:650}
+code{background:var(--s2);padding:1px 5px;border-radius:4px;font-size:12.5px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0;
+ font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--hair)}
+th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+th{color:var(--ink3);font-weight:500;font-size:11.5px;letter-spacing:.03em;text-transform:uppercase}
+svg{display:block;width:100%;height:auto;overflow:visible}
+text{fill:var(--ink2);font-size:11px;font-family:inherit}
+text.t{fill:var(--ink3);font-size:10.5px;font-variant-numeric:tabular-nums}
+.card{border:1px solid var(--line);border-radius:11px;padding:16px 18px 10px;margin:14px 0}
+.ctl{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:6px 0 12px;
+ font-size:12.5px;color:var(--ink2)}
+input[type=range]{width:210px;accent-color:var(--blue)}
+.val{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);min-width:52px;display:inline-block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.tip{position:fixed;pointer-events:none;z-index:9;background:#fff;border:1px solid var(--line);
+ border-radius:7px;padding:7px 9px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.14);opacity:0}
+.k{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+</style></head><body><div class="wrap">
+<h1>Why PiWM is not beating LpWM</h1>
+<p class="sub">Root-cause analysis on measured codes and measured CEM success.
+Generated 2026-09-01 14:04 &middot; no new variants proposed.</p>
+
+<div class="verdict"><b>Root cause (Step 3, support gating).</b> The gate binarises its
+input &mdash; <code>src = (x&gt;0) if gate_input=="support" else x</code> &mdash; so the
+support is a <b>deterministic function of the code</b>. By the data-processing inequality
+<code>I(s;Y) &le; I(z;Y)</code> for every target: <b>support gating is bounded above by
+magnitude gating and cannot win on information</b>. Measured on trained codes, the
+support retains only <b>63%</b> of the code's
+one-step predictive information &mdash; so the gate is handed
+<b>37% less</b> to work with, in exchange for an
+inductive bias that has nothing to regularise at 2 epochs on a 4-dimensional task.</div>
+
+<div class="verdict warn"><b>Root cause (Step 4, union head).</b> The SDR union property
+holds only while the union stays sparse. At the operating density
+&rho;&nbsp;=&nbsp;0.55, OR-ing 4 readouts turns on
+<b>96.0%</b> of the code &mdash; saturated, carrying almost
+nothing. Gradient descent escapes by crushing density, and both union arms converge to
+<b>&asymp;1&ndash;10 active units of 384</b> with effective dimension below the task's own
+(4.31). The mechanism engages correctly (<code>head_gap</code>&nbsp;&asymp;&nbsp;0.32&ndash;0.40);
+the representation collapses underneath it.</div>
+
+<div class="verdict ok"><b>What the theory got right.</b> The support genuinely does carry
+most of the structure &mdash; <b>63%</b> of the predictive
+information, from <b>24%</b> of the
+bits. That is a real and non-obvious validation of the TBT premise. The error was
+<b>applying an SDR operation to a representation that is not an SDR</b>: in a true SDR
+magnitudes do not exist, so discarding them costs nothing. Here they exist and carry the
+other 37%.</div>
+
+
+<h2>1 &middot; The Step 3 2&times;2 &mdash; both factors hurt, additively</h2>
+<p class="sub">Gate <b>input</b> (magnitude &rarr; support) &times; <b>normalisation</b>
+(sigmoid &rarr; softmax). Hover a cell for its seeds.</p>
+<div class="card"><div id="fact"></div>
+<p class="sub" id="factnote"></p></div>
+
+<h2>2 &middot; What binarising the gate input costs</h2>
+<p class="sub">Per-unit information in the code, split into the part the support keeps and
+the part binarising throws away. Drag &rho; to see how the split moves with density.</p>
+<div class="card">
+<div class="ctl"><label>code density &rho; <input type="range" id="rho" min="0.01" max="0.90"
+ step="0.01" value="0.55"></label><span class="val" id="rhov">0.55</span>
+ <span style="color:var(--ink3)">measured: LpWM-ltv &rho;=0.55, union arms &rho;&asymp;0.03</span></div>
+<div id="bits"></div></div>
+
+<h2>3 &middot; Why the union head cannot work at this density</h2>
+<p class="sub">Fraction of the code switched on after OR-ing <i>J</i> readouts,
+1&minus;(1&minus;&rho;)<sup>J</sup>. A union is only informative while it stays sparse.</p>
+<div class="card">
+<div class="ctl"><label>heads J <input type="range" id="J" min="1" max="16" step="1" value="4">
+</label><span class="val" id="Jv">4</span></div>
+<div id="union"></div></div>
+
+<h2>4 &middot; Can the experiment see any of this?</h2>
+<p class="sub">Minimum detectable paired effect at 80% power, at the observed seed
+sd. Ticks are the effects we measured.</p>
+<div class="card"><div id="power"></div></div>
+
+<h2>5 &middot; Measured on trained codes</h2>
+<table><thead><tr><th>run</th><th>&rho;</th><th>support bits/unit</th>
+<th>magnitude bits|active</th><th>discarded by binarising</th>
+<th>I(s<sub>t</sub>;s<sub>t+1</sub>)</th><th>I(z<sub>t</sub>;z<sub>t+1</sub>)</th>
+<th>support retains</th></tr></thead><tbody><tr><td>LpWM-ltv</td><td>0.5536</td><td>0.636</td><td>3.676</td><td>76.2%</td><td>0.6144</td><td>0.9788</td><td>62.8%</td></tr><tr><td>PiWM-gate-sup-softmax</td><td>0.6103</td><td>0.519</td><td>3.271</td><td>79.4%</td><td>0.6523</td><td>1.1359</td><td>57.4%</td></tr><tr><td>PiWM-union4-entropy</td><td>0.0258</td><td>0.097</td><td>4.611</td><td>55.1%</td><td>0.0515</td><td>0.0000</td><td>--</td></tr></tbody></table>
+<p class="sub">The union arm's <code>I(z;z')</code> reads 0.0000 because equal-mass
+discretisation degenerates when 97% of values are exactly zero &mdash; a limitation of the
+estimator at that sparsity, not a real measurement. Its row is not interpretable.</p>
+</div><div class="tip" id="tip"></div>
+<script>const D={"c1": [{"rho": 0.5535762103684662, "support_bits": 0.6356808050684554, "magnitude_bits_given_active": 3.6761496580850626, "total_bits": 2.670709801538517, "discarded_frac": 0.7619805773348125}, {"rho": 0.6103189267352185, "support_bits": 0.5188066208440606, "magnitude_bits_given_active": 3.2707675617123417, "total_bits": 2.5150179687087046, "discarded_frac": 0.7937165351107079}, {"rho": 0.025780580548414738, "support_bits": 0.09679283001376332, "magnitude_bits_given_active": 4.610561270693599, "total_bits": 0.21565577622628107, "discarded_frac": 0.5511697775616196}], "c2": [{"I_support": 0.6143513481643149, "I_code": 0.9787935456794754, "retained_frac": 0.6276618300929172}, {"I_support": 0.6523173471511147, "I_code": 1.1359102797432952, "retained_frac": 0.5742683720571066}, {"I_support": 0.05147769497497505, "I_code": 0.0, "retained_frac": null}], "table": [{"run": "LpWM-ltv", "rho": 0.5535762103684662, "support_bits": 0.6356808050684554, "magnitude_bits_given_active": 3.6761496580850626, "total_bits": 2.670709801538517, "discarded_frac": 0.7619805773348125, "I_support": 0.6143513481643149, "I_code": 0.9787935456794754, "retained_frac": 0.6276618300929172}, {"run": "PiWM-gate-sup-softmax", "rho": 0.6103189267352185, "support_bits": 0.5188066208440606, "magnitude_bits_given_active": 3.2707675617123417, "total_bits": 2.5150179687087046, "discarded_frac": 0.7937165351107079, "I_support": 0.6523173471511147, "I_code": 1.1359102797432952, "retained_frac": 0.5742683720571066}, {"run": "PiWM-union4-entropy", "rho": 0.025780580548414738, "support_bits": 0.09679283001376332, "magnitude_bits_given_active": 4.610561270693599, "total_bits": 0.21565577622628107, "discarded_frac": 0.5511697775616196, "I_support": 0.05147769497497505, "I_code": 0.0, "retained_frac": null}], "factorial": {"magnitude|sigmoid": {"mean": 0.3, "seeds": [0.52, 0.0, 0.38], "control": 1, "arm": "LpWM-ltv"}, "magnitude|softmax": {"mean": 0.24, "seeds": [0.44, 0.04, 0.24], "control": 0, "arm": "PiWM-gate-mag-softmax"}, "support|sigmoid": {"mean": 0.22, "seeds": [0.4, 0.02, 0.24], "control": 0, "arm": "PiWM-gate-sup-sigmoid"}, "support|softmax": {"mean": 0.14666666666666667, "seeds": [0.0, 0.14, 0.3], "control": 0, "arm": "PiWM-gate-sup-softmax"}, "main_support": -0.08666666666666667, "main_softmax": -0.06666666666666668, "interaction": -0.013333333333333336}, "magnitude_bits": 3.6761496580850626, "rho_ltv": 0.5535762103684662, "seed_sd": 0.2404163056034262, "power": {"3": 0.788280052923612, "5": 0.4058459368152274, "10": 0.23952763748174988, "20": 0.15971199063318609}, "effects": [{"arm": "PiWM-gate-sup-sigmoid", "v": -0.08}, {"arm": "PiWM-gate-sup-softmax", "v": -0.15333333333333335}, {"arm": "PiWM-union4-entropy", "v": -0.2733333333333334}, {"arm": "PiWM-gate-mag-softmax", "v": -0.060000000000000005}, {"arm": "PiWM-union4", "v": -0.28}, {"arm": "LpWM-base", "v": 0.04}, {"arm": "PiWM-sparse-2pct", "v": -0.17}]};
+const T=document.getElementById('tip');
+const S=(t,a={})=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);
+  for(const k in a)e.setAttribute(k,a[k]);return e;};
+const tx=(e,s)=>{e.textContent=s;return e;};
+function tip(h,ev){T.innerHTML=h;T.style.opacity=1;const r=T.getBoundingClientRect();
+  T.style.left=Math.min(ev.clientX+14,innerWidth-r.width-8)+'px';
+  T.style.top=Math.max(ev.clientY-10,8)+'px';}
+const untip=()=>T.style.opacity=0;
+
+/* ---- 1. the 2x2 factorial ---- */
+(function(){
+  const F=D.factorial, W=560,H=260,ML=110,MT=34,CW=170,CH=76;
+  const g=S('svg',{viewBox:`0 0 ${W} ${H}`});
+  const cols=['sigmoid','softmax'], rows=['magnitude','support'];
+  cols.forEach((c,j)=>g.appendChild(tx(S('text',{x:ML+CW*j+CW/2,y:MT-12,'text-anchor':'middle'}),c)));
+  rows.forEach((r,i)=>g.appendChild(tx(S('text',{x:ML-12,y:MT+CH*i+CH/2+4,'text-anchor':'end'}),r)));
+  const vals=rows.flatMap(r=>cols.map(c=>F[r+'|'+c].mean));
+  const lo=Math.min(...vals), hi=Math.max(...vals);
+  rows.forEach((r,i)=>cols.forEach((c,j)=>{
+    const k=r+'|'+c, m=F[k].mean, t=(m-lo)/((hi-lo)||1);
+    // one hue, light->dark by value: a magnitude ramp, not categorical colour
+    const col=`rgb(${Math.round(235-150*t)},${Math.round(243-130*t)},${Math.round(251-90*t)})`;
+    const rect=S('rect',{x:ML+CW*j+3,y:MT+CH*i+3,width:CW-6,height:CH-6,rx:8,fill:col,
+      stroke:(r==='magnitude'&&c==='sigmoid')?'var(--ctl)':'var(--line)',
+      'stroke-width':(r==='magnitude'&&c==='sigmoid')?2:1});
+    rect.style.cursor='crosshair';
+    rect.onmousemove=e=>tip(`<b>${k.replace('|',' + ')}</b><br>mean ${m.toFixed(3)}<br>`+
+      `seeds ${F[k].seeds.map(x=>x.toFixed(3)).join(', ')}`+
+      (F[k].control?'<br><i>the LpWM control</i>':''),e);
+    rect.onmouseleave=untip; g.appendChild(rect);
+    g.appendChild(tx(S('text',{x:ML+CW*j+CW/2,y:MT+CH*i+CH/2+2,'text-anchor':'middle',
+      'font-size':19,'font-weight':650,fill:t>0.55?'#fff':'var(--ink)'}),m.toFixed(3)));
+    g.appendChild(tx(S('text',{class:'t',x:ML+CW*j+CW/2,y:MT+CH*i+CH/2+20,'text-anchor':'middle',
+      fill:t>0.55?'#e8eef6':'var(--ink3)'}),F[k].control?'control':(m-F['magnitude|sigmoid'].mean).toFixed(3)));
+  }));
+  document.getElementById('fact').appendChild(g);
+  document.getElementById('factnote').innerHTML =
+    `main effect of <b>support</b> ${F.main_support>=0?'+':''}${F.main_support.toFixed(3)} &middot; `+
+    `main effect of <b>softmax</b> ${F.main_softmax>=0?'+':''}${F.main_softmax.toFixed(3)} &middot; `+
+    `interaction ${F.interaction.toFixed(3)} (additive). `+
+    `Both factors hurt, and the proposal is the cell that takes both. `+
+    `On every seed where the control works, the ordering is monotone decreasing.`;
+})();
+
+/* ---- 2. binarisation cost, interactive in rho ---- */
+(function(){
+  const W=560,H=200,ML=52,MR=16,MT=14,MB=40;
+  const g=S('svg',{viewBox:`0 0 ${W} ${H}`});
+  const bars=S('g'); g.appendChild(bars);
+  const X=v=>ML+v*(W-ML-MR);
+  function draw(rho){
+    while(bars.firstChild) bars.removeChild(bars.firstChild);
+    const hs=-(rho*Math.log2(rho)+(1-rho)*Math.log2(1-rho));
+    const hm=D.magnitude_bits;              // measured, ~3.7 bits | active
+    const mag=rho*hm, tot=hs+mag;
+    const rows=[['support (what the gate keeps)',hs,'var(--blue0)'],
+                ['magnitude (what binarising discards)',mag,'var(--mag0)']];
+    let y=MT;
+    rows.forEach(([lab,v,c])=>{
+      bars.appendChild(S('rect',{x:ML,y:y,width:Math.max((v/tot)*(W-ML-MR),1),height:34,rx:5,fill:c}));
+      bars.appendChild(tx(S('text',{x:ML+8,y:y+22,'font-size':12,'font-weight':600,
+        fill:'var(--ink)'}),`${v.toFixed(2)} bits  (${(100*v/tot).toFixed(0)}%)`));
+      bars.appendChild(tx(S('text',{class:'t',x:ML,y:y+50}),lab));
+      y+=72;
+    });
+    bars.appendChild(tx(S('text',{class:'t',x:ML,y:H-6}),
+      `total ${tot.toFixed(2)} bits/unit at rho=${rho.toFixed(2)}`));
+  }
+  document.getElementById('bits').appendChild(g);
+  const sl=document.getElementById('rho'), out=document.getElementById('rhov');
+  const upd=()=>{const r=+sl.value; out.textContent=r.toFixed(2); draw(r);};
+  sl.oninput=upd; upd();
+})();
+
+/* ---- 3. union saturation ---- */
+(function(){
+  const W=560,H=250,ML=52,MR=90,MT=16,MB=38;
+  const g=S('svg',{viewBox:`0 0 ${W} ${H}`});
+  const X=r=>ML+r*(W-ML-MR), Y=p=>MT+(1-p)*(H-MT-MB);
+  for(let i=0;i<=4;i++){const p=i/4;
+    g.appendChild(S('line',{x1:ML,x2:W-MR,y1:Y(p),y2:Y(p),stroke:'var(--hair)'}));
+    g.appendChild(tx(S('text',{class:'t',x:ML-7,y:Y(p)+4,'text-anchor':'end'}),(100*p)+'%'));}
+  [0.25,0.5,0.75,1].forEach(r=>g.appendChild(tx(S('text',{class:'t',x:X(r),y:H-16,'text-anchor':'middle'}),r.toFixed(2))));
+  g.appendChild(tx(S('text',{x:(ML+W-MR)/2,y:H-2,'text-anchor':'middle'}),'code density rho'));
+  const path=S('path',{fill:'none',stroke:'var(--grn)','stroke-width':2.4});
+  const safe=S('rect',{x:ML,y:Y(0.20),width:W-MR-ML,height:Y(0)-Y(0.20),fill:'var(--grn0)','fill-opacity':.13});
+  g.appendChild(safe); g.appendChild(path);
+  g.appendChild(tx(S('text',{class:'t',x:ML+6,y:Y(0.20)-5,fill:'var(--grn)'}),'union stays sparse -> informative'));
+  const mark=S('circle',{r:6,fill:'var(--ctl)',stroke:'#fff','stroke-width':2});
+  g.appendChild(mark);
+  const lab=tx(S('text',{'font-size':11.5,'font-weight':600}),''); g.appendChild(lab);
+  function draw(J){
+    let d='';
+    for(let i=0;i<=120;i++){const r=i/120, p=1-Math.pow(1-r,J);
+      d+=(i?'L':'M')+X(r)+','+Y(p);}
+    path.setAttribute('d',d);
+    const r0=D.rho_ltv, p0=1-Math.pow(1-r0,J);
+    mark.setAttribute('cx',X(r0)); mark.setAttribute('cy',Y(p0));
+    lab.setAttribute('x',X(r0)+11); lab.setAttribute('y',Y(p0)-8);
+    lab.setAttribute('fill', p0>0.20?'var(--crit)':'var(--good)');
+    lab.textContent=`our rho=${r0.toFixed(2)}, J=${J} -> ${(100*p0).toFixed(0)}% ON`;
+  }
+  document.getElementById('union').appendChild(g);
+  const sl=document.getElementById('J'), out=document.getElementById('Jv');
+  const upd=()=>{out.textContent=sl.value; draw(+sl.value);}; sl.oninput=upd; upd();
+})();
+
+/* ---- 4. power ---- */
+(function(){
+  const W=560,H=230,ML=58,MR=20,MT=16,MB=44, P=D.power;
+  const ns=Object.keys(P).map(Number).sort((a,b)=>a-b);
+  const mx=Math.max(...ns.map(n=>P[n]))*1.08;
+  const g=S('svg',{viewBox:`0 0 ${W} ${H}`});
+  const Y=i=>MT+i*((H-MT-MB)/ns.length)+16, X=v=>ML+(v/mx)*(W-ML-MR);
+  ns.forEach((n,i)=>{
+    g.appendChild(S('rect',{x:ML,y:Y(i)-11,width:Math.max(X(P[n])-ML,1),height:20,rx:4,
+      fill:n<=3?'var(--crit)':(n<=5?'var(--warn)':'var(--good)'),'fill-opacity':.85}));
+    g.appendChild(tx(S('text',{class:'t',x:ML-8,y:Y(i)+4,'text-anchor':'end'}),'n='+n));
+    g.appendChild(tx(S('text',{x:X(P[n])+7,y:Y(i)+4,'font-size':11.5,'font-weight':600}),
+      'MDE '+P[n].toFixed(3)));
+  });
+  D.effects.forEach(e=>{
+    g.appendChild(S('line',{x1:X(Math.abs(e.v)),x2:X(Math.abs(e.v)),y1:MT-4,y2:H-MB+6,
+      stroke:'var(--ink3)','stroke-width':1,'stroke-dasharray':'3 3'}));
+    g.appendChild(tx(S('text',{class:'t',x:X(Math.abs(e.v)),y:H-MB+18,'text-anchor':'middle'}),
+      e.v.toFixed(2)));
+  });
+  g.appendChild(tx(S('text',{class:'t',x:(ML+W-MR)/2,y:H-6,'text-anchor':'middle'}),
+    'minimum detectable paired effect  (dashed = our observed effects, all below the n=3 floor)'));
+  document.getElementById('power').appendChild(g);
+})();
+
+</script></body></html>

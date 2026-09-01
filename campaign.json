@@ -29,9 +29,28 @@
       "1": 0.0,
       "2": 0.06,
       "0": 0.0
+    },
+    "LpWM-base": {
+      "0": 0.26,
+      "1": 0.4,
+      "2": 0.36
+    },
+    "PiWM-sparse-2pct": {
+      "1": 0.0,
+      "2": 0.04
     }
   },
   "gates": [
+    {
+      "name": "Sparse codes: k-WTA: PiWM-sparse-2pct vs LpWM-base",
+      "arm": "PiWM-sparse-2pct",
+      "observed": -0.36,
+      "lo": -0.86824,
+      "hi": 0.14824000000000004,
+      "threshold": 0.0,
+      "direction": "above",
+      "n": 2
+    },
     {
       "name": "Support gating: PiWM-gate-sup-sigmoid vs LpWM-ltv",
       "arm": "PiWM-gate-sup-sigmoid",

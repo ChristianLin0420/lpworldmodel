@@ -494,6 +494,9 @@ def main(argv=None):
     ap.add_argument("--npz", default=None, help="glob of analysis_step1.npz (default: $CKPT_BASE)")
     ap.add_argument("--campaign", default="campaign.json")
     ap.add_argument("--out", default="figures/diagnosis.html")
+    ap.add_argument("--png-dir", default=None,
+                    help="also render the panels as static PNGs (for the diary, which "
+                         "lives in git and cannot embed an interactive report)")
     a = ap.parse_args(argv)
 
     base = os.environ.get("CKPT_BASE", "runs") + "/outputs"
@@ -552,9 +555,135 @@ def main(argv=None):
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render_html(payload, dt.datetime.now().strftime("%Y-%m-%d %H:%M")))
     print(f"wrote {out}  ({out.stat().st_size/1024:.0f} KB)")
+    if a.png_dir:
+        # measured at MATCHED epoch 1.0 -- effective_dim is still rising at 100% of
+        # training, so endpoint values across different-length runs are not comparable
+        effdim = {384: 20.9, 768: 23.9, 1536: 24.1}
+        for f in render_pngs(payload, a.png_dir, effdim):
+            print(f"  wrote {a.png_dir}/{f}")
     print(f"  seed sd (paired) = {sd:.3f}  ->  MDE n=3 = {payload['power']['3']:.3f}")
     return 0
 
+
+
+
+# --- static panels for the diary --------------------------------------------------
+
+def render_pngs(payload, out_dir, effdim_by_D=None):
+    """The three diagnosis panels as static PNGs, in the campaign's design system.
+
+    These exist only inside the interactive report otherwise, and a research diary in
+    git needs images it can show without a browser. Rendered through analysis/panels.py
+    so the diary and the campaign figures share one visual language rather than the
+    diary inventing a second.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch
+
+    out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
+    written = []
+
+    # --- 1. the Step 3 2x2 -------------------------------------------------------
+    F = payload["factorial"]
+    rows, cols = ["magnitude", "support"], ["sigmoid", "softmax"]
+    M = [[F[f"{r}|{c}"]["mean"] for c in cols] for r in rows]
+    fig, ax = plt.subplots(figsize=(7.2, 4.3))
+    arr = np.array(M, float)
+    im = ax.imshow(arr, cmap=P.SEQ + "_r", vmin=np.nanmin(arr) * .92, vmax=np.nanmax(arr) * 1.03)
+    for i, r in enumerate(rows):
+        for j, c in enumerate(cols):
+            cell = F[f"{r}|{c}"]
+            d = cell["mean"] - F["magnitude|sigmoid"]["mean"]
+            lab = "control" if cell["control"] else f"{d:+.3f}"
+            t = (arr[i, j] - np.nanmin(arr)) / max(np.nanmax(arr) - np.nanmin(arr), 1e-9)
+            ink = "white" if t < 0.45 else "#0b0b0b"
+            ax.text(j, i - .10, f"{arr[i, j]:.3f}", ha="center", va="center",
+                    fontsize=19, fontweight="semibold", color=ink)
+            ax.text(j, i + .16, lab, ha="center", va="center", fontsize=9.5, color=ink)
+            ax.text(j, i + .31, "  ".join(f"{s:.2f}" for s in cell["seeds"]),
+                    ha="center", va="center", fontsize=7.6, color=ink, alpha=.75)
+    ax.set_xticks(range(2)); ax.set_xticklabels(["sigmoid", "softmax"], fontsize=11)
+    ax.set_yticks(range(2)); ax.set_yticklabels(["magnitude", "support"], fontsize=11)
+    ax.set_xlabel("gate normalisation"); ax.set_ylabel("gate input")
+    ax.set_title("Step 3 is a 2x2, and both factors hurt\n"
+                 f"main effect support {F['main_support']:+.3f}   "
+                 f"main effect softmax {F['main_softmax']:+.3f}   "
+                 f"interaction {F['interaction']:+.3f} (additive)",
+                 fontsize=10.5, loc="left")
+    fig.colorbar(im, ax=ax, label="CEM success rate", fraction=0.046)
+    fig.tight_layout(); fig.savefig(out / "factorial-2x2.png", dpi=150, bbox_inches="tight")
+    plt.close(fig); written.append("factorial-2x2.png")
+
+    # --- 2. root cause: information split + union saturation ---------------------
+    fig, (a0, a1) = plt.subplots(1, 2, figsize=(11.4, 4.3))
+    rho = payload["rho_ltv"]; hm = payload["magnitude_bits"]
+    rr = np.linspace(0.02, 0.90, 160)
+    hs = -(rr * np.log2(rr) + (1 - rr) * np.log2(1 - rr))
+    mag = rr * hm
+    a0.fill_between(rr, 0, hs, color=P.arm_color("PiWM-sparse-matched"), alpha=.75,
+                    label="support: what the gate keeps")
+    a0.fill_between(rr, hs, hs + mag, color=P.arm_color("PiWM-gate-sup-sigmoid"), alpha=.75,
+                    label="magnitude: what binarising DISCARDS")
+    a0.axvline(rho, color="0.25", lw=1.4)
+    a0.annotate(f"our $\\rho$={rho:.2f}\n{100*(rho*hm)/(np.interp(rho,rr,hs)+rho*hm):.0f}% discarded",
+                (rho, .5), xytext=(8, 0), textcoords="offset points", fontsize=9, color="0.2")
+    a0.set(xlabel=r"code density $\rho$", ylabel="information per unit (bits)",
+           xlim=(0.02, 0.90))
+    a0.set_title(r"(a) $\mathrm{src}=1[z>0]$ throws away the magnitude"
+                 "\nsupport is a deterministic function of z, so DPI bounds it",
+                 fontsize=10, loc="left")
+    a0.legend(fontsize=8.5, loc="upper left"); a0.grid(alpha=.3)
+    a0.spines[["top", "right"]].set_visible(False)
+
+    Js = np.arange(1, 17)
+    for r_, col in ((rho, P.arm_color("PiWM-union4-entropy")), (0.10, "0.55"),
+                    (0.02, P.arm_color("PiWM-sparse-2pct"))):
+        a1.plot(Js, 1 - (1 - r_) ** Js, lw=2.2, color=col, marker="o", ms=4,
+                label=rf"$\rho$={r_:.2f}" + ("  (ours)" if abs(r_ - rho) < 1e-6 else ""))
+    a1.axhspan(0, .20, color=P.arm_color("PiWM-union4"), alpha=.10)
+    a1.annotate("union stays sparse -> informative", (1.2, .205), fontsize=8.5, color="0.3")
+    a1.scatter([4], [1 - (1 - rho) ** 4], s=90, facecolor="white",
+               edgecolor="#b3261e", lw=2.2, zorder=5)
+    a1.annotate(f"J=4 at our $\\rho$: {100*(1-(1-rho)**4):.0f}% ON", (4, 1 - (1 - rho) ** 4),
+                xytext=(10, -14), textcoords="offset points", fontsize=9, color="#b3261e")
+    a1.set(xlabel="heads J", ylabel="fraction of the code ON after union", ylim=(0, 1.02))
+    a1.set_title("(b) the union saturates at our operating point\n"
+                 r"OR of J patterns is ON with prob $1-(1-\rho)^J$", fontsize=10, loc="left")
+    a1.legend(fontsize=8.5); a1.grid(alpha=.3)
+    a1.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout(); fig.savefig(out / "root-cause.png", dpi=150, bbox_inches="tight")
+    plt.close(fig); written.append("root-cause.png")
+
+    # --- 3. effective_dim vs D ---------------------------------------------------
+    if effdim_by_D:
+        Ds = sorted(effdim_by_D)
+        vals = [effdim_by_D[d] for d in Ds]
+        fig, ax = plt.subplots(figsize=(7.4, 4.2))
+        ax.plot(Ds, vals, marker="o", ms=9, lw=2.4, color=P.arm_color("LpWM-ltv"),
+                label="measured effective_dim (matched epoch 1.0)")
+        ax.plot(Ds, [0.054 * d for d in Ds], ls=":", lw=1.6, color="0.55",
+                label="if it scaled with D (5.4% of D)")
+        ax.axhline(4.31, color=P.CONTACT, lw=2.0)
+        ax.annotate("PushT's own participation ratio = 4.31", (Ds[0], 4.31),
+                    xytext=(6, 6), textcoords="offset points", fontsize=9, color=P.CONTACT)
+        for d, v in zip(Ds, vals):
+            ax.annotate(f"{v:.1f}", (d, v), xytext=(0, 10), textcoords="offset points",
+                        ha="center", fontsize=9.5, fontweight="semibold",
+                        color=P.arm_ink("LpWM-ltv"))
+        ax.set(xscale="log", xlabel="code width D", ylabel="effective_dim (participation ratio)",
+               xticks=Ds)
+        ax.set_xticklabels([str(d) for d in Ds])
+        ax.set_title("effective_dim tracks the TASK, not D\n"
+                     f"quadrupling D buys +{100*(vals[-1]/vals[0]-1):.0f}%; it saturates near "
+                     f"{max(vals):.0f} ~ {max(vals)/4.31:.1f}x the task's own dimensionality",
+                     fontsize=10.5, loc="left")
+        ax.legend(fontsize=9); ax.grid(alpha=.3)
+        ax.spines[["top", "right"]].set_visible(False)
+        fig.tight_layout(); fig.savefig(out / "effdim-vs-D.png", dpi=150, bbox_inches="tight")
+        plt.close(fig); written.append("effdim-vs-D.png")
+    return written
 
 if __name__ == "__main__":
     raise SystemExit(main())
