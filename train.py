@@ -802,6 +802,7 @@ class Trainer:
             lamb_var=self.cfg.get("lamb_var", 0.0),
             lamb_cov=self.cfg.get("lamb_cov", 0.0),
             var_space=self.cfg.get("var_space", "u"),
+            var_gamma=self.cfg.get("var_gamma", 1.0),
             n_heads=self.cfg.get("n_heads", 1),
             head_entropy_coef=self.cfg.get("head_entropy_coef", 0.0),
             burst_tau=self.cfg.get("burst_tau", 0.5),

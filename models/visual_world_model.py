@@ -32,6 +32,7 @@ class VWorldModel(nn.Module):
         lamb_cov=0.0,
         lamb_decode=1.0,
         var_space="u",
+        var_gamma=1.0,   # VICReg hinge target: penalise per-dim std below this
         n_heads=1,
         head_entropy_coef=0.0,
         burst_tau=0.5,
@@ -63,6 +64,7 @@ class VWorldModel(nn.Module):
         self.lamb_cov = lamb_cov
         self.lamb_decode = lamb_decode
         self.var_space = var_space
+        self.var_gamma = var_gamma
         self.num_action_repeat = num_action_repeat
         self.num_proprio_repeat = num_proprio_repeat
         self.proprio_dim = proprio_dim * num_proprio_repeat

@@ -94,6 +94,12 @@ detach_target: False       # no stop-grad
 lamb_var: 0.0              # VICReg variance-floor weight (anti-collapse / balance)
 lamb_cov: 0.0              # VICReg covariance (decorrelation) weight; var+cov = full VICReg dense baseline
 var_space: u               # variance floor on pre-link "u" | post-link "z" | "both"
+var_gamma: 1.0             # hinge target for the variance floor: relu(var_gamma - std_d).
+# CALIBRATION (measured 2026-09-01 on trained pushT codes): healthy per-dim std(z) is ~0.45-0.49,
+# so the VICReg-standard 1.0 sits ABOVE the operating point -- the hinge is then always maximally
+# active (~0.51) and rescales the code rather than flooring it, which makes a +lamb_var arm a
+# different model rather than a control. For an anti-collapse FLOOR use var_gamma=0.2 (~43% of
+# healthy): exactly 0 in the healthy regime, active only once the code starts dying.
 target_p: 1.0              # GN_p base shape for the target: 2 -> Gaussian, 1 -> Laplace
 mu: 0.0                    # target-mean shift for the relu link: mu<0 -> sparser code (0 = doc default)
 agg: btp                   # SWD aggregation: btp (pool) | b | bp | bt (see AGG_PATTERNS)

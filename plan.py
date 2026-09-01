@@ -131,7 +131,14 @@ class PlanWorkspace:
         self.device = next(wm.parameters()).device
 
         # have different seeds for each planning instances
-        self.eval_seed = [cfg_dict["seed"] * n + 1 for n in range(cfg_dict["n_evals"])]
+        # NB seed*n+1 (the original) DEGENERATES AT seed=0 to [1]*n_evals -- every
+        # "episode" is then the same initial condition, so a seed-0 eval measures CEM
+        # stochasticity on one task instance rather than an n_evals-episode success
+        # rate. It also gave overlapping episode sets across seeds ([1..50] for seed 1,
+        # [1,3,5,..] for seed 2), so eval noise was not common-mode and did not cancel
+        # in a paired difference. Disjoint blocks fix both: seed s -> [s*n_evals+1 ...].
+        n_ev = cfg_dict["n_evals"]
+        self.eval_seed = [cfg_dict["seed"] * n_ev + n + 1 for n in range(n_ev)]
         print("eval_seed: ", self.eval_seed)
         self.n_evals = cfg_dict["n_evals"]
         self.goal_source = cfg_dict["goal_source"]

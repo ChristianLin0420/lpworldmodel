@@ -101,6 +101,7 @@ def build(cfg, device="cpu"):
         lamb_var=cfg.get("lamb_var", 0.0),
         lamb_cov=cfg.get("lamb_cov", 0.0),
         var_space=cfg.get("var_space", "u"),
+        var_gamma=cfg.get("var_gamma", 1.0),
         n_heads=cfg.get("n_heads", 1),
         head_entropy_coef=cfg.get("head_entropy_coef", 0.0),
         burst_tau=cfg.get("burst_tau", 0.5),

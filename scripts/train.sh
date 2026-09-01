@@ -52,6 +52,7 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${REG_WEIGHT:-}" ] && { add "reg_weight=${REG_WEIGHT}"; TAG="${TAG}_rw${REG_WEIGHT}"; }
 [ -n "${LAMB_VAR:-}" ]   && { add "lamb_var=${LAMB_VAR}"; TAG="${TAG}_lv${LAMB_VAR}"; }
 [ -n "${LAMB_COV:-}" ]   && { add "lamb_cov=${LAMB_COV}"; TAG="${TAG}_lc${LAMB_COV}"; }
+[ -n "${VAR_GAMMA:-}" ] && { add "var_gamma=${VAR_GAMMA}"; TAG="${TAG}_vg${VAR_GAMMA}"; }
 [ -n "${VAR_SPACE:-}" ]  && add "var_space=${VAR_SPACE}"
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }
