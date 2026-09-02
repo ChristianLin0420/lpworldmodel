@@ -53,6 +53,8 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${LAMB_VAR:-}" ]   && { add "lamb_var=${LAMB_VAR}"; TAG="${TAG}_lv${LAMB_VAR}"; }
 [ -n "${LAMB_COV:-}" ]   && { add "lamb_cov=${LAMB_COV}"; TAG="${TAG}_lc${LAMB_COV}"; }
 [ -n "${VAR_GAMMA:-}" ] && { add "var_gamma=${VAR_GAMMA}"; TAG="${TAG}_vg${VAR_GAMMA}"; }
+[ -n "${MUP_INPUT_FIX:-}" ] && { add "mup_input_lr_fix=${MUP_INPUT_FIX}"; TAG="${TAG}_mupfix"; }
+[ -n "${USE_POSE:-}" ]   && { add "use_pose=${USE_POSE}"; TAG="${TAG}_pose"; }
 [ -n "${VAR_SPACE:-}" ]  && add "var_space=${VAR_SPACE}"
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }

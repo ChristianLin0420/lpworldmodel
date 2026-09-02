@@ -33,6 +33,36 @@ import torch.nn as nn
 _LINEARISH = (nn.Linear, nn.Conv1d, nn.Conv2d, nn.Conv3d)
 _EMB_KEYS = ("cls_token", "pos_embedding", "temporal_pos", "spatial_pos")
 
+# muP weight CLASSES. The module docstring above already states the rule: a dim is
+# "finite" when it is problem-imposed ("input channels, patch pixels, raw action/proprio
+# dim, seq/context"), and a finite->infinite map is an INPUT weight, whose muP Adam LR is
+# Theta(1) -- i.e. base_lr, NOT base_lr*base_width/fan_in. That carve-out was documented
+# and never implemented: the loop below applies the HIDDEN rule to every Linear/Conv.
+#
+# Measured consequence at base_lr=5e-4, base_width=384 (from the schema each run prints):
+#   proprio_encoder.patch_embed.weight   fan_in=4   -> 4.800e-02   (96x base_lr)
+#   action_encoder.patch_embed.weight    fan_in=10  -> 1.920e-02   (38x)
+#   predictor.{Ulag.*, UB}.weight        fan_in=16  -> 1.200e-02   (24x)
+# while action_encoder.embed.2.weight (fan_in=1536) gets 1.250e-04 -- the two layers of
+# one 2-layer MLP end up 154x apart.
+#
+# This also matters for any experiment that CHANGES an input fan_in: concatenating a 4-D
+# pose onto the 10-D action moves action_encoder.patch_embed from 1.920e-02 to 1.371e-02,
+# so "adding pose" would silently also be "changing a learning rate". With the carve-out
+# on, an input weight's LR is base_lr regardless of fan_in, and that confound disappears.
+#
+# Off by default: bit-identical to upstream unless input_lr_fix=True.
+_INPUT_WEIGHTS = (
+    "patch_embed.weight",   # encoder patch pixels (588); action (10); proprio (4)
+    "embed.0.weight",       # Embedder's first Linear: raw action/proprio dim
+    "Ulag.",                # LTV low-rank up-projection: fan_in = rank r (16), fixed in D
+    "UB.",                  # ditto, action branch
+)
+
+
+def _is_input_weight(name):
+    return any(pat in name for pat in _INPUT_WEIGHTS)
+
 
 def _fan_in(weight):
     """prod of all dims except the output dim (dim 0)."""
@@ -50,7 +80,8 @@ def mup_fan_in_map(model):
     return fmap
 
 
-def mup_param_groups(model, base_lr, base_width, weight_decay=0.0, tag="", verbose=True):
+def mup_param_groups(model, base_lr, base_width, weight_decay=0.0, tag="", verbose=True,
+                     input_lr_fix=False):
     """Per-parameter AdamW param-groups implementing the muP Adam LR rule with a fixed global
     reference `base_width` (muP "tilde_d" formulation), applied at EVERY width including the base:
 
@@ -78,17 +109,23 @@ def mup_param_groups(model, base_lr, base_width, weight_decay=0.0, tag="", verbo
     for name, p in model.named_parameters():
         if not p.requires_grad:
             continue
-        if name in fmap:  # matrix-like: lr = base_lr * base_width / fan_in
+        if name in fmap:  # matrix-like
             fan_in = fmap[name]
-            used_lr = base_lr * base_width / fan_in
+            if input_lr_fix and _is_input_weight(name):
+                used_lr = base_lr                       # muP INPUT weight: Adam LR = Theta(1)
+                cls = "input"
+            else:
+                used_lr = base_lr * base_width / fan_in  # muP HIDDEN weight
+                cls = "hidden"
         else:
             fan_in = base_width
             used_lr = base_lr
+            cls = "vector"
         wd = weight_decay if p.dim() >= 2 else 0.0
         groups.append({"params": [p], "name": name, "lr": used_lr, "weight_decay": wd})
         if verbose:
             offbase = " (fan_in!=base_width)" if name in fmap and fan_in != base_width else ""
-            print(f"{name:<46} {fan_in:>8} {base_width:>8} {used_lr:>12.3e} {wd:>6}{offbase}")
+            print(f"{name:<46} {fan_in:>8} {base_width:>8} {used_lr:>12.3e} {wd:>6} {cls}{offbase}")
     if verbose:
         n = sum(pp.numel() for g in groups for pp in g["params"])
         print(f"### [{tag}] {len(groups)} param-groups, {n:,} params ###")

@@ -33,6 +33,18 @@ CKPT_BASE=${CKPT_BASE:-${REPO}/runs}
 # and inheriting one would silently corrupt every run name below
 PROJ_D=${PROJ_D:-384}
 
+# cls  -> vit_scratch       : num_patches=1, the predictor sees ONE token per frame
+# patch-> vit_scratch_patch : num_patches=(img/patch)^2 = 256 tokens, each with a position
+# This was the hardcoded literal "cls" in the two submit lines below. It is a knob because
+# TBT is about a POPULATION of columns and at num_patches=1 there is no population to test:
+# LinearDynamicsPredictor has no positional embedding and no per-patch parameters, so its
+# whole operator is broadcast over a patch axis of size 1.
+FEATURE=${FEATURE:-cls}
+case "${FEATURE}" in cls|patch) ;; *) echo "FEATURE must be cls|patch" >&2; exit 1 ;; esac
+# The run name carries it, so a patch arm and a cls arm can never collide in one dir or be
+# silently compared -- the same reason PRECISION is in the name.
+FEAT_TAG=""; [ "${FEATURE}" != "cls" ] && FEAT_TAG="_${FEATURE}"
+
 # Set once here, for every arm including the controls. bf16 perturbs numerics, so
 # an arm that differed in precision would confound it with the intervention; the
 # value is chosen from the probe wall-clock (3.9h/epoch in fp32 on A100).
@@ -180,6 +192,45 @@ wave7_arms() {
     ARMS[LpWM-ltv-d2048-hilr]="ltv 1.0 2.667e-3"
 }
 
+# wave12: THE COLUMNS ARM. Launch with FEATURE=patch.
+#
+# The campaign has been testing theories about cortical columns on a model that has
+# exactly one token. conf/encoder/vit_scratch.yaml sets feature: cls, so
+# vit_encoder.py:55-56 gives num_patches=1 and the predictor sees ONE token per frame;
+# LinearDynamicsPredictor has no positional embedding and no per-patch parameters
+# (infojepa_modules.py:545-567,612-638), so its operator is broadcast over a patch axis
+# of size 1. There is no population of columns to vote, and no location to have a frame
+# in. FEATURE=patch selects vit_scratch_patch -> 256 tokens, each with a position.
+#
+# Config-only: same predictor, reg_weight, mup_lr, link, target_p as LpWM-ltv, so the
+# already-evaluated LpWM-ltv s3-s15 (n=13, 2 epochs) is the matched control for free.
+# The run name carries "_patch" (FEAT_TAG), and analysis/figures.run_arm maps it to a
+# SEPARATE arm, so a patch run can never pool with a cls run.
+# wave13: THE REFERENCE-FRAME ARM, with its own matched control.
+#
+# TBT pairs sensory input with an allocentric LOCATION signal. This model throws that
+# signal away: action_conditioning=adaln returns at visual_world_model.py:174 before
+# obs["proprio"] is read, so the agent pose [x, y, vx, vy] is loaded and moved to GPU
+# every batch while proprio_encoder receives ZERO gradient and is still optimised and
+# checkpointed. USE_POSE=true adds its embedding to the action embedding -- the only
+# conditioning-shaped tensor the predictor consumes.
+#
+# BOTH arms carry MUP_INPUT_FIX=true, and that is what makes the contrast single-factor:
+# the pose module's input layer has fan_in=4 and, under the unfixed muP rule, would train
+# at 96x base_lr (4.8e-2). Turning pose on without the fix would measure an optimizer
+# blow-up, not a reference frame. The control isolates the LR fix on its own, so
+# LpWM-ltv-mupfix vs the existing LpWM-ltv also prices the muP bug for free.
+wave13_arms() {
+    ORDER[wave13]="LpWM-ltv-mupfix PiWM-refframe"
+    ARMS[LpWM-ltv-mupfix]="ltv 1.0 5e-4 MUP_INPUT_FIX=true"
+    ARMS[PiWM-refframe]="ltv 1.0 5e-4 MUP_INPUT_FIX=true USE_POSE=true"
+}
+
+wave12_arms() {
+    ORDER[wave12]="PiWM-columns"
+    ARMS[PiWM-columns]="ltv 1.0 5e-4"
+}
+
 wave5_arms() {
     local K; K=$(python -c "print(round(0.02*${PROJ_D}))")
     ORDER[wave5]="LpWM-ltv-d${PROJ_D} PiWM-sdr-d${PROJ_D}-k${K}"
@@ -192,7 +243,7 @@ submit_arm() {  # $1 = arm name, $2 = seed
     read -r pred rw mlr extra <<< "${ARMS[$arm]}"
     # precision is in the run name so a mixed-precision comparison is visible
     # rather than silent if PRECISION is ever changed mid-campaign
-    local run="${arm}_pd${PROJ_D}_${PRECISION}_s${seed}"
+    local run="${arm}_pd${PROJ_D}${FEAT_TAG}_${PRECISION}_s${seed}"
     local dir="${CKPT_BASE}/outputs/${run}"
 
     if [ "${EVAL:-0}" = "1" ]; then
@@ -241,11 +292,11 @@ submit_arm() {  # $1 = arm name, $2 = seed
     [ "${DRYRUN:-0}" = "1" ] && { DRYRUN=1 env RUN_NAME="${run}" PREDICTOR="${pred}" \
         PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" REG_WEIGHT="${rw}" MU=0 SEED="${seed}" \
         REGULARIZER=rdmreg WINDOWS="${WINDOWS}" ${extra} \
-        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" cls "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
+        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${FEATURE}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
     env RUN_NAME="${run}" PREDICTOR="${pred}" PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" \
         REG_WEIGHT="${rw}" MU=0 SEED="${seed}" REGULARIZER=rdmreg WINDOWS="${WINDOWS}" \
         ${extra} \
-        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" cls "${tp}" b "${WORKERS}" | sed 's/^/    /'
+        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${FEATURE}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
 }
 
 [ $# -gt 0 ] || { sed -n '2,25p' "$0"; exit 1; }
@@ -262,6 +313,8 @@ for gate in "$@"; do
         wave5)        wave5_arms;  gate=wave5  ;;
         wave6)        wave6_arms;  gate=wave6  ;;
         wave7)        wave7_arms;  gate=wave7  ;;
+        wave12)       wave12_arms; gate=wave12 ;;
+        wave13)       wave13_arms; gate=wave13 ;;
         *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2|wave3|wave4|wave5)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="

@@ -660,10 +660,14 @@ class Trainer:
             for param in self.encoder.parameters():
                 param.requires_grad = False
 
+        # With use_pose the proprio embedding is ADDED to the action embedding, so it has
+        # to live in the same space: emb_dim = action_emb_dim, not the vestigial
+        # proprio_emb_dim (10) that the unused adaln path left behind.
+        _use_pose = bool(self.cfg.get("use_pose", False))
         self.proprio_encoder = hydra.utils.instantiate(
             self.cfg.proprio_encoder,
             in_chans=self.datasets["train"].proprio_dim,
-            emb_dim=self.cfg.proprio_emb_dim,
+            emb_dim=self.cfg.action_emb_dim if _use_pose else self.cfg.proprio_emb_dim,
         )
         proprio_emb_dim = self.proprio_encoder.emb_dim
         print(f"Proprio encoder type: {type(self.proprio_encoder)}")
@@ -803,6 +807,7 @@ class Trainer:
             lamb_cov=self.cfg.get("lamb_cov", 0.0),
             var_space=self.cfg.get("var_space", "u"),
             var_gamma=self.cfg.get("var_gamma", 1.0),
+            use_pose=_use_pose,
             n_heads=self.cfg.get("n_heads", 1),
             head_entropy_coef=self.cfg.get("head_entropy_coef", 0.0),
             burst_tau=self.cfg.get("burst_tau", 0.5),
@@ -827,11 +832,12 @@ class Trainer:
             mup_lr = self.cfg.training.get("mup_lr", self.cfg.training.predictor_lr)
             mup_wd = self.cfg.training.get("mup_weight_decay", 0.01)
             mup_bw = self.cfg.training.get("mup_base_width", self.cfg.get("embed_dim", 384))
+            mup_ifix = bool(self.cfg.get("mup_input_lr_fix", False))
 
         if self.train_encoder:
             if mup:
                 self.encoder_optimizer = torch.optim.AdamW(
-                    mup_param_groups(self.encoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="encoder"),
+                    mup_param_groups(self.encoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="encoder", input_lr_fix=mup_ifix),
                     lr=mup_lr, eps=1e-15,
                 )
             else:
@@ -845,7 +851,7 @@ class Trainer:
         if self.cfg.has_predictor:
             if mup:
                 self.predictor_optimizer = torch.optim.AdamW(
-                    mup_param_groups(self.predictor, mup_lr, mup_bw, weight_decay=mup_wd, tag="predictor"),
+                    mup_param_groups(self.predictor, mup_lr, mup_bw, weight_decay=mup_wd, tag="predictor", input_lr_fix=mup_ifix),
                     lr=mup_lr, eps=1e-15,
                 )
             else:
@@ -858,8 +864,8 @@ class Trainer:
             )
 
             if mup:
-                act_groups = mup_param_groups(self.action_encoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="action_encoder") \
-                    + mup_param_groups(self.proprio_encoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="proprio_encoder")
+                act_groups = mup_param_groups(self.action_encoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="action_encoder", input_lr_fix=mup_ifix) \
+                    + mup_param_groups(self.proprio_encoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="proprio_encoder", input_lr_fix=mup_ifix)
                 self.action_encoder_optimizer = torch.optim.AdamW(
                     act_groups, lr=mup_lr, eps=1e-15,
                 )
@@ -877,7 +883,7 @@ class Trainer:
         if self.cfg.has_decoder:
             if mup:
                 self.decoder_optimizer = torch.optim.AdamW(
-                    mup_param_groups(self.decoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="decoder"),
+                    mup_param_groups(self.decoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="decoder", input_lr_fix=mup_ifix),
                     lr=mup_lr, eps=1e-15,
                 )
             else:

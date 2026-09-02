@@ -144,6 +144,19 @@ plan_settings:
   alpha: [0.1, 1]
 
 # Optional dedicated W&B project name; null => per-env default InfoJEPA_train_<env>.
-mup: false                # Maximal Update Parametrization (width transfer): per-param lr=mup_lr/fan_in + muP init. See models/mup.py.
+mup: false
+# muP INPUT-weight rule. models/mup.py documents (but never implemented) the carve-out that a
+# finite->infinite map is an INPUT weight whose Adam LR is Theta(1) = base_lr, not
+# base_lr*base_width/fan_in. Without it, at base_lr=5e-4: proprio_encoder.patch_embed (fan_in=4)
+# trains at 4.8e-2 = 96x base_lr, action_encoder.patch_embed (10) at 38x, predictor.Ulag (16) at
+# 24x. false => upstream behaviour, bit-identical.
+mup_input_lr_fix: false
+
+# TBT reference frame: bind the allocentric location signal (agent pose, obs["proprio"] =
+# [x, y, vx, vy]) to the action embedding. The adaln path currently DROPS proprio at
+# visual_world_model.py:174, so the loader materialises it every batch and the proprio
+# encoder is optimised and checkpointed while receiving zero gradient. false => unchanged.
+use_pose: false
+                # Maximal Update Parametrization (width transfer): per-param lr=mup_lr/fan_in + muP init. See models/mup.py.
 wandb_project: null
 burst_tau: 0.5             # Step 4 burst readout threshold on 1 - J_S (provisional)

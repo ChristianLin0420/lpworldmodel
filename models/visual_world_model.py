@@ -33,6 +33,7 @@ class VWorldModel(nn.Module):
         lamb_decode=1.0,
         var_space="u",
         var_gamma=1.0,   # VICReg hinge target: penalise per-dim std below this
+        use_pose=False,  # bind the allocentric location signal to the action (TBT reference frame)
         n_heads=1,
         head_entropy_coef=0.0,
         burst_tau=0.5,
@@ -65,6 +66,7 @@ class VWorldModel(nn.Module):
         self.lamb_decode = lamb_decode
         self.var_space = var_space
         self.var_gamma = var_gamma
+        self.use_pose = use_pose
         self.num_action_repeat = num_action_repeat
         self.num_proprio_repeat = num_proprio_repeat
         self.proprio_dim = proprio_dim * num_proprio_repeat
@@ -154,6 +156,36 @@ class VWorldModel(nn.Module):
     def encode_act(self, act):
         act = self.action_encoder(act) # (b, num_frames, action_emb_dim)
         return act
+
+    def _act_emb_with_pose(self, act, proprio):
+        """Action embedding with the location signal bound to it (TBT reference frame).
+
+        The adaln path drops obs["proprio"] at encode_obs(), so the agent pose -- which
+        the loader materialises and moves to GPU every batch -- never reaches the model
+        and self.proprio_encoder receives zero gradient while still being optimised and
+        checkpointed. Here it is added to the action embedding, which is the only
+        conditioning-shaped tensor the predictor consumes (infojepa_modules.py:555,566).
+
+        ADDED rather than concatenated on purpose: concatenating pose onto the raw action
+        would move action_encoder.patch_embed's fan_in from 10 to 14 and therefore its muP
+        learning rate, so "adding pose" would silently also be "changing an LR" and the
+        arm would not be single-factor.
+
+        proprio may be SHORTER than act: at plan time obs_0 carries pose only for the
+        num_hist observed frames while act runs the full horizon. The last observed pose
+        is held for the remaining steps -- an explicit approximation, not an oversight.
+        PushT actions are relative agent displacements, so pose is in principle
+        integrable from them; that is a strictly better rollout and is left for later.
+        """
+        act_emb = self.encode_act(act)
+        if not self.use_pose or proprio is None:
+            return act_emb
+        pose_emb = self.encode_proprio(proprio)            # (b, t_obs, d)
+        t = act_emb.shape[1]
+        if pose_emb.shape[1] < t:                          # hold the last observed pose
+            pad = pose_emb[:, -1:].expand(-1, t - pose_emb.shape[1], -1)
+            pose_emb = torch.cat([pose_emb, pad], dim=1)
+        return act_emb + pose_emb[:, :t]
     
     def encode_proprio(self, proprio):
         proprio = self.proprio_encoder(proprio)
@@ -367,7 +399,7 @@ class VWorldModel(nn.Module):
         loss_components = {}
         u_emb = self.encode_obs(obs)["visual"]  # raw encoder output (b, num_frames, p, d)
         z_emb = self._link(u_emb)               # linked
-        act_emb = self.encode_act(act)          # (b, num_frames, act_emb_dim)
+        act_emb = self._act_emb_with_pose(act, obs.get("proprio"))  # (b, num_frames, act_emb_dim)
 
         z_src = z_emb[:, : self.num_hist]       # (b, num_hist, p, d) linked input
         act_src = act_emb[:, : self.num_hist]   # (b, num_hist, act_emb_dim)
@@ -581,7 +613,7 @@ class VWorldModel(nn.Module):
         return torch.gather(z_all, 0, idx).squeeze(0)            # (b,1,p,d)
 
     def _rollout_adaln(self, obs_0, act, z_goal=None):
-        act_emb_all = self.encode_act(act)  # (b, T_total, a)
+        act_emb_all = self._act_emb_with_pose(act, obs_0.get("proprio"))  # (b, T_total, a)
         emb = self._link(self.encode_obs(obs_0)["visual"])  # (b, n, p, d) linked
         while emb.shape[1] < act.shape[1]:
             emb = torch.cat(
