@@ -197,10 +197,21 @@ class VWorldModel(nn.Module):
         output:   z (dict): "visual", "proprio" (b, t, num_patches, encoder_emb_dim)
         """
         visual = obs['visual']
-        b = visual.shape[0]
+        b, t_frames = visual.shape[0], visual.shape[1]
         visual = rearrange(visual, "b t ... -> (b t) ...")
         visual = self.encoder_transform(visual)
-        visual_embs = self.encoder.forward(visual)
+        # Block-causal temporal attention encodes the CLIP jointly, so a frame's
+        # representation depends on the current and past frames. The default path
+        # encodes every frame independently (t folded into the batch), which is why
+        # the encoder otherwise has no temporal structure whatsoever.
+        # getattr on the UNWRAPPED module: accelerate's DDP wrapper only proxies
+        # forward(), so reaching forward_temporal through it raises AttributeError --
+        # the same trap documented for forward_heads on _pred above.
+        _enc = getattr(self.encoder, "module", self.encoder)
+        if getattr(_enc, "block_causal", False):
+            visual_embs = _enc.forward_temporal(visual, t_frames)
+        else:
+            visual_embs = self.encoder.forward(visual)
         visual_embs = rearrange(visual_embs, "(b t) p d -> b t p d", b=b)
 
         if self.action_conditioning == "adaln":

@@ -157,6 +157,11 @@ mup_input_lr_fix: false
 # visual_world_model.py:174, so the loader materialises it every batch and the proprio
 # encoder is optimised and checkpointed while receiving zero gradient. false => unchanged.
 use_pose: false
+
+# LeVJEPA encoder knobs. Top-level so hydra can override them (the encoder yaml reads
+# them via oc.select); same pattern as kwta_k. Both inert at these defaults.
+token_drop: 0.0            # fraction of patch tokens dropped per step, train only
+block_causal: false        # encode the clip jointly, causal across frames
                 # Maximal Update Parametrization (width transfer): per-param lr=mup_lr/fan_in + muP init. See models/mup.py.
 wandb_project: null
 burst_tau: 0.5             # Step 4 burst readout threshold on 1 - J_S (provisional)

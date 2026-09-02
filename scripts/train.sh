@@ -55,6 +55,8 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${VAR_GAMMA:-}" ] && { add "var_gamma=${VAR_GAMMA}"; TAG="${TAG}_vg${VAR_GAMMA}"; }
 [ -n "${MUP_INPUT_FIX:-}" ] && { add "mup_input_lr_fix=${MUP_INPUT_FIX}"; TAG="${TAG}_mupfix"; }
 [ -n "${USE_POSE:-}" ]   && { add "use_pose=${USE_POSE}"; TAG="${TAG}_pose"; }
+[ -n "${TOKEN_DROP:-}" ] && { add "token_drop=${TOKEN_DROP}"; TAG="${TAG}_drop${TOKEN_DROP}"; }
+[ -n "${BLOCK_CAUSAL:-}" ] && { add "block_causal=${BLOCK_CAUSAL}"; TAG="${TAG}_bc"; }
 [ -n "${VAR_SPACE:-}" ]  && add "var_space=${VAR_SPACE}"
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }

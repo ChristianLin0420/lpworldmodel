@@ -379,6 +379,22 @@ def _in_chans_from(sd):
     return None if w is None else w.shape[1]
 
 
+def _emb_dim_from(sd):
+    """Recover emb_dim from a proprio/action encoder state_dict.
+
+    Same trick as _in_chans_from but on dim 0: nn.Conv1d(in_chans, emb_dim, k) has
+    weight (emb_dim, in_chans, k). Needed because use_pose changes the proprio
+    encoder's OUTPUT width -- with pose on, its embedding is ADDED to the action
+    embedding, so it is built with action_emb_dim (384) instead of the vestigial
+    proprio_emb_dim (10). Reading the width from the checkpoint keeps planning
+    correct for both, and does not depend on the flag surviving in train_cfg.
+    """
+    if not isinstance(sd, Mapping):
+        return None
+    w = sd.get("patch_embed.weight")
+    return None if w is None else w.shape[0]
+
+
 def load_model(model_ckpt, train_cfg, num_action_repeat, device):
     """Rebuild the world model from train_cfg and restore its weights.
 
@@ -412,7 +428,7 @@ def load_model(model_ckpt, train_cfg, num_action_repeat, device):
         hydra.utils.instantiate(
             train_cfg.proprio_encoder,
             in_chans=_in_chans_from(payload.get("proprio_encoder")) or 1,
-            emb_dim=train_cfg.proprio_emb_dim,
+            emb_dim=_emb_dim_from(payload.get("proprio_encoder")) or train_cfg.proprio_emb_dim,
         ),
     )
     action_encoder = restore(
@@ -490,6 +506,9 @@ def load_model(model_ckpt, train_cfg, num_action_repeat, device):
         regularizer=None,
         reg_weight=0.0,
         detach_target=train_cfg.get("detach_target", True),
+        # Without this the pose signal is silently dropped at PLAN time while the
+        # model still trains with it -- the arm would be evaluated as a different model.
+        use_pose=bool(train_cfg.get("use_pose", False)),
         link=link,
         # n_heads must come across: the predictor is built with J readouts either
         # way, but a model left at n_heads=1 takes the single-head forward and
@@ -520,13 +539,37 @@ class DummyWandbRun:
         pass
 
 
+def _member_spec(spec, default_epoch):
+    """"<run_dir>" or "<run_dir>@<epoch>" -> (run_dir, epoch)."""
+    run, _, epoch = str(spec).partition("@")
+    return run, (epoch or default_epoch)
+
+
 def planning_main(cfg_dict):
     output_dir = cfg_dict["saved_folder"]
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     ckpt_base_path = cfg_dict["ckpt_base_path"]
-    model_path = f"{ckpt_base_path}/outputs/{cfg_dict['model_name']}/"
-    with open(os.path.join(model_path, "hydra.yaml"), "r") as f:
-        model_cfg = OmegaConf.load(f)
+    # Plan-time consensus (planning/ensemble.py): `ensemble_members` lists M run dirs
+    # (optionally "<run>@<epoch>") whose models vote on every CEM candidate. In that mode
+    # `model_name` is only the label for the output dir, and the dataset / env / frameskip /
+    # num_hist are read from the FIRST member -- every member must share them. Absent or
+    # empty (the default in every conf/plan_*.yaml), this is exactly the single-model path.
+    # NB utils.cfg_to_dict (utils.py:72) comma-joins every TOP-LEVEL list into a string,
+    # so `ensemble_members=[a,b,c]` arrives here as "a,b,c"; accept both forms.
+    _members = cfg_dict.get("ensemble_members") or []
+    if isinstance(_members, str):
+        _members = [m for m in _members.split(",") if m]
+    members = [_member_spec(m, cfg_dict["model_epoch"]) for m in _members]
+    if members:
+        member_cfgs = [
+            OmegaConf.load(os.path.join(f"{ckpt_base_path}/outputs/{run}", "hydra.yaml"))
+            for run, _ in members
+        ]
+        model_cfg = member_cfgs[0]
+    else:
+        model_path = f"{ckpt_base_path}/outputs/{cfg_dict['model_name']}/"
+        with open(os.path.join(model_path, "hydra.yaml"), "r") as f:
+            model_cfg = OmegaConf.load(f)
 
     if cfg_dict["wandb_logging"]:
         wandb_run = wandb.init(
@@ -546,10 +589,25 @@ def planning_main(cfg_dict):
     dset = dset["valid"]
 
     num_action_repeat = model_cfg.num_action_repeat
-    model_ckpt = (
-        Path(model_path) / "checkpoints" / f"model_{cfg_dict['model_epoch']}.pth"
-    )
-    model = load_model(model_ckpt, model_cfg, num_action_repeat, device=device)
+    if members:
+        from planning.ensemble import EnsembleWorldModel
+
+        columns = [
+            load_model(
+                Path(f"{ckpt_base_path}/outputs/{run}") / "checkpoints" / f"model_{ep}.pth",
+                c,
+                c.num_action_repeat,
+                device=device,
+            )
+            for (run, ep), c in zip(members, member_cfgs)
+        ]
+        model = EnsembleWorldModel(columns, [f"{r}@{e}" for r, e in members])
+        print(f"Ensemble of {len(columns)} columns: {model.names}")
+    else:
+        model_ckpt = (
+            Path(model_path) / "checkpoints" / f"model_{cfg_dict['model_epoch']}.pth"
+        )
+        model = load_model(model_ckpt, model_cfg, num_action_repeat, device=device)
 
     # use dummy vector env for wall and deformable envs
     if model_cfg.env.name == "wall" or model_cfg.env.name == "deformable_env":

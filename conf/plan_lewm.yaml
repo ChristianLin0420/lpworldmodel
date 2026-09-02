@@ -30,6 +30,10 @@ hydra:
 ckpt_base_path: ./checkpoints  # put absolute path here. Checkpoints loaded from ${ckpt_base_path}/outputs
 model_name: null
 model_epoch: latest
+# Plan-time consensus (planning/ensemble.py): list M run dirs (optionally "<run>@<epoch>")
+# to vote on every CEM candidate; model_name then only labels the output dir. null => the
+# ordinary single-model eval, unchanged. Pair with objective._target_=create_vote_objective_fn.
+ensemble_members: null
 
 seed: 99
 n_evals: 50

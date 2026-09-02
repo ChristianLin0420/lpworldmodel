@@ -12,3 +12,6 @@ feature: cls          # "cls" (single token / latent_ndim=1) or "patch"
 proj_hidden: 2048
 proj_dim: ${embed_dim}
 name: vit_scratch
+# LeVJEPA knobs, both inert at their defaults.
+token_drop: ${oc.select:token_drop,0.0}      # stochastic token dropping (train only)
+block_causal: ${oc.select:block_causal,false} # joint clip encoding, causal across frames

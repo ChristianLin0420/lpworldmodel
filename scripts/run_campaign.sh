@@ -226,6 +226,69 @@ wave13_arms() {
     ARMS[PiWM-refframe]="ltv 1.0 5e-4 MUP_INPUT_FIX=true USE_POSE=true"
 }
 
+# ---------------------------------------------------------------------------------
+# LeVJEPA (arXiv 2608.27395) combination waves. That paper trains a single encoder with
+# an invariance loss + SIGReg, which constrains embeddings to an ISOTROPIC GAUSSIAN --
+# "the distribution shown to minimize worst-case downstream probing risk" -- and thereby
+# excludes collapse with a provable guarantee, dispensing with the EMA target encoder,
+# the stop-gradient and the capacity-limited predictor.
+#
+# Two of those three we already match: this model has no EMA target, and
+# conf/train_rdmreg.yaml sets detach_target: False, so there is no stop-gradient either.
+# What we do NOT match is the target distribution: all 160 campaign runs used
+# regularizer=rdmreg, and 157 of them used link=reprelu + target_p=1 -- a SPARSE,
+# rectified target, the opposite of isotropic Gaussian. SIGReg is already implemented
+# here (infojepa_modules.py:26, Epps-Pulley on 1024 random projections over 17 knots --
+# the paper's exact hyperparameters) and has never once been used.
+#
+# Measured statistic scale, which is why reg_weight cannot be carried over from RDMReg:
+#   SIGReg  at N(0,I) 1.10 | rank-1 collapse 10.8 | dead code 25.7
+#   RDMReg  healthy 0.032  |                      | dead code 0.51
+# A dead code cost RDMReg 0.51 -- payable, which is exactly how PiWM-union4 reached
+# rho=0.0000. SIGReg charges 25.7 for the same code.
+wave14_arms() {
+    ORDER[wave14]="LeWM-ltv-p2 PiWM-sigreg PiWM-sigreg-w0p5"
+    # Single-factor control: SAME isotropic-Gaussian target (identity link, p=2), but the
+    # OLD regularizer. Isolates SIGReg-vs-RDMReg from the change of target distribution.
+    ARMS[LeWM-ltv-p2]="ltv 0.1 5e-4"
+    ARM_LINK[LeWM-ltv-p2]="identity 2"
+    ARMS[PiWM-sigreg]="ltv 0.05 5e-4 REGULARIZER=sigreg"
+    ARM_LINK[PiWM-sigreg]="identity 2"
+    # reg_weight is the one nuisance parameter here; a 10x probe guards against a null
+    # that is really just a mis-scaled coefficient.
+    ARMS[PiWM-sigreg-w0p5]="ltv 0.5 5e-4 REGULARIZER=sigreg"
+    ARM_LINK[PiWM-sigreg-w0p5]="identity 2"
+}
+
+# C2: token dropping. LAUNCH WITH FEATURE=patch -- with feature=cls there is exactly one
+# token and nothing to drop, which is why this was untestable before wave12. The paper
+# reports ImageNet accuracy rising MONOTONICALLY with the drop ratio (33.9% -> 47.6% at
+# rho=0.95). Note this is INPUT-space sparsity; our own latent-code sparsity (k-WTA)
+# zeroed planning at every density and width, so the two are worth separating.
+wave15_arms() {
+    ORDER[wave15]="PiWM-drop95"
+    ARMS[PiWM-drop95]="ltv 1.0 5e-4 TOKEN_DROP=0.95"
+}
+
+# C3: remove the last architectural asymmetry we still have -- the capacity-limited
+# predictor. LTV is deliberately low-rank; ar_adaln is the deep AdaLN transformer.
+# Paired against PiWM-sigreg, this is single-factor (predictor only).
+wave16_arms() {
+    ORDER[wave16]="PiWM-sigreg-arpred"
+    ARMS[PiWM-sigreg-arpred]="ar_adaln 0.05 5e-4 REGULARIZER=sigreg"
+    ARM_LINK[PiWM-sigreg-arpred]="identity 2"
+}
+
+# C4: block-causal temporal attention. Verified: perturbing the LAST frame leaves frame
+# 0's embedding bit-identical, so the mask really is causal across frames. Today
+# encode_obs folds t into the batch and encodes every frame INDEPENDENTLY, so the encoder
+# has no temporal structure at all -- for a world model, which must be causal, that is a
+# structural gap rather than a tuning choice.
+wave17_arms() {
+    ORDER[wave17]="PiWM-blockcausal"
+    ARMS[PiWM-blockcausal]="ltv 1.0 5e-4 BLOCK_CAUSAL=true"
+}
+
 wave12_arms() {
     ORDER[wave12]="PiWM-columns"
     ARMS[PiWM-columns]="ltv 1.0 5e-4"
@@ -315,6 +378,10 @@ for gate in "$@"; do
         wave7)        wave7_arms;  gate=wave7  ;;
         wave12)       wave12_arms; gate=wave12 ;;
         wave13)       wave13_arms; gate=wave13 ;;
+        wave14)       wave14_arms; gate=wave14 ;;
+        wave15)       wave15_arms; gate=wave15 ;;
+        wave16)       wave16_arms; gate=wave16 ;;
+        wave17)       wave17_arms; gate=wave17 ;;
         *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2|wave3|wave4|wave5)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
