@@ -153,6 +153,33 @@ wave4_arms() {
 # (n=2048-10000, w=10-40) on BOTH axes. "Sparsity hurts" was therefore never measured
 # on an actual SDR. At D=2048, 2% gives w=41 -- in band. LpWM-ltv-d2048 is the dense
 # control that separates width from sparsity.
+# wave6/7: the WIDTH-vs-LEARNING-RATE factorial.
+#
+# LpWM-ltv-d2048 (median 0.690) beat LpWM-ltv (0.380), but the two differ in TWO ways,
+# not one. models/mup.py:57 sets used_lr = base_lr * base_width / fan_in with base_width
+# pinned at 384, so every predictor code-reading matrix (fan_in == D) gets
+#   D=384  -> 5e-4 * 384/384  = 5.000e-4
+#   D=2048 -> 5e-4 * 384/2048 = 9.375e-5   (5.3x lower)
+# Confirmed in both runs' printed muP schema. So the "width helps" result is confounded
+# with a 5.3x LR reduction, and a too-high LR would ALSO explain the control's
+# catastrophic-zero seeds (LpWM-ltv spans 0.00-0.66 over 13 seeds).
+#
+# These two arms complete the 2x2. Zero code change: mup_lr is the 3rd ARMS field.
+#   wave6 (PROJ_D=384):  base_lr 9.375e-5 -> matrices at 9.375e-5, matching d2048's rate
+#   wave7 (PROJ_D=2048): base_lr 2.667e-3 -> matrices at 5e-4, matching d384's rate
+# CAVEAT: base_lr also sets vector-like params (biases/LayerNorm), which muP holds at
+# base_lr regardless of fan_in. So the match is exact for matrices and off by the same
+# factor for biases. Matrices dominate; an exact match would need a per-group override.
+wave6_arms() {
+    ORDER[wave6]="LpWM-ltv-lr9e5"
+    ARMS[LpWM-ltv-lr9e5]="ltv 1.0 9.375e-5"
+}
+
+wave7_arms() {
+    ORDER[wave7]="LpWM-ltv-d2048-hilr"
+    ARMS[LpWM-ltv-d2048-hilr]="ltv 1.0 2.667e-3"
+}
+
 wave5_arms() {
     local K; K=$(python -c "print(round(0.02*${PROJ_D}))")
     ORDER[wave5]="LpWM-ltv-d${PROJ_D} PiWM-sdr-d${PROJ_D}-k${K}"
@@ -233,6 +260,8 @@ for gate in "$@"; do
         wave3)        wave3_arms;  gate=wave3  ;;
         wave4)        wave4_arms;  gate=wave4  ;;
         wave5)        wave5_arms;  gate=wave5  ;;
+        wave6)        wave6_arms;  gate=wave6  ;;
+        wave7)        wave7_arms;  gate=wave7  ;;
         *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2|wave3|wave4|wave5)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
