@@ -57,7 +57,7 @@ def build(cfg, device="cpu"):
     """Return (model, optimizers) with muP init applied, as in a fresh train.py run."""
     encoder = hydra.utils.instantiate(cfg.encoder)
     proprio_encoder = hydra.utils.instantiate(
-        cfg.proprio_encoder, in_chans=4, emb_dim=cfg.proprio_emb_dim
+        cfg.proprio_encoder, in_chans=4, emb_dim=(cfg.action_emb_dim if bool(cfg.get('use_pose', False)) else cfg.proprio_emb_dim)
     )
     action_encoder = hydra.utils.instantiate(
         cfg.action_encoder,
@@ -102,6 +102,15 @@ def build(cfg, device="cpu"):
         lamb_cov=cfg.get("lamb_cov", 0.0),
         var_space=cfg.get("var_space", "u"),
         var_gamma=cfg.get("var_gamma", 1.0),
+        # V1-V3. This builder mirrors train.py's construction; its docstring says so, and
+        # omitting these made every variant silently identical to the baseline in loss_trace.
+        incr_norm=bool(cfg.get("incr_norm", False)),
+        act_info=float(cfg.get("act_info", 0.0)),
+        act_info_k=int(cfg.get("act_info_k", 4)),
+        path_int=bool(cfg.get("path_int", False)),
+        path_int_w=float(cfg.get("path_int_w", 1.0)),
+        path_int_dims=(4, 2 * int(cfg.get("frameskip", 5))),
+        use_pose=bool(cfg.get("use_pose", False)),
         n_heads=cfg.get("n_heads", 1),
         head_entropy_coef=cfg.get("head_entropy_coef", 0.0),
         burst_tau=cfg.get("burst_tau", 0.5),

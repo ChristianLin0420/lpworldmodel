@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torchvision import transforms
 from einops import rearrange, repeat
 
@@ -34,6 +35,13 @@ class VWorldModel(nn.Module):
         var_space="u",
         var_gamma=1.0,   # VICReg hinge target: penalise per-dim std below this
         use_pose=False,  # bind the allocentric location signal to the action (TBT reference frame)
+        # --- causal-objective knobs (V1-V3). All default-off and bit-identical when unset.
+        incr_norm=False,     # V1: per-sample increment normalisation of the prediction loss
+        act_info=0.0,        # V2: weight on InfoNCE over actions -> max I(a_t ; z_t+1 | z_t)
+        act_info_k=4,        # V2: number of in-batch action negatives
+        path_int=False,      # V3: learned path integration of the location signal
+        path_int_w=1.0,      # V3: weight on the pose-prediction loss
+        path_int_dims=None,  # V3: (raw_pose_dim, raw_action_dim), e.g. (4, 10) on pushT
         n_heads=1,
         head_entropy_coef=0.0,
         burst_tau=0.5,
@@ -67,6 +75,28 @@ class VWorldModel(nn.Module):
         self.var_space = var_space
         self.var_gamma = var_gamma
         self.use_pose = use_pose
+        # V1-V3. The action is causally near-inert in this objective: measured across 9 arms,
+        # changing the action moves the PREDICTED latent by 0.02-0.1% of its own magnitude
+        # (d_state/d_action = 37x for the baseline), and that displacement is the strongest
+        # predictor of CEM success we have (Spearman +0.81, p=0.0079). min ||h(P(z,a)) -
+        # h(Enc(o'))||^2 is PREDICTIVE, not CAUSAL: nothing in it requires a to matter.
+        self.incr_norm = bool(incr_norm)
+        self.act_info = float(act_info)
+        self.act_info_k = int(act_info_k)
+        self.path_int_w = float(path_int_w)
+        self.path_int = None
+        if path_int:
+            # pose_{t+1} = f(pose_t, a_t). Initialised from the linear map fit on the dataset
+            # (assets/pose_dynamics_pusht.pt, 95.2% of the 1-step pose change explained), then
+            # trained jointly -- so location becomes action-DRIVEN rather than a static
+            # side-channel, which is what the null PiWM-refframe arm was missing.
+            # RAW dims, not the embedding dims: the constructor's proprio_dim/action_dim are
+            # the EMBEDDING widths (10 / 384), while path integration operates on the raw
+            # pose [x, y, vx, vy] (4) and the raw action (10 = 2 x frameskip).
+            if not path_int_dims:
+                raise ValueError("path_int=True requires path_int_dims=(pose_dim, act_dim)")
+            _pd, _ad = int(path_int_dims[0]), int(path_int_dims[1])
+            self.path_int = nn.Linear(_pd + _ad, _pd)
         # Non-persistent on purpose: checkpoints trained before this existed have no such
         # key, and a persistent buffer would make every one of them fail to load.
         self.register_buffer("pose_dyn", None, persistent=False)
@@ -160,6 +190,42 @@ class VWorldModel(nn.Module):
         act = self.action_encoder(act) # (b, num_frames, action_emb_dim)
         return act
 
+    def _action_infonce(self, z_src, act_src, target, z_pred):
+        """V2: maximise I(a_t ; z_{t+1} | z_t) -- the quantity CEM actually consumes.
+
+        The true next latent must be better explained by the action that was TAKEN than by
+        actions that were not. Negatives are free: permute act_src within the batch. This is
+        the first intervention in this project that changes what the model must DISTINGUISH
+        rather than what its code's marginal looks like, and it cannot be gamed by arbitrary
+        action-dependence because the positive still has to match the true z_{t+1}.
+
+        tau is the detached mean energy, the same scale-free trick the union entropy bonus
+        uses: without it the softmax argument is O(MSE) and the distribution is uniform, so
+        the term exerts no force.
+        """
+        E_pos = (z_pred - target).pow(2).mean(dim=(-1, -2))            # (b, t)
+        Es = [E_pos]
+        for _ in range(self.act_info_k):
+            perm = torch.randperm(act_src.shape[0], device=act_src.device)
+            z_neg = self._link(self.predict(z_src, act_src[perm]))
+            Es.append((z_neg - target).pow(2).mean(dim=(-1, -2)))
+        E = torch.stack(Es, dim=-1)                                    # (b, t, K+1)
+        tau = E.detach().mean().clamp_min(1e-8)
+        logits = (-E / tau).flatten(0, 1)                              # (b*t, K+1)
+        tgt = torch.zeros(logits.shape[0], dtype=torch.long, device=logits.device)
+        return F.cross_entropy(logits, tgt)
+
+    def _path_int_loss(self, proprio, act):
+        """V3: predict the next location from (location, action) -- TBT path integration.
+
+        PiWM-refframe RECEIVED pose and was a null (-0.063, p=0.169). TBT requires the
+        reference frame to be UPDATED BY THE MOVEMENT; that is the causal part we omitted.
+        """
+        if self.path_int is None or proprio is None or proprio.shape[1] < 2:
+            return None
+        x = torch.cat([proprio[:, :-1], act[:, :-1]], dim=-1)
+        return (self.path_int(x) - proprio[:, 1:].detach()).pow(2).mean()
+
     def _act_emb_with_pose(self, act, proprio):
         """Action embedding with the location signal bound to it (TBT reference frame).
 
@@ -207,6 +273,13 @@ class VWorldModel(nn.Module):
         Falls back to hold-last when no map is loaded, so the path never crashes -- but
         that fallback is the broken behaviour above and is logged by the caller's config.
         """
+        # The model's own learned head takes precedence: with V3 the pose dynamics is part
+        # of the model, so rollout and training use the SAME map and cannot drift apart.
+        if self.path_int is not None:
+            out = [proprio[:, k] for k in range(proprio.shape[1])]
+            for k in range(len(out), t):
+                out.append(self.path_int(torch.cat([out[-1], act[:, k - 1]], dim=-1)))
+            return torch.stack(out, dim=1)
         W = getattr(self, "pose_dyn", None)
         out = [proprio[:, k] for k in range(proprio.shape[1])]
         if W is None:
@@ -455,7 +528,23 @@ class VWorldModel(nn.Module):
         else:
             u_pred = self.predict(z_src, act_src)   # predictor output (pre-link)
             z_pred = self._link(u_pred)             # linked (SAME link -> tied threshold)
-            z_loss = self.emb_criterion(z_pred, target)
+            if self.incr_norm:
+                # V1. Loss "on the increment" is a NO-OP -- (z_pred - z_src) - (target -
+                # z_src) = z_pred - target exactly -- and a batch-level normaliser only
+                # rescales the term. Only PER-SAMPLE weighting changes gradient direction:
+                # it stops frames with large autonomous motion from dominating, and those
+                # are exactly where the action's relative contribution is smallest.
+                # Renormalised to unit mean weight so the balance against reg_weight is
+                # unchanged and this is not secretly a learning-rate change.
+                d_true = (target - z_src).detach()
+                w = 1.0 / (d_true.pow(2).mean(dim=(-1, -2), keepdim=True) + 1e-4)
+                w = w / w.mean().clamp_min(1e-12)
+                z_loss = ((z_pred - target).pow(2) * w).mean()
+            else:
+                z_loss = self.emb_criterion(z_pred, target)
+            if self.act_info > 0:
+                loss_components["act_info_loss"] = self._action_infonce(
+                    z_src, act_src, target, z_pred)
             self._diag_heads = None
 
         # The encoder code and the loss's own target are not on the return path, and
@@ -467,10 +556,23 @@ class VWorldModel(nn.Module):
             "z": z_emb.detach(),
             "z_pred": z_pred.detach(),
             "target": target.detach(),
+            # for the causal diagnostic: d_action needs the predictor's own inputs, and
+            # re-encoding them in train.py would cost a second ViT pass.
+            "z_src": z_src.detach(),
+            "act_src": act_src.detach(),
         }
 
         loss = z_loss
         loss_components["z_loss"] = z_loss
+        # V2: the causal term. Added here, not folded into z_loss, so the two are separable
+        # in the logs and an ablation can read them apart.
+        if self.act_info > 0 and "act_info_loss" in loss_components:
+            loss = loss + self.act_info * loss_components["act_info_loss"]
+        # V3: path integration of the location signal.
+        _pl = self._path_int_loss(obs.get("proprio"), act)
+        if _pl is not None:
+            loss = loss + self.path_int_w * _pl
+            loss_components["path_int_loss"] = _pl
         loss_components["z_visual_loss"] = z_loss  # CLS-only: all of z is visual
 
         if self.n_heads > 1 and self.head_entropy_coef > 0:

@@ -57,6 +57,9 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${USE_POSE:-}" ]   && { add "use_pose=${USE_POSE}"; TAG="${TAG}_pose"; }
 [ -n "${TOKEN_DROP:-}" ] && { add "token_drop=${TOKEN_DROP}"; TAG="${TAG}_drop${TOKEN_DROP}"; }
 [ -n "${BLOCK_CAUSAL:-}" ] && { add "block_causal=${BLOCK_CAUSAL}"; TAG="${TAG}_bc"; }
+[ -n "${INCR_NORM:-}" ]  && { add "incr_norm=${INCR_NORM}"; TAG="${TAG}_incr"; }
+[ -n "${ACT_INFO:-}" ]   && { add "act_info=${ACT_INFO}"; TAG="${TAG}_ai${ACT_INFO}"; }
+[ -n "${PATH_INT:-}" ]   && { add "path_int=${PATH_INT}"; TAG="${TAG}_pi"; }
 [ -n "${VAR_SPACE:-}" ]  && add "var_space=${VAR_SPACE}"
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }

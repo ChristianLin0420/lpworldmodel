@@ -289,6 +289,57 @@ wave17_arms() {
     ARMS[PiWM-blockcausal]="ltv 1.0 5e-4 BLOCK_CAUSAL=true"
 }
 
+# =================================================================================
+# wave20: THE CAUSAL FACTORIAL. The action is causally near-inert in the base objective:
+# across 9 trained arms, changing a_t moves the PREDICTED latent by 0.02-0.1% of its own
+# magnitude (d_state/d_action = 37x for LpWM-ltv), and that displacement is the strongest
+# predictor of CEM success measured in this project (Spearman +0.81, p=0.0079) -- stronger
+# than rel_mse, while the RATIO d_action/|z| predicts nothing (+0.28, p=0.47).
+# CEM plans ONLY by comparing action sequences, so a flat landscape over actions makes the
+# planner near-random however accurate the marginal prediction is.
+#
+# V1 incr_norm : per-sample increment normalisation. NB "loss on the increment" is a NO-OP
+#                (the z_t cancels exactly) and a batch-level normaliser only rescales; only
+#                PER-SAMPLE weighting changes gradient direction, by stopping frames with
+#                large autonomous motion from dominating.
+# V2 act_info  : InfoNCE over in-batch action negatives -> max I(a_t ; z_t+1 | z_t). The
+#                first intervention here that changes what the model must DISTINGUISH
+#                rather than what its code's marginal looks like.
+# V3 path_int  : learned path integration of the location signal. PiWM-refframe RECEIVED
+#                pose and was a null (-0.063, p=0.169); TBT requires the frame to be UPDATED
+#                BY THE MOVEMENT, which is the causal half we omitted.
+#
+# V3 arms carry MUP_INPUT_FIX because they re-activate the proprio encoder, whose input
+# layer sits at 96x base_lr without it -- so their matched control is LpWM-ltv-mupfix
+# (already n=12), while the V1/V2 arms pair against LpWM-ltv (n=13). Both controls exist.
+wave20_arms() {
+    ORDER[wave20]="PiWM-incr PiWM-actinfo PiWM-incr-actinfo PiWM-pathint PiWM-actinfo-pathint"
+    ARMS[PiWM-incr]="ltv 1.0 5e-4 INCR_NORM=true"
+    ARMS[PiWM-actinfo]="ltv 1.0 5e-4 ACT_INFO=0.1"
+    ARMS[PiWM-incr-actinfo]="ltv 1.0 5e-4 INCR_NORM=true ACT_INFO=0.1"
+    ARMS[PiWM-pathint]="ltv 1.0 5e-4 PATH_INT=true USE_POSE=true MUP_INPUT_FIX=true"
+    ARMS[PiWM-actinfo-pathint]="ltv 1.0 5e-4 ACT_INFO=0.1 PATH_INT=true USE_POSE=true MUP_INPUT_FIX=true"
+}
+
+# wave21: DE-CONFOUND link vs target_p. The archive has 173 runs at (reprelu, p=1) and 35 at
+# (identity, p=2) and ZERO off-diagonal, so "sparse vs dense" has never actually been tested
+# -- it is perfectly confounded with rectification. And target_p is measurably INERT at
+# D=384: swd(Gaussian, Laplace) = 1.9947 +- 0.0170 against a null of 1.9987 +- 0.0112, the
+# alternative BELOW the null, because a 1-D random projection of a D=384 Laplace sample is
+# Gaussian (excess kurtosis -0.002, Shapiro p=0.396 -- Diaconis-Freedman). RDMReg only ever
+# looks at 1-D projections, so it cannot see p=1 vs p=2, and rho~0.5 comes from the ReLU
+# link rather than the sparse prior.
+#
+# reg_weight follows the LINK (1.0 sparse / 0.1 dense, the paper's own swept cells), so
+# within each row only target_p varies -- which is exactly the inert-knob question.
+wave21_arms() {
+    ORDER[wave21]="LpWM-ltv-relu-p2 LpWM-ltv-ident-p1"
+    ARMS[LpWM-ltv-relu-p2]="ltv 1.0 5e-4"
+    ARM_LINK[LpWM-ltv-relu-p2]="reprelu 2"
+    ARMS[LpWM-ltv-ident-p1]="ltv 0.1 5e-4"
+    ARM_LINK[LpWM-ltv-ident-p1]="identity 1"
+}
+
 wave12_arms() {
     ORDER[wave12]="PiWM-columns"
     ARMS[PiWM-columns]="ltv 1.0 5e-4"
@@ -378,6 +429,8 @@ for gate in "$@"; do
         wave7)        wave7_arms;  gate=wave7  ;;
         wave12)       wave12_arms; gate=wave12 ;;
         wave13)       wave13_arms; gate=wave13 ;;
+        wave20)       wave20_arms; gate=wave20 ;;
+        wave21)       wave21_arms; gate=wave21 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;

@@ -158,6 +158,16 @@ mup_input_lr_fix: false
 # encoder is optimised and checkpointed while receiving zero gradient. false => unchanged.
 use_pose: false
 
+# --- causal-objective knobs (V1-V3). All inert at these defaults. ---------------------
+# The action is causally near-inert in the base objective: across 9 arms, changing a_t moves
+# the PREDICTED latent by 0.02-0.1% of its own magnitude, and that displacement is the
+# strongest predictor of CEM success measured so far (Spearman +0.81, p=0.0079).
+incr_norm: false           # V1: per-sample increment normalisation of the prediction loss
+act_info: 0.0              # V2: weight on InfoNCE over actions -> max I(a_t ; z_t+1 | z_t)
+act_info_k: 4              # V2: in-batch action negatives
+path_int: false            # V3: learned path integration of the location signal
+path_int_w: 1.0            # V3: weight on the pose-prediction loss
+
 # LeVJEPA encoder knobs. Top-level so hydra can override them (the encoder yaml reads
 # them via oc.select); same pattern as kwta_k. Both inert at these defaults.
 token_drop: 0.0            # fraction of patch tokens dropped per step, train only
