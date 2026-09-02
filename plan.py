@@ -395,6 +395,30 @@ def _emb_dim_from(sd):
     return None if w is None else w.shape[0]
 
 
+def _load_pose_dyn(model, repo_root=None):
+    """Attach the environment's pose-dynamics map to a use_pose model.
+
+    Fit once by assets/pose_dynamics_pusht.pt (see VWorldModel._roll_pose). It is
+    environment dynamics, so it is not part of any checkpoint and is shared by every
+    arm. Silent no-op when pose is off; warns loudly when pose is ON but the map is
+    missing, because the fallback (hold-last pose) is what made a healthy refframe
+    checkpoint score 0.020.
+    """
+    import torch as _t
+    from pathlib import Path as _P
+    if not getattr(model, "use_pose", False):
+        return model
+    root = _P(repo_root) if repo_root else _P(__file__).resolve().parent
+    f = root / "assets" / "pose_dynamics_pusht.pt"
+    if not f.exists():
+        print(f"WARNING use_pose is ON but {f} is missing -- rollout will hold the last "
+              f"observed pose, which is known to destroy planning. Refusing to pretend.")
+        return model
+    model.pose_dyn = _t.load(f, map_location="cpu")["W"]
+    print(f"pose dynamics loaded: {tuple(model.pose_dyn.shape)} from {f}")
+    return model
+
+
 def load_model(model_ckpt, train_cfg, num_action_repeat, device):
     """Rebuild the world model from train_cfg and restore its weights.
 
@@ -518,6 +542,7 @@ def load_model(model_ckpt, train_cfg, num_action_repeat, device):
         head_entropy_coef=train_cfg.get("head_entropy_coef", 0.0),
         burst_tau=train_cfg.get("burst_tau", 0.5),
     )
+    _load_pose_dyn(model, Path(__file__).resolve().parent)
     model.to(device)
     return model
 
