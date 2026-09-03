@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1484" viewBox="0 0 940 1484" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
+  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+</defs>
+<rect width="940" height="1484" fill="white"/>
+<circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
+<circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="812" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t+1</tspan></text>
+<path d="M120,706 L120,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,706 L812,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="120.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="812.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,520 L812,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="78" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
+<text x="120.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
+<text x="812.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
+<path d="M120,420 L120,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,420 L812,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="120.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="812.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="712.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
+<path d="M700.5,160 L705.0,154 L709.5,160" stroke="#1A1A1A" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+<path d="M737,262 L795,262" stroke="#9E3B3B" stroke-width="2" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="766" y="240" font-size="16" text-anchor="middle" fill="#9E3B3B" font-style="" font-weight="normal">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="321.0" y="263.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
+<text x="321.0" y="284.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
+<circle cx="318" cy="430" r="38" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="318" y="437" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="13" dy="6">t</tspan></text>
+<path d="M318,392 L318,332" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M146,262 L226,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="186" y="248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
+<path d="M424,262 L697,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="430" y="556" width="160" height="52" rx="4" fill="#FFFFFF" stroke="#55707F" stroke-width="1.6"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(T6) PiWM-jumpy -- predict z_t+5 in ONE call, not five composed calls</text>
+<path d="M880,898 L880,120 L300,120 L300,190" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
+<text x="310" y="106" font-size="16" text-anchor="start" fill="#9a6700" font-style="" font-weight="normal">one predictor call spans 5 frames</text>
+<rect x="34" y="898" width="872" height="560" rx="10" fill="#faeecb" fill-opacity="0.45" stroke="#9a6700" stroke-width="2.4"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#9a6700" font-style="" font-weight="bold">module:  the horizon CEM plans over is the horizon the loss is written at</text>
+<path d="M52,942 L888,942" stroke="#9a6700" stroke-width="1.2" stroke-opacity="0.5"/>
+<text x="64" y="966" font-size="14" text-anchor="start" fill="#555" font-style="" font-weight="bold">TODAY</text>
+<rect x="50" y="991" width="60" height="34" rx="17" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="80" y="1014" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="11" dy="6">t</tspan></text>
+<path d="M110,1008 L124,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<circle cx="152" cy="952" r="15" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="152" y="959" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">1</tspan></text>
+<path d="M152,967 L152,980" stroke="#9a6700" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="128" y="984" width="48" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="152.0" y="1014.0" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<path d="M176,1008 L190,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="194" y="991" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="228" y="1014" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat<tspan font-size="9" dy="6">1</tspan></text>
+<path d="M262,1008 L280,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="214" y="1034" width="28" height="4" fill="#b3261e" fill-opacity="0.65" stroke="#b3261e" stroke-width="1"/>
+<circle cx="304" cy="952" r="15" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="304" y="959" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">2</tspan></text>
+<path d="M304,967 L304,980" stroke="#9a6700" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="280" y="984" width="48" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="304.0" y="1014.0" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<path d="M328,1008 L342,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="346" y="991" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="380" y="1014" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat<tspan font-size="9" dy="6">2</tspan></text>
+<path d="M414,1008 L432,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="366" y="1034" width="28" height="7" fill="#b3261e" fill-opacity="0.65" stroke="#b3261e" stroke-width="1"/>
+<circle cx="456" cy="952" r="15" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="456" y="959" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">3</tspan></text>
+<path d="M456,967 L456,980" stroke="#9a6700" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="432" y="984" width="48" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="456.0" y="1014.0" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<path d="M480,1008 L494,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="498" y="991" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="532" y="1014" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat<tspan font-size="9" dy="6">3</tspan></text>
+<path d="M566,1008 L584,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="518" y="1034" width="28" height="11" fill="#b3261e" fill-opacity="0.65" stroke="#b3261e" stroke-width="1"/>
+<circle cx="608" cy="952" r="15" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="608" y="959" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">4</tspan></text>
+<path d="M608,967 L608,980" stroke="#9a6700" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="584" y="984" width="48" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="608.0" y="1014.0" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<path d="M632,1008 L646,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="650" y="991" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="684" y="1014" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat<tspan font-size="9" dy="6">4</tspan></text>
+<path d="M718,1008 L736,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="670" y="1034" width="28" height="16" fill="#b3261e" fill-opacity="0.65" stroke="#b3261e" stroke-width="1"/>
+<circle cx="760" cy="952" r="15" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="760" y="959" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">5</tspan></text>
+<path d="M760,967 L760,980" stroke="#9a6700" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="736" y="984" width="48" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="760.0" y="1014.0" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<path d="M784,1008 L798,1008" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="802" y="991" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="836" y="1014" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat<tspan font-size="9" dy="6">5</tspan></text>
+<rect x="822" y="1034" width="28" height="22" fill="#b3261e" fill-opacity="0.65" stroke="#b3261e" stroke-width="1"/>
+<text x="836" y="1074" font-size="11.5" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">error compounds</text>
+<path d="M80,1025 L80,1130 L124,1130" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="64" y="1156" font-size="14" text-anchor="start" fill="#9a6700" font-style="" font-weight="bold">T6</text>
+<circle cx="146" cy="1078" r="13" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="146" y="1085" font-size="11" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="8" dy="6">1</tspan></text>
+<circle cx="180" cy="1078" r="13" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="180" y="1085" font-size="11" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="8" dy="6">2</tspan></text>
+<circle cx="214" cy="1078" r="13" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="214" y="1085" font-size="11" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="8" dy="6">3</tspan></text>
+<circle cx="248" cy="1078" r="13" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="248" y="1085" font-size="11" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="8" dy="6">4</tspan></text>
+<circle cx="282" cy="1078" r="13" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="282" y="1085" font-size="11" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="8" dy="6">5</tspan></text>
+<path d="M216,1091 L216,1102" stroke="#9a6700" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="128" y="1106" width="176" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="216.0" y="1130.0" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<text x="216.0" y="1147.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">one call,  k = 5</text>
+<rect x="338" y="1111" width="104" height="38" rx="19" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="390" y="1136" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat_t+5</text>
+<path d="M304,1130 L334,1130" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="516" y="1059" width="88" height="38" rx="19" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="560" y="1084" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="11" dy="6">t+5</tspan></text>
+<circle cx="560" cy="1130" r="16" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<path d="M552,1130 L568,1130" stroke="#9a6700" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M442,1130 L544,1130" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M560,1097 L560,1114" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="600" y="1106" width="110" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="655.0" y="1136.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| . ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M576,1130 L596,1130" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="744" y="1111" width="116" height="38" rx="19" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="802" y="1136" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">L_jump</text>
+<path d="M710,1130 L740,1130" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="60" y="1196" width="816" height="124" rx="8" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="468.0" y="1222" font-size="17" text-anchor="middle" fill="#9a6700" font-style="" font-weight="bold">what the config pins today</text>
+<rect x="108" y="1238" width="168" height="44" rx="5" fill="#f7dcd9" stroke="#b3261e" stroke-width="2"/>
+<text x="192.0" y="1266.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">num_pred = 1</text>
+<rect x="292" y="1238" width="168" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="376.0" y="1266.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">num_hist = 3</text>
+<rect x="476" y="1238" width="168" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="560.0" y="1266.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">frameskip = 5</text>
+<rect x="660" y="1238" width="168" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="744.0" y="1266.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">CEM horizon = 5</text>
+<text x="468" y="1306" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="bold">the training loss has never evaluated a 5-step rollout</text>
+<text x="60" y="1354" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">today:   zhat_t+H  =  ( h o g )^H ( z_t ; a_1:H )</text>
+<text x="434" y="1354" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">T6:   zhat_t+k  =  g_k ( z_t ; a_1:k )</text>
+<text x="60" y="1380" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">L  =  SUM_k  || zhat_t+k - z_t+k ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="334" y="1380" font-size="14" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">k in { 1 , 5 } -- one head per jump, or k as a conditioning input</text>
+<rect x="60" y="1394" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="159.0" y="1411" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">num_pred today</text>
+<text x="159.0" y="1430" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">1</text>
+<rect x="266" y="1394" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="365.0" y="1411" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">CEM horizon</text>
+<text x="365.0" y="1430" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">5</text>
+<rect x="472" y="1394" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="571.0" y="1411" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">frameskip</text>
+<text x="571.0" y="1430" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">5  (act dim 10)</text>
+<rect x="678" y="1394" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="777.0" y="1411" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">what compounds</text>
+<text x="777.0" y="1430" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">5 x ( h o g )</text>
+</svg>
