@@ -107,6 +107,9 @@ def build(cfg, device="cpu"):
         incr_norm=bool(cfg.get("incr_norm", False)),
         act_info=float(cfg.get("act_info", 0.0)),
         act_info_k=int(cfg.get("act_info_k", 4)),
+        act_info_neg=str(cfg.get("act_info_neg", "perm")),
+        ctrb_w=float(cfg.get("ctrb_w", 0.0)),
+        ctrb_h=int(cfg.get("ctrb_h", 5)),
         path_int=bool(cfg.get("path_int", False)),
         path_int_w=float(cfg.get("path_int_w", 1.0)),
         path_int_dims=(4, 2 * int(cfg.get("frameskip", 5))),
@@ -118,21 +121,24 @@ def build(cfg, device="cpu"):
 
     from models.mup import mup_param_groups
 
-    lr, bw = cfg.training.mup_lr, cfg.get("embed_dim", 384)
+    lr = cfg.training.mup_lr
+    bw = cfg.training.get("mup_base_width", cfg.get("embed_dim", 384))
+    wd = cfg.training.get("mup_weight_decay", 0.01)
+    ifix = bool(cfg.get("mup_input_lr_fix", False))
     opts = [
         torch.optim.AdamW(
-            mup_param_groups(encoder, lr, bw, weight_decay=0.01, tag="encoder"),
+            mup_param_groups(encoder, lr, bw, weight_decay=wd, tag="encoder", input_lr_fix=ifix),
             lr=lr,
             eps=1e-15,
         ),
         torch.optim.AdamW(
-            mup_param_groups(predictor, lr, bw, weight_decay=0.01, tag="predictor"),
+            mup_param_groups(predictor, lr, bw, weight_decay=wd, tag="predictor", input_lr_fix=ifix),
             lr=lr,
             eps=1e-15,
         ),
         torch.optim.AdamW(
-            mup_param_groups(action_encoder, lr, bw, weight_decay=0.01, tag="action_encoder")
-            + mup_param_groups(proprio_encoder, lr, bw, weight_decay=0.01, tag="proprio_encoder"),
+            mup_param_groups(action_encoder, lr, bw, weight_decay=wd, tag="action_encoder", input_lr_fix=ifix)
+            + mup_param_groups(proprio_encoder, lr, bw, weight_decay=wd, tag="proprio_encoder", input_lr_fix=ifix),
             lr=lr,
             eps=1e-15,
         ),

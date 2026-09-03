@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="730" viewBox="0 0 940 730" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
+  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+</defs>
+<rect width="940" height="730" fill="white"/>
+<text x="470" y="56" font-size="24" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">The 2x2 nobody ran: how the action enters the predictor</text>
+<text x="470" y="86" font-size="15" text-anchor="middle" fill="#555" font-style="" font-weight="normal">36 of 39 campaign arms use one cell of this table, plus a ReLU readout and a low-rank gate</text>
+<rect x="146" y="150" width="356" height="214" rx="10" fill="#e6e6e3" stroke="#3d3d3a" stroke-width="2.6"/>
+<text x="324.0" y="190" font-size="21" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="bold">linear_wb</text>
+<text x="324.0" y="216" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">1 lag, additive</text>
+<rect x="162" y="234" width="324" height="46" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="324.0" y="263" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">u = W z_t  +  B a</text>
+<rect x="262.0" y="300" width="124" height="30" rx="15" fill="#3d3d3a"/>
+<text x="324.0" y="321" font-size="15" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NEVER RUN</text>
+<rect x="528" y="150" width="356" height="214" rx="10" fill="#faeecb" stroke="#9a6700" stroke-width="2.6"/>
+<text x="706.0" y="190" font-size="21" text-anchor="middle" fill="#9a6700" font-style="" font-weight="bold">linear_pa</text>
+<text x="706.0" y="216" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">1 lag, multiplicative</text>
+<rect x="544" y="234" width="324" height="46" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.6"/>
+<text x="706.0" y="263" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">u = [ diag(d(a)) + U(a)V(a)^T ] z_t</text>
+<rect x="644.0" y="300" width="124" height="30" rx="15" fill="#9a6700"/>
+<text x="706.0" y="321" font-size="15" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NEVER RUN</text>
+<rect x="146" y="394" width="356" height="214" rx="10" fill="#e6e6e3" stroke="#3d3d3a" stroke-width="2.6"/>
+<text x="324.0" y="434" font-size="21" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="bold">linear_var</text>
+<text x="324.0" y="460" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">3 lags, additive</text>
+<rect x="162" y="478" width="324" height="46" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="324.0" y="507" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">u = SUM_k A_k z_t-k  +  B a</text>
+<rect x="262.0" y="544" width="124" height="30" rx="15" fill="#3d3d3a"/>
+<text x="324.0" y="565" font-size="15" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NEVER RUN</text>
+<rect x="528" y="394" width="356" height="214" rx="10" fill="#d9efd7" stroke="#006e00" stroke-width="2.6"/>
+<text x="706.0" y="434" font-size="21" text-anchor="middle" fill="#006e00" font-style="" font-weight="bold">lie   (P1)</text>
+<text x="706.0" y="460" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">3 lags, multiplicative</text>
+<rect x="544" y="478" width="324" height="46" rx="5" fill="#FFFFFF" stroke="#006e00" stroke-width="1.6"/>
+<text x="706.0" y="507" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">u = R(theta(a)) SUM_k R(phi_k) z_t-k</text>
+<rect x="644.0" y="544" width="124" height="30" rx="15" fill="#006e00"/>
+<text x="706.0" y="565" font-size="15" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NEW</text>
+<text x="106" y="257.0" font-size="18" text-anchor="middle" fill="#555" font-style="" font-weight="normal">1 lag</text>
+<text x="106" y="501.0" font-size="18" text-anchor="middle" fill="#555" font-style="" font-weight="normal">3 lags</text>
+<text x="324.0" y="134" font-size="16" text-anchor="middle" fill="#555" font-style="" font-weight="normal">action is a BIAS</text>
+<text x="706.0" y="134" font-size="16" text-anchor="middle" fill="#555" font-style="" font-weight="normal">action is an OPERATOR</text>
+<text x="470" y="654" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ltv  =  the BOTTOM-LEFT cell  +  ReLU readout  +  low-rank gate  --  36 of 39 arms</text>
+<text x="470" y="682" font-size="14" text-anchor="middle" fill="#555" font-style="" font-weight="normal">The campaign varied the link, the target, the regulariser, the loss, sparsity, width, LR, the encoder,</text>
+<text x="470" y="702" font-size="14" text-anchor="middle" fill="#555" font-style="" font-weight="normal">the conditioning and the head count -- and held this table fixed.</text>
+</svg>

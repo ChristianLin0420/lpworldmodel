@@ -436,13 +436,16 @@ class LinearDynamicsPredictor(nn.Module):
         gate_input="magnitude",
         gate_norm="sigmoid",
         n_heads=1,
+        lie_sim=False,
+        act_gain=None,
         **kwargs,
     ):
         super().__init__()
         D = input_dim
         out = output_dim or input_dim
         assert out == D, f"linear predictor assumes output_dim==input_dim (code space), got {out} vs {D}"
-        assert mode in {"action_linear", "additive", "var", "mlp_var", "ltv"}, f"mode {mode} not supported"
+        assert mode in {"action_linear", "additive", "var", "mlp_var", "ltv", "lie"}, \
+            f"mode {mode} not supported"
         assert gate_input in {"magnitude", "support", "both"}, f"gate_input {gate_input} not supported"
         assert gate_norm in {"sigmoid", "softmax"}, f"gate_norm {gate_norm} not supported"
         self.mode = mode
@@ -452,6 +455,10 @@ class LinearDynamicsPredictor(nn.Module):
         # not be attributed to either. (magnitude, sigmoid) == upstream.
         self.gate_input = gate_input
         self.gate_norm = gate_norm
+        # P3 falsifier: None => the action term is untouched and the whole path is
+        # bit-identical to upstream. A float makes ||B a|| a fixed fraction beta of
+        # ||sum_k A_k z||, i.e. it turns d_state/d_action into a hyperparameter.
+        self.act_gain = None if act_gain is None else float(act_gain)
         if mode == "additive":  # LTI(1): z' = W z + B a
             self.W = nn.Linear(D, D, bias=True)
             self.B = nn.Linear(D, D, bias=False)   # action embedding has dim D (adaln)
@@ -501,6 +508,36 @@ class LinearDynamicsPredictor(nn.Module):
             nn.init.zeros_(self.gate.bias)
             for m in (*self.Ulag, self.UB):
                 nn.init.zeros_(m.weight)                                          # LoRA-style: LTV off at init
+        elif mode == "lie":
+            # P1: the action acts on the code as a GROUP ELEMENT rather than as a bias.
+            #     v_t     = sum_k s_k * R(phi_k) z_{t-k}      history combined linearly
+            #     u_{t+1} = R(theta(a_t)) v_t                 the action IS the dynamics
+            # R(.) is block-diagonal in the FIXED coordinate pairs (2j, 2j+1): orthogonal
+            # by construction, composition exact (angles add), and O(D) per patch instead
+            # of O(D^2). In an SDR the coordinates ARE the features, so a phase advance
+            # per feature pair is grid-cell path integration -- TBT's reference frame in
+            # the latent, with no ground-truth pose. NB no dense matrix_exp: that is O(D^3)
+            # per forward and conf/predictor/ltv.yaml was built to avoid exactly that.
+            assert D % 2 == 0, f"lie needs an even code width, got D={D}"
+            self.n_lags = num_frames
+            self.half = D // 2
+            self.lie_sim = bool(lie_sim)
+            # 1-D on purpose: mup_param_groups gives dim<2 params wd=0 (models/mup.py:124),
+            # and weight-decaying an angle or a lag scale toward 0 is meaningless.
+            self.phi = nn.ParameterList(
+                [nn.Parameter(torch.zeros(self.half)) for _ in range(num_frames)])
+            self.lag_scale = nn.ParameterList(
+                [nn.Parameter(torch.full((self.half,), 1.0 if k == 0 else 0.0))
+                 for k in range(num_frames)])
+            # an nn.Linear, NOT a bare Parameter: mup_fan_in_map only walks _LINEARISH
+            # modules, so a raw Parameter would silently train at base_lr and mup_init_
+            # would never touch it.
+            self.W_theta = nn.Linear(D, self.half)
+            nn.init.zeros_(self.W_theta.weight)
+            nn.init.zeros_(self.W_theta.bias)          # theta = 0 => R = I at init
+            # P1b: enlarge the GROUP to similitudes rather than bolting an MLP back on.
+            # Composition stays exact -- angles add, scales multiply.
+            self.log_scale = nn.Parameter(torch.zeros(self.half)) if self.lie_sim else None
         else:
             self.to_d = nn.Sequential(
                 nn.Linear(D, act_hidden), nn.SiLU(), nn.Linear(act_hidden, D)
@@ -542,6 +579,32 @@ class LinearDynamicsPredictor(nn.Module):
             else:
                 raise ValueError(f"n_heads>1 not supported for mode={mode}")
 
+    @staticmethod
+    def _rotate(x, ang, scale=None):
+        """Block-diagonal 2x2 rotation of x (..., D) by ang (..., D/2).
+
+        Exactly orthogonal, so R(a)R(b) = R(a+b) and R^T R = I hold to machine precision;
+        `scale` (..., D/2) turns it into a similitude, where scales multiply.
+        """
+        xe, xo = x[..., 0::2], x[..., 1::2]
+        cos, sin = torch.cos(ang), torch.sin(ang)
+        ye = cos * xe - sin * xo
+        yo = sin * xe + cos * xo
+        if scale is not None:
+            ye, yo = ye * scale, yo * scale
+        return torch.stack((ye, yo), dim=-1).flatten(-2)
+
+    def _action_term(self, state_part, Ba):
+        """P3: optionally rescale the action branch to beta * ||state branch||.
+
+        act_gain unset returns Ba untouched, so the default path stays bit-identical.
+        """
+        if self.act_gain is None:
+            return Ba
+        s = state_part.pow(2).mean(dim=-1, keepdim=True).sqrt()
+        a = Ba.pow(2).mean(dim=-1, keepdim=True).sqrt().clamp_min(1e-8)
+        return self.act_gain * Ba * (s / a)
+
     def _trunk(self, x, c):
         """Pre-readout core for mlp_var / ltv: the value fed to ReLU then W."""
         B, T, P, D = x.shape
@@ -552,7 +615,7 @@ class LinearDynamicsPredictor(nn.Module):
                     break
                 xk = self.lags[k](x[:, : T - k])
                 u = u + torch.cat([x.new_zeros(B, k, P, D), xk], dim=1)
-            return u + self.B(c).unsqueeze(2)
+            return u + self._action_term(u, self.B(c).unsqueeze(2))
 
         g = self.gates(x)                            # ltv: gates g(z_t) from this frame
         core = self.lags[0](x) + self.Ulag[0](g[..., 0, :] * self.Vlag[0](x))
@@ -564,7 +627,7 @@ class LinearDynamicsPredictor(nn.Module):
             corr_k = self.Ulag[k](g[:, k:, :, k, :] * self.Vlag[k](xk))
             core = core + torch.cat([x.new_zeros(B, k, P, D), base_k + corr_k], dim=1)
         corr_B = self.UB(g[..., self.n_lags, :] * self.VB(c).unsqueeze(2))
-        return core + self.B(c).unsqueeze(2) + corr_B
+        return core + self._action_term(core, self.B(c).unsqueeze(2) + corr_B)
 
     def forward_heads(self, x, c):
         """(J,B,T,P,D): every head's PRE-link output. Index 0 equals forward(x, c)."""
@@ -625,6 +688,18 @@ class LinearDynamicsPredictor(nn.Module):
             # and multi-head paths cannot drift apart.
             # PRE-link; VWorldModel applies identity/reprelu.
             return self.W(torch.relu(self._trunk(x, c)))
+        if self.mode == "lie":
+            v = self._rotate(x, self.phi[0]) * self.lag_scale[0].repeat_interleave(2)
+            for k in range(1, self.n_lags):
+                if k >= T:
+                    break                            # z_{t-k} unavailable (cold-start)
+                xk = x[:, : T - k]
+                vk = (self._rotate(xk, self.phi[k])
+                      * self.lag_scale[k].repeat_interleave(2))
+                v = v + torch.cat([x.new_zeros(B, k, P, D), vk], dim=1)
+            theta = self.W_theta(c).unsqueeze(2)     # (B,T,1,D/2), broadcast over patches
+            sc = torch.exp(-self.log_scale) if self.log_scale is not None else None
+            return self._rotate(v, theta, scale=sc)  # PRE-link; VWorldModel applies h
         if self.mode == "additive":
             Wz = self.W(x)                          # (B,T,P,D)
             Ba = self.B(c).unsqueeze(2)             # (B,T,1,D) broadcast over patches

@@ -13,3 +13,4 @@ rank: 16
 gate_input: ${oc.select:gate_input,magnitude}   # Step 3: magnitude (upstream) | support
 gate_norm: ${oc.select:gate_norm,sigmoid}      # Step 3: sigmoid (upstream) | softmax
 n_heads: ${oc.select:n_heads,1}   # Step 4: union-head count (1 = upstream)
+act_gain: ${oc.select:act_gain,null}   # P3: rescale the action branch; null = upstream

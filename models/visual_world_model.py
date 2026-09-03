@@ -39,6 +39,9 @@ class VWorldModel(nn.Module):
         incr_norm=False,     # V1: per-sample increment normalisation of the prediction loss
         act_info=0.0,        # V2: weight on InfoNCE over actions -> max I(a_t ; z_t+1 | z_t)
         act_info_k=4,        # V2: number of in-batch action negatives
+        act_info_neg="perm", # P5: perm (q = p(a))  |  knn (q ~ p(a|z_t))
+        ctrb_w=0.0,          # P4: weight on -logdet of the controllability Gramian
+        ctrb_h=5,            # P4: horizon; = CEM's goal_H
         path_int=False,      # V3: learned path integration of the location signal
         path_int_w=1.0,      # V3: weight on the pose-prediction loss
         path_int_dims=None,  # V3: (raw_pose_dim, raw_action_dim), e.g. (4, 10) on pushT
@@ -83,6 +86,9 @@ class VWorldModel(nn.Module):
         self.incr_norm = bool(incr_norm)
         self.act_info = float(act_info)
         self.act_info_k = int(act_info_k)
+        self.act_info_neg = str(act_info_neg)
+        self.ctrb_w = float(ctrb_w)
+        self.ctrb_h = int(ctrb_h)
         self.path_int_w = float(path_int_w)
         self.path_int = None
         if path_int:
@@ -205,8 +211,8 @@ class VWorldModel(nn.Module):
         """
         E_pos = (z_pred - target).pow(2).mean(dim=(-1, -2))            # (b, t)
         Es = [E_pos]
-        for _ in range(self.act_info_k):
-            perm = torch.randperm(act_src.shape[0], device=act_src.device)
+        perms = self._action_negatives(z_src, act_src)
+        for perm in perms:
             z_neg = self._link(self.predict(z_src, act_src[perm]))
             Es.append((z_neg - target).pow(2).mean(dim=(-1, -2)))
         E = torch.stack(Es, dim=-1)                                    # (b, t, K+1)
@@ -214,6 +220,78 @@ class VWorldModel(nn.Module):
         logits = (-E / tau).flatten(0, 1)                              # (b*t, K+1)
         tgt = torch.zeros(logits.shape[0], dtype=torch.long, device=logits.device)
         return F.cross_entropy(logits, tgt)
+
+    def _action_negatives(self, z_src, act_src):
+        """P5: which distribution the InfoNCE negatives are drawn from.
+
+        InfoNCE with K negatives from a proposal q bounds mutual information RELATIVE TO q.
+        "perm" permutes the batch, i.e. q = p(a), the MARGINAL. PushT demonstrations are
+        policy-generated, so a and z are dependent and the discriminator can win on
+        PLAUSIBILITY -- "would this action occur at this state?" -- without learning any
+        dynamics; what it bounds is I(a; (z_t, z_t+1)), not I(a; z_t+1 | z_t). Taking that
+        shortcut costs code capacity, which is exactly what V2 measured: d_action maximal at
+        0.699 while rho collapsed 0.448 -> 0.052.
+
+        "knn" draws each negative from the K nearest z_t IN THE BATCH, i.e. actions taken at
+        similar states, so q ~ p(a | z_t) and only the predicted EFFECT can discriminate.
+        Zero extra parameters: one cdist on (b, b).
+        """
+        b = act_src.shape[0]
+        if self.act_info_neg != "knn" or b <= self.act_info_k + 1:
+            return [torch.randperm(b, device=act_src.device)
+                    for _ in range(self.act_info_k)]
+        with torch.no_grad():
+            zf = z_src.detach().flatten(1)                       # (b, t*p*d)
+            d = torch.cdist(zf, zf)
+            d.fill_diagonal_(float("inf"))                       # never pick self
+            nn_idx = d.topk(self.act_info_k, dim=1, largest=False).indices   # (b, K)
+        return [nn_idx[:, k] for k in range(self.act_info_k)]
+
+    def _ctrb_loss(self):
+        """P4: -logdet of the H-step controllability Gramian of the linearised dynamics.
+
+        CEM optimises a_{t:t+H-1} to reach a goal latent. For the state-augmented system
+        s_k = [z_k; z_{k-1}; z_{k-2}],
+
+            s_{k+1} = A_aug s_k + B_aug a_k,  A_aug companion,  B_aug = [B; 0; 0]
+            C_H = [B_aug, A_aug B_aug, ..., A_aug^{H-1} B_aug],   W_c = C_H C_H^T
+
+        and the effort to reach direction v is v^T W_c^-1 v. An ill-conditioned W_c means
+        whole latent directions are unreachable by ANY action sequence, so the CEM objective
+        is flat along them however good the 1-step prediction is -- which is exactly V3's
+        result: healthy 1-step d_action, null planning.
+
+        Computed once per step ON THE WEIGHTS, not per sample. W_c is rank-deficient in
+        general, so the ridge is not optional -- an unridged logdet is -inf by construction.
+        """
+        pred = self._pred
+        lags = getattr(pred, "lags", None)
+        if lags is None or not hasattr(pred, "B"):
+            return None                                # no linear core (lie / action_linear)
+        A = [m.weight for m in lags]
+        B = pred.B.weight
+        if hasattr(pred, "W"):                         # mlp_var / ltv: fold the readout in
+            A = [pred.W.weight @ Ak for Ak in A]
+            B = pred.W.weight @ B
+        D, H = A[0].shape[0], len(A)
+        n = D * H
+        M = torch.zeros(n, n, device=B.device, dtype=B.dtype)
+        M[:D] = torch.cat(A, dim=1)
+        eye = torch.eye(D, device=B.device, dtype=B.dtype)
+        for k in range(1, H):
+            M[k * D:(k + 1) * D, (k - 1) * D:k * D] = eye
+        Baug = torch.zeros(n, B.shape[1], device=B.device, dtype=B.dtype)
+        Baug[:D] = B
+        blocks, cur = [Baug], Baug
+        for _ in range(self.ctrb_h - 1):
+            cur = M @ cur
+            blocks.append(cur)
+        C = torch.cat(blocks, dim=1)
+        Wc = C @ C.T
+        Wc = 0.5 * (Wc + Wc.T)
+        ridge = 1e-8 * Wc.diagonal().abs().max().clamp_min(1e-30)
+        ev = torch.linalg.eigvalsh(Wc.float() + ridge * torch.eye(n, device=Wc.device))
+        return -torch.log(ev.clamp_min(1e-30)).mean()
 
     def _path_int_loss(self, proprio, act):
         """V3: predict the next location from (location, action) -- TBT path integration.
@@ -580,6 +658,11 @@ class VWorldModel(nn.Module):
         if _pl is not None:
             loss = loss + self.path_int_w * _pl
             loss_components["path_int_loss"] = _pl
+        if self.ctrb_w > 0:
+            _cl = self._ctrb_loss()
+            if _cl is not None:
+                loss = loss + self.ctrb_w * _cl
+                loss_components["ctrb_loss"] = _cl
         loss_components["z_visual_loss"] = z_loss  # CLS-only: all of z is visual
 
         if self.n_heads > 1 and self.head_entropy_coef > 0:

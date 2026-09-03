@@ -61,6 +61,11 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${ACT_INFO:-}" ]   && { add "act_info=${ACT_INFO}"; TAG="${TAG}_ai${ACT_INFO}"; }
 [ -n "${PATH_INT:-}" ]   && { add "path_int=${PATH_INT}"; TAG="${TAG}_pi"; }
 [ -n "${VAR_SPACE:-}" ]  && add "var_space=${VAR_SPACE}"
+# round 4 (P1-P5); unset => upstream behaviour, bit-identical
+[ -n "${LIE_SIM:-}" ]      && { add "lie_sim=${LIE_SIM}"; TAG="${TAG}_sim"; }
+[ -n "${ACT_GAIN:-}" ]     && { add "act_gain=${ACT_GAIN}"; TAG="${TAG}_ag${ACT_GAIN}"; }
+[ -n "${CTRB_W:-}" ]       && { add "ctrb_w=${CTRB_W}"; TAG="${TAG}_ctrb${CTRB_W}"; }
+[ -n "${ACT_INFO_NEG:-}" ] && { add "act_info_neg=${ACT_INFO_NEG}"; TAG="${TAG}_${ACT_INFO_NEG}"; }
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }
 [ "${MUP:-0}" = "1" ]    && { add "mup=true"; TAG="${TAG}_mup"; }

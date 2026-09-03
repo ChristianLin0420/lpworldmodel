@@ -9,3 +9,4 @@ _target_: models.infojepa_modules.LinearDynamicsPredictor
 # / num_patches injected by train.py.
 mode: mlp_var
 n_heads: ${oc.select:n_heads,1}   # Step 4: union-head count (1 = upstream)
+act_gain: ${oc.select:act_gain,null}   # P3: rescale the action branch; null = upstream

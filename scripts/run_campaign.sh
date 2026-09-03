@@ -332,6 +332,33 @@ wave20_arms() {
 #
 # reg_weight follows the LINK (1.0 sparse / 0.1 dense, the paper's own swept cells), so
 # within each row only target_p varies -- which is exactly the inert-knob question.
+# ROUND 4. The campaign varied the link, the target, the regulariser, the loss, sparsity,
+# width, LR, the encoder, the conditioning and the head count -- and used predictor=ltv in
+# 36 of 39 arms. wave22 varies the map g(z,a) itself, the one axis nobody touched.
+#   P2  linear_var / linear_pa: two cells of the {additive,multiplicative} x {1,3 lags}
+#       factorial that are fully implemented and have NEVER been run.
+#   P1  lie: the action acts as a GROUP ELEMENT (block-diagonal 2x2 rotations). 10.8x
+#       fewer predictor params than ltv; P1b enlarges the group to similitudes.
+#   P3  actgain: the one-scalar falsifier -- if merely reweighting the additive action term
+#       recovers what lie recovers, the structure is unnecessary.
+#   P4  ctrb: -logdet of the H-step controllability Gramian. Run on linear_var, where the
+#       linearisation is EXACT; its control LpWM-linvar is an arm in this same wave.
+#   P5  actinfo-cond: V2's objective with negatives from p(a|z_t) instead of p(a).
+# Controls: LpWM-ltv (n=16) and PiWM-actinfo (n=8) already exist; LpWM-linvar is in-wave.
+wave22_arms() {
+    ORDER[wave22]="LpWM-linvar PiWM-multact PiWM-lie PiWM-lie-sim PiWM-actgain-b03 PiWM-actgain-b30 PiWM-ctrb PiWM-actinfo-cond PiWM-actinfo-cond-sigreg"
+    ARMS[LpWM-linvar]="linear_var 1.0 5e-4"
+    ARMS[PiWM-multact]="linear_pa 1.0 5e-4"
+    ARMS[PiWM-lie]="lie 1.0 5e-4"
+    ARMS[PiWM-lie-sim]="lie 1.0 5e-4 LIE_SIM=true"
+    ARMS[PiWM-actgain-b03]="ltv 1.0 5e-4 ACT_GAIN=0.3"
+    ARMS[PiWM-actgain-b30]="ltv 1.0 5e-4 ACT_GAIN=3.0"
+    ARMS[PiWM-ctrb]="linear_var 1.0 5e-4 CTRB_W=0.01"
+    ARMS[PiWM-actinfo-cond]="ltv 1.0 5e-4 ACT_INFO=0.1 ACT_INFO_NEG=knn"
+    ARMS[PiWM-actinfo-cond-sigreg]="ltv 0.05 5e-4 ACT_INFO=0.1 ACT_INFO_NEG=knn REGULARIZER=sigreg"
+    ARM_LINK[PiWM-actinfo-cond-sigreg]="identity 2"
+}
+
 wave21_arms() {
     ORDER[wave21]="LpWM-ltv-relu-p2 LpWM-ltv-ident-p1"
     ARMS[LpWM-ltv-relu-p2]="ltv 1.0 5e-4"
@@ -431,11 +458,12 @@ for gate in "$@"; do
         wave13)       wave13_arms; gate=wave13 ;;
         wave20)       wave20_arms; gate=wave20 ;;
         wave21)       wave21_arms; gate=wave21 ;;
+        wave22)       wave22_arms; gate=wave22 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;
         wave17)       wave17_arms; gate=wave17 ;;
-        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2|wave3|wave4|wave5)" >&2; exit 1 ;;
+        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave22)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do

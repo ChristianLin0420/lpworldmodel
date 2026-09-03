@@ -189,6 +189,13 @@ def mup_init_(model, emb_std=0.02, tag="", verbose=True):
                 schema[f"{pfx}B.weight"] = "deliberate  zeros (VAR B=0)"
             elif m.mode == "mlp_var":
                 pass
+            elif m.mode == "lie":
+                # the generic pass above would have given W_theta N(0, 1/sqrt(D)); the
+                # deliberate init is ZERO, so that R(theta) = I and the predictor is the
+                # identity at step 0 (same convention as var/additive).
+                nn.init.zeros_(m.W_theta.weight); nn.init.zeros_(m.W_theta.bias)
+                schema[f"{pfx}W_theta.weight"] = "deliberate  zeros (lie: R(theta)=I at init)"
+                schema[f"{pfx}W_theta.bias"] = "deliberate  zeros"
             elif m.mode == "ltv":
                 for i, u in enumerate([*m.Ulag, m.UB]):
                     nn.init.zeros_(u.weight)

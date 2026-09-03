@@ -168,6 +168,16 @@ act_info_k: 4              # V2: in-batch action negatives
 path_int: false            # V3: learned path integration of the location signal
 path_int_w: 1.0            # V3: weight on the pose-prediction loss
 
+# --- round-4 knobs (P1-P5). All inert at these defaults. ------------------------------
+# The campaign varied the link, the target, the regulariser, the loss, sparsity, width, LR,
+# the encoder, the conditioning and the head count -- and used predictor=ltv in 36 of 39
+# arms. These vary the map g(z,a) itself, which is the axis nobody touched.
+lie_sim: false             # P1b: predictor=lie uses similitudes instead of pure rotations
+act_gain: null             # P3: beta making ||B a|| = beta * ||sum_k A_k z||; null = off
+ctrb_w: 0.0                # P4: weight on -logdet of the H-step controllability Gramian
+ctrb_h: 5                  # P4: horizon, = CEM's goal_H (conf/plan_lewm.yaml)
+act_info_neg: perm         # P5: perm (V2, q = p(a)) | knn (q ~ p(a|z_t))
+
 # LeVJEPA encoder knobs. Top-level so hydra can override them (the encoder yaml reads
 # them via oc.select); same pattern as kwta_k. Both inert at these defaults.
 token_drop: 0.0            # fraction of patch tokens dropped per step, train only

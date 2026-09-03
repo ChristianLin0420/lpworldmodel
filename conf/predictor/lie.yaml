@@ -1,0 +1,10 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# P1: the action acts on the code as a GROUP ELEMENT.
+#   v_t     = sum_k s_k * R(phi_k) z_{t-k}       (history combined linearly)
+#   u_{t+1} = R(theta(a_t)) v_t                  (the action IS the dynamics)
+# R(.) is block-diagonal 2x2 on the FIXED coordinate pairs (2j, 2j+1), so it is orthogonal
+# by construction: R(a)R(b) = R(a+b), so composition over CEM's 5-step horizon is exact and
+# ||d z_{t+H} / d a_t|| cannot decay geometrically. ~11x fewer parameters and ~10x less
+# compute than ltv. input_dim/output_dim/num_frames/num_patches injected by train.py.
+mode: lie
+lie_sim: ${oc.select:lie_sim,false}   # P1b: similitudes (scaled rotations) instead of SO(2)
