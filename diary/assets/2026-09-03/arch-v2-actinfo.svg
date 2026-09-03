@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="900" viewBox="0 0 940 900" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
+  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+</defs>
+<rect width="940" height="900" fill="white"/>
+<path d="M214,140 L336.0,140 A46.0,46.0 0 0 1 336.0,232 L214,232 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="292.0" y="187.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
+<text x="292.0" y="208.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
+<circle cx="150" cy="186" r="30" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="150" y="193" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="12" dy="6">t</tspan></text>
+<path d="M180,186 L208,186" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="150" y="134" font-size="12" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">TRUE action</text>
+<rect x="404" y="144" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="162" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="180" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="198" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="216" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="234" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<path d="M384,186 L398,186" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M452,186 L556,186" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="504" y="174" font-size="14" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">E(a_t)</text>
+<path d="M214,300 L336.0,300 A46.0,46.0 0 0 1 336.0,392 L214,392 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="292.0" y="347.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
+<text x="292.0" y="368.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
+<circle cx="150" cy="346" r="30" fill="#f0e6dd" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="150" y="353" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a'</text>
+<path d="M180,346 L208,346" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="150" y="294" font-size="12" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">shuffled</text>
+<rect x="404" y="304" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="322" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="340" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="358" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="376" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="394" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<path d="M384,346 L398,346" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M452,346 L556,346" stroke="#8a8a85" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<text x="504" y="334" font-size="14" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">E(a')</text>
+<path d="M214,460 L336.0,460 A46.0,46.0 0 0 1 336.0,552 L214,552 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="292.0" y="507.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
+<text x="292.0" y="528.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
+<circle cx="150" cy="506" r="30" fill="#f0e6dd" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="150" y="513" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a''</text>
+<path d="M180,506 L208,506" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="150" y="454" font-size="12" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">shuffled</text>
+<rect x="404" y="464" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="482" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="500" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="518" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="536" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="404" y="554" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<path d="M384,506 L398,506" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M452,506 L556,506" stroke="#8a8a85" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<text x="504" y="494" font-size="14" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">E(a'')</text>
+<rect x="64" y="250" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="64" y="275" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="64" y="300" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="64" y="325" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="64" y="350" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="64" y="375" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="75.0" y="238" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
+<path d="M101,300 L130,300 L130,186 L146,186" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M101,320 L130,320 L130,506 L146,506" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="83" y="420" font-size="13" text-anchor="middle" fill="#666" font-style="" font-weight="normal">same</text>
+<text x="83" y="436" font-size="13" text-anchor="middle" fill="#666" font-style="" font-weight="normal">state</text>
+<rect x="556" y="262" width="220" height="108" rx="4" fill="#f5dde7" stroke="#912d59" stroke-width="2.6"/>
+<text x="666.0" y="317.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">InfoNCE over actions</text>
+<text x="666.0" y="334.0" font-size="12" text-anchor="middle" fill="#444" font-style="" font-weight="normal">-log softmax(-E / tau), true action = positive</text>
+<path d="M776,316 L828,316" stroke="#912d59" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<text x="866" y="306" font-size="17" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">max</text>
+<text x="866" y="328" font-size="15" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">I(a;z'|z)</text>
+<rect x="150" y="622" width="620" height="116" rx="7" fill="#f5dde7" fill-opacity="0.75" stroke="#912d59" stroke-width="2" stroke-dasharray="7,4"/>
+<text x="460.0" y="643" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="bold">Proposed: make the objective CAUSAL, not merely predictive</text>
+<text x="460.0" y="661" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">The true z_t+1 must be better explained by the action TAKEN than by actions that were not.</text>
+<text x="460.0" y="679" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">Negatives are free (permute a within the batch); the predictor is 0.81M params vs the</text>
+<text x="460.0" y="697" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">encoder's 12.56M, so K=4 negatives cost almost nothing. tau = detached mean energy.</text>
+<text x="460.0" y="715" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">MEASURED (n=8): d_action 0.699 -- the highest of any arm -- but rho 0.448 -> 0.052.</text>
+<text x="460.0" y="733" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">It bought action-sensitivity by COLLAPSING the code, which is not the trade we wanted.</text>
+<text x="470" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V2) PiWM-actinfo -- InfoNCE over actions</text>
+</svg>
