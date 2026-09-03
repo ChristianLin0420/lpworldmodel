@@ -86,7 +86,7 @@ def spectral_radius(M):
     return float(np.abs(np.linalg.eigvals(M)).max())
 
 
-def gramian(A, B, H=5, ridge=1e-8):
+def gramian(A, B, H=5, ridge=1e-6):
     """W_c = C_H C_H^T and its conditioning. H defaults to the CEM planning horizon."""
     M, Baug = companion(A), None
     D, n = A[0].shape[0], companion(A).shape[0]
@@ -112,7 +112,7 @@ def gramian(A, B, H=5, ridge=1e-8):
         # -logdet/dim with the SAME ridge the objective would use. W_c is singular
         # whenever H * a_dim < n, so an unridged logdet is -inf by construction.
         neg_logdet_per_dim=float(-np.log(ev + eps).mean()),
-        ridge_rel=ridge,
+        ridge_rel=ridge,   # matches the objective's ridge in visual_world_model._ctrb_loss
     )
 
 
