@@ -224,6 +224,11 @@ class VWorldModel(nn.Module):
         if self.path_int is None or proprio is None or proprio.shape[1] < 2:
             return None
         x = torch.cat([proprio[:, :-1], act[:, :-1]], dim=-1)
+        # train.py prepares encoder/predictor/... individually and assembles the model from
+        # them, so a parameter created by VWorldModel itself never reaches the accelerator's
+        # device. Move it once, lazily, rather than assuming a .to() that never happens.
+        if self.path_int.weight.device != x.device:
+            self.path_int.to(x.device)
         return (self.path_int(x) - proprio[:, 1:].detach()).pow(2).mean()
 
     def _act_emb_with_pose(self, act, proprio):
@@ -276,6 +281,8 @@ class VWorldModel(nn.Module):
         # The model's own learned head takes precedence: with V3 the pose dynamics is part
         # of the model, so rollout and training use the SAME map and cannot drift apart.
         if self.path_int is not None:
+            if self.path_int.weight.device != proprio.device:
+                self.path_int.to(proprio.device)
             out = [proprio[:, k] for k in range(proprio.shape[1])]
             for k in range(len(out), t):
                 out.append(self.path_int(torch.cat([out[-1], act[:, k - 1]], dim=-1)))
