@@ -1,81 +1,129 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="900" viewBox="0 0 940 900" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1310" viewBox="0 0 940 1310" font-family="Georgia, 'Times New Roman', serif">
 <defs>
   <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
   <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
   <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
 </defs>
-<rect width="940" height="900" fill="white"/>
-<path d="M214,140 L336.0,140 A46.0,46.0 0 0 1 336.0,232 L214,232 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="292.0" y="187.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="292.0" y="208.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
-<circle cx="150" cy="186" r="30" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="150" y="193" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="12" dy="6">t</tspan></text>
-<path d="M180,186 L208,186" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="150" y="134" font-size="12" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">TRUE action</text>
-<rect x="404" y="144" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="162" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="180" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="198" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="216" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="234" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<path d="M384,186 L398,186" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M452,186 L556,186" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
-<text x="504" y="174" font-size="14" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">E(a_t)</text>
-<path d="M214,300 L336.0,300 A46.0,46.0 0 0 1 336.0,392 L214,392 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="292.0" y="347.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="292.0" y="368.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
-<circle cx="150" cy="346" r="30" fill="#f0e6dd" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="150" y="353" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a'</text>
-<path d="M180,346 L208,346" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="150" y="294" font-size="12" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">shuffled</text>
-<rect x="404" y="304" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="322" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="340" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="358" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="376" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="394" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<path d="M384,346 L398,346" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M452,346 L556,346" stroke="#8a8a85" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<text x="504" y="334" font-size="14" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">E(a')</text>
-<path d="M214,460 L336.0,460 A46.0,46.0 0 0 1 336.0,552 L214,552 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="292.0" y="507.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="292.0" y="528.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
-<circle cx="150" cy="506" r="30" fill="#f0e6dd" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="150" y="513" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a''</text>
-<path d="M180,506 L208,506" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="150" y="454" font-size="12" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">shuffled</text>
-<rect x="404" y="464" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="482" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="500" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="518" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="536" width="15" height="15" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="554" width="15" height="15" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<path d="M384,506 L398,506" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M452,506 L556,506" stroke="#8a8a85" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<text x="504" y="494" font-size="14" text-anchor="middle" fill="#8a8a85" font-style="" font-weight="normal">E(a'')</text>
-<rect x="64" y="250" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="64" y="275" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="64" y="300" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="64" y="325" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="64" y="350" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="64" y="375" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="75.0" y="238" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
-<path d="M101,300 L130,300 L130,186 L146,186" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M101,320 L130,320 L130,506 L146,506" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="83" y="420" font-size="13" text-anchor="middle" fill="#666" font-style="" font-weight="normal">same</text>
-<text x="83" y="436" font-size="13" text-anchor="middle" fill="#666" font-style="" font-weight="normal">state</text>
-<rect x="556" y="262" width="220" height="108" rx="4" fill="#f5dde7" stroke="#912d59" stroke-width="2.6"/>
-<text x="666.0" y="317.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">InfoNCE over actions</text>
-<text x="666.0" y="334.0" font-size="12" text-anchor="middle" fill="#444" font-style="" font-weight="normal">-log softmax(-E / tau), true action = positive</text>
-<path d="M776,316 L828,316" stroke="#912d59" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
-<text x="866" y="306" font-size="17" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">max</text>
-<text x="866" y="328" font-size="15" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">I(a;z'|z)</text>
-<rect x="150" y="622" width="620" height="116" rx="7" fill="#f5dde7" fill-opacity="0.75" stroke="#912d59" stroke-width="2" stroke-dasharray="7,4"/>
-<text x="460.0" y="643" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="bold">Proposed: make the objective CAUSAL, not merely predictive</text>
-<text x="460.0" y="661" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">The true z_t+1 must be better explained by the action TAKEN than by actions that were not.</text>
-<text x="460.0" y="679" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">Negatives are free (permute a within the batch); the predictor is 0.81M params vs the</text>
-<text x="460.0" y="697" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">encoder's 12.56M, so K=4 negatives cost almost nothing. tau = detached mean energy.</text>
-<text x="460.0" y="715" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">MEASURED (n=8): d_action 0.699 -- the highest of any arm -- but rho 0.448 -> 0.052.</text>
-<text x="460.0" y="733" font-size="13" text-anchor="middle" fill="#912d59" font-style="" font-weight="normal">It bought action-sensitivity by COLLAPSING the code, which is not the trade we wanted.</text>
-<text x="470" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V2) PiWM-actinfo -- InfoNCE over actions</text>
+<rect width="940" height="1310" fill="white"/>
+<circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
+<circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="812" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t+1</tspan></text>
+<path d="M120,706 L120,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,706 L812,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="120.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="812.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,520 L812,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="78" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
+<text x="120.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
+<text x="812.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
+<path d="M120,420 L120,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,420 L812,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="120.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="812.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="712.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
+<path d="M700.5,160 L705.0,154 L709.5,160" stroke="#1A1A1A" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+<path d="M737,262 L795,262" stroke="#9E3B3B" stroke-width="2" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="766" y="240" font-size="16" text-anchor="middle" fill="#9E3B3B" font-style="" font-weight="normal">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="321.0" y="263.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
+<text x="321.0" y="284.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
+<circle cx="318" cy="430" r="38" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="318" y="437" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="13" dy="6">t</tspan></text>
+<path d="M318,392 L318,332" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M146,262 L226,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="186" y="248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
+<path d="M424,262 L697,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="430" y="556" width="160" height="52" rx="4" fill="#FFFFFF" stroke="#55707F" stroke-width="1.6"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V2) PiWM-actinfo -- InfoNCE over actions   [NEGATIVE]</text>
+<path d="M880,898 L880,120 L300,120 L300,190" stroke="#912d59" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
+<text x="310" y="106" font-size="16" text-anchor="start" fill="#912d59" font-style="" font-weight="normal">K permuted copies of a_t</text>
+<rect x="34" y="898" width="872" height="384" rx="10" fill="#f5dde7" fill-opacity="0.45" stroke="#912d59" stroke-width="2.4"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#912d59" font-style="" font-weight="bold">module:  the true action must beat K permuted ones at the SAME state</text>
+<path d="M52,942 L888,942" stroke="#912d59" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="36" y="1027" width="56" height="38" rx="19" fill="#f5dde7" stroke="#912d59" stroke-width="2"/>
+<text x="64" y="1052" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="11" dy="6">t</tspan></text>
+<path d="M92,1046 L112,1046 M112,1008 L112,1128" stroke="#912d59" stroke-width="2" fill="none"/>
+<circle cx="162" cy="986" r="15" fill="#f5dde7" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="162" y="993" font-size="14" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="11" dy="6">t</tspan></text>
+<path d="M177,986 L202,986" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M112,1008 L196,1008 L196,1000 L202,1000" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="206" y="962" width="72" height="48" rx="5" fill="#FFFFFF" stroke="#912d59" stroke-width="2"/>
+<text x="242.0" y="992.0" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<rect x="312" y="962" width="200" height="48" rx="5" fill="#FFFFFF" stroke="#912d59" stroke-width="2"/>
+<text x="412.0" y="992.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| h(g) - z_t+1 ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M278,986 L308,986" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="532" y="967" width="48" height="38" rx="19" fill="#FFFFFF" stroke="#912d59" stroke-width="2"/>
+<text x="556" y="992" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">E0</text>
+<path d="M512,986 L528,986" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<circle cx="162" cy="1046" r="15" fill="#eeeeea" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="162" y="1053" font-size="14" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a'</text>
+<path d="M177,1046 L202,1046" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<path d="M112,1068 L196,1068 L196,1060 L202,1060" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<rect x="206" y="1022" width="72" height="48" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="242.0" y="1052.0" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<rect x="312" y="1022" width="200" height="48" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="412.0" y="1052.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| h(g) - z_t+1 ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M278,1046 L308,1046" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<rect x="532" y="1027" width="48" height="38" rx="19" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="556" y="1052" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">E1</text>
+<path d="M512,1046 L528,1046" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<circle cx="162" cy="1106" r="15" fill="#eeeeea" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="162" y="1113" font-size="14" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a''</text>
+<path d="M177,1106 L202,1106" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<path d="M112,1128 L196,1128 L196,1120 L202,1120" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<rect x="206" y="1082" width="72" height="48" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="242.0" y="1112.0" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">g</text>
+<rect x="312" y="1082" width="200" height="48" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="412.0" y="1112.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| h(g) - z_t+1 ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M278,1106 L308,1106" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<rect x="532" y="1087" width="48" height="38" rx="19" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="556" y="1112" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">E2</text>
+<path d="M512,1106 L528,1106" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<rect x="626" y="1000" width="172" height="108" rx="5" fill="#FFFFFF" stroke="#912d59" stroke-width="2"/>
+<text x="712.0" y="1054.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">softmax( -E / tau )</text>
+<text x="712.0" y="1071.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">positive = the TRUE action</text>
+<path d="M580,986 L610,986 L610,1024 L622,1024" stroke="#912d59" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M580,1046 L610,1046 L610,1054 L622,1054" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<path d="M580,1106 L610,1106 L610,1084 L622,1084" stroke="#3d3d3a" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<rect x="818" y="1035" width="80" height="38" rx="19" fill="#f5dde7" stroke="#912d59" stroke-width="2"/>
+<text x="858" y="1060" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">L_ctrl</text>
+<path d="M798,1054 L814,1054" stroke="#912d59" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="60" y="1168" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">E_k  =  || h( g(z_t , a_k) ) - z_t+1 ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="454" y="1168" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">a_0 = a_t ,    a_1..K = perm(a) within the batch</text>
+<text x="60" y="1196" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">L_ctrl  =  -log [ exp(-E_0/tau) / SUM_k exp(-E_k/tau) ]        =>   max  I( a_t ; z_t+1 | z_t ),    tau = detached mean E</text>
+<rect x="60" y="1212" width="268" height="44" rx="5" fill="#FFFFFF" stroke="#912d59" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="194.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">d_action</text>
+<text x="194.0" y="1248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">0.699  (max of any arm)</text>
+<rect x="336" y="1212" width="268" height="44" rx="5" fill="#FFFFFF" stroke="#912d59" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="470.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">code density rho</text>
+<text x="470.0" y="1248" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">0.448 -> 0.052</text>
+<rect x="612" y="1212" width="268" height="44" rx="5" fill="#FFFFFF" stroke="#912d59" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="746.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">CEM vs control</text>
+<text x="746.0" y="1248" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">-0.280  (p = 0.017)</text>
 </svg>

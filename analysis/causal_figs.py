@@ -357,17 +357,19 @@ def fig_d_action_vs_cem(rows, out):
                  + f"\nFisher exact  p = "+ (f"{fisher:.1e}" if fisher < 1e-3 else f"{fisher:.4f}"),
                  fontsize=11.5, color=INK, pad=12)
 
-    a_p = stats.fisher_exact([[sum(1 for r in sub if _passes(r, ("rho",)) and r["cem"] > 0),
-                               sum(1 for r in sub if _passes(r, ("rho",)) and r["cem"] == 0)],
-                              [sum(1 for r in sub if not _passes(r, ("rho",)) and r["cem"] > 0),
-                               sum(1 for r in sub if not _passes(r, ("rho",)) and r["cem"] == 0)]]).pvalue
-    fig.suptitle("No single diagnostic separates the planners -- the CONJUNCTION of three "
-                 "does\n"
-                 f"Each alone is weak (" + r"$\rho$" + f" p={a_p:.2f}, and rel_mse and "
-                 r"$d_{action}$" " likewise). Together, every run that passes plans above "
-                 "zero -- but some that FAIL still plan,\nso the gate is sufficient so far, "
-                 "not necessary. Thresholds were set after seeing these runs; the evals "
-                 "still queued will test them out of sample.",
+    # the deflating test: among runs that are ALREADY healthy, does d_action add anything?
+    hh = [r for r in sub if _passes(r, ("rho", "rel_mse"))]
+    sh = stats.spearmanr([r["d_action"] for r in hh], [r["cem"] for r in hh])
+    ax.annotate(f"among the {len(hh)} runs that are already healthy\n"
+                f"(filled points): Spearman = {sh.correlation:+.2f}, p = {sh.pvalue:.2f}",
+                (0.025, 0.885), xycoords="axes fraction", va="top", ha="left",
+                fontsize=11, color=ACCENT["crit"], weight="bold",
+                bbox=dict(boxstyle="round,pad=0.5", fc="#fdf0ef", ec=ACCENT["crit"]))
+    fig.suptitle("d_action is a COLLAPSE DETECTOR, not a measure of planning quality\n"
+                 "It catches block-causal, whose " + r"$\rho$" + " and rel_mse both look "
+                 "healthy -- and those two runs are the ONLY ones the third condition "
+                 "removes.\nAmong models that trained properly it predicts nothing. "
+                 "Thresholds were fit to these runs.",
                  fontsize=12.5, color=INK, x=0.012, ha="left", y=0.995)
     fig.tight_layout(rect=[0, 0.02, 1, 0.905])
     p = os.path.join(out, "d-action-vs-cem.png")

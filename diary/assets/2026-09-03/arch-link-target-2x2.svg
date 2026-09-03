@@ -1,43 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="740" viewBox="0 0 940 740" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="720" viewBox="0 0 940 720" font-family="Georgia, 'Times New Roman', serif">
 <defs>
   <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
   <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
   <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
 </defs>
-<rect width="940" height="740" fill="white"/>
+<rect width="940" height="720" fill="white"/>
 <text x="470" y="58" font-size="23" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">The 2x2 that had never been run: link x target_p</text>
 <text x="470" y="88" font-size="15" text-anchor="middle" fill="#555" font-style="" font-weight="normal">173 runs at (reprelu, p=1), 35 at (identity, p=2), ZERO off-diagonal</text>
 <rect x="130" y="150" width="320" height="190" rx="10" fill="#d9efd7" stroke="#006e00" stroke-width="2.6"/>
 <text x="290.0" y="186" font-size="20" text-anchor="middle" fill="#006e00" font-style="" font-weight="bold">reprelu, p=1</text>
-<text x="290.0" y="212" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">LpWM-ltv  (173 runs)</text>
-<text x="290.0" y="250" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 0.433   eff_dim 24.1</text>
+<text x="290.0" y="212" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">LpWM-ltv  (n=16)</text>
+<text x="290.0" y="250" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 0.448   eff_dim 24.1</text>
 <text x="290.0" y="274" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.0092</text>
 <rect x="480" y="150" width="320" height="190" rx="10" fill="#d9efd7" stroke="#006e00" stroke-width="2.6"/>
 <text x="640.0" y="186" font-size="20" text-anchor="middle" fill="#006e00" font-style="" font-weight="bold">reprelu, p=2</text>
-<text x="640.0" y="212" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">NEW this round</text>
-<text x="640.0" y="250" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 0.501   eff_dim 26.1</text>
-<text x="640.0" y="274" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.0083</text>
+<text x="640.0" y="212" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">NEW this round (n=8)</text>
+<text x="640.0" y="250" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 0.509   eff_dim 26.1</text>
+<text x="640.0" y="274" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.0082</text>
 <rect x="130" y="374" width="320" height="190" rx="10" fill="#f7dcd9" stroke="#b3261e" stroke-width="2.6"/>
 <text x="290.0" y="410" font-size="20" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">identity, p=1</text>
-<text x="290.0" y="436" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">NEW this round</text>
+<text x="290.0" y="436" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">NEW this round (n=8)</text>
 <text x="290.0" y="474" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 1.000   eff_dim 2.9</text>
-<text x="290.0" y="498" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.051</text>
+<text x="290.0" y="498" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.052</text>
 <rect x="480" y="374" width="320" height="190" rx="10" fill="#f7dcd9" stroke="#b3261e" stroke-width="2.6"/>
 <text x="640.0" y="410" font-size="20" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">identity, p=2</text>
-<text x="640.0" y="436" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">LeWM-ltv-p2  (35 runs)</text>
-<text x="640.0" y="474" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 1.000   eff_dim 3.1</text>
-<text x="640.0" y="498" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.53</text>
+<text x="640.0" y="436" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">LeWM-ltv-p2  (n=8)</text>
+<text x="640.0" y="474" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rho 1.000   eff_dim 4.1</text>
+<text x="640.0" y="498" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rel_mse 0.83</text>
 <text x="84" y="245.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">reprelu</text>
 <text x="84" y="469.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">identity</text>
 <text x="290.0" y="134" font-size="15" text-anchor="middle" fill="#555" font-style="" font-weight="normal">target_p = 1  (Laplace)</text>
 <text x="640.0" y="134" font-size="15" text-anchor="middle" fill="#555" font-style="" font-weight="normal">target_p = 2  (Gaussian)</text>
-<rect x="120" y="590" width="700" height="118" rx="7" fill="#e6e6e3" fill-opacity="0.75" stroke="#3d3d3a" stroke-width="2" stroke-dasharray="7,4"/>
-<text x="470.0" y="611" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="bold">The rows differ. The columns do not.</text>
-<text x="470.0" y="629" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">Flipping target_p at a fixed link changes nothing measurable: (reprelu,p=1) and</text>
-<text x="470.0" y="647" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">(reprelu,p=2) are 0.0092 vs 0.0083 rel_mse, rho 0.433 vs 0.501, eff_dim 24.1 vs 26.1.</text>
-<text x="470.0" y="665" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">Flipping the LINK changes everything: eff_dim collapses 24 -> 3.</text>
-<text x="470.0" y="683" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">Predicted by measurement: swd(Gaussian, Laplace) = 1.9947 +- 0.0170 against a null of</text>
-<text x="470.0" y="701" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">1.9987 +- 0.0112 -- BELOW it. A 1-D projection of a D=384 Laplace sample IS Gaussian</text>
-<text x="470.0" y="719" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">(Diaconis-Freedman), and RDMReg only ever looks at 1-D projections.</text>
-<text x="470.0" y="737" font-size="13" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">So rho ~ 0.5 comes from the ReLU LINK, not the sparse prior.</text>
+<text x="470" y="646" font-size="17" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="normal">Rows differ (link: p = 2.7e-06).  Columns do not (target_p: p = 0.21 / 0.80).</text>
+<text x="470" y="676" font-size="14" text-anchor="middle" fill="#555" font-style="" font-weight="normal">A 1-D projection of a D=384 Laplace sample IS Gaussian (Diaconis-Freedman), and RDMReg only sees 1-D projections.</text>
 </svg>

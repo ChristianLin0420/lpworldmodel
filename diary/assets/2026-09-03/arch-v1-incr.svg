@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="900" viewBox="0 0 940 900" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1310" viewBox="0 0 940 1310" font-family="Georgia, 'Times New Roman', serif">
 <defs>
   <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
   <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
   <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
 </defs>
-<rect width="940" height="900" fill="white"/>
+<rect width="940" height="1310" fill="white"/>
 <circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
 <text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
 <circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
@@ -60,18 +60,63 @@
 <text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
 <path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
 <path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V1) PiWM-incr -- per-sample increment normalisation  [COLLAPSED]</text>
-<rect x="560" y="300" width="250" height="66" rx="4" fill="#d8e8fb" stroke="#0055af" stroke-width="2.4"/>
-<text x="685.0" y="334.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">w = 1 / (||dz||^2 + eps)</text>
-<text x="685.0" y="351.0" font-size="12" text-anchor="middle" fill="#444" font-style="" font-weight="normal">applied per sample, not per batch</text>
-<path d="M737,292 L737,276" stroke="#0055af" stroke-width="2.2" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
-<rect x="186" y="636" width="570" height="134" rx="7" fill="#d8e8fb" fill-opacity="0.75" stroke="#0055af" stroke-width="2" stroke-dasharray="7,4"/>
-<text x="471.0" y="657" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">Proposed: stop large autonomous motions dominating the loss</text>
-<text x="471.0" y="675" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">'Loss on the increment' is a NO-OP: (zhat - z_t) - (z_t+1 - z_t) = zhat - z_t+1 exactly.</text>
-<text x="471.0" y="693" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">A BATCH-level normaliser only rescales. Only PER-SAMPLE weighting moves the gradient.</text>
-<text x="471.0" y="711" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">MEASURED FAILURE (LpWM-ltv s3, 1536 real val samples): eps=1e-4 is 400x below the</text>
-<text x="471.0" y="729" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">median ||dz||^2 = 4.1e-2, so it floors 0.1% of samples; weights span 3884x and the</text>
-<text x="471.0" y="747" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">top 1% of samples take 29% of the batch loss.</text>
-<text x="471.0" y="765" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">Result (n=8): rho 0.448 -> 0.004, eff_dim 24.1 -> 7.5, d_action = 0 on 7 of 8 seeds.</text>
-<text x="471.0" y="783" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="normal">An implementation flaw, not a verdict on the idea.</text>
+<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V1) PiWM-incr -- per-sample increment normalisation   [COLLAPSED]</text>
+<circle cx="766" cy="330" r="15" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<path d="M760,324 L772,336 M772,324 L760,336" stroke="#0055af" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M880,898 L880,362 L766,362 L766,349" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
+<path d="M766,315 L766,278" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
+<text x="836" y="350" font-size="18" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">w</text>
+<rect x="34" y="898" width="872" height="384" rx="10" fill="#d8e8fb" fill-opacity="0.45" stroke="#0055af" stroke-width="2.4"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#0055af" font-style="" font-weight="bold">module:  per-sample weight on the prediction loss</text>
+<path d="M52,942 L888,942" stroke="#0055af" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="62" y="940" width="68" height="38" rx="19" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
+<text x="96" y="965" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t+1</tspan></text>
+<rect x="62" y="990" width="68" height="38" rx="19" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
+<text x="96" y="1015" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
+<circle cx="196" cy="984" r="16" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<path d="M188,984 L204,984" stroke="#0055af" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M130,959 L178,976" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M130,1009 L178,992" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="232" y="960" width="104" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<text x="284.0" y="990.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| . ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M212,984 L228,984" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="372" y="960" width="168" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<text x="456.0" y="990.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">1 / ( . + eps )</text>
+<path d="M336,984 L368,984" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="570" y="965" width="60" height="38" rx="19" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
+<text x="600" y="990" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">w</text>
+<path d="M540,984 L566,984" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="62" y="1042" width="68" height="38" rx="19" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<text x="96" y="1067" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat</text>
+<rect x="62" y="1092" width="68" height="38" rx="19" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<text x="96" y="1117" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t+1</tspan></text>
+<circle cx="196" cy="1086" r="16" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<path d="M188,1086 L204,1086" stroke="#0055af" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M130,1061 L178,1078" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M130,1111 L178,1094" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="232" y="1062" width="104" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<text x="284.0" y="1092.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| . ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M212,1086 L228,1086" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<circle cx="600" cy="1086" r="16" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
+<path d="M594,1080 L606,1092 M606,1080 L594,1092" stroke="#0055af" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M336,1086 L584,1086" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M600,1003 L600,1070" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="668" y="1062" width="176" height="48" rx="5" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
+<text x="756.0" y="1092.0" font-size="18" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">L<tspan font-size="12" dy="6">z</tspan></text>
+<path d="M616,1086 L664,1086" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="60" y="1168" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">L_z  =  w  .  || zhat - z_t+1 ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="334" y="1168" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">w  =  1 / ( || z_t+1 - z_t ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan> + eps )</text>
+<text x="60" y="1196" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">w is formed PER SAMPLE. A batch-level w would only rescale L_z and leave every gradient direction unchanged.</text>
+<rect x="60" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="159.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">eps</text>
+<text x="159.0" y="1248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">1e-4</text>
+<rect x="266" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="365.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">median ||dz||^2</text>
+<text x="365.0" y="1248" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">4.1e-2</text>
+<rect x="472" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="571.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">samples floored by eps</text>
+<text x="571.0" y="1248" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">0.1%</text>
+<rect x="678" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="777.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">w_max / w_min</text>
+<text x="777.0" y="1248" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">3884x</text>
 </svg>

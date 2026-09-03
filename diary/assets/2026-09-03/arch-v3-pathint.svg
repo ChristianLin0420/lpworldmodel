@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="900" viewBox="0 0 940 900" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1310" viewBox="0 0 940 1310" font-family="Georgia, 'Times New Roman', serif">
 <defs>
   <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
   <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
   <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
 </defs>
-<rect width="940" height="900" fill="white"/>
+<rect width="940" height="1310" fill="white"/>
 <circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
 <text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
 <circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
@@ -60,26 +60,56 @@
 <text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
 <path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
 <path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V3) PiWM-pathint -- the reference frame is UPDATED BY THE MOVEMENT  [HEALTHY]</text>
-<circle cx="196" cy="566" r="32" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="196" y="573" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">p<tspan font-size="12" dy="6">t</tspan></text>
-<rect x="268" y="542" width="168" height="52" rx="4" fill="#faeecb" stroke="#9a6700" stroke-width="2.6"/>
-<text x="352.0" y="569.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">PathInt</text>
-<text x="352.0" y="586.0" font-size="12" text-anchor="middle" fill="#444" font-style="" font-weight="normal">p_t+1 = f(p_t, a_t)</text>
-<path d="M228,566 L264,566" stroke="#9a6700" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
-<circle cx="486" cy="566" r="32" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="486" y="573" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">p<tspan font-size="12" dy="6">t+1</tspan></text>
-<path d="M436,566 L454,566" stroke="#9a6700" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
-<text x="352" y="616" font-size="12" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">supervised by the true next pose</text>
-<path d="M352,542 L352,470 L318,470" stroke="#9a6700" stroke-width="2.2" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
-<text x="392" y="462" font-size="12" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">+ into the action embedding</text>
-<rect x="196" y="646" width="560" height="116" rx="7" fill="#faeecb" fill-opacity="0.75" stroke="#9a6700" stroke-width="2" stroke-dasharray="7,4"/>
-<text x="476.0" y="667" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="bold">Proposed: TBT's reference frame, done causally</text>
-<text x="476.0" y="685" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">PiWM-refframe RECEIVED pose as a static side-channel and was a NULL (-0.063, p=0.169).</text>
-<text x="476.0" y="703" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">TBT requires the frame to be PATH-INTEGRATED by the movement -- that is the causal half</text>
-<text x="476.0" y="721" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">we omitted. Warm-started from the map fit on the dataset (95.2% of 1-step pose change).</text>
-<text x="476.0" y="739" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">Rollout uses the model's OWN head, so training and planning cannot drift apart.</text>
-<text x="476.0" y="757" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">MEASURED (n=8): rho 0.573, eff_dim 22.8, rel_mse 0.0094 -- indistinguishable from</text>
-<text x="476.0" y="775" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">the baseline -- with d_action 0.460, the largest of any arm that stayed healthy.</text>
-<text x="476.0" y="793" font-size="13" text-anchor="middle" fill="#9a6700" font-style="" font-weight="normal">8/8 seeds pass the planning gate; CEM 0.260 (n=5) against the control's 0.357.</text>
+<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V3) PiWM-pathint -- the reference frame is path-integrated by the action   [NULL]</text>
+<path d="M880,898 L880,120 L300,120 L300,190" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
+<text x="310" y="106" font-size="16" text-anchor="start" fill="#9a6700" font-style="" font-weight="normal">pose joins the action embedding</text>
+<rect x="34" y="898" width="872" height="384" rx="10" fill="#faeecb" fill-opacity="0.45" stroke="#9a6700" stroke-width="2.4"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#9a6700" font-style="" font-weight="bold">module:  a learned pose map, rolled forward by the model itself</text>
+<path d="M52,942 L888,942" stroke="#9a6700" stroke-width="1.2" stroke-opacity="0.5"/>
+<circle cx="76" cy="982" r="23" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="76" y="989" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">p<tspan font-size="11" dy="6">t</tspan></text>
+<circle cx="76" cy="1082" r="23" fill="#faeecb" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="76" y="1089" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="11" dy="6">t</tspan></text>
+<rect x="170" y="958" width="168" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="254.0" y="988.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">W_a a_t  +  W_p p_t</text>
+<path d="M99,982 L166,982" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M99,1068 L136,1068 L136,998 L166,998" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="368" y="963" width="84" height="38" rx="19" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="410" y="988" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">to g</text>
+<path d="M338,982 L368,982" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="170" y="1058" width="168" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="254.0" y="1082.0" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">f_path</text>
+<text x="254.0" y="1099.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">[ p_t ; a_t ]</text>
+<path d="M99,1082 L166,1082" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M99,996 L136,996 L136,1066 L166,1066" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="352" y="1063" width="96" height="38" rx="19" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="400" y="1088" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">phat_t+1</text>
+<path d="M338,1082 L352,1082" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="480" y="993" width="72" height="38" rx="19" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="516" y="1018" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">p<tspan font-size="11" dy="6">t+1</tspan></text>
+<circle cx="516" cy="1082" r="16" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<path d="M508,1082 L524,1082" stroke="#9a6700" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M448,1082 L500,1082" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M516,1031 L516,1066" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="568" y="1058" width="104" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="620.0" y="1088.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| . ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<path d="M532,1082 L564,1082" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="706" y="1058" width="150" height="48" rx="5" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="781.0" y="1088.0" font-size="18" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">L_path</text>
+<path d="M672,1082 L702,1082" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="60" y="1168" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">phat_t+1  =  f_path( [ p_t ; a_t ] )</text>
+<text x="364" y="1168" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">L  =  L_z  +  lambda . || phat_t+1 - p_t+1 ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="60" y="1196" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">rollout uses the SAME head:   p_k+1 = f_path( [ p_k ; a_k ] )        warm start: the dataset fit (95.2% of the 1-step pose change)</text>
+<rect x="60" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="159.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">code density rho</text>
+<text x="159.0" y="1248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">0.573</text>
+<rect x="266" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="365.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">rel_mse</text>
+<text x="365.0" y="1248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">0.0094</text>
+<rect x="472" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="571.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">d_action</text>
+<text x="571.0" y="1248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">0.460</text>
+<rect x="678" y="1212" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="777.0" y="1229" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">CEM vs control</text>
+<text x="777.0" y="1248" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">-0.025  (null)</text>
 </svg>
