@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1420" viewBox="0 0 940 1420" font-family="Georgia, 'Times New Roman', serif">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
+  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+</defs>
+<rect width="940" height="1420" fill="white"/>
+<circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
+<circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="812" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t+1</tspan></text>
+<path d="M120,706 L120,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,706 L812,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="120.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="812.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,520 L812,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="78" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
+<text x="120.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
+<text x="812.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
+<path d="M120,420 L120,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M812,420 L812,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="120.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="812.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
+<text x="712.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
+<path d="M700.5,160 L705.0,154 L709.5,160" stroke="#1A1A1A" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+<path d="M737,262 L795,262" stroke="#9E3B3B" stroke-width="2" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="766" y="240" font-size="16" text-anchor="middle" fill="#9E3B3B" font-style="" font-weight="normal">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
+<text x="321.0" y="263.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
+<text x="321.0" y="284.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
+<circle cx="318" cy="430" r="38" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
+<text x="318" y="437" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="13" dy="6">t</tspan></text>
+<path d="M318,392 L318,332" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M146,262 L226,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="186" y="248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
+<path d="M424,262 L697,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="430" y="556" width="160" height="52" rx="4" fill="#FFFFFF" stroke="#55707F" stroke-width="1.6"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V3) PiWM-twolevel -- search over SUBGOALS, then a short push</text>
+<path d="M880,898 L880,120 L300,120 L300,190" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
+<text x="310" y="106" font-size="16" text-anchor="start" fill="#9a6700" font-style="" font-weight="normal">z_sub is a latent the predictor must reach</text>
+<rect x="34" y="898" width="872" height="496" rx="10" fill="#faeecb" fill-opacity="0.45" stroke="#9a6700" stroke-width="2.4"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#9a6700" font-style="" font-weight="bold">module:  an upper level over LATENTS, a lower level over ACTIONS</text>
+<path d="M52,942 L888,942" stroke="#9a6700" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="62" y="1017" width="68" height="38" rx="19" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="96" y="1042" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="11" dy="6">t</tspan></text>
+<path d="M130,1036 L152,1036 M152,986 L152,1086" stroke="#9a6700" stroke-width="2" fill="none"/>
+<path d="M152,986 L176,986" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="180" y="962" width="156" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="258.0" y="986.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">UPPER</text>
+<text x="258.0" y="1003.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">CEM over z_sub</text>
+<path d="M336,986 L362,986" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="364" y="967" width="92" height="38" rx="19" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="410" y="992" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="10" dy="6">sub</tspan></text>
+<text x="258" y="950" font-size="12" text-anchor="middle" fill="#666" font-style="" font-weight="normal">proposes a latent, not an action</text>
+<path d="M152,1086 L448,1086" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<path d="M410,1005 L410,1046 L534,1046 L534,1058" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="452" y="1060" width="164" height="52" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="534.0" y="1086.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">LOWER  pi</text>
+<text x="534.0" y="1103.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">reach z_sub, k steps</text>
+<path d="M616,1086 L640,1086" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="642" y="1067" width="84" height="38" rx="19" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="684" y="1092" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="10" dy="6">1:k</tspan></text>
+<path d="M726,1086 L750,1086" stroke="#9a6700" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
+<rect x="754" y="1062" width="122" height="48" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="815.0" y="1086.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">PUSH</text>
+<text x="815.0" y="1103.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">H - k free steps</text>
+<rect x="60" y="1132" width="816" height="134" rx="8" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="468.0" y="1158" font-size="17" text-anchor="middle" fill="#9a6700" font-style="" font-weight="bold">flat 5-step action search   vs   subgoal + short push</text>
+<text x="104" y="1199" font-size="13" text-anchor="start" fill="#555" font-style="" font-weight="normal">flat</text>
+<rect x="190" y="1180" width="38" height="28" rx="3" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="209.0" y="1198.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">1</tspan></text>
+<rect x="236" y="1180" width="38" height="28" rx="3" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="255.0" y="1198.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">2</tspan></text>
+<rect x="282" y="1180" width="38" height="28" rx="3" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="301.0" y="1198.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">3</tspan></text>
+<rect x="328" y="1180" width="38" height="28" rx="3" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="347.0" y="1198.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">4</tspan></text>
+<rect x="374" y="1180" width="38" height="28" rx="3" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
+<text x="393.0" y="1198.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">5</tspan></text>
+<path d="M412,1194 L436,1194" stroke="#3d3d3a" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+<rect x="440" y="1180" width="186" height="28" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
+<text x="533.0" y="1200.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| zhat_5 - z_g ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="640" y="1199" font-size="13" text-anchor="start" fill="#555" font-style="" font-weight="normal">one score, at H = 5</text>
+<text x="104" y="1245" font-size="13" text-anchor="start" fill="#555" font-style="" font-weight="normal">two-level</text>
+<rect x="190" y="1226" width="38" height="28" rx="3" fill="#faeecb" stroke="#9a6700" stroke-width="1.6"/>
+<text x="209.0" y="1244.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">1</tspan></text>
+<rect x="236" y="1226" width="38" height="28" rx="3" fill="#faeecb" stroke="#9a6700" stroke-width="1.6"/>
+<text x="255.0" y="1244.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">2</tspan></text>
+<rect x="278" y="1226" width="68" height="28" rx="14" fill="#faeecb" stroke="#9a6700" stroke-width="2"/>
+<text x="312" y="1246" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="9" dy="6">sub</tspan></text>
+<rect x="352" y="1226" width="38" height="28" rx="3" fill="#faeecb" stroke="#9a6700" stroke-width="1.6"/>
+<text x="371.0" y="1244.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">3</tspan></text>
+<rect x="398" y="1226" width="38" height="28" rx="3" fill="#faeecb" stroke="#9a6700" stroke-width="1.6"/>
+<text x="417.0" y="1244.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">4</tspan></text>
+<rect x="444" y="1226" width="38" height="28" rx="3" fill="#faeecb" stroke="#9a6700" stroke-width="1.6"/>
+<text x="463.0" y="1244.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="9" dy="6">5</tspan></text>
+<rect x="494" y="1226" width="186" height="28" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="2"/>
+<text x="587.0" y="1246.0" font-size="12" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| zhat_5 - z_g ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="694" y="1245" font-size="13" text-anchor="start" fill="#555" font-style="" font-weight="normal">reach score + task score</text>
+<text x="60" y="1298" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">upper:   min over z_sub of  || zhat_H - z_g ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="434" y="1298" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">lower:   a_1:k  =  argmin  || zhat_k - z_sub ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
+<text x="60" y="1324" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">a subgoal is a LATENT, so it is searchable without the env; the push is the only part that has to move the block</text>
+<rect x="60" y="1338" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="159.0" y="1355" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">block static in</text>
+<text x="159.0" y="1374" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">75% of transitions</text>
+<rect x="266" y="1338" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="365.0" y="1355" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">top 1% of steps carry</text>
+<text x="365.0" y="1374" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">34.8% of motion</text>
+<rect x="472" y="1338" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="571.0" y="1355" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">flat search</text>
+<text x="571.0" y="1374" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">H=5, 10-D, 300 samp</text>
+<rect x="678" y="1338" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.4" stroke-opacity="0.7"/>
+<text x="777.0" y="1355" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">two-level</text>
+<text x="777.0" y="1374" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">k=2 reach + 3 push</text>
+</svg>

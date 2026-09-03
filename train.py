@@ -1462,14 +1462,28 @@ class Trainer:
 
         This is the quantity CEM actually consumes: the planner can only distinguish
         candidate action sequences to the extent that different actions produce different
-        predictions. Measured across 9 trained arms it is the strongest predictor of
-        planning success found in this project (Spearman +0.81, p=0.0079 against CEM),
-        stronger than rel_mse -- while the RATIO d_action/|z| does not predict it at all
-        (+0.28, p=0.47), so the absolute displacement is what is logged.
+        predictions.
 
-        Baseline reference: LpWM-ltv s3 measures d_action = 1.29e-04 against |z| = 0.68,
-        i.e. the action moves the prediction by ~0.02% of its own magnitude, with
-        d_state/d_action = 37x.
+        CORRECTED 2026-09-03. This docstring previously read "LpWM-ltv s3 measures
+        d_action = 1.29e-04 against |z| = 0.68", and that number was the stated premise of
+        the V1-V3 and P1-P6 rounds -- nine arms built to raise a quantity believed to be
+        ~0. It is wrong by a factor of ~2900. Re-measuring every checkpoint in the archive
+        with analysis/d_action_probe.py (same computation, one fixed batch and permutation
+        for all arms; agrees with the value logged here at Spearman +0.992 over the 145
+        runs that have both) gives:
+
+            LpWM-ltv, median over 16 seeds:  d_action = 0.354,  d_action/|z| = 0.549
+
+        The metric only exists in summaries written after this method was added, which
+        excludes LpWM-ltv, d2048, vfloor, mupfix and the gate family -- every high-CEM arm.
+        Use the probe, not this log, for any cross-arm comparison.
+
+        What the fuller measurement says (n = 235 evaluated runs, rho and rel_mse
+        partialled out as continuous covariates, permutation null, no thresholds):
+        partial Spearman(d_action/|z|, CEM) = +0.545, p < 1e-4; +0.695 among predictors
+        with rel_mse < 0.05. The relation is an INVERTED U (rank-quadratic term -323):
+        the optimum is near 0.6 and the baseline already sits at 0.549. Raising d_action
+        is therefore NOT a direction -- every arm that moved it moved it down.
         """
         d = getattr(self._model_module(), "_diag", None)
         if not d or "z_src" not in d or d.get("act_src") is None:
