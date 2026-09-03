@@ -23,6 +23,30 @@ directly with no contact and no physics. `planning/mpc.py:110-112` then latches 
 over ten noisy draws rather than a terminal outcome. **M2 rescores the archive; every number
 predating it is historical.**
 
+> ### ⚠ Superseded by measurement, 2026-09-03 — read this before implementing anything below
+>
+> **M3's oracle ladder has since run and it refutes point 2.** Holding the latent-MSE leaf
+> objective fixed and swapping only the dynamics takes CEM from 0.43 to ≈0.91; swapping only the
+> objective does nothing (0.427 → 0.207, i.e. it hurts). `(learned objective, oracle dynamics)`
+> ≈ `(oracle objective, oracle dynamics)`, so the latent MSE is an adequate leaf score once it is
+> fed a true terminal frame. **The bottleneck is the ROLLOUT.** The `(oracle, oracle)` cell at
+> 0.87–0.94 also rules out "CEM cannot solve this action space".
+>
+> What this does to the proposals below:
+> - **T6 (jumpy K=5) is now the round's most important training arm** — the only one that attacks
+>   multi-step rollout quality directly.
+> - **T5, V5, T7 and V1 all target the leaf score**, which M3 says is the wrong end. Still worth
+>   running (V1 decides what voting does; T7 is cheap) but no longer the priority they are written
+>   as here.
+> - **M1 has also run**: the latent carries the block's *position* well (16.0 px vs a 49.3 px
+>   constant floor) and essentially none of its *orientation* (15.7° vs a 14.5° constant floor,
+>   against a 20° task tolerance). The arms with the best representations are the worst planners,
+>   so T1/T2 should be judged on rollout quality, not on probe error.
+> - M1's pre-registered 20° falsifier is **retired**: the model-free constant floor is 14.5°, so
+>   the threshold sat below chance and could never have fired.
+>
+> Full evidence in `diary/2026-09-03.md` §16.
+
 **2 · The objective is a mean over transitions; the task is a tail.** Over 915,565 transitions at
 the model's own frameskip, the block's median displacement is **exactly 0.000 px**, 75 % of
 transitions move it less than half a pixel, and the top 1 % carry 34.8 % of all its motion. A

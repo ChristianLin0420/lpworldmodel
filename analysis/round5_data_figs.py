@@ -452,12 +452,12 @@ def fig_probe(out, campaign="/tmp/p16.json"):
                  "4 px and 4 degrees",
                  fontsize=12.5, color=INK, loc="left", pad=8)
 
-    fig.suptitle("M1: the latent DOES encode the block -- which kills the representation "
-                 "hypothesis rather than confirming it\n"
-                 "LpWM-linvar localises the block to 9.5 px and its orientation to 4.4°, "
-                 "twice and four times better than the baseline, and plans at 0.09 against "
-                 "0.38.\nA latent can encode the task almost perfectly and still be "
-                 "unplannable, so representation quality is not what the ReLU is buying.",
+    fig.suptitle("M1: the latent has the block's POSITION, and the arms that have it best are "
+                 "the ones that plan worst\n"
+                 "LpWM-linvar localises the block to 7.8 px and its orientation to 3.5 deg on "
+                 "the validation split -- 2x and 4.5x the baseline -- and plans at 0.09 vs "
+                 "0.38.\nThe baseline's ANGLE is not decoded at all: 15.7 deg against a 14.5 "
+                 "deg constant-prediction floor, with the task tolerance at 20 deg.",
                  fontsize=12.5, color=INK, x=0.008, ha="left", y=1.0)
     fig.tight_layout(rect=[0, 0, 1, 0.85])
     p = os.path.join(out, "m1-probe.png")
