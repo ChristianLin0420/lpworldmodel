@@ -66,6 +66,27 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${ACT_GAIN:-}" ]     && { add "act_gain=${ACT_GAIN}"; TAG="${TAG}_ag${ACT_GAIN}"; }
 [ -n "${CTRB_W:-}" ]       && { add "ctrb_w=${CTRB_W}"; TAG="${TAG}_ctrb${CTRB_W}"; }
 [ -n "${ACT_INFO_NEG:-}" ] && { add "act_info_neg=${ACT_INFO_NEG}"; TAG="${TAG}_${ACT_INFO_NEG}"; }
+# round 5 (T1/T2 decoder); unset => upstream behaviour, bit-identical.
+# AUX_DECODER, not HAS_DECODER: plan.py rebuilds a decoder for any has_decoder run and
+# raises on every checkpoint this repo writes (state_dict + env.decoder_path: null).
+[ -n "${AUX_DECODER:-}" ]  && { add "aux_decoder=${AUX_DECODER} model.train_decoder=${AUX_DECODER} decoder=${DECODER:-transposed_conv}"; TAG="${TAG}_dec${DECODER:-transposed_conv}"; }
+[ -n "${DECODE_GRAD:-}" ]  && { add "decode_grad=${DECODE_GRAD}"; TAG="${TAG}_dg${DECODE_GRAD}"; }
+[ -n "${LAMB_DECODE:-}" ]  && { add "lamb_decode=${LAMB_DECODE}"; TAG="${TAG}_ld${LAMB_DECODE}"; }
+# round 5 (T3 contact weighting). CONTACT_GAMMA=0 is the uniform upstream objective.
+[ -n "${CONTACT_GAMMA:-}" ] && { add "contact_gamma=${CONTACT_GAMMA}"; TAG="${TAG}_cg${CONTACT_GAMMA}"; }
+[ -n "${CONTACT_SHUF:-}" ]  && { add "contact_shuffle=${CONTACT_SHUF}"; TAG="${TAG}_cshuf"; }
+# round 5 (T6 option model). NUM_PRED is K; it changes the DATASET window too
+# (num_frames = num_hist + num_pred), which is why both arms must set it.
+[ -n "${NUM_PRED:-}" ]     && { add "num_pred=${NUM_PRED}"; TAG="${TAG}_K${NUM_PRED}"; }
+[ -n "${OVERSHOOT:-}" ]    && { add "overshoot=${OVERSHOOT}"; TAG="${TAG}_os"; }
+# round 5 (T4 value head / V4 BC policy). Unset => the head is not even built, so this
+# is bit-identical to upstream. ACT_DIM_RAW is derived from FRAMESKIP, not hardcoded, and
+# is written into the config so plan.py can rebuild the policy head from the run's saved
+# hydra.yaml alone -- without it V4 would plan with a fresh init (the path_int defect).
+[ -n "${VALUE_W:-}" ]      && { add "value_w=${VALUE_W}"; TAG="${TAG}_v${VALUE_W}"; }
+[ -n "${VALUE_MODE:-}" ]   && { add "value_mode=${VALUE_MODE}"; TAG="${TAG}_${VALUE_MODE}"; }
+[ -n "${VALUE_TAU:-}" ]    && { add "value_tau=${VALUE_TAU}"; TAG="${TAG}_tau${VALUE_TAU}"; }
+[ -n "${POLICY_W:-}" ]     && { add "policy_w=${POLICY_W} act_dim_raw=$((2 * FRAMESKIP))"; TAG="${TAG}_bc"; }
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }
 [ "${MUP:-0}" = "1" ]    && { add "mup=true"; TAG="${TAG}_mup"; }

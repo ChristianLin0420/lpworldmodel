@@ -53,6 +53,19 @@ def seed_all(s):
     random.seed(s)
 
 
+def _contact_geom(cfg):
+    """T3 geometry, mirroring train.py._contact_geom without loading a dataset."""
+    from datasets.pusht_dset import PROPRIO_MEAN, PROPRIO_STD
+
+    scale = float(cfg.img_size) / 512.0
+    return (
+        float(PROPRIO_MEAN[0]), float(PROPRIO_MEAN[1]),
+        float(PROPRIO_STD[0]), float(PROPRIO_STD[1]),
+        scale,
+        15.0 * float(cfg.get("contact_pad", 1.6)) * scale,
+    )
+
+
 def build(cfg, device="cpu"):
     """Return (model, optimizers) with muP init applied, as in a fresh train.py run."""
     encoder = hydra.utils.instantiate(cfg.encoder)
@@ -75,11 +88,19 @@ def build(cfg, device="cpu"):
     link = hydra.utils.instantiate(cfg.link)
     regularizer = hydra.utils.instantiate(cfg.regularizer)
 
+    # T1/T2 mirror of train.py init_models: the reconstruction head is built when
+    # aux_decoder (or the legacy has_decoder) is set. train.py:743.
+    decoder = None
+    if bool(cfg.get("aux_decoder", False)) or bool(cfg.get("has_decoder", False)):
+        decoder = hydra.utils.instantiate(cfg.decoder, emb_dim=encoder.emb_dim)
+
     if cfg.get("mup", False):
         from models.mup import mup_init_
 
         mup_init_(encoder, tag="encoder")
         mup_init_(predictor, tag="predictor")
+        if decoder is not None and cfg.model.train_decoder:
+            mup_init_(decoder, tag="decoder")
 
     model = hydra.utils.instantiate(
         cfg.model,
@@ -87,7 +108,7 @@ def build(cfg, device="cpu"):
         proprio_encoder=proprio_encoder,
         action_encoder=action_encoder,
         predictor=predictor,
-        decoder=None,
+        decoder=decoder,
         proprio_dim=cfg.proprio_emb_dim,
         action_dim=cfg.action_emb_dim,
         concat_dim=cfg.concat_dim,
@@ -117,6 +138,30 @@ def build(cfg, device="cpu"):
         n_heads=cfg.get("n_heads", 1),
         head_entropy_coef=cfg.get("head_entropy_coef", 0.0),
         burst_tau=cfg.get("burst_tau", 0.5),
+        # T1/T2
+        decode_grad=bool(cfg.get("decode_grad", False)),
+        lamb_decode=float(cfg.get("lamb_decode", 1.0)),
+        # T3: mirrors train.py _contact_geom() with the dataset's literal constants
+        # (datasets/pusht_dset.py PROPRIO_MEAN / PROPRIO_STD), so no dataset is needed.
+        contact_gamma=float(cfg.get("contact_gamma", 0.0)),
+        contact_shuffle=bool(cfg.get("contact_shuffle", False)),
+        contact_eps=float(cfg.get("contact_eps", 1e-8)),
+        contact_geom=_contact_geom(cfg),
+        # T6: num_pred already flows through cfg.model (conf/train_rdmreg.yaml), so K
+        # needs no mirror -- overshoot does.
+        overshoot=bool(cfg.get("overshoot", False)),
+        # T4/V4: mirrors train.py's model kwargs. act_dim_raw is the RAW action width
+        # (2*frameskip), which is what TrajSlicerDataset.action_dim is on pushT; passing
+        # the 384-d embedding dim here would build a head whose "actions" are not actions.
+        value_w=float(cfg.get("value_w", 0.0)),
+        value_mode=str(cfg.get("value_mode", "td")),
+        value_tau=float(cfg.get("value_tau", 0.7)),
+        value_gamma=float(cfg.get("value_gamma", 0.98)),
+        value_hidden=cfg.get("value_hidden", None),
+        value_ema=float(cfg.get("value_ema", 0.005)),
+        value_p_future=float(cfg.get("value_p_future", 0.5)),
+        policy_w=float(cfg.get("policy_w", 0.0)),
+        act_dim_raw=2 * int(cfg.get("frameskip", 5)),
     ).to(device)
 
     from models.mup import mup_param_groups
@@ -143,6 +188,24 @@ def build(cfg, device="cpu"):
             eps=1e-15,
         ),
     ]
+    if decoder is not None and cfg.model.train_decoder:
+        # mirrors train.py init_optimizers:924 -- without this the decoder would be
+        # built and never stepped, which is exactly the path_int failure mode.
+        opts.append(
+            torch.optim.AdamW(
+                mup_param_groups(decoder, lr, bw, weight_decay=wd, tag="decoder", input_lr_fix=ifix),
+                lr=lr,
+                eps=1e-15,
+            )
+        )
+    # T4/V4: mirrors train.py init_optimizers. Plain AdamW, NOT mup_param_groups -- the
+    # heads' fan-in is 3D, so muP would make their lr a function of the swept width and
+    # confound T4 with the wave6/wave7 factorial. Present here so tests/test_arms.py can
+    # assert the heads are IN an optimizer, which is the item path_int was missing.
+    head_lr = float(cfg.training.get("value_lr", 3e-4))
+    for head in (getattr(model, "value_head", None), getattr(model, "policy_head", None)):
+        if head is not None:
+            opts.append(torch.optim.AdamW(head.parameters(), lr=head_lr))
     return model, opts
 
 

@@ -40,6 +40,16 @@ class GDPlanner(BasePlanner):
         self.opt_steps = opt_steps
         self.eval_every = eval_every
         self.logging_prefix = logging_prefix
+        # V2. GD differentiates the objective w.r.t. the action tensor. The vote
+        # objectives (planning/objectives.py:106-142) return ARGSORT RANKS, which are
+        # piecewise constant in the actions, so their gradient is identically zero
+        # almost everywhere: a GD-over-vote arm would silently plan with the random
+        # init and look like a baseline. This incompatibility is documented at
+        # planning/objectives.py; refuse rather than bodge it.
+        assert getattr(objective_fn, "__name__", "") != "objective_fn_vote", (
+            "rank-based vote objectives are piecewise constant (argsort); "
+            "GD gets zero gradient"
+        )
 
     def init_actions(self, obs_0, actions=None):
         """
@@ -109,6 +119,17 @@ class GDPlanner(BasePlanner):
             self.wandb_run.log(
                 {f"{self.logging_prefix}/loss": total_loss.item(), "step": i + 1}
             )
+            # The per-step objective is the quantity V2's informative sub-case turns on
+            # ("GD reaches a LOWER objective than CEM at equal or worse success"), and
+            # wandb is disabled in every eval job (arm_slurm.sbatch), so mirror it to
+            # stdout -- slurm_logs/ is then the only place it survives.
+            if i % self.eval_every == 0 or i == self.opt_steps - 1:
+                print(
+                    f"[gd] {self.logging_prefix} step {i + 1}/{self.opt_steps} "
+                    f"obj={loss.mean().item():.6f} "
+                    f"|grad|={float(actions.grad.norm()):.3e}",
+                    flush=True,
+                )
             if self.evaluator is not None and i % self.eval_every == 0:
                 logs, successes, _, _ = self.evaluator.eval_actions(
                     actions.detach(), filename=f"{self.logging_prefix}_output_{i+1}"

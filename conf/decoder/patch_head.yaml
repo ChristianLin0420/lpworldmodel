@@ -1,0 +1,6 @@
+# T2: per-patch reconstruction head. emb_dim is injected by train.py:749 /
+# tests/lpwm_build.py from encoder.emb_dim, so it is deliberately absent here.
+_target_: models.decoder.patch_head.PatchHead
+patch_size: 14
+grid: 16          # img_size / patch_size
+out_chans: 3

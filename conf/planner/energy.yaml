@@ -1,0 +1,29 @@
+# T7 - CEM whose LEAF SCORE is the learned ranking head (planning/energy.py), not a
+# rollout. Same proposal, same elite fraction, same budget, same evaluator as
+# conf/planner/mpc_cem.yaml -- the ONLY difference is what argsort is taken over.
+#
+# `energy_ckpt` is REQUIRED and must point at a file written by train_energy.py.
+# EnergyCEMPlanner refuses to construct without one: a head that is absent from disk and
+# silently randomly initialised at plan time is exactly the `path_int` failure that cost
+# this campaign a published conclusion (diary 2026-09-03 sec 13.3).
+#
+# NB conf/plan_lewm.yaml defines `planner:` INLINE and has no `planner` defaults-group
+# entry, so `planner=energy` does not select this file there. The launch path is the
+# command-line override in scripts/plan_energy.sh:
+#   planner.sub_planner.target=planning.energy.EnergyCEMPlanner \
+#   +planner.sub_planner.energy_ckpt=<abs path>
+# This file is for plan configs that DO select the group (conf/plan.yaml style).
+_target_: planning.mpc.MPCPlanner
+max_iter: 10 # cap MPC re-planning iters (null = unbounded = too slow)
+n_taken_actions: 5
+sub_planner:
+  target: planning.energy.EnergyCEMPlanner
+  horizon: 5
+  topk: 30
+  num_samples: 300
+  var_scale: 1     # the head's negatives are matched to THIS: randn * var_scale + mu
+  opt_steps: 30
+  eval_every: 1
+  energy_ckpt: ???  # no default: an untrained head must be impossible to plan with
+
+name: mpc_energy

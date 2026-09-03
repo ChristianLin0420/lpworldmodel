@@ -1,0 +1,24 @@
+{
+ "elite_overlap_with_mse[rank]": 0.35,
+ "elite_overlap_with_mse[distill]": 0.7802083333333334,
+ "spearman_with_mse[rank]": 0.44438708455709275,
+ "spearman_with_mse[distill]": 0.9344313368201256,
+ "elite_overlap[rank vs distill]": 0.3666666666666667,
+ "n_anchors": 64,
+ "num_samples": 300,
+ "topk": 30,
+ "val[rank]": {
+  "val_top1": 0.96875,
+  "val_ce": 0.0743410571788748,
+  "val_n": 1536,
+  "val_top1_mse": 0.029947916666666668,
+  "val_rho_mse": 0.7395492841800054
+ },
+ "val[distill]": {
+  "val_top1": 0.030598958333333332,
+  "val_ce": 3.7392213344573975,
+  "val_n": 1536,
+  "val_top1_mse": 0.029947916666666668,
+  "val_rho_mse": 0.9003690729538599
+ }
+}

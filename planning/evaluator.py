@@ -27,6 +27,7 @@ class PlanEvaluator:  # evaluator for planning
         seed,
         preprocessor,
         n_plot_samples,
+        trace_file=None,
     ):
         self.obs_0 = obs_0
         self.obs_g = obs_g
@@ -39,6 +40,22 @@ class PlanEvaluator:  # evaluator for planning
         self.preprocessor = preprocessor
         self.n_plot_samples = n_plot_samples
         self.device = next(wm.parameters()).device
+
+        # --- per-episode traces (M2) ------------------------------------------
+        # Every eval before this one collapsed to a mean at the moment it was
+        # computed, so no archived run can be re-scored without re-running it on a
+        # GPU.  Traces are therefore ON BY DEFAULT and written next to the run's
+        # other outputs (hydra has already chdir'd into the run dir).
+        #
+        # NB the prefix is read from the environment rather than threaded through
+        # plan.py / conf as the spec suggested, because this wave does not own
+        # plan.py or conf/**.  `trace_file=` is still accepted as a ctor kwarg, so
+        # a later wave can add the conf key without touching this file again.
+        #   LPWM_TRACE_FILE=""      -> disable
+        #   LPWM_TRACE_FILE=/tmp/tr -> write /tmp/tr_<filename>.npz
+        if trace_file is None:
+            trace_file = os.environ.get("LPWM_TRACE_FILE", "traces")
+        self.trace_file = trace_file or None
 
         self.plot_full = False  # plot all frames or frames after frameskip
 
@@ -104,10 +121,13 @@ class PlanEvaluator:  # evaluator for planning
         with torch.no_grad():
             # same goal-conditioned head selection the planner used, so the
             # reported wm rollout matches the one the actions were chosen under
+            # (z_g is hoisted out of the call only so the trace can reuse it; the
+            #  kwarg was evaluated before the call anyway, so this is a no-op)
+            z_g = self.wm.encode_obs_linked(trans_obs_g)["visual"]
             i_z_obses, _ = self.wm.rollout(
                 obs_0=trans_obs_0,
                 act=actions,
-                z_goal=self.wm.encode_obs_linked(trans_obs_g)["visual"],
+                z_goal=z_g,
             )
         i_final_z_obs = self._get_trajdict_last(i_z_obses, action_len + 1)
 
@@ -124,11 +144,43 @@ class PlanEvaluator:  # evaluator for planning
         ]  # reduce dim back
 
         # compute eval metrics
-        logs, successes = self._compute_rollout_metrics(
+        logs, successes, eval_results, per_ep = self._compute_rollout_metrics(
             e_state=e_final_state,
             e_obs=e_final_obs,
             i_z_obs=i_final_z_obs,
+            z_g=z_g,
         )
+
+        # TERMINAL metrics: the state at the END of the executed rollout, NOT
+        # truncated at action_len.  `logs` above is the LATCHED view -- for an
+        # episode that hit `success` at MPC iter j, e_final_state is frozen at iter
+        # j and mpc.py then ORs it forward, so the headline is a max over up to ten
+        # draws.  These keys are the un-latched terminal outcome.
+        e_terminal_state = e_states[:, -1]
+        term = self.env.eval_state(self.state_g, e_terminal_state)
+        logs.update(
+            {
+                f"terminal_{'success_rate' if k == 'success' else 'mean_' + k}": float(
+                    np.mean(np.asarray(v, dtype=float))
+                )
+                for k, v in term.items()
+            }
+        )
+
+        # CEM calls eval_actions once per opt step (cem.py:125, eval_every=1,
+        # opt_steps=30) -> ~300 evals per run.  Only the checkpoint evals -- the MPC
+        # iterations and the final eval, i.e. the ones that also save video -- get a
+        # trace, unless LPWM_TRACE_ALL=1 asks for every one.
+        if save_video or os.environ.get("LPWM_TRACE_ALL", "0") == "1":
+            self._write_trace(
+                filename=filename,
+                action_len=action_len,
+                e_terminal_state=e_terminal_state,
+                e_latched_state=e_final_state,
+                term=term,
+                latched=eval_results,
+                per_ep=per_ep,
+            )
 
         # plot trajs
         if self.wm.decoder is not None:
@@ -206,15 +258,18 @@ class PlanEvaluator:  # evaluator for planning
             except Exception as ex:
                 print(f"[viz] gif skip traj {idx}: {ex}")
 
-    def _compute_rollout_metrics(self, e_state, e_obs, i_z_obs):
+    def _compute_rollout_metrics(self, e_state, e_obs, i_z_obs, z_g=None):
         """
         Args
             e_state
             e_obs
             i_z_obs
+            z_g: encoded goal (only used to build per-episode traces)
         Return
             logs
             successes
+            eval_results: the RAW per-episode dict, before it is averaged away
+            per_ep: dict of per-episode arrays for the trace file
         """
         eval_results = self.env.eval_state(self.state_g, e_state)
         successes = eval_results['success']
@@ -232,6 +287,21 @@ class PlanEvaluator:  # evaluator for planning
         proprio_dists = np.linalg.norm(e_obs["proprio"] - self.obs_g["proprio"], axis=1)
         mean_proprio_dist = np.mean(proprio_dists)
 
+        # NB the two norms above take axis=1, which is the SINGLETON time axis, so
+        # they are elementwise |diff| arrays and their means are mean |diff| per
+        # pixel -- not per-episode distances.  Those log values are historical and
+        # are left exactly as they are; the honest per-episode versions are computed
+        # here (batch axis kept, every other axis reduced) for the trace, and must be
+        # taken BEFORE e_obs is overwritten by the transformed/cuda version below.
+        def _np_ep_norm(a):
+            a = np.asarray(a, dtype=np.float64)
+            return np.linalg.norm(a.reshape(a.shape[0], -1), axis=1)
+
+        per_ep = {
+            "visual_dist": _np_ep_norm(e_obs["visual"] - self.obs_g["visual"]),
+            "proprio_dist": _np_ep_norm(e_obs["proprio"] - self.obs_g["proprio"]),
+        }
+
         e_obs = move_to_device(self.preprocessor.transform_obs(e_obs), self.device)
         e_z_obs = self.wm.encode_obs_linked(e_obs)  # linked, to match i_z_obs (rollout)
         div_visual_emb = torch.norm(e_z_obs["visual"] - i_z_obs["visual"]).item()
@@ -246,7 +316,54 @@ class PlanEvaluator:  # evaluator for planning
                 e_z_obs["proprio"] - i_z_obs["proprio"]
             ).item()
 
-        return logs, successes
+        # per-episode versions of the latent quantities the logs above collapse.
+        # `mean_div_visual_emb` is a WHOLE-BATCH torch.norm, not a mean of
+        # per-episode norms, so d_pred/d_real are strictly more informative.
+        per_ep["div_visual_emb"] = self._per_ep_norm(
+            e_z_obs["visual"] - i_z_obs["visual"]
+        )
+        if z_g is not None:
+            per_ep["d_pred"] = self._per_ep_norm(i_z_obs["visual"] - z_g)
+            per_ep["d_real"] = self._per_ep_norm(e_z_obs["visual"] - z_g)
+
+        return logs, successes, eval_results, per_ep
+
+    @staticmethod
+    def _per_ep_norm(t):
+        """||.|| over every axis but the batch axis, as a numpy array."""
+        t = t.reshape(t.shape[0], -1)
+        return torch.norm(t.float(), dim=1).detach().cpu().numpy()
+
+    def _write_trace(
+        self,
+        filename,
+        action_len,
+        e_terminal_state,
+        e_latched_state,
+        term,
+        latched,
+        per_ep,
+    ):
+        """Persist the per-episode record of one eval so it never has to be re-run
+        on a GPU to be re-scored.  Best-effort: a trace failure must never take an
+        eval down with it."""
+        if not self.trace_file:
+            return
+        try:
+            payload = dict(
+                seed=np.asarray(self.seed),
+                state_0=np.asarray(self.state_0),
+                state_g=np.asarray(self.state_g),
+                action_len=np.asarray(action_len, dtype=float),
+                e_state_final=np.asarray(e_terminal_state),
+                e_state_latched=np.asarray(e_latched_state),
+            )
+            payload.update({k: np.asarray(v) for k, v in term.items()})
+            payload.update({f"latched_{k}": np.asarray(v) for k, v in latched.items()})
+            payload.update({k: np.asarray(v) for k, v in per_ep.items()})
+            np.savez_compressed(f"{self.trace_file}_{filename}.npz", **payload)
+        except Exception as ex:
+            print(f"[trace] failed to write {self.trace_file}_{filename}.npz: {ex}")
 
     def _plot_rollout_compare(
         self, e_visuals, i_visuals, successes, save_video=False, filename=""

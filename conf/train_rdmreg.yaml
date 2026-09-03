@@ -69,6 +69,11 @@ training:
   mup_base_width: 384       # fixed global reference width (tuned base = embed_dim); NOT the swept code dim D
   mup_weight_decay: 0.01    # muP weight decay (AdamW, all 3 opts; held constant with width; effective decay = lr*wd, ~negligible at 2ep)
   action_encoder_lr: 5e-5
+  # T4/V4 heads. Plain AdamW at a FIXED lr, deliberately NOT mup_param_groups: the heads'
+  # fan-in is 3D, so muP would set their lr to mup_lr*base_width/(3D) and make it a
+  # function of the swept width -- confounding T4 with the wave6/wave7 width x LR
+  # factorial. Unused when value_w = policy_w = 0 (no head, no optimizer).
+  value_lr: 3e-4
 
 # Accelerate mixed_precision: "no" (fp32, upstream) | "bf16" | "fp16". Must be the
 # same on every arm of a contrast; bf16 perturbs numerics, so a mixed comparison
@@ -121,7 +126,7 @@ proprio_emb_dim: 10
 num_proprio_repeat: 1
 
 num_hist: 3
-num_pred: 1 # only supports 1
+num_pred: 1 # T6: this IS the option length K. 1 = one action row (5 env steps).
 has_predictor: True
 has_decoder: False
 
@@ -133,6 +138,27 @@ model:
   train_encoder: True
   train_predictor: True
   train_decoder: False
+  # T6: inside `model:` on purpose. plan.py rebuilds the model from train_cfg.model, so a
+  # flag that changes ROLLOUT semantics has to live here or the overshoot arm would be
+  # planned as a K-step option model -- which is not what it was trained as. The
+  # training-only flags (decode_grad, contact_*) stay top-level: they touch the LOSS only.
+  overshoot: ${overshoot}
+  # T4/V4: inside `model:` for the same reason as overshoot, one step stronger.
+  # plan.py:517 rebuilds the model from train_cfg.model with a FIXED kwarg list and no
+  # knowledge of these heads, so a head that only exists when train.py passes an extra
+  # kwarg would be absent at plan time -- and V4/V5 would then plan with a freshly
+  # initialised MLP, which is exactly the retracted path_int result (diary s13.3).
+  # Interpolated from the top-level keys below, so a run's saved hydra.yaml carries the
+  # head's full geometry and plan.py can rebuild it from that file alone.
+  value_w: ${value_w}
+  value_mode: ${value_mode}
+  value_tau: ${value_tau}
+  value_gamma: ${value_gamma}
+  value_hidden: ${value_hidden}
+  value_ema: ${value_ema}
+  value_p_future: ${value_p_future}
+  policy_w: ${policy_w}
+  act_dim_raw: ${act_dim_raw}
 
 debug: False
 
@@ -182,6 +208,54 @@ act_info_neg: perm         # P5: perm (V2, q = p(a)) | knn (q ~ p(a|z_t))
 # them via oc.select); same pattern as kwta_k. Both inert at these defaults.
 token_drop: 0.0            # fraction of patch tokens dropped per step, train only
 block_causal: false        # encode the clip jointly, causal across frames
+
+# --- round-5 knobs (T1/T2). All inert at these defaults. -----------------------------
+# T1/T2: attach a decoder as a TRAINING-TIME auxiliary head. Deliberately NOT has_decoder:
+# plan.py:502-515 rebuilds a decoder for any run whose train_cfg has has_decoder=True and
+# raises ValueError when the checkpoint holds a state_dict and env.decoder_path is null --
+# which is every run this repo produces -- so has_decoder=True would make the arm
+# untrainable-to-evaluate. aux_decoder builds/optimises/checkpoints the decoder exactly as
+# has_decoder does (train.py init_models / init_optimizers / _keys_to_save) while leaving
+# the plan-time model decoder-free, which is what CEM wants anyway (the objective is latent).
+aux_decoder: false
+decode_grad: false         # T1: reconstruction gradient reaches the encoder (drops the detach)
+lamb_decode: 0.1           # weight on the pixel MSE; O(1e-1) vs z_loss O(2e-3), see specs
+
+# T3: weight each transition by the visual change proprio does NOT explain. Images and
+# proprio only -- states.pth never enters the loss. 0.0 => uniform (upstream, inert).
+contact_gamma: 0.0
+contact_shuffle: false     # ESS-matched control: same weight distribution, permuted
+contact_eps: 1.0e-8
+contact_pad: 1.6           # agent-disc radius padding (radius 15 sim units x pad)
+
+# T6: K-step option model. num_pred (above) IS K, so the jump arm is num_pred=5 alone.
+# overshoot is its MATCHED control: same num_pred=5 window (identical windows, identical
+# batch composition), but the 1-step map is chained K times with per-row actions and every
+# intermediate frame is supervised -- same horizon, compounding retained. Inert at false.
+overshoot: false
+
+# --- T4 / V4: hindsight goal-conditioned value + reactive policy. All inert here. ----
+# T4: V(z, g) trained by TD with an in-sample expectile max. Any z_{t+k} in a window is a
+# valid goal with label -k, so the labels are free and fully self-supervised -- latents
+# and step counts only, no reward and no states.pth. This buys three things the round
+# needs off one head: a leaf evaluator (V5), a decision-aware metric, and a greedy
+# policy. Motivated by the leaf score, NOT by d_action: the latent distance CEM minimises
+# is ranked against the TRUE task distance at only Spearman +0.398 (n=296).
+value_w: 0.0               # weight on the value loss; 0.0 => the head is not built
+value_mode: td             # td (T4) | mc (control a: MC regression) | geom (control b)
+value_tau: 0.7             # expectile; 0.7 weights "faster than expected" 0.7 vs 0.3
+value_gamma: 0.98          # 1/(1-gamma) = 50 model steps is the value floor
+value_hidden: null         # head width; null => D
+value_ema: 0.005           # Polyak rate for the target network
+value_p_future: 0.5        # P(goal is an in-window future frame) vs cross-trajectory
+# V4: a_t = pi(z_t, z_g) by behaviour cloning on the SAME latent, evaluated through the
+# SAME PlanEvaluator with no search at all. Rides the T4 arm so the CEM number, the V5
+# number and the V4 number come off bit-identical encoder/predictor weights.
+policy_w: 0.0              # weight on the BC loss; 0.0 => the head is not built
+# RAW action width (2 * frameskip = 10 on pushT), NOT the 384-d action embedding. Must be
+# set whenever policy_w > 0: train.py asserts it against the dataset's own action_dim, so
+# a wrong value is a startup error rather than a head that is unloadable at plan time.
+act_dim_raw: null
                 # Maximal Update Parametrization (width transfer): per-param lr=mup_lr/fan_in + muP init. See models/mup.py.
 wandb_project: null
 burst_tau: 0.5             # Step 4 burst readout threshold on 1 - J_S (provisional)

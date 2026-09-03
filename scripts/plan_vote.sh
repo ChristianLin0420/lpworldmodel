@@ -20,6 +20,9 @@ cd "${REPO}"
 : "${MEMBERS:?comma-separated run dirs under \$CKPT_BASE/outputs}"
 : "${LABEL:?output label, e.g. PiWM-vote3-mean_pd384_bf16_s3}"
 : "${DATASET_DIR:?set DATASET_DIR to the dataset root}"
+# RULE in {mean,borda,median,cvar,max}. LAM is read ONLY by cvar (mean rank + LAM * rank
+# std); leaving it unset omits the key entirely, so the create_vote_objective_fn default
+# lam=0.0 applies and cvar is bit-identical to borda.
 RULE=${RULE:-mean}; NEVALS=${NEVALS:-50}; MAXITER=${MAXITER:-10}
 CKPT_BASE=${CKPT_BASE:-${REPO}/runs}
 export SDL_VIDEODRIVER=${SDL_VIDEODRIVER:-dummy}
@@ -29,5 +32,5 @@ python plan.py --config-name plan_lewm.yaml \
     ckpt_base_path="${CKPT_BASE}" model_name="${LABEL}" model_epoch="${EPOCH:-latest}" \
     "ensemble_members=[${MEMBERS}]" \
     objective._target_=planning.objectives.create_vote_objective_fn \
-    +objective.n_members="${N}" +objective.rule="${RULE}" \
+    +objective.n_members="${N}" +objective.rule="${RULE}" ${LAM:+ +objective.lam=${LAM}} \
     n_evals="${NEVALS}" planner.max_iter="${MAXITER}" ${SEED:+seed=$SEED} ${GOAL_H:+goal_H=$GOAL_H}

@@ -1,0 +1,25 @@
+# V4 - PiWM-policy: the reactive goal-conditioned policy, wrapped in the SAME MPC loop
+# the CEM baseline uses.
+#
+# The MPC wrapper is mandatory, not optional. It gives the policy exactly the same 10
+# rounds of real-env feedback, the same latched-success accounting (planning/mpc.py:110-
+# 112) and the same n_taken_actions = 5 the CEM baseline gets, so the only difference
+# between this arm and conf/planner/mpc_cem.yaml is HOW the five actions were chosen --
+# 15 predictor calls per episode against CEM's 300 x 30 x 10 = 90,000 model rollouts.
+#
+# Named `policy.yaml` so plan.py:build_plan_cfg_dicts (which loads planner/<name>.yaml by
+# path, plan.py:99-101) resolves `plan_settings.planner: ['policy']`. For a standalone
+# eval, ride conf/plan_lewm.yaml and override the sub_planner target -- see the header of
+# planning/policy.py and the wave24 notes in scripts/run_campaign.sh.
+_target_: planning.mpc.MPCPlanner
+max_iter: 10
+n_taken_actions: 5
+sub_planner:
+  target: planning.policy.PolicyPlanner
+  horizon: 5
+  # The control arm flips this to true: goals are permuted ACROSS episodes and nothing
+  # else changes. PushT demos have a strong action prior, so if shuffled-goal success
+  # equals real-goal success the policy is replaying that prior and the arm says nothing.
+  shuffle_goal: false
+
+name: mpc_policy

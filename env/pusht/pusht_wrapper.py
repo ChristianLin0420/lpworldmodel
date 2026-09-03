@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import gym
-from env.pusht.pusht_env import PushTEnv
+from env.pusht.pusht_env import PushTEnv, pymunk_to_shapely
 from utils import aggregate_dct
 
 class PushTWrapper(PushTEnv):
@@ -54,19 +54,74 @@ class PushTWrapper(PushTEnv):
     def update_env(self, env_info):
         self.shape = env_info['shape']
     
+    def _block_geom(self, pose):
+        """Shapely geometry of the block placed at `pose` = (x, y, theta).
+
+        Uses the *same* construction the env uses for its own coverage reward
+        (`pusht_env.py:499-501`): a synthetic body at the requested pose carrying the
+        real block's shapes.  Because both sides of the IoU below are built this way,
+        the measure is self-consistent and equals 1.0 for identical poses.
+        """
+        if getattr(self, "block", None) is None:
+            # `eval_state` may be called on an env that has never been reset (unit
+            # tests, offline rescoring).  `_setup` is exactly what `reset` does first
+            # and it consumes no RNG, so this cannot perturb a seeded episode.
+            self._setup()
+        body = self._get_goal_pose_body(np.asarray(pose, dtype=np.float64))
+        return pymunk_to_shapely(body, self.block.shapes)
+
+    def _block_iou(self, cur_pose, goal_pose):
+        """IoU of the block polygon at `cur_pose` vs at `goal_pose`.
+
+        Pure function of two (x, y, theta) poses, so it needs no rollout widening.
+        Unlike the env's own `final_coverage` (`pusht_env.py:524`) it scores the
+        *planned* goal rather than the fixed constant `self.goal_pose`
+        (`pusht_env.py:716`), and it is an IoU rather than intersection/goal_area.
+        """
+        try:
+            cur_geom = self._block_geom(cur_pose)
+            goal_geom = self._block_geom(goal_pose)
+            inter = cur_geom.intersection(goal_geom).area
+            union = cur_geom.area + goal_geom.area - inter
+            return float(inter / union) if union > 0 else 0.0
+        except Exception as ex:  # never let a metric kill an eval
+            print(f"[eval_state] block_iou failed: {ex}")
+            return float("nan")
+
     def eval_state(self, goal_state, cur_state):
         """
         Return True if the goal is reached
         [agent_x, agent_y, T_x, T_y, angle, agent_vx, agent_vy]
+
+        `success` and `state_dist` keep their EXACT historical definitions (including
+        dtype: no upcast is introduced) so every archived number stays reproducible.
+        Everything else is new and additive:
+          success_block   -- the actual task: block within 20px and pi/9 of the goal,
+                             irrespective of where the end effector is parked.
+                             Note success => success_block, since block_pos_diff <=
+                             pos_diff; the historical metric is the STRICTER one.
+          block_pos_diff  -- ||goal[2:4] - cur[2:4]||   (the task)
+          agent_pos_diff  -- ||goal[0:2] - cur[0:2]||   (end-effector parking)
+          angle_diff      -- wrapped |dtheta|, same as used by `success`
+          block_iou       -- pose-only IoU of the T at cur vs goal
         """
         pos_diff = np.linalg.norm(goal_state[:4] - cur_state[:4])
         angle_diff = np.abs(goal_state[4] - cur_state[4])
         angle_diff = np.minimum(angle_diff, 2 * np.pi - angle_diff)
         success = pos_diff < 20 and angle_diff < np.pi / 9
         state_dist = np.linalg.norm(goal_state - cur_state)
+        # --- new, additive keys (M2) -------------------------------------------
+        agent_pos_diff = np.linalg.norm(goal_state[:2] - cur_state[:2])
+        block_pos_diff = np.linalg.norm(goal_state[2:4] - cur_state[2:4])
+        success_block = block_pos_diff < 20 and angle_diff < np.pi / 9
         return {
             'success': success,
             'state_dist': state_dist,
+            'success_block': success_block,
+            'block_pos_diff': block_pos_diff,
+            'agent_pos_diff': agent_pos_diff,
+            'angle_diff': angle_diff,
+            'block_iou': self._block_iou(cur_state[2:5], goal_state[2:5]),
         }
 
     def prepare(self, seed, init_state):

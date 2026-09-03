@@ -290,6 +290,11 @@ def _l2(tensors):
 
 
 class Trainer:
+    # T1/T2. Class-level default so any partially-constructed Trainer (tests/test_resume.py
+    # builds a Harness that bypasses __init__ and drives train()/run() directly) still
+    # answers "is a decoder built?" without an AttributeError. init_models overrides it.
+    _decoder_on = False
+
     def __init__(self, cfg):
         self.cfg = cfg
         with open_dict(cfg):
@@ -465,6 +470,15 @@ class Trainer:
         self.train_encoder = self.cfg.model.train_encoder
         self.train_predictor = self.cfg.model.train_predictor
         self.train_decoder = self.cfg.model.train_decoder
+        # T1/T2. "Is a decoder built, optimised and checkpointed?" is a different
+        # question from cfg.has_decoder, which plan.py:502-515 also reads and which
+        # makes it REBUILD a decoder at plan time -- raising ValueError for every
+        # checkpoint this repo writes (state_dict + env.decoder_path: null). The
+        # reconstruction head is a TRAINING-time auxiliary, so it gets its own key and
+        # planning stays decoder-free. cfg.has_decoder still works exactly as before.
+        self._decoder_on = bool(self.cfg.has_decoder) or bool(
+            self.cfg.get("aux_decoder", False)
+        )
         log.info(f"Train encoder, predictor, decoder:\
             {self.cfg.model.train_encoder}\
             {self.cfg.model.train_predictor}\
@@ -483,7 +497,7 @@ class Trainer:
         )
         self._keys_to_save += (
             ["decoder", "decoder_optimizer"]
-            if self.train_decoder and self.cfg.has_decoder
+            if self.train_decoder and self._decoder_on
             else []
         )
         self._keys_to_save += ["action_encoder", "proprio_encoder"]
@@ -501,6 +515,16 @@ class Trainer:
         link_cfg = self.cfg.get("link", None)
         if link_cfg is not None and link_cfg.get("_target_", None) is not None:
             self._keys_to_save += ["link"]
+
+        # T4/V4. NEW HEAD CHECKLIST item (2). save_ckpt/load_ckpt walk self.__dict__ by
+        # these names, so a module that lives only as an attribute of self.model is NOT
+        # saved -- which is why path_int is absent from all 327 checkpoints on disk and
+        # why the V3 conclusion had to be retracted. init_optimizers() aliases the heads
+        # onto self under exactly these names.
+        if float(self.cfg.get("value_w", 0.0)) > 0:
+            self._keys_to_save += ["value_head", "value_target", "value_optimizer"]
+        if float(self.cfg.get("policy_w", 0.0)) > 0:
+            self._keys_to_save += ["policy_head", "policy_optimizer"]
 
         self.init_models()
         self.init_optimizers()
@@ -731,7 +755,7 @@ class Trainer:
                     param.requires_grad = False
 
         # initialize decoder
-        if self.cfg.has_decoder:
+        if self._decoder_on:
             if self.decoder is None:
                 if self.cfg.env.decoder_path is not None:
                     decoder_path = os.path.join(
@@ -786,6 +810,24 @@ class Trainer:
             self.link = hydra.utils.instantiate(link_cfg).to(self.device)
             log.info(f"Link: {getattr(self.link, 'kind', None)}")
 
+        # V4: the BC head's OUTPUT width is the raw action width (2*frameskip = 10 on
+        # pushT), and it must be recoverable from the run's saved hydra.yaml alone --
+        # plan.py rebuilds the model from train_cfg.model and would otherwise build a head
+        # of the wrong shape (or none at all). hydra.yaml is written before the dataset is
+        # loaded (train.py:393 vs :398), so mutating cfg here would NOT reach that file;
+        # instead the config value is asserted against the dataset's own action_dim, which
+        # turns a mismatch into a startup error rather than a plan-time surprise.
+        _act_dim_raw = int(self.datasets["train"].action_dim)
+        _adr_cfg = self.cfg.get("act_dim_raw", None)
+        if float(self.cfg.get("policy_w", 0.0)) > 0 and (
+            _adr_cfg is None or int(_adr_cfg) != _act_dim_raw
+        ):
+            raise ValueError(
+                f"policy_w > 0 requires act_dim_raw={_act_dim_raw} in the CONFIG "
+                f"(got {_adr_cfg!r}). scripts/train.sh sets it alongside POLICY_W; "
+                "without it the head cannot be rebuilt at plan time and V4 would plan "
+                "with a fresh init -- the path_int defect."
+            )
         self.model = hydra.utils.instantiate(
             self.cfg.model,
             encoder=self.encoder,
@@ -821,6 +863,33 @@ class Trainer:
             n_heads=self.cfg.get("n_heads", 1),
             head_entropy_coef=self.cfg.get("head_entropy_coef", 0.0),
             burst_tau=self.cfg.get("burst_tau", 0.5),
+            # T1/T2: reconstruction head. decode_grad=False reproduces the historical
+            # z_emb.detach() exactly, so this is inert unless the arm asks for it.
+            decode_grad=bool(self.cfg.get("decode_grad", False)),
+            lamb_decode=float(self.cfg.get("lamb_decode", 1.0)),
+            # T3. Geometry from the DATASET's own normalisation constants
+            # (datasets/pusht_dset.py:83-84) plus the env's window size (512,
+            # env/pusht/pusht_env.py:381) and agent radius (15, :709). Passed as plain
+            # floats so nothing about states.pth is anywhere near the loss.
+            contact_gamma=float(self.cfg.get("contact_gamma", 0.0)),
+            contact_shuffle=bool(self.cfg.get("contact_shuffle", False)),
+            contact_eps=float(self.cfg.get("contact_eps", 1e-8)),
+            contact_geom=self._contact_geom(),
+            # T6: num_pred IS K (the option length); overshoot is its matched control,
+            # which chains the 1-step map K times over the same window instead.
+            overshoot=bool(self.cfg.get("overshoot", False)),
+            # T4/V4: hindsight goal-conditioned value + reactive BC policy. Both heads
+            # read DETACHED latents, so encoder/predictor gradients are bit-identical to
+            # the control at the same seed and this run's own CEM eval IS the control.
+            value_w=float(self.cfg.get("value_w", 0.0)),
+            value_mode=str(self.cfg.get("value_mode", "td")),
+            value_tau=float(self.cfg.get("value_tau", 0.7)),
+            value_gamma=float(self.cfg.get("value_gamma", 0.98)),
+            value_hidden=self.cfg.get("value_hidden", None),
+            value_ema=float(self.cfg.get("value_ema", 0.005)),
+            value_p_future=float(self.cfg.get("value_p_future", 0.5)),
+            policy_w=float(self.cfg.get("policy_w", 0.0)),
+            act_dim_raw=_act_dim_raw,
         )
 
         # V3 warm start: assets/pose_dynamics_pusht.pt is the linear pose map fit on the
@@ -852,6 +921,25 @@ class Trainer:
             log.info("Applied muP init to trained scratch modules "
                      f"(encoder={self.train_encoder}, predictor={self.predictor is not None}, "
                      f"decoder={self.decoder is not None and self.train_decoder}).")
+
+    def _contact_geom(self):
+        """(mean_x, mean_y, std_x, std_y, px_per_unit, radius_px) for T3, or None.
+
+        None whenever the dataset does not expose proprio normalisation constants;
+        VWorldModel then RAISES if contact_gamma > 0, rather than silently training a
+        uniform-weight run under a contact arm's name.
+        """
+        dset = getattr(self, "train_traj_dset", None)
+        mu = getattr(dset, "proprio_mean", None)
+        sd = getattr(dset, "proprio_std", None)
+        if mu is None or sd is None or len(mu) < 2:
+            return None
+        scale = float(self.cfg.img_size) / 512.0
+        return (
+            float(mu[0]), float(mu[1]), float(sd[0]), float(sd[1]),
+            scale,
+            15.0 * float(self.cfg.get("contact_pad", 1.6)) * scale,
+        )
 
     def init_optimizers(self):
         mup = self.cfg.get("mup", False)
@@ -908,7 +996,7 @@ class Trainer:
                 self.action_encoder_optimizer
             )
 
-        if self.cfg.has_decoder:
+        if self._decoder_on:
             if mup:
                 self.decoder_optimizer = torch.optim.AdamW(
                     mup_param_groups(self.decoder, mup_lr, mup_bw, weight_decay=mup_wd, tag="decoder", input_lr_fix=mup_ifix),
@@ -919,6 +1007,39 @@ class Trainer:
                     self.decoder.parameters(), lr=self.cfg.training.decoder_lr
                 )
             self.decoder_optimizer = self.accelerator.prepare(self.decoder_optimizer)
+
+        # --- T4 / V4: NEW HEAD CHECKLIST items (1) and (2) ----------------------------
+        # The aliases are what makes the heads SAVABLE: save_ckpt reads self.__dict__ by
+        # the names in _keys_to_save, so a module reachable only as self.model.value_head
+        # is built, trained and then thrown away at every checkpoint. path_int had neither
+        # the alias nor the optimizer and produced a retracted result.
+        #
+        # Plain AdamW, NOT mup_param_groups: the heads' fan-in is 3D, so muP would divide
+        # their lr by 3D and make it a function of the swept width -- confounding T4 with
+        # the wave6/wave7 width x LR factorial.
+        _m = self._model_module()
+        self.value_head = getattr(_m, "value_head", None)
+        self.value_target = getattr(_m, "value_target", None)
+        self.policy_head = getattr(_m, "policy_head", None)
+        _head_lr = float(self.cfg.training.get("value_lr", 3e-4))
+        self.value_optimizer = None
+        self.policy_optimizer = None
+        if self.value_head is not None:
+            self.value_optimizer = self.accelerator.prepare(
+                torch.optim.AdamW(self.value_head.parameters(), lr=_head_lr)
+            )
+            log.info(
+                f"value_head: {sum(p.numel() for p in self.value_head.parameters())} "
+                f"params in its own AdamW at lr={_head_lr}"
+            )
+        if self.policy_head is not None:
+            self.policy_optimizer = self.accelerator.prepare(
+                torch.optim.AdamW(self.policy_head.parameters(), lr=_head_lr)
+            )
+            log.info(
+                f"policy_head: {sum(p.numel() for p in self.policy_head.parameters())} "
+                f"params in its own AdamW at lr={_head_lr}"
+            )
 
     def monitor_jobs(self, lock):
         """
@@ -1075,21 +1196,36 @@ class Trainer:
 
             if self.encoder_optimizer is not None:
                 self.encoder_optimizer.zero_grad()
-            if self.cfg.has_decoder:
+            if self._decoder_on:
                 self.decoder_optimizer.zero_grad()
             if self.cfg.has_predictor:
                 self.predictor_optimizer.zero_grad()
                 self.action_encoder_optimizer.zero_grad()
+            # T4/V4: NEW HEAD CHECKLIST item (4). Without these two the heads are built,
+            # aliased, saved -- and never once stepped, which is a head-shaped null.
+            # getattr, not attribute access: tests/test_resume.py's Harness assembles the
+            # Trainer's attribute surface by hand and never calls init_optimizers, and
+            # that suite must keep exercising the REAL train()/save_ckpt()/load_ckpt().
+            _vopt = getattr(self, "value_optimizer", None)
+            _popt = getattr(self, "policy_optimizer", None)
+            if _vopt is not None:
+                _vopt.zero_grad()
+            if _popt is not None:
+                _popt.zero_grad()
 
             self.accelerator.backward(loss)
 
             if self.model.train_encoder:
                 self.encoder_optimizer.step()
-            if self.cfg.has_decoder and self.model.train_decoder:
+            if self._decoder_on and self.model.train_decoder:
                 self.decoder_optimizer.step()
             if self.cfg.has_predictor and self.model.train_predictor:
                 self.predictor_optimizer.step()
                 self.action_encoder_optimizer.step()
+            if _vopt is not None:
+                _vopt.step()
+            if _popt is not None:
+                _popt.step()
 
             loss = self.accelerator.gather_for_metrics(loss).mean()
 
@@ -1248,6 +1384,7 @@ class Trainer:
         self._safe("jaccard", lambda: self._jaccard_diagnostics(tens), payload)
         self._safe("err", lambda: self._error_diagnostics(tens), payload)
         self._safe("causal", lambda: self._causal_diagnostics(), payload)
+        self._safe("value", lambda: self._value_diagnostics(), payload)
         self._safe("reg", lambda: self._reg_diagnostics(comps), payload)
         self._safe("gate", lambda: self._gate_diagnostics(tens), payload)
         self._safe("heads", lambda: self._head_diagnostics(tens), payload)
@@ -1505,6 +1642,84 @@ class Trainer:
             "causal/d_action_over_scale": d_act / max(scale, 1e-12),
             "causal/state_over_action": d_st / max(d_act, 1e-12),
         }
+
+    @torch.no_grad()
+    def _value_diagnostics(self):
+        """T4: is the value head alive, and does it order REACHABILITY?
+
+        `value/rho_k` = Spearman(V(z_t, z_{t+k}), -k) over k in {1, 2, 3} from a COMMON
+        anchor, so the correlation is about the offset and not about which frame the
+        anchor was. This is T4's own liveness gate and half of its falsifier: below +0.6
+        the head has not learned reachability at all and V5 has no mechanism, whatever
+        the TD loss value happens to be. A head that was built but never optimised sits
+        at rho ~ 0 here, which is the check path_int never had.
+
+        `value/head_wnorm` is the second half of the same guard: the head's init is
+        deterministic (fork_rng + manual_seed(20260903) in VWorldModel), so a weight norm
+        that never moves is a head with no optimizer.
+        """
+        m = self._model_module()
+        vh = getattr(m, "value_head", None)
+        d = getattr(m, "_diag", None)
+        if vh is None or not d or d.get("z") is None:
+            return {}
+        z = d["z"]                                     # (b, T, p, D) detached, linked
+        b, T = z.shape[0], z.shape[1]
+        if b < 8 or T < 2:
+            return {}
+        dev = next(vh.parameters()).device
+        f = z.float().mean(dim=2).to(dev)              # (b, T, D); p == 1 -> exact
+        D = f.shape[-1]
+        kmax = min(3, T - 1)
+        anchors = T - kmax                             # common anchor set: 0 .. T-1-kmax
+        vs, ks = [], []
+        for k in range(1, kmax + 1):
+            zt = f[:, :anchors].reshape(-1, D)
+            g = f[:, k:k + anchors].reshape(-1, D)
+            v = vh(zt, g).squeeze(-1)
+            vs.append(v)
+            ks.append(torch.full_like(v, float(-k)))
+        v = torch.cat(vs)
+        kk = torch.cat(ks)
+        out = {
+            "value/v_mean": float(v.mean()),
+            "value/v_std": float(v.std()),
+            "value/head_wnorm": float(
+                torch.sqrt(sum((p.detach() ** 2).sum() for p in vh.parameters()))
+            ),
+        }
+        if kmax >= 2 and v.numel() > 2:
+            rv = v.argsort().argsort().float()
+            rk = kk.argsort().argsort().float()
+            rv = rv - rv.mean()
+            rk = rk - rk.mean()
+            den = float(rv.norm() * rk.norm())
+            out["value/rho_k"] = float((rv * rk).sum() / den) if den > 0 else 0.0
+        vt = getattr(m, "value_target", None)
+        if vt is not None:
+            zt = f[:, :-1].reshape(-1, D)
+            zn = f[:, 1:].reshape(-1, D)
+            g = f[:, -1:].expand(-1, T - 1, -1).reshape(-1, D)
+            v0 = vh(zt, g).squeeze(-1)
+            y = -1.0 + m.value_gamma * vt(zn, g).squeeze(-1)
+            out["value/td_abs"] = float((y - v0).abs().mean())
+            out["value/target_gap"] = float((vt(zt, g).squeeze(-1) - v0).abs().mean())
+        ph = getattr(m, "policy_head", None)
+        if ph is not None:
+            zt = f[:, 0]
+            g = f[:, -1]
+            pdev = next(ph.parameters()).device
+            a = ph(zt.to(pdev), g.to(pdev))
+            # the model's PRIVATE generator, not the global stream: a diagnostic that
+            # consumes global RNG would move RDMReg's target draws and make this arm's
+            # encoder trajectory differ from its control's for a logging reason.
+            perm = torch.randperm(b, device=g.device, generator=m._head_generator(g.device))
+            a2 = ph(zt.to(pdev), g[perm].to(pdev))
+            # d(action)/d(goal): a policy that ignores z_g has learned the marginal
+            # action prior and V4 would be measuring the prior, not goal-conditioning.
+            out["value/pi_rms"] = float(a.pow(2).mean().sqrt())
+            out["value/pi_goal_sens"] = float((a - a2).pow(2).mean().sqrt())
+        return out
 
     @torch.no_grad()
     def _error_diagnostics(self, tens):
@@ -2170,6 +2385,17 @@ class Trainer:
             self.logs_update(loss_components)
             val_support = {}
             self._safe("val_support", lambda: self._support_logs("val"), val_support)
+            # T4: the falsifier is a HELD-OUT statistic. self._diag holds the last VAL
+            # batch at this point, so this is the one place a val-side rho_k is free;
+            # the train-side copy is in _log_diagnostics and is NOT held out.
+            self._safe(
+                "val_value",
+                lambda: {
+                    f"val_{k.split('/')[-1]}": [v]
+                    for k, v in self._value_diagnostics().items()
+                },
+                val_support,
+            )
             if val_support:
                 self.logs_update(val_support)
 
@@ -2181,10 +2407,19 @@ class Trainer:
         from the last observed frame is j - (n_past - 1). Only the final frame is
         measured today, which cannot distinguish a model that degrades gracefully
         from one that is already wrong at h=1 and stays flat.
+
+        T6: a K-step option model only ever lands on multiples of K (the rollout holds
+        each option's endpoint over the K-1 rows inside it), so horizons that are not
+        multiples of K are skipped rather than reported as a held value -- otherwise
+        h=1 for PiWM-jump5 would read as a broken model instead of an unasked question.
+        K == 1 skips nothing, so the default logging is unchanged.
         """
         out = {}
+        K = max(int(getattr(self.model, "num_pred", 1) or 1), 1)
         n = min(z_roll.shape[1], z_true.shape[1])
         for h in horizons:
+            if h % K:
+                continue
             j = n_past - 1 + h
             if j >= n:
                 break

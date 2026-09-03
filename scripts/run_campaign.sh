@@ -62,6 +62,28 @@ WORKERS=${WORKERS:-24}
 WANDB_PROJECT=${WANDB_PROJECT:-PiWM-pushT}
 export WANDB_PROJECT
 
+# CANARY=1: one short single-seed smoke run per arm before the 8-seed wave is queued.
+# Rule 6 of the campaign ("canary before wave") needs a real GPU, a real dataloader and a
+# real checkpoint -- the submit host has no GPU and CPU tests cannot answer "is the new
+# term live on REAL data" or "is the new parameter in a checkpoint ON DISK". So it goes
+# through this launcher like everything else, with three differences and no others:
+#   * the run name is PREFIXED, so a canary can never collide with the real run dir and
+#     never joins its wandb group (train.py derives group= from the run dir name)
+#   * one 4h window instead of WINDOWS, one epoch instead of EPOCHS
+#   * env.dataset.n_rollout=200 -> ~315 train steps/epoch at batch 64 (of 1,981,721
+#     windows), and save_every_x_min=1 so a checkpoint exists within the first minute
+# OVERRIDES is EXPORTED because that is how it reaches train.sh: sbatch --export=ALL
+# passes the submitting shell's environment through train_slurm.sbatch.
+CANARY_PREFIX=""
+if [ "${CANARY:-0}" = "1" ]; then
+    CANARY_PREFIX="CANARY-"
+    WINDOWS=1
+    EPOCHS=${EPOCHS:-1}
+    OVERRIDES="${OVERRIDES:-} env.dataset.n_rollout=${CANARY_ROLLOUTS:-200} training.save_every_x_min=1"
+    export OVERRIDES
+    echo "=== CANARY mode: prefix='${CANARY_PREFIX}' windows=1 epochs=${EPOCHS} overrides='${OVERRIDES}'"
+fi
+
 # arm -> "PREDICTOR REG_WEIGHT MUP_LR <extra env assignments...>"
 # HPs are the reproduce_pusht.sh sparse table entries for that predictor at D=384.
 declare -A ARMS
@@ -70,6 +92,11 @@ declare -A ORDER
 # along in the extra-env field above; the dense LeWM control is the only arm that
 # overrides the sparse default (reprelu, p=1).
 declare -A ARM_LINK
+# arm -> "cls" | "patch". FEATURE is a whole-invocation setting, but wave23 crosses
+# (tokens) x (decoder), so the patch cell has to live in the SAME wave as the cls cells
+# or the 2x2 cannot be launched (and read) as one object. Unset => the global FEATURE,
+# so every existing wave composes exactly as before.
+declare -A ARM_FEAT
 
 sparse_arms() {
     : "${KWTA_MATCHED:?set KWTA_MATCHED=<k> from the measured rho of the probe (k = round(rho*D))}"
@@ -359,6 +386,107 @@ wave22_arms() {
     ARM_LINK[PiWM-actinfo-cond-sigreg]="identity 2"
 }
 
+# ROUND 5, wave23. Four objectives that all touch the same three files, so they are one
+# wave. Every arm here is paired with a control that shares its seed, its window count and
+# its construction order, because RNG consumption differs the moment a module is built:
+# the decoder is instantiated (train.py init_models) BEFORE mup_init_(encoder), so a
+# decoder run is NOT seed-matched to a no-decoder run even with the gradient detached.
+#
+#  T1  decode / decode-detach / decode-w1
+#      Nothing in this system has ever forced the latent to retain visual content
+#      (has_decoder: False everywhere, and the decoder branch that exists passed
+#      z_emb.detach()). Measured on CPU: with the detach, 0 of 144 encoder parameters
+#      receive gradient from decoder_recon_loss; without it, 144/144. decode-detach is
+#      THE control -- it also builds the decoder and also adds the pixel loss, so only
+#      the gradient path differs. decode-w1 is the nuisance-weight guard cell.
+#  T2  patchdecode / patchdecode-detach   [FEATURE=patch, per-arm]
+#      The missing (tokens) x (decoder) cell. PiWM-columns (256 tokens, no decoder) was a
+#      null: +0.072, 95% CI [-0.064, +0.207], n=12 -- spatial capacity with nothing asking
+#      for spatial content. PatchHead is the first parameter in this model that
+#      distinguishes token i from token j (verified: perturbing token i changes ONLY its
+#      own 14x14 block), and at 226,380 params it is 138x SMALLER than T1's decoder, so a
+#      T2 win cannot be read as decoder capacity.
+#  T3  contact / contact-shuf / contact-g05
+#      Weight each transition by the visual change proprio does NOT explain: the agent's
+#      position is a model INPUT, so its disc can be masked exactly and the residual is,
+#      to first order, the block. Measured offline at training batch composition (60
+#      episodes, 3,264 transitions): the masked residual separates static from
+#      block-moving transitions by 3690x against the raw pixel difference's 2.3x, moves
+#      the weight mass on moving transitions from 0.36 (uniform) to 0.66, and correlates
+#      with true block motion at rho=+0.95 (rotation included) -- all without states.pth.
+#      contact-shuf is the ESS-matched control: the SAME weights, permuted, so effective
+#      compute (ESS/N = 0.447, measured identical) is held and only the alignment dies.
+#  T6  jump5 / overshoot5
+#      num_pred IS K. Over one action row the block's displacement is exactly 0.000 px in
+#      48% of transitions (median 0.084 px); over a 5-row option the zero fraction falls
+#      to 12.7% and the median rises to 24.6 px. Window count falls 1,981,721 ->
+#      1,608,021 (verified), and CEM's whole goal_H=5 horizon becomes ONE predictor call
+#      (verified), so nothing compounds. overshoot5 holds the window and the horizon and
+#      keeps the compounding, which is the attribution.
+#
+# Matched baseline for T3 and T6 is LpWM-ltv (n=16, already trained -- deliberately not
+# retrained here); T2 also reads against PiWM-columns (n=12, already evaluated).
+wave23_arms() {
+    ORDER[wave23]="${WAVE23_ARMS:-PiWM-decode PiWM-decode-detach PiWM-decode-w1 PiWM-patchdecode PiWM-patchdecode-detach PiWM-contact PiWM-contact-shuf PiWM-contact-g05 PiWM-jump5 PiWM-overshoot5}"
+    # T1. AUX_DECODER, not has_decoder: plan.py:502-515 rebuilds a decoder for any run
+    # whose train_cfg has has_decoder=True and raises ValueError when the checkpoint holds
+    # a state_dict and env.decoder_path is null -- which is EVERY checkpoint this repo
+    # writes -- so has_decoder=true would train fine and then be impossible to evaluate.
+    ARMS[PiWM-decode]="ltv 1.0 5e-4 AUX_DECODER=true DECODE_GRAD=true LAMB_DECODE=0.1"
+    ARMS[PiWM-decode-detach]="ltv 1.0 5e-4 AUX_DECODER=true DECODE_GRAD=false LAMB_DECODE=0.1"
+    ARMS[PiWM-decode-w1]="ltv 1.0 5e-4 AUX_DECODER=true DECODE_GRAD=true LAMB_DECODE=1.0"
+    # T2. Same decoder plumbing, 256 tokens, per-patch head. FEATURE is per-arm so the
+    # 2x2 launches as one wave; the run name carries "_patch" either way.
+    ARMS[PiWM-patchdecode]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=true LAMB_DECODE=0.1"
+    ARMS[PiWM-patchdecode-detach]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=false LAMB_DECODE=0.1"
+    ARM_FEAT[PiWM-patchdecode]="patch"
+    ARM_FEAT[PiWM-patchdecode-detach]="patch"
+    # T3.
+    ARMS[PiWM-contact]="ltv 1.0 5e-4 CONTACT_GAMMA=1.0"
+    ARMS[PiWM-contact-shuf]="ltv 1.0 5e-4 CONTACT_GAMMA=1.0 CONTACT_SHUF=true"
+    ARMS[PiWM-contact-g05]="ltv 1.0 5e-4 CONTACT_GAMMA=0.5"
+    # T6. NUM_PRED changes the DATASET window (num_frames = num_hist + num_pred), so both
+    # arms set it and their batch composition is identical.
+    ARMS[PiWM-jump5]="ltv 1.0 5e-4 NUM_PRED=5"
+    ARMS[PiWM-overshoot5]="ltv 1.0 5e-4 NUM_PRED=5 OVERSHOOT=true"
+}
+
+# ROUND 5, wave24. T4 (+ V4's head, which rides the same job).
+#
+# T4  PiWM-vp / PiWM-vp-mc / PiWM-vp-geom
+#     V(z, g) by in-sample expectile TD (tau = 0.7) on HINDSIGHT goals: any z_{t+k} in a
+#     window is a valid goal with label -k, so the labels are free and fully
+#     self-supervised -- latents and step counts only, no reward and no states.pth.
+#     The motivation is the LEAF SCORE, not d_action: the latent distance CEM minimises is
+#     ranked against the true task distance at only Spearman +0.398 (n = 296), and block
+#     motion is a tail (median displacement per model step exactly 0.000 px, 48.1% of
+#     transitions exactly zero, top 1% carrying 34.8% of all motion), so ||z - g||^2 is
+#     dominated by directions along which nothing task-relevant happened. -E[steps] is
+#     invariant to any monotone reparametrisation of the latent, so it cannot be gamed by
+#     the scale of the code.
+#       PiWM-vp-mc   isolates TD from "any learned scalar that correlates with progress"
+#                    (hindsight MC regression to -k; no bootstrap, no target net).
+#       PiWM-vp-geom isolates temporal structure from "a smooth MLP reparametrisation of
+#                    the distance CEM already uses" (same head, same optimiser, regressed
+#                    to ||z - g|| in units of one mean latent step).
+#     Both controls are single-token VALUE_MODE flips on identical code paths, and all
+#     three consume the RNG stream identically (_hindsight_pairs runs in every mode), so
+#     the encoder/predictor trajectory is matched.
+#
+# V4  rides PiWM-vp via POLICY_W=1.0. a_t = pi(z_t, z_g) by behaviour cloning on the SAME
+#     latent, so one checkpoint yields the CEM number, the V5 number and the V4 number on
+#     bit-identical encoder/predictor weights -- this run's own CEM eval IS V4's control.
+#     Both heads read DETACHED latents, which is what makes that true.
+#
+# Matched baseline for the encoder/predictor is LpWM-ltv (n=16, already trained and
+# deliberately not retrained). The heads' own controls are in-wave.
+wave24_arms() {
+    ORDER[wave24]="${WAVE24_ARMS:-PiWM-vp PiWM-vp-mc PiWM-vp-geom}"
+    ARMS[PiWM-vp]="ltv 1.0 5e-4 VALUE_W=1.0 POLICY_W=1.0"
+    ARMS[PiWM-vp-mc]="ltv 1.0 5e-4 VALUE_W=1.0 POLICY_W=1.0 VALUE_MODE=mc"
+    ARMS[PiWM-vp-geom]="ltv 1.0 5e-4 VALUE_W=1.0 POLICY_W=1.0 VALUE_MODE=geom"
+}
+
 wave21_arms() {
     ORDER[wave21]="LpWM-ltv-relu-p2 LpWM-ltv-ident-p1"
     ARMS[LpWM-ltv-relu-p2]="ltv 1.0 5e-4"
@@ -382,9 +510,13 @@ wave5_arms() {
 submit_arm() {  # $1 = arm name, $2 = seed
     local arm=$1 seed=$2
     read -r pred rw mlr extra <<< "${ARMS[$arm]}"
+    # per-arm encoder feature, defaulting to the invocation-wide one. ftag reproduces
+    # FEAT_TAG exactly when ARM_FEAT is unset, so no existing run name moves.
+    local feat="${ARM_FEAT[$arm]:-${FEATURE}}"
+    local ftag=""; [ "${feat}" != "cls" ] && ftag="_${feat}"
     # precision is in the run name so a mixed-precision comparison is visible
     # rather than silent if PRECISION is ever changed mid-campaign
-    local run="${arm}_pd${PROJ_D}${FEAT_TAG}_${PRECISION}_s${seed}"
+    local run="${CANARY_PREFIX:-}${arm}_pd${PROJ_D}${ftag}_${PRECISION}_s${seed}"
     local dir="${CKPT_BASE}/outputs/${run}"
 
     if [ "${EVAL:-0}" = "1" ]; then
@@ -433,11 +565,11 @@ submit_arm() {  # $1 = arm name, $2 = seed
     [ "${DRYRUN:-0}" = "1" ] && { DRYRUN=1 env RUN_NAME="${run}" PREDICTOR="${pred}" \
         PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" REG_WEIGHT="${rw}" MU=0 SEED="${seed}" \
         REGULARIZER=rdmreg WINDOWS="${WINDOWS}" ${extra} \
-        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${FEATURE}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
+        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
     env RUN_NAME="${run}" PREDICTOR="${pred}" PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" \
         REG_WEIGHT="${rw}" MU=0 SEED="${seed}" REGULARIZER=rdmreg WINDOWS="${WINDOWS}" \
         ${extra} \
-        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${FEATURE}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
+        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
 }
 
 [ $# -gt 0 ] || { sed -n '2,25p' "$0"; exit 1; }
@@ -459,11 +591,13 @@ for gate in "$@"; do
         wave20)       wave20_arms; gate=wave20 ;;
         wave21)       wave21_arms; gate=wave21 ;;
         wave22)       wave22_arms; gate=wave22 ;;
+        wave23)       wave23_arms; gate=wave23 ;;
+        wave24)       wave24_arms; gate=wave24 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;
         wave17)       wave17_arms; gate=wave17 ;;
-        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave22)" >&2; exit 1 ;;
+        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave24)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do

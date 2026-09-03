@@ -1,0 +1,8 @@
+- ckpt_base_path=/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs
+- model_name=CANARY-gd_pd384_bf16_s3
+- model_epoch=latest
+- ensemble_members=[LpWM-ltv_pd384_bf16_s3]
+- n_evals=4
+- planner.max_iter=1
+- seed=3
+- n_plot_samples=4

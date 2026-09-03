@@ -1,0 +1,6 @@
+- ckpt_base_path=/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs
+- model_name=LpWM-ltv_pd384_bf16_s3
+- model_epoch=latest
+- n_evals=4
+- planner.max_iter=2
+- seed=3
