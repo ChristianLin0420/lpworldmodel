@@ -348,9 +348,122 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     rows = harvest(a.repo, a.campaign)
-    for p in (fig_dissociation(rows, a.out), fig_motion_tail(a.out), fig_p16(a.campaign, a.out)):
+    for p in (fig_dissociation(rows, a.out, a.campaign), fig_motion_tail(a.out),
+              fig_p16(a.campaign, a.out), fig_probe(a.out, a.campaign)):
         if p:
             print("  wrote", p)
+
+
+
+
+# ------------------------------------------------------------------ figure 4 (M1)
+PROBE_M1 = "assets/latent_probe.json"
+# Arms whose predictor has no nonlinear readout. This is the factor round 4 varied, and it
+# turns out to sort the LATENT PROBE as strongly as it sorts planning -- in opposite directions.
+LINEAR_ARMS = {"LpWM-linvar", "PiWM-lie", "PiWM-lie-sim", "PiWM-multact", "PiWM-ctrb",
+               "LpWM-ltv-ident-p1"}
+
+
+def fig_probe(out, campaign="/tmp/p16.json"):
+    """M1: the latent encodes the block far better than any control -- and the arms that
+    encode it BEST are the ones that plan WORST."""
+    if not os.path.exists(PROBE_M1):
+        return None
+    H = "_heldout"
+    R = json.load(open(PROBE_M1))
+    cem = json.load(open(campaign))["arms"]
+    alias = {"PiWM-columns": "PiWM-columns_patch"}
+    for x in R:
+        x["cem"] = cem.get(alias.get(x["arm"], x["arm"]), {}).get(str(x["seed"]))
+    ev = [x for x in R if x["cem"] is not None and x.get("err_pos_px" + H) is not None]
+    if len(ev) < 40:
+        return None
+
+    fig, (ax, bx) = plt.subplots(1, 2, figsize=(14.2, 6.0),
+                                 gridspec_kw={"width_ratios": [1.5, 1]})
+
+    # --- left: probe quality against planning, split by predictor class ---
+    for lin, col, lab, mk in ((True, ACCENT["crit"], "linear predictor", "s"),
+                              (False, ACCENT["blue"], "nonlinear predictor", "o")):
+        S = [x for x in ev if (x["arm"] in LINEAR_ARMS) == lin]
+        ax.scatter([x["err_pos_px" + H] for x in S], [x["cem"] for x in S], s=52, marker=mk,
+                   color=col if not lin else "white", edgecolor=col, lw=1.8, alpha=0.85,
+                   zorder=4, label=f"{lab}  (n = {len(S)})")
+    by = collections.defaultdict(list)
+    for x in ev:
+        by[x["arm"]].append(x)
+    NAMED = {"LpWM-linvar": (0, 20), "PiWM-lie": (0, -24), "LpWM-ltv": (58, -4),
+             "LpWM-ltv-d2048": (0, 16), "PiWM-columns": (-58, 2)}
+    for arm, off in NAMED.items():
+        v = by.get(arm)
+        if not v:
+            continue
+        mx = float(np.median([x["err_pos_px" + H] for x in v]))
+        my = float(np.median([x["cem"] for x in v]))
+        col = ACCENT["crit"] if arm in LINEAR_ARMS else ACCENT["blue"]
+        ax.scatter([mx], [my], s=180, marker="*", color=col, zorder=6, edgecolor="white", lw=1)
+        ax.annotate(LABEL.get(arm, arm).replace(" (control)", ""), (mx, my), xytext=off,
+                    textcoords="offset points", ha="center", fontsize=11.5, color=col,
+                    weight="bold", zorder=7)
+    ax.set_xlabel("held-out block position error from the frozen latent (px, ridge probe)",
+                  fontsize=12)
+    ax.set_ylabel("CEM success rate", fontsize=12)
+    ax.set_ylim(-0.04, 0.78)
+    ax.set_xscale("log")                    # 9 px to 90 px; linear squashes the live arms
+    ax.set_xticks([10, 15, 20, 30, 50, 90])
+    ax.set_xticklabels(["10", "15", "20", "30", "50", "90"])
+    ax.invert_xaxis()                       # better representation to the RIGHT
+    ax.annotate("better latent  →", (0.97, 0.03), xycoords="axes fraction", ha="right",
+                fontsize=11.5, color=MUTED, style="italic")
+    _style(ax)
+    ax.legend(loc="upper left", frameon=False, fontsize=11)
+    ax.set_title("The best representations belong to the worst planners", fontsize=12.5,
+                 color=INK, loc="left", pad=8)
+
+    # --- right: the control ladder ---
+    LAD = [("z, pre-link", "prelink_err", ACCENT["green"]),
+           ("z, post-link (what the\npredictor consumes)", "err", ACCENT["blue"]),
+           ("agent pose alone", "ctrl_agent_err", ACCENT["amber"]),
+           ("random encoder", "ctrl_rand_err", MUTED),
+           ("constant predictor", "const_err", ACCENT["slate"]),
+           ("shuffled labels", "ctrl_shuf_err", ACCENT["crit"])]
+    # the ladder is a statement about a WORKING latent, so it is taken over the arms that
+    # both predict and plan -- not over the collapsed arms, whose probe is at chance.
+    HEALTHY = {"LpWM-ltv", "LpWM-ltv-d2048", "PiWM-columns", "LpWM-ltv-relu-p2",
+               "LpWM-ltv-vfloor", "PiWM-gate-both"}
+    good = [x for x in R if x["arm"] in HEALTHY]
+    ys = np.arange(len(LAD))[::-1]
+    for y, (lab, pre, col) in zip(ys, LAD):
+        v = [x[pre + "_pos_px" + H] for x in good if x.get(pre + "_pos_px" + H) is not None]
+        if not v:
+            continue
+        m = float(np.median(v))
+        bx.barh(y, m, height=0.62, color=col, alpha=0.8, zorder=3)
+        a = [x[pre + "_ang_deg" + H] for x in good if x.get(pre + "_ang_deg" + H) is not None]
+        bx.annotate(f"{m:.1f} px   {np.median(a):.1f}°", (m, y), xytext=(8, 0),
+                    textcoords="offset points", va="center", fontsize=11, color=col,
+                    weight="bold")
+    bx.set_yticks(ys)
+    bx.set_yticklabels([l for l, _, _ in LAD], fontsize=10.5)
+    bx.set_xlim(0, 108)
+    bx.set_xlabel("held-out block position error (px)", fontsize=12)
+    _style(bx)
+    bx.set_title("Healthy arms only: every control is beaten,\nand the link costs "
+                 "4 px and 4 degrees",
+                 fontsize=12.5, color=INK, loc="left", pad=8)
+
+    fig.suptitle("M1: the latent DOES encode the block -- which kills the representation "
+                 "hypothesis rather than confirming it\n"
+                 "LpWM-linvar localises the block to 9.5 px and its orientation to 4.4°, "
+                 "twice and four times better than the baseline, and plans at 0.09 against "
+                 "0.38.\nA latent can encode the task almost perfectly and still be "
+                 "unplannable, so representation quality is not what the ReLU is buying.",
+                 fontsize=12.5, color=INK, x=0.008, ha="left", y=1.0)
+    fig.tight_layout(rect=[0, 0, 1, 0.85])
+    p = os.path.join(out, "m1-probe.png")
+    fig.savefig(p, dpi=155, facecolor="white", bbox_inches="tight")
+    plt.close(fig)
+    return p
 
 
 if __name__ == "__main__":
