@@ -289,26 +289,30 @@ class VWorldModel(nn.Module):
         C = torch.cat(blocks, dim=1)
         Wc = C @ C.T
         Wc = 0.5 * (Wc + Wc.T)
-        # Cholesky, not eigvalsh: measured at n=1152, eigvalsh is 72.4 ms/step against
-        # Cholesky's 2.8 ms -- 26x -- and this runs inside the autograd graph on every
-        # step. The ridge is NOT optional and 1e-8 is too small: W_c is rank-deficient
-        # whenever H*a_dim < n, and Cholesky at 1e-8 fails outright (not PD, measured).
-        # Escalate rather than crash training if a step is worse-conditioned than usual.
-        # var/additive zero-init B (AdaLN-zero), so at step 0 C_H = 0 and W_c = 0
-        # identically. The Gramian's gradient w.r.t. B is then STRUCTURALLY zero -- a
-        # saddle, not a numerical issue -- and a ridged logdet there is a meaningless
-        # saturated constant. Emit no term at all until the main loss moves B off zero,
-        # which it does from the first step. Verified: ||B||=0 -> grad 0; ||B||=19.6 ->
-        # ctrb 0.645, grad->B 1.50, grad->lags[0] 0.036.
+        # TRACE-NORMALISE. -logdet(W_c) alone is UNBOUNDED BELOW: it is minimised by
+        # inflating ||A|| and ||B|| without limit, which costs the predictor nothing to
+        # supply and everything to obey. Measured in production: ctrb ran +0.645 at init
+        # to -58 within one epoch, a -0.58 contribution against a z_loss of 0.03-0.09,
+        # and half the seeds reached rel_mse = 1.0 (predicting the mean). The optimiser
+        # farmed the reward and abandoned prediction.
+        #
+        # What the objective is ABOUT is whether the reachable set SPANS -- the isotropy
+        # of W_c, which is a property of its shape, not its size. Rescaling to tr = n
+        # makes the quantity scale-invariant and BOUNDED BELOW BY ZERO, attained exactly
+        # when every eigenvalue is 1, i.e. when the action reaches every latent direction
+        # equally. Inflating the weights now buys nothing.
+        n_f = float(n)
+        tr = Wc.diagonal().sum()
+        if not torch.isfinite(tr) or float(tr) <= 0.0:
+            return None                     # W_c == 0: B still at its zero init
+        Wn = Wc * (n_f / tr)                # tr(Wn) = n  =>  mean eigenvalue 1
         eye = torch.eye(n, device=Wc.device, dtype=torch.float32)
-        scale = Wc.diagonal().abs().max().float()
-        if not torch.isfinite(scale) or float(scale) <= 0.0:
-            return None
-        Wf = Wc.float()
+        Wf = Wn.float()
         for rel in (1e-6, 1e-4, 1e-2):
-            L, info = torch.linalg.cholesky_ex(Wf + rel * scale * eye)
+            L, info = torch.linalg.cholesky_ex(Wf + rel * eye)
             if int(info) == 0:
-                return -2.0 * torch.log(L.diagonal().clamp_min(1e-30)).sum() / n
+                # -logdet/n >= 0 by AM-GM, with equality iff the spectrum is flat
+                return -2.0 * torch.log(L.diagonal().clamp_min(1e-30)).sum() / n_f
         return None                         # skip this step rather than kill the run
 
     def _path_int_loss(self, proprio, act):

@@ -346,7 +346,7 @@ wave20_arms() {
 #   P5  actinfo-cond: V2's objective with negatives from p(a|z_t) instead of p(a).
 # Controls: LpWM-ltv (n=16) and PiWM-actinfo (n=8) already exist; LpWM-linvar is in-wave.
 wave22_arms() {
-    ORDER[wave22]="LpWM-linvar PiWM-multact PiWM-lie PiWM-lie-sim PiWM-actgain-b03 PiWM-actgain-b30 PiWM-ctrb PiWM-actinfo-cond PiWM-actinfo-cond-sigreg"
+    ORDER[wave22]="${WAVE22_ARMS:-LpWM-linvar PiWM-multact PiWM-lie PiWM-lie-sim PiWM-actgain-b03 PiWM-actgain-b30 PiWM-ctrb PiWM-actinfo-cond PiWM-actinfo-cond-sigreg}"
     ARMS[LpWM-linvar]="linear_var 1.0 5e-4"
     ARMS[PiWM-multact]="linear_pa 1.0 5e-4"
     ARMS[PiWM-lie]="lie 1.0 5e-4"
