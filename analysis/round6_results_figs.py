@@ -76,13 +76,28 @@ CONTRASTS = [
 
 
 def _summary(d):
-    f = glob.glob(os.path.join(d, "wandb/run-*/files/wandb-summary.json"))
-    if not f:
-        return {}
-    try:
-        return json.load(open(f[0]))
-    except Exception:
-        return {}
+    """The run's FINAL wandb summary.
+
+    `glob.glob` is unsorted, and a preempted/chained run has one `run-*` window per
+    resume, so `glob(...)[0]` returns an ARBITRARY window -- often a mid-training one.
+    Measured over this archive: 101 of 314 multi-window runs disagree between `[0]` and
+    the last window, and 8 of those flip a guard verdict (e.g. PiWM-support-w0p3_s8 reads
+    d_action_over_scale 0.1663 one way and 0.2834 the other, either side of the 0.2746
+    threshold). `wandb/latest-run` is the symlink wandb maintains for exactly this, and
+    is what diary/README.md §3 prescribes; sorted()[-1] is the fallback when a run
+    predates the symlink. collect_evals.py already has the mirror-image care ("sorted()
+    puts the newest timestamp last"); this module simply did not inherit it.
+    """
+    cands = [os.path.join(d, "wandb/latest-run/files/wandb-summary.json")]
+    cands += sorted(glob.glob(os.path.join(d, "wandb/run-*/files/wandb-summary.json")))[::-1]
+    for f in cands:
+        if not os.path.exists(f):
+            continue
+        try:
+            return json.load(open(f))
+        except Exception:
+            continue
+    return {}
 
 
 def _get(s, exact=None, sub=None):

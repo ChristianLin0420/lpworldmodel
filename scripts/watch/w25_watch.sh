@@ -46,8 +46,18 @@ while true; do
       # valid source for the threshold.
       read -r v ov < <($PY - "$d" <<'EOF' 2>/dev/null
 import json, glob, sys
-f = glob.glob(sys.argv[1] + "/wandb/run-*/files/wandb-summary.json")
-d = json.load(open(f[0])) if f else {}
+# glob is UNSORTED and a chained/preempted run has one window per resume, so [0] is an
+# arbitrary -- often mid-training -- window. 101 of 314 multi-window runs in this archive
+# disagree between [0] and the last window and 8 flip a guard verdict. latest-run is the
+# symlink wandb keeps for this; sorted()[-1] is the pre-symlink fallback.
+cands = [sys.argv[1] + "/wandb/latest-run/files/wandb-summary.json"]
+cands += sorted(glob.glob(sys.argv[1] + "/wandb/run-*/files/wandb-summary.json"))[::-1]
+d = {}
+for _f in cands:
+    try:
+        d = json.load(open(_f)); break
+    except Exception:
+        continue
 rm = next((d[k] for k in d if "rel_mse" in k), None)
 ov = d.get("causal/d_action_over_scale")
 print(f"{rm if rm is not None else -1:.4f} {ov if ov is not None else -1:.4f}")
