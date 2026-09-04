@@ -45,7 +45,23 @@ while true; do
       # REPLACES the first value with a fresh noisy draw -- not corrupt, both draws are
       # valid 50-episode evals, but it silently resamples an arm and wastes an allocation.
       # An existing output dir means an eval has at least STARTED; that closes the window.
-      compgen -G "plan_outputs/*_${r}_gH5" >/dev/null 2>&1 && continue
+      # An output dir means an eval has at least STARTED, which closes the race where a job
+      # has left the queue but not yet written its terminal marker (observed on
+      # PiWM-vp_s10, which got two dirs; collect_evals is newest-wins, so a duplicate
+      # silently resamples the arm).
+      #
+      # BUT "dir exists -> never resubmit" is too strong and strands genuine failures: an
+      # eval that dies leaves a dir with NO terminal marker and would then never be retried.
+      # Measured on this archive: 41 of 742 eval dirs lack the marker and 7 had no live job,
+      # i.e. they were permanently stuck. So only skip while the dir is FRESH -- younger
+      # than the 03:55 walltime cap, so it could still be the one running. An older
+      # markerless dir is a dead eval and is retried.
+      if compgen -G "plan_outputs/*_${r}_gH5" >/dev/null 2>&1; then
+          newest=$(ls -dt plan_outputs/*_${r}_gH5 2>/dev/null | head -1)
+          if [ -n "${newest}" ] && [ $(( $(date +%s) - $(stat -c %Y "${newest}") )) -lt 14400 ]; then
+              continue
+          fi
+      fi
       RUN_NAME="$r" SEED="$s" NEVALS=50 MAXITER=10 \
         sbatch --job-name="eval_${r}" scripts/plan_slurm.sbatch >/dev/null 2>&1 \
         && { echo "EVAL SUBMITTED $r"; EVALED="$EVALED $r"; }
