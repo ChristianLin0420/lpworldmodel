@@ -19,9 +19,21 @@ P = [("T2 patchdecode","PiWM-patchdecode","PiWM-patchdecode-detach"),
      ("T4 vp","PiWM-vp","LpWM-ltv"),
      ("T4 vp-mc","PiWM-vp-mc","LpWM-ltv"),
      ("T4 vp-geom","PiWM-vp-geom","LpWM-ltv")]
+def _resolve(name):
+    """Exact key, else the unique `name_<featuretag>`. collect_evals keys the patch-feature
+    arms "PiWM-patchdecode_patch", not "PiWM-patchdecode" -- A.get() missed, the pair read
+    n=0 forever, and because `done` requires EVERY pair at n>=8, ROUND5 COMPLETE could never
+    fire. A name that does not resolve must be loud, never an empty dict."""
+    if name in A: return name
+    c = [k for k in A if k == name or k.startswith(name + "_")]
+    return c[0] if len(c) == 1 else None
+
 out, done = [], True
 for nm, x, y in P:
-    X, Y = A.get(x, {}), A.get(y, {})
+    rx, ry = _resolve(x), _resolve(y)
+    if rx is None or ry is None:
+        out.append(f"{nm}: UNRESOLVED({x if rx is None else y})"); done = False; continue
+    X, Y = A[rx], A[ry]
     s = sorted(set(X) & set(Y), key=int)
     if len(s) < 8: done = False
     if len(s) < 3:
