@@ -255,3 +255,47 @@ def test_action_encoder_optimizer_is_in_keys_to_save():
     import inspect
     src = inspect.getsource(Trainer.__init__)
     assert '"action_encoder_optimizer"' in src
+
+
+def test_restored_optimizer_state_is_moved_to_the_device(tmp_path):
+    """Guards the T4 fix: an optimizer restored from a checkpoint must not be left on CPU.
+
+    load_ckpt reads with map_location="cpu" and then calls
+    accelerator.unwrap_model(obj).load_state_dict(...), which strips the AcceleratedOptimizer
+    wrapper that would otherwise move the restored state onto the device. Parameters are
+    unaffected -- they belong to modules already on the device and load_state_dict copies into
+    them in place -- but an optimizer's exp_avg / exp_avg_sq are fresh CPU tensors, and the
+    next step() raises "Expected all tensors to be on the same device".
+
+    This killed 7 of T4's 8 seeds at epoch 2, after they had trained the whole way, and nothing
+    caught it: the NEW HEAD CHECKLIST asks whether a parameter reaches a checkpoint, not
+    whether its optimizer survives a round trip through one. T4 was the first arm in the
+    campaign to carry optimizers beyond the five that predate it.
+
+    Device-agnostic by construction: it asserts the state lands on accelerator.device, which is
+    CPU on a submit host and CUDA on a GPU node, so it is a real guard in CI either way.
+    """
+    import types
+
+    net = nn.Linear(4, 4)
+    opt = torch.optim.AdamW(net.parameters(), lr=1e-3)
+    net(torch.randn(2, 4)).sum().backward()
+    opt.step()                                   # materialise exp_avg / exp_avg_sq
+    assert opt.state, "optimizer has no state to restore -- the test would be vacuous"
+
+    fresh = torch.optim.AdamW(net.parameters(), lr=1e-3)
+    fresh.load_state_dict(opt.state_dict())      # the map_location="cpu" path
+    for st in fresh.state.values():
+        for k, v in st.items():
+            if torch.is_tensor(v):
+                st[k] = v.cpu()                  # force the exact failure condition
+
+    trainer = types.SimpleNamespace(accelerator=_Acc())
+    moved = Trainer._optimizer_state_to_device(trainer, fresh)
+    assert moved >= 0
+    dev = _Acc().device
+    for st in fresh.state.values():
+        for k, v in st.items():
+            assert not torch.is_tensor(v) or v.device == dev, (
+                f"optimizer state '{k}' left on {v.device}, expected {dev}"
+            )

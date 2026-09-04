@@ -29,6 +29,7 @@ from datetime import timedelta
 from concurrent.futures import ThreadPoolExecutor
 from metrics.image_metrics import eval_images
 from models.infojepa_modules import AGG_PATTERNS, gng_unit_sigma
+from models.stats import soft_jaccard
 from utils import slice_trajdict_with_t, cfg_to_dict, seed, sample_tensors
 
 warnings.filterwarnings("ignore")
@@ -116,17 +117,15 @@ def wandb_identity(cfg, run_dir_name):
 
 
 # --- diagnostic statistics (pure functions, tested in tests/test_live_diagnostics.py) ---
-
-def soft_jaccard(a, b, eps=1e-8):
-    """J_S(a,b) = sum(min(a,b)) / sum(max(a,b)) over the last axis. Needs a,b >= 0.
-
-    The project's core statistic: S = 1 - J_S. Mirrors
-    analysis/predictive_jaccard.py's numpy version so the live curve and the
-    offline evaluation measure the same thing.
-    """
-    num = torch.minimum(a, b).sum(-1)
-    den = torch.maximum(a, b).sum(-1).clamp_min(eps)
-    return num / den
+#
+# soft_jaccard is RE-EXPORTED from models/stats.py rather than defined here. R6's
+# SUPPORT term optimises 1 - J_S inside the model, and models/ cannot import train.py,
+# so the function moved to a leaf module that both sides import. The name stays in this
+# namespace (train.soft_jaccard) because every call site below and
+# tests/test_live_diagnostics.py reach it that way; the identity of the object is what
+# makes "the arm optimises the quantity the screen endorsed" checkable rather than
+# asserted
+# (tests/test_arms.py::test_r6_optimises_the_same_function_object_the_screen_scored).
 
 
 def support_churn(a, b):
@@ -628,8 +627,35 @@ class Trainer:
                 missing.append(k)
                 continue
             self.accelerator.unwrap_model(obj).load_state_dict(ckpt[k])
+            # The checkpoint is read with map_location="cpu" and unwrap_model() strips the
+            # AcceleratedOptimizer wrapper that would otherwise move the restored state onto
+            # the device. Parameters are fine -- they belong to modules that are already on
+            # the device, and load_state_dict copies into them in place -- but an OPTIMIZER's
+            # exp_avg / exp_avg_sq are fresh CPU tensors, and the next .step() then raises
+            #   RuntimeError: Expected all tensors to be on the same device, cuda:0 and cpu
+            # This bit T4 (value_optimizer / policy_optimizer), the first arm in the campaign
+            # to carry optimizers beyond the five that predate it: 7 of its 8 seeds died on
+            # their first resume, at epoch 2, having trained the whole way. Nothing caught it
+            # because the NEW HEAD CHECKLIST asks whether a parameter reaches a checkpoint,
+            # not whether its optimizer survives a round trip through one.
+            if isinstance(obj, torch.optim.Optimizer) or hasattr(obj, "optimizer"):
+                self._optimizer_state_to_device(obj)
         if missing:
             log.warning("Keys not found in ckpt: %s", missing)
+
+    def _optimizer_state_to_device(self, opt):
+        """Move an optimizer's restored state onto the accelerator device, in place."""
+        inner = getattr(opt, "optimizer", opt)
+        dev = self.accelerator.device
+        moved = 0
+        for st in inner.state.values():
+            for name, v in st.items():
+                if torch.is_tensor(v) and v.device != dev:
+                    st[name] = v.to(dev)
+                    moved += 1
+        if moved:
+            log.info(f"moved {moved} optimizer state tensors to {dev} after resume")
+        return moved
 
     def _maybe_resume(self):
         """Load ``model_latest.pth`` after models and optimizers are constructed."""
@@ -890,6 +916,18 @@ class Trainer:
             value_p_future=float(self.cfg.get("value_p_future", 0.5)),
             policy_w=float(self.cfg.get("policy_w", 0.0)),
             act_dim_raw=_act_dim_raw,
+            # --- ROUND 6. Four objective terms, all inert at these defaults. Training-
+            # only (they touch the LOSS, never the rollout), so they stay top-level in
+            # conf/train_rdmreg.yaml rather than inside `model:` -- the same rule that
+            # puts decode_grad/contact_* top-level and overshoot/value_* inside it.
+            support_w=float(self.cfg.get("support_w", 0.0)),
+            consist_w=float(self.cfg.get("consist_w", 0.0)),
+            consist_src=str(self.cfg.get("consist_src", "cem")),
+            consist_k=int(self.cfg.get("consist_k", 5)),
+            consist_sigma=float(self.cfg.get("consist_sigma", 1.0)),
+            sam_rho=float(self.cfg.get("sam_rho", 0.0)),
+            incr_eps=float(self.cfg.get("incr_eps", 1e-4)),
+            incr_clip=float(self.cfg.get("incr_clip", 0.0)),
         )
 
         # V3 warm start: assets/pose_dynamics_pusht.pt is the linear pose map fit on the
