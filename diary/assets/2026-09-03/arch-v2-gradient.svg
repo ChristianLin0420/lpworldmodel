@@ -1,129 +1,150 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1420" viewBox="0 0 940 1420" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1386" viewBox="0 0 940 1386" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
 <defs>
-  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
-  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
-  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#2E7D6F"/></marker>
 </defs>
-<rect width="940" height="1420" fill="white"/>
-<circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
-<circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="812" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t+1</tspan></text>
-<path d="M120,706 L120,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,706 L812,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="120.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
-<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="812.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
-<path d="M120,520 L120,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,520 L812,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="78" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
-<text x="120.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
-<rect x="770" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
-<text x="812.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
-<path d="M120,420 L120,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,420 L812,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="120.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
-<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="812.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
-<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="712.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
-<path d="M700.5,160 L705.0,154 L709.5,160" stroke="#1A1A1A" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-<path d="M737,262 L795,262" stroke="#9E3B3B" stroke-width="2" marker-end="url(#ar)" marker-start="url(#am)"/>
-<text x="766" y="240" font-size="16" text-anchor="middle" fill="#9E3B3B" font-style="" font-weight="normal">MSE (min)</text>
-<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="321.0" y="263.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="321.0" y="284.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
-<circle cx="318" cy="430" r="38" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="318" y="437" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="13" dy="6">t</tspan></text>
-<path d="M318,392 L318,332" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M146,262 L226,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="186" y="248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
-<path d="M424,262 L697,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="430" y="556" width="160" height="52" rx="4" fill="#FFFFFF" stroke="#55707F" stroke-width="1.6"/>
-<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
-<path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(V2) PiWM-gradplan -- optimise the actions by GRADIENT, not by sampling</text>
-<path d="M880,898 L880,120 L300,120 L300,190" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
-<text x="310" y="106" font-size="16" text-anchor="start" fill="#0055af" font-style="" font-weight="normal">dJ / da flows back through g and h</text>
-<rect x="34" y="898" width="872" height="496" rx="10" fill="#d8e8fb" fill-opacity="0.45" stroke="#0055af" stroke-width="2.4"/>
-<text x="54" y="930" font-size="18" text-anchor="start" fill="#0055af" font-style="" font-weight="bold">module:  the actions are LEAVES;  the objective backprops to them</text>
-<path d="M52,942 L888,942" stroke="#0055af" stroke-width="1.2" stroke-opacity="0.5"/>
-<rect x="56" y="971" width="96" height="38" rx="19" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
-<text x="104" y="996" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="10" dy="6">1:H</tspan></text>
-<text x="170" y="1048" font-size="12" text-anchor="start" fill="#0055af" font-style="" font-weight="normal">leaf, requires_grad</text>
-<path d="M152,990 L184,990" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="188" y="966" width="176" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="276.0" y="990.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">rollout  ( H steps )</text>
-<text x="276.0" y="1007.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">z_k+1 = h( g( z_k , a_k ) )</text>
-<path d="M364,990 L392,990" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="392" y="971" width="80" height="38" rx="19" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="432" y="996" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">zhat_H</text>
-<path d="M472,990 L500,990" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="504" y="966" width="230" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="619.0" y="996.0" font-size="14" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| zhat_H - z_g ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
-<path d="M734,990 L762,990" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="762" y="971" width="88" height="38" rx="19" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
-<text x="806" y="996" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">J</text>
-<path d="M806,1009 L806,1062 L104,1062 L104,1013" stroke="#b3261e" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
-<text x="470" y="1052" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="normal">backward:    a  :=  a  -  eta . dJ / da</text>
-<rect x="60" y="1096" width="402" height="156" rx="8" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="261.0" y="1122" font-size="17" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">V2:  follow the gradient</text>
-<text x="261.0" y="1141" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">1 rollout per step, exact direction</text>
-<path d="M111.0,1154.0 L118.5,1161.0 L126.0,1167.7 L133.5,1174.0 L141.0,1179.9 L148.5,1185.5 L156.0,1190.7 L163.5,1195.6 L171.0,1200.1 L178.5,1204.2 L186.0,1208.0 L193.5,1211.4 L201.0,1214.5 L208.5,1217.2 L216.0,1219.5 L223.5,1221.5 L231.0,1223.1 L238.5,1224.4 L246.0,1225.3 L253.5,1225.8 L261.0,1226.0 L268.5,1225.8 L276.0,1225.3 L283.5,1224.4 L291.0,1223.1 L298.5,1221.5 L306.0,1219.5 L313.5,1217.2 L321.0,1214.5 L328.5,1211.4 L336.0,1208.0 L343.5,1204.2 L351.0,1200.1 L358.5,1195.6 L366.0,1190.7 L373.5,1185.5 L381.0,1179.9 L388.5,1174.0 L396.0,1167.7 L403.5,1161.0 L411.0,1154.0" stroke="#0055af" stroke-width="2" fill="none"/>
-<circle cx="118.5" cy="1161.0" r="5.5" fill="#0055af" stroke="#1A1A1A" stroke-width="1.1"/>
-<path d="M118.5,1161.02 L162.0,1194.6368" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<circle cx="162.0" cy="1194.6" r="5.5" fill="#0055af" stroke="#1A1A1A" stroke-width="1.1"/>
-<path d="M162.0,1194.6368 L204.0,1215.6032" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<circle cx="204.0" cy="1215.6" r="5.5" fill="#0055af" stroke="#1A1A1A" stroke-width="1.1"/>
-<path d="M204.0,1215.6032 L240.0,1224.5888" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<circle cx="240.0" cy="1224.6" r="5.5" fill="#0055af" stroke="#1A1A1A" stroke-width="1.1"/>
-<text x="267" y="1246" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">J ( a )</text>
-<rect x="486" y="1096" width="390" height="156" rx="8" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="2"/>
-<text x="681.0" y="1122" font-size="17" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="bold">CEM (today):  sample and rank</text>
-<text x="681.0" y="1141" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">300 samples per step, ranks only</text>
-<circle cx="681" cy="1200" r="40" fill="none" stroke="#3d3d3a" stroke-width="1.6" stroke-dasharray="6,4"/>
-<circle cx="605.3" cy="1211.4" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="632.6" cy="1180.2" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="654.6" cy="1225.1" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="676.6" cy="1193.2" r="5.5" fill="#0055af" stroke="#0055af" stroke-width="1.6"/>
-<circle cx="696.8" cy="1216.7" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="719.7" cy="1176.4" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="735.6" cy="1208.4" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="756.7" cy="1196.2" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="619.4" cy="1196.2" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<circle cx="707.4" cy="1188.6" r="5.5" fill="#0055af" stroke="#0055af" stroke-width="1.6"/>
-<circle cx="665.2" cy="1203.8" r="5.5" fill="#0055af" stroke="#0055af" stroke-width="1.6"/>
-<circle cx="742.6" cy="1222.0" r="4.2" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.6"/>
-<path d="M681,1200 L701,1188" stroke="#0055af" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
-<text x="685" y="1250" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">topk mean  ->  new mu</text>
-<text x="60" y="1288" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">J( a )  =  || zhat_H( a ) - z_g ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
-<text x="364" y="1288" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">grad steps replace 300-sample resampling; planning/gd.py already does this</text>
-<text x="60" y="1314" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">the rollout carries NO no_grad on its path -- the file's three no_grad sites (243, 573, 698) are all off it</text>
-<rect x="60" y="1330" width="268" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="194.0" y="1347" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">CEM cost per step</text>
-<text x="194.0" y="1366" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">300 rollouts</text>
-<rect x="336" y="1330" width="268" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="470.0" y="1347" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">GD cost per step</text>
-<text x="470.0" y="1366" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">1 rollout + 1 backward</text>
-<rect x="612" y="1330" width="268" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="746.0" y="1347" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">rank rules cannot be used</text>
-<text x="746.0" y="1366" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">borda / median are flat</text>
+<rect width="940" height="1386" fill="#FFFFFF"/>
+<g transform="translate(0,-60)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="132.7" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(V2)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-gradplan</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;optimise the actions by GRADIENT, not by sampling</tspan></text>
+<path d="M880,908 L880,120 L300,120 L300,190" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)" stroke-dasharray="6,4"/>
+<text x="310" y="106" font-size="15.5" text-anchor="start" fill="#2E7D6F">dJ / da flows back through g and h</text>
+</g>
+<rect x="34" y="848" width="872" height="510" rx="10" fill="#DCEFE9" fill-opacity="0.45" stroke="#2E7D6F" stroke-width="2.2"/>
+<text x="54" y="880" font-size="18" text-anchor="start" fill="#2E7D6F" font-weight="bold">module:  the actions are LEAVES;  the objective backprops to them</text>
+<path d="M52,892 L888,892" stroke="#2E7D6F" stroke-width="1.2" stroke-opacity="0.5"/>
+<text x="56" y="910" font-size="12.5" text-anchor="start" fill="#2E7D6F">leaf, requires_grad</text>
+<rect x="56" y="921" width="96" height="38" rx="19" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="91.8" y="946" font-size="16" text-anchor="start" fill="#14231C">a<tspan font-size="10" dy="4.2">1:H</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M152,940 L184,940" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="188" y="916" width="190" height="48" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="283.0" y="940.0" font-size="15" text-anchor="middle" fill="#14231C">rollout  ( H steps )</text>
+<text x="283.0" y="957.0" font-size="11.5" text-anchor="middle" fill="#6C786C">z_k+1 = h( g( z_k , a_k ) )</text>
+<path d="M378,940 L392,940" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="394" y="921" width="80" height="38" rx="19" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="425.7" y="946" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="12" dy="5.0">H</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M425.7,935.4 L429.7,930.28 L433.7,935.4" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M476,940 L500,940" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="504" y="916" width="230" height="48" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="579.4" y="946.0" font-size="16" text-anchor="start" fill="#14231C">∥</text>
+<text x="590.904" y="946.0" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="12" dy="5.0">H</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M590.9,935.4 L594.9,930.28 L598.9,935.4" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="607.568" y="946.0" font-size="16" text-anchor="start" fill="#14231C"> − z</text>
+<text x="633.808" y="946.0" font-size="16" text-anchor="start" fill="#14231C"><tspan font-size="13" dy="5.5">g</tspan><tspan dy="-5.5"></tspan></text>
+<text x="641.036" y="946.0" font-size="16" text-anchor="start" fill="#14231C">∥</text>
+<text x="652.54" y="946.0" font-size="16" text-anchor="start" fill="#14231C"><tspan font-size="11" dy="-6.1">2</tspan><tspan dy="6.1"></tspan></text>
+<path d="M734,940 L762,940" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="762" y="921" width="88" height="38" rx="19" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="806" y="946" font-size="16" text-anchor="middle" fill="#14231C">J</text>
+<path d="M806,959 L806,1016 L104,1016 L104,963" stroke="#A83024" stroke-width="2.2" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e2)"/>
+<text x="470" y="1002" font-size="16" text-anchor="middle" fill="#A83024">backward:    a  :=  a  −  η · dJ / da</text>
+<rect x="60" y="1042" width="402" height="172" rx="8" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.6"/>
+<text x="261.0" y="1068" font-size="17" text-anchor="middle" fill="#2E7D6F" font-weight="bold">V2:  follow the gradient</text>
+<text x="261.0" y="1087" font-size="12" text-anchor="middle" fill="#6C786C">1 rollout per step, exact direction</text>
+<path d="M111.0,1104.0 L118.5,1111.0 L126.0,1117.7 L133.5,1124.0 L141.0,1129.9 L148.5,1135.5 L156.0,1140.7 L163.5,1145.6 L171.0,1150.1 L178.5,1154.2 L186.0,1158.0 L193.5,1161.4 L201.0,1164.5 L208.5,1167.2 L216.0,1169.5 L223.5,1171.5 L231.0,1173.1 L238.5,1174.4 L246.0,1175.3 L253.5,1175.8 L261.0,1176.0 L268.5,1175.8 L276.0,1175.3 L283.5,1174.4 L291.0,1173.1 L298.5,1171.5 L306.0,1169.5 L313.5,1167.2 L321.0,1164.5 L328.5,1161.4 L336.0,1158.0 L343.5,1154.2 L351.0,1150.1 L358.5,1145.6 L366.0,1140.7 L373.5,1135.5 L381.0,1129.9 L388.5,1124.0 L396.0,1117.7 L403.5,1111.0 L411.0,1104.0" stroke="#2E7D6F" stroke-width="1.8" fill="none"/>
+<circle cx="118.5" cy="1111.0" r="5.2" fill="#2E7D6F" stroke="#FFFFFF" stroke-width="1.1"/>
+<path d="M118.5,1111.02 L162.0,1144.6368" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<circle cx="162.0" cy="1144.6" r="5.2" fill="#2E7D6F" stroke="#FFFFFF" stroke-width="1.1"/>
+<path d="M162.0,1144.6368 L204.0,1165.6032" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<circle cx="204.0" cy="1165.6" r="5.2" fill="#2E7D6F" stroke="#FFFFFF" stroke-width="1.1"/>
+<path d="M204.0,1165.6032 L240.0,1174.5888" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<circle cx="240.0" cy="1174.6" r="5.2" fill="#2E7D6F" stroke="#FFFFFF" stroke-width="1.1"/>
+<text x="267" y="1204" font-size="13" text-anchor="middle" fill="#6C786C">J ( a )</text>
+<rect x="486" y="1042" width="390" height="172" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
+<text x="681.0" y="1068" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">CEM (today):  sample and rank</text>
+<text x="681.0" y="1087" font-size="12" text-anchor="middle" fill="#6C786C">300 samples per step, ranks only</text>
+<circle cx="681" cy="1146" r="40" fill="none" stroke="#546060" stroke-width="1.4" stroke-dasharray="6,4"/>
+<circle cx="605.3" cy="1157.4" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="632.6" cy="1126.2" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="654.6" cy="1171.1" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="676.6" cy="1139.2" r="5.2" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.4"/>
+<circle cx="696.8" cy="1162.7" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="719.7" cy="1122.4" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="735.6" cy="1154.4" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="756.7" cy="1142.2" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="619.4" cy="1142.2" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<circle cx="707.4" cy="1134.6" r="5.2" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.4"/>
+<circle cx="665.2" cy="1149.8" r="5.2" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.4"/>
+<circle cx="742.6" cy="1168.0" r="4.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.4"/>
+<path d="M681,1146 L701,1134" stroke="#2E7D6F" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<text x="685" y="1204" font-size="13" text-anchor="middle" fill="#6C786C">topk mean → new mu</text>
+<text x="60" y="1250" font-size="16.75" text-anchor="start" fill="#14231C">J( a )  =  </text>
+<text x="126.5645" y="1250" font-size="16.75" text-anchor="start" fill="#14231C">∥</text>
+<text x="138.60775" y="1250" font-size="16.75" text-anchor="start" fill="#14231C">z<tspan font-size="12" dy="5.0">H</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M138.6125,1238.9 L142.8,1233.5400000000002 L146.9875,1238.9" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="155.64675" y="1250" font-size="16.75" text-anchor="start" fill="#14231C">( a ) − z</text>
+<text x="212.89825" y="1250" font-size="16.75" text-anchor="start" fill="#14231C"><tspan font-size="13" dy="5.5">g</tspan><tspan dy="-5.5"></tspan></text>
+<text x="220.12625" y="1250" font-size="16.75" text-anchor="start" fill="#14231C">∥</text>
+<text x="232.1695" y="1250" font-size="16.75" text-anchor="start" fill="#14231C"><tspan font-size="11" dy="-6.1">2</tspan><tspan dy="6.1"></tspan></text>
+<text x="267.6" y="1250" font-size="16.75" text-anchor="start" fill="#14231C">grad steps replace 300-sample resampling; planning/gd.py already does this</text>
+<text x="60" y="1276" font-size="15" text-anchor="start" fill="#14231C">the rollout carries NO no_grad on its path – the file's three no_grad sites (243, 573, 698) are all off it</text>
+<rect x="60" y="1290" width="268" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="194.0" y="1307" font-size="12" text-anchor="middle" fill="#6C786C">CEM cost per step</text>
+<text x="194.0" y="1326" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">300 rollouts</text>
+<rect x="336" y="1290" width="268" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="470.0" y="1307" font-size="12" text-anchor="middle" fill="#6C786C">GD cost per step</text>
+<text x="470.0" y="1326" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">1 rollout + 1 backward</text>
+<rect x="612" y="1290" width="268" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="746.0" y="1307" font-size="12" text-anchor="middle" fill="#6C786C">rank rules cannot be used</text>
+<text x="746.0" y="1326" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">borda / median are flat</text>
 </svg>

@@ -1,19 +1,29 @@
 """Architecture diagrams for the round-5 MEASUREMENT proposals (M1-M4).
 
 Same construction as analysis/arch_figs_causal.py and analysis/arch_figs_predictor.py:
-the unmodified LpWM schematic from analysis/arch_figs.base() on top, and a MODULE PANEL
-below carrying the proposed measurement as blocks, operator nodes and arrows, with the
-equation it implements underneath and a short strip of measured values. No prose.
+the unmodified LpWM schematic from analysis/arch_figs.base() on top -- nudged up by sch()
+so the set does not carry a band of white above every figure -- and a MODULE PANEL below
+carrying the proposed measurement as blocks, operator nodes and arrows, with the equation
+it implements underneath and a short strip of measured values. No prose.
 
 M1  probe          -- is the block pose linearly decodable from the frozen code at all?
 M2  metric         -- what the success criterion scores now vs what it should score.
 M3  oracle ladder  -- {learned, oracle} objective x {learned, oracle} dynamics.
 M4  error analysis -- the four counting buckets, as an ordered decision flow.
 
-Layout rule that keeps the panels readable: every panel is a strict left-to-right
-dataflow on fixed row baselines, and any wire that must change rows does so on its own
-vertical corridor. No two wires share a segment. The a_t circle at (318, 430) is enclosed
-by the link/encoder/RDMReg wiring, so no connector is routed into it.
+WHAT THIS FILE OWES THE DESIGN SYSTEM (analysis/style.py, via arch_figs)
+
+  * Hue by IDENTITY, never by rank. M3's four ladder cells and M4's four buckets each get
+    four DIFFERENT hues (crimson / purple / amber / green and crimson / purple / slate /
+    green): they used to be drawn with #18483C and #2E7D6F side by side, which read as one
+    colour. Re-running these after more evals land cannot repaint anything.
+  * Strict left-to-right dataflow on fixed row baselines; a wire that changes rows does so
+    on its OWN vertical corridor, and the two connectors into the schematic (wire_to_enc,
+    wire_to_obs) use corridors that cross NO model wire.
+  * Nothing is sized by hand where it can be measured: mbox/pill/strip fit their own text
+    and eqrow guarantees a gap between clauses. M1's `+ lambda ||W||` used to float 6px
+    from the clause before it and read as a separate statement.
+  * Text goes in free space and is owned by the mark beside it.
 
 Nothing drawn here puts privileged state into a training loss: every oracle quantity in
 M1/M3/M4 is read from states.pth for MEASUREMENT only.
@@ -26,41 +36,80 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from analysis.arch_figs import (  # noqa: E402
-    ACCENT, ACCENT_FILL, INK, WHITE,
-    _hdr, arrow, base, box, caret, circle, poly, sub, txt,
+    ACCENT, ACCENT_FILL, DIM, INK, MUTED, WHITE,
+    _hdr, base, caret, circle, sub, sup, text_width, txt,
 )
 from analysis.arch_figs_causal import (  # noqa: E402
-    aw, apoly, eq, mbox, nrm, opnode, pill, strip, sup,
+    BAR, IMPLIES, LAMB, MINUS, NDASH, PIX, PX, PW, PY, PYL, RHO, THETA,
+    apoly, aw, eq, eqrow, fit_size, mbox, pill, sch, strip,
 )
 
-PX, PW = 34, 872                      # panel x-extent, shared by every figure
-MUTED = "#6b6b66"
-DIM = "#eeeeea"
+DEG = "°"
+PI = "π"
+HINT = 1.06     # cairo rounds every glyph advance UP to a whole pixel at these sizes, so
+                # a 120-character line renders ~5% wider than the AFM table says. Without
+                # this allowance M4's source line ran 17px past the panel border and M1's
+                # ran into it -- fit_size() trusts the table.
 
 
-# --- primitives copied from analysis/arch_figs_predictor.py -----------------------
+def eqline(x, y, s, size=15, weight="normal"):
+    """One equation line that cannot run past the panel, hinting included."""
+    return eq(x, y, s, fit_size(s, size, (PIX - 8 - x) / HINT, floor=11.5,
+                                weight=weight), weight)
+
+
+def eqcols(y, cols, size=17, gap=44, x0=None):
+    """eqrow() with the same allowance."""
+    x0 = PX + 26 if x0 is None else x0
+    return eqrow(y, cols, size, x0=x0, x1=x0 + (PIX - 8 - x0) / HINT, gap=gap)
+_TALL = set("bdfhklt") | set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+
+def _nd(s):
+    """The house dash. Every label in this file is written with ASCII `--`; it is set as
+    an en dash exactly once, here, so no call site can forget."""
+    return s.replace(" -- ", f"  {NDASH}  ")
+
+
+def _hat_dy(ch, size):
+    """How far over the baseline a drawn circumflex goes. arch_figs_causal.hatrun() sizes
+    the offset for an x-height letter (z); over an ASCENDER it lands ON the stem, which is
+    what b-hat used to look like here."""
+    return round((1.02 if ch in _TALL else 0.66) * size, 1)
+
+
+def hrun(x, y, main, size=17, fill=INK, weight="normal"):
+    """`main` with a drawn circumflex over its first glyph, start-anchored at x.
+    Returns (svg, advance) so a caller can chain runs on one baseline."""
+    s = txt(x, y, main, size, anchor="start", fill=fill, weight=weight)
+    w0 = text_width(main[0], size, weight)
+    s += caret(round(x + w0 / 2, 1), round(y - _hat_dy(main[0], size), 1),
+               w=max(7.0, 0.5 * size), h=max(4.0, 0.32 * size), color=fill)
+    return s, text_width(main, size, weight)
+
+
+def hpill(cx, cy, main, key, rx=34, ry=19, fill=None, size=16):
+    """pill() with the hat placed by hrun()."""
+    c, f = ACCENT[key], (fill or ACCENT_FILL[key])
+    w = text_width(main, size)
+    rx = max(rx, w / 2 + 12)
+    s = (f'<rect x="{round(cx - rx, 1)}" y="{cy - ry}" width="{round(2 * rx, 1)}" '
+         f'height="{2 * ry}" rx="{ry}" fill="{f}" stroke="{c}" stroke-width="1.8"/>\n')
+    return s + hrun(round(cx - w / 2, 1), cy + 6, main, size)[0]
+
+
+# --- the module panel -------------------------------------------------------------
 def panel(x, y, w, h, key, title):
-    """Accent-bordered module panel with a title rule. Explicit geometry so each figure
-    can size its own flow area."""
+    """Accent-bordered module panel with a title rule. Explicit geometry, because these
+    four panels are four different heights; everything else matches arch_figs_causal."""
     c, f = ACCENT[key], ACCENT_FILL[key]
     s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="10" fill="{f}" '
-         f'fill-opacity="0.45" stroke="{c}" stroke-width="2.4"/>\n')
-    s += txt(x + 20, y + 32, title, 18, anchor="start", fill=c, weight="bold")
+         f'fill-opacity="0.45" stroke="{c}" stroke-width="2.2"/>\n')
+    title = _nd(title)
+    s += txt(x + 20, y + 32, title, fit_size(title, 18, w - 44, floor=14),
+             anchor="start", fill=c, weight="bold")
     s += (f'<path d="M{x + 18},{y + 44} L{x + w - 18},{y + 44}" stroke="{c}" '
           f'stroke-width="1.2" stroke-opacity="0.5"/>\n')
-    return s
-
-
-def blockdiag(x, y, n=6, cell=17, key="green"):
-    """Inset: an n x n grid with 2x2 blocks filled on the diagonal -- what R(.) is."""
-    c = ACCENT[key]
-    s = ""
-    for i in range(n):
-        for j in range(n):
-            on = (i // 2) == (j // 2)
-            s += (f'<rect x="{x + j * cell}" y="{y + i * cell}" width="{cell}" '
-                  f'height="{cell}" fill="{ACCENT_FILL[key] if on else WHITE}" '
-                  f'stroke="{c if on else "#cfcfca"}" stroke-width="{1.4 if on else 0.8}"/>\n')
     return s
 
 
@@ -70,15 +119,36 @@ def emit(name, body, out, w, h):
     return name
 
 
+# --- the two connector routes this file needs -------------------------------------
+# base()'s wires form a closed loop, but both measurement hooks attach OUTSIDE it -- at
+# the encoder and at the observation -- so each reaches its anchor along empty corridors
+# and crosses nothing at all.  The caption sits beside the vertical run, in the empty band
+# under o_{t+1} and above the title, so it is owned by the wire and touches nothing.
+def wire_to_enc(key, label):
+    """Into the right encoder's flat bottom edge, via x=880 and the empty band y=676."""
+    s = apoly([(880, PYL), (880, 676), (850, 676), (850, 648)], key, dash="6,4")
+    return s + txt(866, 806, label, 15.5, anchor="end", fill=ACCENT[key])
+
+
+def wire_to_obs(key, label, bottom=False):
+    """Into o_{t+1}: its right edge (x=846), or its flat bottom (y=776)."""
+    pts = ([(880, PYL), (880, 800), (812, 800), (812, 782)] if bottom else
+           [(880, PYL), (880, 742), (852, 742)])
+    s = apoly(pts, key, dash="6,4")
+    return s + txt(866, 838 if bottom else 806, label, 15.5, anchor="end",
+                   fill=ACCENT[key])
+
+
 # --- local primitives for the measurement panels ----------------------------------
 def frame(x, y, w, h, key, title, cite=""):
     """A sub-panel inside a module panel: used by M2 for the side-by-side criteria."""
     c = ACCENT[key]
     s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{WHITE}" '
-         f'stroke="{c}" stroke-width="2.2"/>\n')
+         f'stroke="{c}" stroke-width="2"/>\n')
     s += txt(x + w / 2, y + 30, title, 18, fill=c, weight="bold")
     if cite:
-        s += txt(x + w / 2, y + 50, cite, 11.5, fill=MUTED, style="italic")
+        s += txt(x + w / 2, y + 50, cite, fit_size(cite, 11.5, w - 24, floor=9.5),
+                 fill=MUTED, style="italic")
     return s
 
 
@@ -91,10 +161,10 @@ def cells(x, y, cw, ch, labels, key, filled, scored):
         cx = x + k * (cw + 4)
         hot, sc = k in filled, k in scored
         s += (f'<rect x="{cx}" y="{y}" width="{cw}" height="{ch}" rx="4" '
-              f'fill="{c if hot else WHITE}" fill-opacity="{0.85 if hot else 1}" '
-              f'stroke="{c if sc else "#b9b9b4"}" stroke-width="{2.2 if sc else 1.1}" '
-              f'stroke-opacity="{1 if sc else 0.55}"/>\n')
-        s += txt(cx + cw / 2, y + ch / 2 + 5, lab, 12.5,
+              f'fill="{c if hot else WHITE}" fill-opacity="{0.9 if hot else 1}" '
+              f'stroke="{c if sc else DIM}" stroke-width="{2.0 if sc else 1.1}" '
+              f'stroke-opacity="{1 if sc else 0.7}"/>\n')
+        s += txt(cx + cw / 2, y + ch / 2 + 5, lab, fit_size(lab, 12.5, cw - 8, floor=10),
                  fill=WHITE if hot else (INK if sc else MUTED))
     return s
 
@@ -103,7 +173,7 @@ def bracket(x1, x2, y, key, label="", tick=8):
     """A downward bracket under a span of cells, with a label beneath it."""
     c = ACCENT[key]
     s = (f'<path d="M{x1},{y - tick} L{x1},{y} L{x2},{y} L{x2},{y - tick}" '
-         f'stroke="{c}" stroke-width="1.8" fill="none"/>\n')
+         f'stroke="{c}" stroke-width="1.6" fill="none" stroke-linejoin="round"/>\n')
     if label:
         s += txt((x1 + x2) / 2, y + 18, label, 14, fill=c)
     return s
@@ -118,10 +188,10 @@ def bits(x, y, n, size, gap, pattern, key, live):
         on, rd = pattern[k], k in live
         s += (f'<rect x="{cx}" y="{y}" width="{size}" height="{size}" rx="3" '
               f'fill="{c if on else WHITE}" fill-opacity="{0.9 if on else 1}" '
-              f'stroke="{c}" stroke-width="{2.0 if rd else 1.0}" '
-              f'stroke-opacity="{1 if rd else 0.3}"/>\n')
+              f'stroke="{c}" stroke-width="{1.8 if rd else 1.0}" '
+              f'stroke-opacity="{1 if rd else 0.32}"/>\n')
         s += txt(cx + size / 2, y + size / 2 + 5, "1" if on else "0", 12,
-                 fill=WHITE if on else (INK if rd else "#bcbcb7"))
+                 fill=WHITE if on else (INK if rd else DIM))
     return s
 
 
@@ -129,147 +199,147 @@ def ladder_cell(x, y, w, h, key, title, note, hi, lo):
     """One cell of the M3 2x2: what it is, and what a high / low result would mean."""
     c = ACCENT[key]
     s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="10" '
-         f'fill="{ACCENT_FILL[key]}" stroke="{c}" stroke-width="2.6"/>\n')
-    s += txt(x + w / 2, y + 30, title, 18, fill=c, weight="bold")
-    s += txt(x + w / 2, y + 50, note, 12, fill=MUTED)
-    s += (f'<rect x="{x + 16}" y="{y + 60}" width="{w - 32}" height="64" rx="5" '
-          f'fill="{WHITE}" stroke="{c}" stroke-width="1.4" stroke-opacity="0.7"/>\n')
-    s += txt(x + 28, y + 84, hi, 12.5, anchor="start")
-    s += txt(x + 28, y + 108, lo, 12.5, anchor="start")
+         f'fill="{ACCENT_FILL[key]}" stroke="{c}" stroke-width="2.2"/>\n')
+    s += txt(x + w / 2, y + 30, title, fit_size(title, 18, w - 30, floor=15),
+             fill=c, weight="bold")
+    note = _nd(note)
+    s += txt(x + w / 2, y + 50, note, fit_size(note, 12, w - 24, floor=10), fill=MUTED)
+    s += (f'<rect x="{x + 16}" y="{y + 62}" width="{w - 32}" height="62" rx="6" '
+          f'fill="{WHITE}" stroke="{c}" stroke-width="1.3" stroke-opacity="0.7"/>\n')
+    for i, ln in enumerate((_nd(hi), _nd(lo))):
+        s += txt(x + 28, y + 85 + i * 23, ln,
+                 fit_size(ln, 12.5, w - 56, floor=10.5), anchor="start")
     return s
 
 
 def bucket(x, y, w, h, key, name, lines):
     """One counting bucket of M4: a name and what a large count would imply."""
     c = ACCENT[key]
-    s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="7" '
-         f'fill="{ACCENT_FILL[key]}" stroke="{c}" stroke-width="2.2"/>\n')
-    s += txt(x + w / 2, y + 26, name, 16, fill=c, weight="bold")
+    s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" '
+         f'fill="{ACCENT_FILL[key]}" stroke="{c}" stroke-width="2"/>\n')
+    s += txt(x + w / 2, y + 26, name, fit_size(name, 16, w - 20, floor=13),
+             fill=c, weight="bold")
     s += (f'<path d="M{x + 14},{y + 36} L{x + w - 14},{y + 36}" stroke="{c}" '
           f'stroke-width="1.1" stroke-opacity="0.5"/>\n')
     for i, ln in enumerate(lines):
-        s += txt(x + w / 2, y + 58 + i * 19, ln, 12, fill=INK)
+        s += txt(x + w / 2, y + 58 + i * 19, ln,
+                 fit_size(ln, 12, w - 16, floor=10), fill=INK)
     return s
 
 
 # ------------------------------------------------------------------ M1: the probe
 def m1_probe():
     """Is the block pose in the frozen code at all? Ridge probe + two matched controls."""
-    K, C = "blue", "slate"
+    K, N = "blue", "slate"
     b = base("(M1) probe -- is the block pose linearly decodable from the frozen code?")
-    # into the right encoder's FLAT BOTTOM edge; x=880 and y=676 are empty corridors
-    b += apoly([(880, 898), (880, 676), (850, 676), (850, 648)], K, w=2.0, dash="6,4")
-    b += txt(760, 700, "frozen -- the probe reads it, no gradient", 14, anchor="end",
-             fill=ACCENT[K])
+    b += wire_to_enc(K, f"frozen {NDASH} the probe reads it, no gradient")
+    b = sch(b)
 
-    PY, PH = 898, 460
+    PH = 480
     s = panel(PX, PY, PW, PH, K, "module:  a ridge probe on the frozen code, with two "
               "matched controls")
-    # -- the probe itself: one ridge, two heads
-    s += circle(99, 1010, 24, sub("z", "t", 11), fill=ACCENT_FILL[K], size=15)
-    s += mbox(166, 958, 180, 104, "ridge  W", K, size=19, sub_="closed form, alpha by CV")
-    s += aw(123, 1010, 162, 1010, K)
-    # head 1: position
-    s += pill(424, 980, "( x , y )", K, rx=56)
-    s += aw(346, 980, 364, 980, K)
-    s += mbox(540, 958, 168, 44, "median position error", K, size=13)
-    s += aw(480, 980, 536, 980, K)
-    s += txt(724, 986, "reported, not gating", 12, anchor="start", fill=MUTED)
-    # head 2: orientation -- this is the head the falsifier is written against
-    s += pill(424, 1040, "( cos t , sin t )", K, rx=66)
-    s += aw(346, 1040, 354, 1040, K)
-    s += mbox(540, 1018, 168, 44, "median angular error", K, size=13)
-    s += aw(490, 1040, 536, 1040, K)
-    s += pill(806, 1040, "&gt; 20 deg  =  FAIL", "crit", rx=80, fill=WHITE)
-    s += aw(708, 1040, 722, 1040, "crit")
-    # -- control 1: the same pipeline on permuted targets
-    for yc, head, note, res in ((1114, "control 1  --  shuffled labels",
+    # -- the probe itself: one ridge, two heads on two row baselines
+    R1, R2 = 932, 992
+    s += circle(96, 962, 24, sub("z", "t", 11), fill=ACCENT_FILL[K], size=15)
+    s += mbox(150, 910, 152, 104, "ridge  W", K, size=19, sub_="closed form, alpha by CV")
+    s += aw(120, 962, 146, 962, K)
+    for y, head, metric in ((R1, "( x , y )", "median position error"),
+                            (R2, f"( cos {THETA} , sin {THETA} )", "median angular error")):
+        s += pill(396, y, head, K, rx=72)
+        s += aw(302, y, 320, y, K)
+        s += mbox(500, y - 22, 176, 44, metric, K, size=13)
+        s += aw(468, y, 496, y, K)
+    # the orientation head is the one the falsifier is written against
+    s += txt(692, R1 + 6, "reported, not gating", 12.5, anchor="start", fill=MUTED)
+    s += pill(792, R2, f"&gt; 20{DEG}  =  FAIL", "crit", rx=86, fill=WHITE)
+    s += aw(676, R2, 702, R2, "crit")
+    # -- the two matched controls, on the same x grid, in the neutral hue
+    for yc, head, note, res in ((1082, "control 1  --  shuffled labels",
                                  "targets PERMUTED", "chance floor"),
-                                (1192, "control 2  --  block from agent",
+                                (1166, "control 2  --  block from agent",
                                  "input = proprio only", "leak floor")):
-        s += txt(166, yc - 32, head, 13, anchor="start", fill=ACCENT[C], weight="bold")
-        s += circle(99, yc, 24, sub("z" if res == "chance floor" else "p", "t", 11),
-                    fill=DIM, size=15)
-        s += mbox(166, yc - 22, 180, 44, "ridge  W", C, size=16, sub_=note)
-        s += aw(123, yc, 162, yc, C, w=1.6)
-        s += pill(424, yc, "bhat", C, rx=40, fill=WHITE)
-        s += aw(346, yc, 380, yc, C, w=1.6)
-        s += mbox(540, yc - 22, 168, 44, "median angular error", C, size=13)
-        s += aw(464, yc, 536, yc, C, w=1.6)
-        s += pill(806, yc, res, C, rx=80, fill=WHITE)
-        s += aw(708, yc, 722, yc, C, w=1.6)
+        s += txt(150, yc - 34, head.replace(" -- ", f"  {NDASH}  "), 13, anchor="start",
+                 fill=ACCENT[N], weight="bold")
+        s += circle(96, yc, 24, sub("z" if res == "chance floor" else "p", "t", 11),
+                    fill=ACCENT_FILL[N], size=15)
+        s += mbox(150, yc - 22, 152, 44, "ridge  W", N, size=16, sub_=note)
+        s += aw(120, yc, 146, yc, N, w=1.5)
+        s += hpill(396, yc, "b", N, rx=52, fill=WHITE)
+        s += aw(302, yc, 340, yc, N, w=1.5)
+        s += mbox(500, yc - 22, 176, 44, "median angular error", N, size=13)
+        s += aw(448, yc, 496, yc, N, w=1.5)
+        s += pill(792, yc, res, N, rx=86, fill=WHITE)
+        s += aw(676, yc, 702, yc, N, w=1.5)
     # -- equations
-    s += eq(PX + 26, 1250, "bhat  =  W z_t ,     W  =  argmin " + nrm("W Z - B"), 17)
-    s += eq(PX + 396, 1250, "+  lambda " + nrm("W"), 17)
-    s += eq(PX + 556, 1250, "B  =  [ x , y , cos t , sin t ]", 17)
-    s += eq(PX + 26, 1278, "B comes from states.pth -- MEASUREMENT ONLY, never in a "
-            "training loss. The encoder is frozen: the probe takes no gradient.", 15)
-    s += strip(PX + 26, 1294, [
-        ("falsifier", "&gt; 20 deg median error", True),
+    lhs, adv = hrun(PX + 26, 1222, "b", 17)
+    s += lhs
+    s += eqcols(1222, [
+        ["  =  W z", sub("", "t"), " ,     W  =  argmin  ", BAR,
+         f"W Z {MINUS} B", BAR, sup("", "2", 11), f"  +  {LAMB} ", BAR, "W", BAR,
+         sup("", "2", 11)],
+        [f"B  =  [ x , y , cos {THETA} , sin {THETA} ]"]], 17, x0=PX + 26 + adv)
+    s += eqline(PX + 26, 1248, "B comes from states.pth " + NDASH + " MEASUREMENT ONLY, "
+               "never in a training loss. The encoder is frozen: the probe takes no "
+               "gradient.", 15)
+    s += strip(PX + 26, 1264, [
+        ("falsifier", f"&gt; 20{DEG} median error", True),
         ("probe", "ridge, closed form", False),
         ("control 1", "labels shuffled", False),
         ("control 2", "block from agent only", False)], K, cw=198)
-    return b + s
+    return b + s, PY + PH + 28
 
 
 # ---------------------------------------------------------------- M2: the metric
 def m2_metric():
     """The success criterion as measured today, next to the repaired one."""
-    K, L, R = "slate", "crit", "green"
+    K, L, R = "slate", "crit", "blue"
     b = base("(M2) the success metric -- what it scores now, and what it should score")
-    b += apoly([(880, 898), (880, 742), (852, 742)], L, w=2.0, dash="6,4")
-    b += txt(760, 700, "success is scored on the STATE behind this frame", 14,
-             anchor="end", fill=ACCENT[L])
+    b += wire_to_obs(L, "success is scored on the STATE behind this frame")
+    b = sch(b)
 
-    PY, PH = 898, 488
-    s = panel(PX, PY, PW, PH, K, "module:  the criterion, side by side -- same episode, "
+    PH = 496
+    s = panel(PX, PY, PW, PH, K, "module:  the criterion, side by side  --  same episode, "
               "two verdicts")
     LX, RX, FW = 52, 478, 408
-    s += frame(LX, 950, FW, 298, L, "CURRENT", "env/pusht/pusht_wrapper.py:62")
-    s += frame(RX, 950, FW, 298, R, "REPAIRED", "block only, terminal")
+    s += frame(LX, 900, FW, 302, L, "CURRENT", "env/pusht/pusht_wrapper.py:62")
+    s += frame(RX, 900, FW, 302, R, "REPAIRED", "block only, terminal")
 
-    labels = ["agent x", "agent y", "T x", "T y", "T theta"]
-    # -- LEFT: the agent half is scored, and the OR is latched
-    s += cells(LX + 16, 1010, 72, 40, labels, L, filled=(0, 1), scored=(0, 1, 2, 3))
-    s += bracket(LX + 16, LX + 16 + 4 * 76 - 4, 1058, L, "goal[0:4]  -  cur[0:4]")
-    s += mbox(LX + 16, 1088, 184, 40, "pos_diff  &lt;  20", L, size=15)
-    s += mbox(LX + 208, 1088, 184, 40, "angle_diff  &lt;  pi/9", L, size=15)
-    s += pill(LX + 204, 1158, "success at step t", L, rx=80, fill=WHITE)
-    s += aw(LX + 108, 1128, LX + 162, 1142, L)
-    s += aw(LX + 300, 1128, LX + 246, 1142, L)
-    s += aw(LX + 204, 1177, LX + 204, 1190, L)
-    s += bits(LX + 22, 1194, 10, 22, 3, [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], L,
-              live=tuple(range(10)))
-    s += aw(LX + 273, 1205, LX + 300, 1205, L)
-    s += pill(LX + 352, 1205, "OR  =  1", L, rx=48, fill=ACCENT_FILL[L])
-    s += txt(LX + 204, 1236, "latched OR over 10 checkpoints  --  planning/mpc.py:110",
-             11.5, fill=MUTED, style="italic")
-    # -- RIGHT: block only, and only the terminal checkpoint is read
-    s += cells(RX + 16, 1010, 72, 40, labels, R, filled=(), scored=(2, 3, 4))
-    s += bracket(RX + 16 + 2 * 76, RX + 16 + 5 * 76 - 4, 1058, R,
-                 "goal[2:5]  -  cur[2:5]")
-    s += mbox(RX + 16, 1088, 184, 40, "block dist  &lt;  20", R, size=15)
-    s += mbox(RX + 208, 1088, 184, 40, "angle_diff  &lt;  pi/9", R, size=15)
-    s += pill(RX + 204, 1158, "success at step t", R, rx=80, fill=WHITE)
-    s += aw(RX + 108, 1128, RX + 162, 1142, R)
-    s += aw(RX + 300, 1128, RX + 246, 1142, R)
-    s += aw(RX + 204, 1177, RX + 204, 1190, R)
-    s += bits(RX + 22, 1194, 10, 22, 3, [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], R, live=(9,))
-    s += aw(RX + 273, 1205, RX + 300, 1205, R)
-    s += pill(RX + 352, 1205, "last  =  0", R, rx=48, fill=ACCENT_FILL[R])
-    s += txt(RX + 204, 1236, "the terminal checkpoint only  --  no latch", 11.5,
-             fill=MUTED, style="italic")
+    labels = ["agent x", "agent y", "T x", "T y", f"T {THETA}"]
+    for X, key, filled, scored, span, tag, tests, pat, live, res, cite in (
+        (LX, L, (0, 1), (0, 1, 2, 3), (0, 4), f"goal[0:4]  {MINUS}  cur[0:4]",
+         ("pos_diff  &lt;  20", f"angle_diff  &lt;  {PI}/9"),
+         [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], tuple(range(10)), "OR  =  1",
+         "latched OR over 10 checkpoints  --  planning/mpc.py:110"),
+        (RX, R, (), (2, 3, 4), (2, 5), f"goal[2:5]  {MINUS}  cur[2:5]",
+         ("block dist  &lt;  20", f"angle_diff  &lt;  {PI}/9"),
+         [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], (9,), "last  =  0",
+         "the terminal checkpoint only  --  no latch")):
+        s += cells(X + 16, 964, 72, 40, labels, key, filled=filled, scored=scored)
+        s += bracket(X + 16 + span[0] * 76, X + 16 + span[1] * 76 - 4, 1012, key, tag)
+        s += mbox(X + 16, 1044, 184, 40, tests[0], key, size=15)
+        s += mbox(X + 208, 1044, 184, 40, tests[1], key, size=15)
+        s += pill(X + 204, 1114, "success at step t", key, rx=82, fill=WHITE)
+        s += aw(X + 108, 1084, X + 162, 1091, key)
+        s += aw(X + 300, 1084, X + 246, 1091, key)
+        s += aw(X + 204, 1133, X + 204, 1144, key)
+        s += bits(X + 22, 1148, 10, 22, 3, pat, key, live=live)
+        s += aw(X + 273, 1159, X + 296, 1159, key)
+        s += pill(X + 346, 1159, res, key, rx=46, fill=ACCENT_FILL[key])
+        s += txt(X + 204, 1190, cite.replace(" -- ", f"  {NDASH}  "), 11.5, fill=MUTED,
+                 style="italic")
     # -- equations
-    s += eq(PX + 26, 1282, "current:     success  =  OR over 10 checkpoints "
-            "[  || goal[0:4] - cur[0:4] ||  &lt;  20   AND   |dtheta|  &lt;  pi/9  ]", 15)
-    s += eq(PX + 26, 1308, "repaired:   success  =  at t = T only "
-            "[  || goal[2:4] - cur[2:4] ||  &lt;  20   AND   |dtheta|  &lt;  pi/9  ]", 15)
-    s += strip(PX + 26, 1322, [
+    s += eqline(PX + 26, 1240, "current:     success  =  OR over 10 checkpoints  "
+               f"[  {BAR}goal[0:4] {MINUS} cur[0:4]{BAR} &lt; 20   AND   "
+               f"|d{THETA}| &lt; {PI}/9  ]", 15)
+    s += eqline(PX + 26, 1266, "repaired:   success  =  at t = T only          "
+               f"[  {BAR}goal[2:4] {MINUS} cur[2:4]{BAR} &lt; 20   AND   "
+               f"|d{THETA}| &lt; {PI}/9  ]", 15)
+    s += strip(PX + 26, 1280, [
         ("scored dims now", "0:4 = agent + block", True),
         ("checkpoints", "latched OR over 10", True),
         ("repaired", "2:5, terminal only", False),
         ("cost", "re-score saved logs", False)], K, cw=198)
-    return b + s
+    return b + s, PY + PH + 28
 
 
 # --------------------------------------------------------------- M3: oracle ladder
@@ -277,55 +347,63 @@ def m3_oracle():
     """The 2x2 that localises the fault: oracle objective x oracle dynamics."""
     K = "green"
     b = base("(M3) the oracle ladder -- which half of the planner is the fault?")
-    b += apoly([(880, 898), (880, 120), (300, 120), (300, 190)], K, w=2.0, dash="6,4")
-    b += txt(310, 106, "dynamics:  this predictor  OR  the simulator", 16,
+    # the dynamics half enters the predictor's flat top, along two empty corridors
+    b += apoly([(880, PYL), (880, 120), (300, 120), (300, 190)], K, dash="6,4")
+    b += txt(310, 106, "dynamics:  this predictor  OR  the simulator", 15.5,
              anchor="start", fill=ACCENT[K])
-    b += txt(438, 382, "objective: latent MSE  OR  true task distance", 15,
-             anchor="start", fill=ACCENT[K])
-    # leader from that label up into the gutter between the two code stacks, where the
-    # MSE comparison lives.  x=766 is the empty gutter (stacks end 723, start 801).
-    b += apoly([(712, 378), (766, 378), (766, 344)], K, w=1.6, dash="5,3")
+    # the objective half enters the MSE gutter between the two code stacks (x 723..801)
+    # from below.  The label is right-anchored at 700 so it stops clear of the leader.
+    b += apoly([(712, 378), (766, 378), (766, 350)], K, w=1.6, dash="5,3")
+    b += txt(700, 383, "objective:  latent MSE  OR  true task distance", 15.5,
+             anchor="end", fill=ACCENT[K])
+    b = sch(b)
 
-    PY, PH = 898, 488
-    s = panel(PX, PY, PW, PH, K, "module:  swap one half at a time; each cell says what "
+    PH = 496
+    s = panel(PX, PY, PW, PH, K, "module:  swap one half at a time;  each cell says what "
               "its result would mean")
-    X0, CW, GX = 150, 356, 26
-    Y0, CH, GY = 1016, 136, 22
+    X0, CW, GX = 152, 350, 24
+    Y0, CH, GY = 966, 136, 22
     cx = (X0 + CW / 2, X0 + CW + GX + CW / 2)
     cy = (Y0 + CH / 2, Y0 + CH + GY + CH / 2)
     # -- headers
-    s += txt(cx[0], 982, "OBJECTIVE  =  learned", 16, weight="bold")
-    s += txt(cx[0], 1002, "latent distance to z_goal", 12.5, fill=MUTED)
-    s += txt(cx[1], 982, "OBJECTIVE  =  oracle", 16, weight="bold")
-    s += txt(cx[1], 1002, "true task distance, block pose", 12.5, fill=MUTED)
-    for j, (lab, note) in enumerate((("=  learned", "predictor rolls z"),
-                                     ("=  oracle", "simulator rolls state"))):
-        s += txt(142, cy[j] - 22, "DYNAMICS", 13, anchor="end", weight="bold")
-        s += txt(142, cy[j] - 2, lab, 13, anchor="end")
-        s += txt(142, cy[j] + 18, note, 11, anchor="end", fill=MUTED)
-    # -- the four cells
+    for j, (lab, note) in enumerate((("OBJECTIVE  =  learned", "latent distance to z_goal"),
+                                     ("OBJECTIVE  =  oracle",
+                                      "true task distance, block pose"))):
+        s += txt(cx[j], 932, lab, 16, weight="bold")
+        s += txt(cx[j], 952, note, 12.5, fill=MUTED)
+    # the note wraps onto two short lines: "simulator rolls state" set on one line
+    # right-anchored here reached x=35, seven px from the panel border
+    for j, (lab, n1, n2) in enumerate((("=  learned", "predictor", "rolls z"),
+                                       ("=  oracle", "simulator", "rolls state"))):
+        s += txt(X0 - 12, cy[j] - 32, "DYNAMICS", 13, anchor="end", weight="bold")
+        s += txt(X0 - 12, cy[j] - 12, lab, 13, anchor="end")
+        s += txt(X0 - 12, cy[j] + 8, n1, 11, anchor="end", fill=MUTED)
+        s += txt(X0 - 12, cy[j] + 24, n2, 11, anchor="end", fill=MUTED)
+    # -- the four cells.  Four identities, four hues: the measured failure, the two
+    # single-swap probes, and the ceiling.  (They used to be crimson / green / amber /
+    # teal, and the last two read as the same colour.)
     s += ladder_cell(X0, Y0, CW, CH, "crit", "AS SHIPPED",
                      "CEM 0.357 ltv / 0.080 linvar  --  measured",
-                     "high  =>  nothing below this is needed",
-                     "low   =>  the fault is in one of the other 3")
-    s += ladder_cell(X0 + CW + GX, Y0, CW, CH, "blue", "PROBE THE ROLLOUT",
+                     f"high  {IMPLIES}  nothing below this is needed",
+                     f"low   {IMPLIES}  the fault is in one of the other 3")
+    s += ladder_cell(X0 + CW + GX, Y0, CW, CH, "magenta", "PROBE THE ROLLOUT",
                      "the M1 probe reads pose out of the model's roll",
-                     "high  =>  the roll carries it; the METRIC fails",
-                     "low   =>  the rollout loses the block entirely")
+                     f"high  {IMPLIES}  the roll carries it; the METRIC fails",
+                     f"low   {IMPLIES}  the rollout loses the block entirely")
     s += ladder_cell(X0, Y0 + CH + GY, CW, CH, "amber", "SIM ROLLS, LATENT SCORES",
                      "the simulator rolls the true state, then encode",
-                     "high  =>  the metric is fine; DYNAMICS at fault",
-                     "low   =>  it cannot rank even PERFECT rollouts")
-    s += ladder_cell(X0 + CW + GX, Y0 + CH + GY, CW, CH, "green", "THE CEILING",
+                     f"high  {IMPLIES}  the metric is fine; DYNAMICS at fault",
+                     f"low   {IMPLIES}  it cannot rank even PERFECT rollouts")
+    s += ladder_cell(X0 + CW + GX, Y0 + CH + GY, CW, CH, "blue", "THE CEILING",
                      "simulator + true task distance -- no learning",
-                     "high  =>  the ceiling; the rest is model error",
-                     "low   =>  H=5 / 300 / 30 -- the PLANNER fails")
-    s += strip(PX + 26, 1326, [
+                     f"high  {IMPLIES}  the ceiling; the rest is model error",
+                     f"low   {IMPLIES}  H=5 / 300 / 30 -- the PLANNER fails")
+    s += strip(PX + 26, 1276, [
         ("privileged state", "eval only, never in loss", True),
         ("oracle dynamics", "the simulator itself", False),
         ("oracle objective", "block pose distance", False),
-        ("measured today", "rho(latent, true) 0.398", True)], K, cw=198)
-    return b + s
+        ("measured today", f"{RHO}(latent, true) 0.398", True)], K, cw=198)
+    return b + s, PY + PH + 28
 
 
 # ------------------------------------------------------------- M4: error analysis
@@ -333,51 +411,64 @@ def m4_erroranalysis():
     """Four mutually exclusive buckets, reached by three ordered tests."""
     K = "amber"
     b = base("(M4) error analysis -- every failed episode into exactly one of four buckets")
-    b += apoly([(880, 898), (880, 800), (812, 800), (812, 782)], K, w=2.0, dash="6,4")
-    b += txt(770, 830, "the state trace of every FAILED episode", 14, anchor="end",
-             fill=ACCENT[K])
+    b += wire_to_obs(K, "the state trace of every FAILED episode", bottom=True)
+    b = sch(b)
 
-    PY, PH = 898, 460
+    PH = 464
     s = panel(PX, PY, PW, PH, K, "module:  three ordered tests, four exhaustive buckets "
-              "-- no new training")
-    QY, QH = 980, 60                     # question row
-    BY, BH = 1096, 118                   # bucket row
-    QX = (164, 352, 540)
-    QW, BW = 164, 164
-    s += mbox(40, QY + 4, 108, 52, "failed", K, size=15, sub_="episodes")
-    s += aw(148, 1010, 160, 1010, K)
+              " --  no new training")
+    QY, QH, QW = 930, 60, 148            # question row
+    BY, BH, BW = 1046, 118, 172          # bucket row
+    CXS = (254, 438, 622, 806)           # one x grid for both rows
+    LAST = CXS[3]                        # the corridor the final "yes" runs down
+    s += mbox(48, QY + 4, 112, 52, "failed", K, size=15, sub_="episodes")
+    s += aw(160, 960, 174, 960, K)
     tests = (("contact?", "n_contacts &gt; 0"),
              ("toward the goal?", "d(block, goal) falls"),
-             ("position solved?", "|| dxy ||  &lt;  20 px"))
+             (f"position solved?", f"{BAR}dxy{BAR} &lt; 20 px"))
     for i, (lab, note) in enumerate(tests):
-        s += mbox(QX[i], QY, QW, QH, lab, K, size=16, sub_=note)
+        s += mbox(CXS[i] - QW / 2, QY, QW, QH, lab, K, size=16, sub_=note)
         if i < 2:                        # continue right on the row baseline
-            s += aw(QX[i] + QW, 1010, QX[i + 1] - 4, 1010, K)
-            s += txt(QX[i] + QW + 13, 998, "yes", 12, fill=MUTED)
+            s += aw(CXS[i] + QW / 2, 960, CXS[i + 1] - QW / 2 - 4, 960, K)
+            s += txt((CXS[i] + CXS[i + 1]) / 2, 950, "yes", 12, fill=MUTED)
         # the "no" answer drops on its own vertical corridor, straight down
-        s += aw(QX[i] + QW / 2, QY + QH, QX[i] + QW / 2, BY - 4, "crit")
-        s += txt(QX[i] + QW / 2 + 8, 1070, "no", 13, anchor="start", fill=ACCENT["crit"])
+        s += aw(CXS[i], QY + QH, CXS[i], BY - 4, "crit")
+        s += txt(CXS[i] + 8, 1022, "no", 13, anchor="start", fill=ACCENT["crit"])
     # the last "yes" turns down into the fourth bucket, on its own corridor
-    s += apoly([(QX[2] + QW, 1010), (816, 1010), (816, BY - 4)], K)
-    s += txt(766, 1000, "yes", 12, fill=MUTED)
-    s += bucket(QX[0], BY, BW, BH, "crit", "NO CONTACT",
-                ["the plan never reaches", "the object at all --", "a REACHING failure"])
-    s += bucket(QX[1], BY, BW, BH, "magenta", "WRONG WAY",
-                ["contact, then motion", "AWAY from the goal --", "the sign is wrong"])
-    s += bucket(QX[2], BY, BW, BH, "blue", "SHORTFALL",
-                ["right direction, ran", "out of horizon --", "H = 5 is what binds"])
-    s += bucket(730, BY, 172, BH, "green", "ANGLE ONLY",
-                ["position solved, theta", "not -- the angular term", "is what fails"])
-    s += eq(PX + 26, 1252, "the three tests are ordered and mutually exclusive, so the "
-            "four counts partition the failures and sum to the failure rate.", 15)
-    s += eq(PX + 26, 1278, "n_contacts (env/pusht/pusht_env.py:578) and the per-step block "
-            "pose are already computed; pusht_wrapper.rollout:103-118 drops both.", 14)
-    s += strip(PX + 26, 1294, [
+    s += apoly([(CXS[2] + QW / 2, 960), (LAST, 960), (LAST, BY - 4)], K)
+    s += txt((CXS[2] + QW / 2 + LAST) / 2, 950, "yes", 12, fill=MUTED)
+    # four buckets, four hues -- crimson through to the near-miss
+    s += bucket(CXS[0] - BW / 2, BY, BW, BH, "crit", "NO CONTACT",
+                ["the plan never reaches", f"the object at all {NDASH}",
+                 "a REACHING failure"])
+    s += bucket(CXS[1] - BW / 2, BY, BW, BH, "magenta", "WRONG WAY",
+                ["contact, then motion", f"AWAY from the goal {NDASH}",
+                 "the sign is wrong"])
+    s += bucket(CXS[2] - BW / 2, BY, BW, BH, "slate", "SHORTFALL",
+                ["right direction, ran", f"out of horizon {NDASH}",
+                 "H = 5 is what binds"])
+    s += bucket(CXS[3] - BW / 2, BY, BW, BH, "blue", "ANGLE ONLY",
+                [f"position solved, {THETA}", f"not {NDASH} the angular term",
+                 "is what fails"])
+    s += eqline(PX + 26, 1206, "the three tests are ordered and mutually exclusive, so the "
+               "four counts partition the failures and sum to the failure rate.", 15)
+    s += eqline(PX + 26, 1232, "n_contacts (env/pusht/pusht_env.py:578) and the per-step "
+               "block pose are already computed; pusht_wrapper.rollout:103-118 drops "
+               "both.", 14)
+    s += strip(PX + 26, 1248, [
         ("bucket source", "n_contacts, pusht_env", True),
         ("never logged", "wrapper.rollout:103", True),
         ("also dropped", "coverage, reward, pose", True),
         ("cost", "widen the return tuple", False)], K, cw=198)
-    return b + s
+    return b + s, PY + PH + 28
+
+
+FIGURES = (
+    ("arch-m1-probe.svg", m1_probe),
+    ("arch-m2-metric.svg", m2_metric),
+    ("arch-m3-oracle.svg", m3_oracle),
+    ("arch-m4-erroranalysis.svg", m4_erroranalysis),
+)
 
 
 def main():
@@ -387,13 +478,9 @@ def main():
         "diary/assets/2026-09-03"))
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
-    for name, body, wh in (
-        ("arch-m1-probe.svg", m1_probe(), (940, 1386)),
-        ("arch-m2-metric.svg", m2_metric(), (940, 1414)),
-        ("arch-m3-oracle.svg", m3_oracle(), (940, 1414)),
-        ("arch-m4-erroranalysis.svg", m4_erroranalysis(), (940, 1386)),
-    ):
-        print("  wrote", a.out + "/" + emit(name, body, a.out, *wh))
+    for name, fn in FIGURES:
+        body, h = fn()
+        print("  wrote", a.out + "/" + emit(name, body, a.out, 940, h))
 
 
 if __name__ == "__main__":

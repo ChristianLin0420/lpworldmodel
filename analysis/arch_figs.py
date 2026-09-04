@@ -1,168 +1,424 @@
-"""SVG architecture diagrams for every PiWM variant, in the LpWM paper's own style.
+"""SVG architecture diagrams for every PiWM variant, and the primitives the other
+architecture modules are built from.
 
-The reference is assets/fig1_lpworldmodel.png (a): observation circles in peach, a
-teal rounded-top encoder, pale-yellow (Rep)ReLU links, a lavender D-shaped predictor,
-navy/white square stacks for the sparse code, a white regulariser box, and a dark-red
-MSE link, all in serif type. Every diagram below reuses that base unchanged and adds
-ONLY the proposed part, drawn in its family accent colour with a dashed callout, so a
-reader can see at a glance what each variant changes relative to LpWM.
+Eight modules import from here (arch_figs_causal, arch_figs_predictor, arch_figs_defects,
+round5_figs_repr / _planners / _measure / _obj, causal_figs), so the whole 27-figure SVG set
+re-colours and re-types from this one file.
 
-Family accents follow analysis/panels.py so the diagrams and the result plots agree:
-blue = sparse codes, magenta = gating, green = union/consensus, and two further
-accents for the LeVJEPA combinations.
+STYLE.  Everything comes from analysis/style.py, which is the single design system for the
+project (derived from figures/motivation_teaser.svg).  Sans-serif throughout; hues assigned by
+IDENTITY, never by rank; pale fills with a matching saturated border; recessive furniture.
+
+The base schematic's identities, fixed for all 27 figures:
+
+    observation / action circles   pale slate    a value the world hands us
+    encoder  f                     pale green    the system
+    link (ReLU / identity)         pale amber    the piece a variant most often swaps
+    predictor  g                   pale purple   the contrasting half of the model
+    code stack (active unit)       dark slate    data, never a hue -- the PATTERN is the signal
+    MSE                            crimson       the loss
+    wires, neutral borders         slate
+
+Variant accents keep their historical keys so the dependent modules import unchanged:
+blue -> green, magenta -> purple, green -> teal, amber, crit -> crimson, slate.
 
 Usage:  python analysis/arch_figs.py --out diary/assets/2026-09-02
 """
 import argparse
 import os
+import re
+import sys
 
-# --- palette lifted from the reference figure -------------------------------------
-PEACH = "#FAD9BE"
-TEAL = "#A9D5D1"
-YELLOW = "#F9F2C4"
-LAVENDER = "#E2CDE9"
-NAVY = "#40566E"
-WHITE = "#FFFFFF"
-INK = "#1A1A1A"
-ARROW = "#4A6274"
-BOXLINE = "#55707F"
-MSERED = "#9E3B3B"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from analysis.style import (  # noqa: E402,F401
+    C, FILL, EDGE, FONT_SVG, GRID, PAPER,     # EDGE/GRID/PAPER are re-exported for the
+    INK as _S_INK, MUTED as _S_MUTED,         # dependent modules to import from here
+)
 
+# --- palette, re-expressed on the design system -----------------------------------
+# old name          ->  new value                       role
+# ACCENT["blue"]    ->  C["green"]    #18483C           sparse-code family
+# ACCENT["magenta"] ->  C["purple"]   #543C84           gating family
+# ACCENT["green"]   ->  C["teal"]     #2E7D6F           union / consensus family
+# ACCENT["amber"]   ->  C["amber"]    #C88A1E           the intervention under test
+# ACCENT["crit"]    ->  C["crimson"]  #A83024           failure / retraction
+# ACCENT["slate"]   ->  C["slate"]    #546060           neutral
 ACCENT = {
-    "blue": "#0055af",
-    "magenta": "#912d59",
-    "green": "#006e00",
-    "amber": "#9a6700",
-    "crit": "#b3261e",
-    "slate": "#3d3d3a",
+    "blue": C["green"], "magenta": C["purple"], "green": C["teal"],
+    "amber": C["amber"], "crit": C["crimson"], "slate": C["slate"],
 }
 ACCENT_FILL = {
-    "blue": "#d8e8fb",
-    "magenta": "#f5dde7",
-    "green": "#d9efd7",
-    "amber": "#faeecb",
-    "crit": "#f7dcd9",
-    "slate": "#e6e6e3",
+    "blue": FILL["green"], "magenta": FILL["purple"], "green": FILL["teal"],
+    "amber": FILL["amber"], "crit": FILL["crimson"], "slate": FILL["slate"],
 }
 
-FONT = "Georgia, 'Times New Roman', serif"
+INK = _S_INK             # #14231C  body text          (was #1A1A1A)
+MUTED = _S_MUTED         # #6C786C  secondary text     (new export)
+WHITE = PAPER            # #FFFFFF
+DIM = "#AAB4AF"          # a disabled / not-scored mark
+
+ARROW = C["slate"]       # #546060  wires              (was #4A6274)
+BOXLINE = C["slate"]     # #546060  neutral border     (was #55707F)
+MSERED = C["crimson"]    # #A83024  the MSE link       (was #9E3B3B)
+
+# the base schematic's block fills
+PEACH = FILL["slate"]    # #DFE4E4  observations/actions  (was #FAD9BE peach)
+TEAL = FILL["green"]     # #D8F0E4  encoder               (was #A9D5D1)
+YELLOW = FILL["amber"]   # #F7E8C8  link                  (was #F9F2C4)
+LAVENDER = FILL["purple"]  # #DED6EA  predictor           (was #E2CDE9)
+NAVY = C["slate"]        # #546060  an active code unit   (was #40566E)
+
+FONT = FONT_SVG          # Nimbus Sans / Liberation Sans  (was Georgia, serif)
+
+# stroke weights -- one scale for the whole set, thinner than the old hand-set values
+SW_BLOCK = 1.8           # encoder / predictor outline   (was 2.4)
+SW_BOX = 1.3             # a plain box                   (was 1.4)
+SW_CELL = 1.1            # one code unit                 (was 1.3)
+SW_WIRE = 1.8            # a wire                        (was 2.0)
+RX = 6                   # box corner radius             (was 4)
+
+# A pale fill implies its own saturated border: every shape drawn with a system fill gets the
+# matching hue without the call site having to name it.
+_BORDER_FOR = {v: C[k] for k, v in FILL.items()}
+_BORDER_FOR.update({
+    WHITE: BOXLINE, "#ffffff": BOXLINE, "white": BOXLINE,
+    "#eeeeea": C["slate"], "#f2f2ef": C["slate"],
+    "#cfe3e1": C["green"], "#EAF6F0": C["green"], "#eaf6f0": C["green"],
+})
+
+# Legacy ad-hoc greys in the dependent modules, folded into the system's two greys.
+_INK_FOR = {
+    "#1a1a1a": INK, "#1A1A1A": INK, "#000": INK, "#000000": INK,
+    "#444": MUTED, "#444444": MUTED, "#555": MUTED, "#555555": MUTED,
+    "#666": MUTED, "#666666": MUTED, "#6b6b66": MUTED, "#77776f": MUTED,
+    "#9a9a94": MUTED, "#bcbcb7": DIM, "#b9b9b4": DIM, "#cfcfca": GRID,
+}
+
+
+def _c(color, table):
+    return table.get(color, table.get(str(color).lower(), color))
+
+
+def _ink(color):
+    """Fold a legacy grey onto the system's INK / MUTED / DIM."""
+    return _c(color, _INK_FOR)
+
+
+def _border(fill, given=None):
+    """The border a fill implies, unless the call site named one."""
+    if given is not None:
+        return _ink(given)
+    return _c(fill, _BORDER_FOR) if fill in _BORDER_FOR or str(fill).lower() in _BORDER_FOR \
+        else BOXLINE
+
+
+# --- arrowheads -------------------------------------------------------------------
+# One marker per colour, so an accent-coloured wire never ends in a slate head (it did:
+# aw()/apoly() coloured the LINE but every arrowhead came out ARROW-grey).  Registered
+# lazily while the body is built; _hdr() runs last (emit takes an already-built body) and
+# emits whatever was used.
+_MARKERS = {}
+
+
+def _marker(color, kind="end"):
+    key = (str(color), kind)
+    if key not in _MARKERS:
+        _MARKERS[key] = f"{'s' if kind == 'start' else 'e'}{len(_MARKERS)}"
+    return _MARKERS[key]
+
+
+def _marker_defs():
+    out = []
+    for (color, kind), mid in _MARKERS.items():
+        if kind == "start":
+            out.append(
+                f'  <marker id="{mid}" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" '
+                f'refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto">'
+                f'<path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="{color}"/></marker>\n')
+        else:
+            out.append(
+                f'  <marker id="{mid}" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" '
+                f'refX="9.1" refY="5" markerWidth="11" markerHeight="11" '
+                f'orient="auto-start-reverse">'
+                f'<path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="{color}"/></marker>\n')
+    return "".join(out)
 
 
 def _hdr(w, h):
+    # "a" / "ar" / "am" are kept because call sites write marker-end="url(#ar)" by hand.
+    for col, kind in ((ARROW, "end"), (MSERED, "end"), (MSERED, "start")):
+        _marker(col, kind)
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" '
         f'viewBox="0 0 {w} {h}" font-family="{FONT}">\n'
         '<defs>\n'
-        f'  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" '
-        f'markerHeight="7" orient="auto-start-reverse">'
-        f'<path d="M0,0 L10,5 L0,10 z" fill="{ARROW}"/></marker>\n'
-        f'  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" '
-        f'markerHeight="6" orient="auto-start-reverse">'
-        f'<path d="M0,0 L10,5 L0,10 z" fill="{MSERED}"/></marker>\n'
-        f'  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" '
-        f'markerHeight="6" orient="auto">'
-        f'<path d="M10,0 L0,5 L10,10 z" fill="{MSERED}"/></marker>\n'
+        f'  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" '
+        f'refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">'
+        f'<path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="{ARROW}"/></marker>\n'
+        f'  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" '
+        f'refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">'
+        f'<path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="{MSERED}"/></marker>\n'
+        f'  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" '
+        f'refY="5" markerWidth="11" markerHeight="11" orient="auto">'
+        f'<path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="{MSERED}"/></marker>\n'
+        + _marker_defs() +
         '</defs>\n'
-        f'<rect width="{w}" height="{h}" fill="white"/>\n'
+        f'<rect width="{w}" height="{h}" fill="{PAPER}"/>\n'
     )
 
 
+# --- text metrics -----------------------------------------------------------------
+# cairosvg re-anchors EVERY <tspan> when text-anchor="middle", so a mixed-weight or
+# mixed-colour run drawn that way piles up on itself (the old title did not, only because
+# it was a single run).  The cure is to place such runs with text-anchor="start" at a
+# computed x, which needs advance widths.  Nimbus Sans and Liberation Sans -- the two faces
+# actually installed -- both carry Helvetica/Arial metrics, so the AFM table below is exact.
+_W_REG = {" ": 278, "!": 278, '"': 355, "#": 556, "$": 556, "%": 889, "&": 667, "'": 191,
+          "(": 333, ")": 333, "*": 389, "+": 584, ",": 278, "-": 333, ".": 278, "/": 278,
+          ":": 278, ";": 278, "<": 584, "=": 584, ">": 584, "?": 556, "@": 1015,
+          "[": 278, "\\": 278, "]": 278, "^": 469, "_": 556, "`": 333,
+          "{": 334, "|": 260, "}": 334, "~": 584}
+_W_BOLD = {" ": 278, "!": 333, '"': 474, "#": 556, "$": 556, "%": 889, "&": 722, "'": 238,
+           "(": 333, ")": 333, "*": 389, "+": 584, ",": 278, "-": 333, ".": 278, "/": 278,
+           ":": 333, ";": 333, "<": 584, "=": 584, ">": 584, "?": 611, "@": 975,
+           "[": 333, "\\": 278, "]": 333, "^": 584, "_": 556, "`": 333,
+           "{": 389, "|": 280, "}": 389, "~": 584}
+for _c_ in "0123456789":
+    _W_REG[_c_] = _W_BOLD[_c_] = 556
+_W_REG.update(dict(zip("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    (667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833,
+     722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611))))
+_W_REG.update(dict(zip("abcdefghijklmnopqrstuvwxyz",
+    (556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833,
+     556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500))))
+_W_BOLD.update(dict(zip("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    (722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833,
+     722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611))))
+_W_BOLD.update(dict(zip("abcdefghijklmnopqrstuvwxyz",
+    (556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889,
+     611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500))))
+for _t_ in (_W_REG, _W_BOLD):
+    _t_.update({"\u00a0": 278, "\u2013": 556, "\u2014": 1000, "\u2192": 838,
+                "\u21d2": 838, "\u00d7": 584, "\u2264": 549, "\u2265": 549,
+                "\u00b7": 278, "\u2212": 584, "\u2026": 1000})
+
+_ENT = {"&#160;": "\u00a0", "&#8211;": "\u2013", "&#8212;": "\u2014", "&#8594;": "\u2192",
+        "&#8658;": "\u21d2", "&#215;": "\u00d7", "&#8804;": "\u2264", "&#8805;": "\u2265",
+        "&#183;": "\u00b7", "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"'}
+_TSPAN = re.compile(r"<tspan([^>]*)>|</tspan>")
+
+
+def text_width(s, size=19, weight="normal"):
+    """Advance width, in user units, of an SVG text run -- tspans (their own font-size and
+    weight), numeric entities and all.  Exact for the installed Helvetica-metric faces."""
+    stack = [(float(size), weight == "bold")]
+    w, i = 0.0, 0
+    for m in _TSPAN.finditer(s):
+        w += _run_w(s[i:m.start()], *stack[-1])
+        i = m.end()
+        if m.group(0).startswith("</"):
+            if len(stack) > 1:
+                stack.pop()
+        else:
+            attrs = m.group(1) or ""
+            fs = re.search(r"font-size=[\"']([\d.]+)", attrs)
+            fw = re.search(r"font-weight=[\"'](\w+)", attrs)
+            stack.append((float(fs.group(1)) if fs else stack[-1][0],
+                          (fw.group(1) == "bold") if fw else stack[-1][1]))
+    w += _run_w(s[i:], *stack[-1])
+    return w
+
+
+def _run_w(text, size, bold):
+    for k, v in _ENT.items():
+        text = text.replace(k, v)
+    text = re.sub(r"&#\d+;", "\u25a1", text)
+    t = _W_BOLD if bold else _W_REG
+    return sum(t.get(ch, 556) for ch in text) * size / 1000.0
+
+
+# --- text -------------------------------------------------------------------------
 def txt(x, y, s, size=19, anchor="middle", fill=INK, style="", weight="normal"):
+    a = f' font-style="{style}"' if style and style != "normal" else ""
+    b = f' font-weight="{weight}"' if weight and weight != "normal" else ""
+    if "<tspan" in s and anchor in ("middle", "end"):
+        # cairosvg anchors only the first chunk, so a label with a subscript came out
+        # off-centre by half its subscript.  Place it ourselves.
+        w = text_width(s, size, weight)
+        x, anchor = round(x - (w / 2 if anchor == "middle" else w), 1), "start"
     return (f'<text x="{x}" y="{y}" font-size="{size}" text-anchor="{anchor}" '
-            f'fill="{fill}" font-style="{style}" font-weight="{weight}">{s}</text>\n')
+            f'fill="{_ink(fill)}"{a}{b}>{s}</text>\n')
 
 
-def arrow(x1, y1, x2, y2, color=ARROW, marker="a", w=2.0, dash=""):
+def sub(main, s, size=13):
+    """Subscript via dy (baseline-shift is ignored by cairosvg/rsvg), with the baseline
+    PUT BACK by an empty tspan.  Without the reset, anything concatenated after a sub()
+    was drawn 6px low -- e.g. `sub("z","t") + " (P tokens)"`.  An empty tspan carries no
+    advance width, so centred text stays centred."""
+    d = round(0.42 * size, 1)
+    return (f'{main}<tspan font-size="{size}" dy="{d}">{s}</tspan>'
+            f'<tspan dy="{-d}"></tspan>')
+
+
+def sup(main, s, size=12):
+    """Superscript, same construction as sub().  The old version padded with a trailing
+    space to restore the baseline, which pushed every centred label half a space left."""
+    d = round(0.55 * size, 1)
+    return (f'{main}<tspan font-size="{size}" dy="{-d}">{s}</tspan>'
+            f'<tspan dy="{d}"></tspan>')
+
+
+def nrm(inner, size=12):
+    """|| inner ||^2.  ASCII bars: U+2016 is absent from Nimbus Sans and Liberation Sans
+    alike (verified by rendering), exactly as it was from the old serif face."""
+    return "|| " + inner + " ||" + f'<tspan font-size="{size}" dy="{-round(0.55*size,1)}">2' \
+                                   f'</tspan><tspan dy="{round(0.55*size,1)}"></tspan>'
+
+
+def caret(cx, cy, w=9, h=5.5, color=None):
+    """A drawn circumflex.  Neither the old serif face nor the new sans stack has the
+    precomposed z-hat (U+1E91) or the combining accent (U+0302) -- re-verified by rendering
+    against Nimbus Sans / Liberation Sans.  So the hat stays geometry, not text."""
+    c = _ink(color or INK)
+    return (f'<path d="M{cx-w/2},{cy} L{cx},{cy-h} L{cx+w/2},{cy}" stroke="{c}" '
+            f'stroke-width="1.6" fill="none" stroke-linecap="round" '
+            f'stroke-linejoin="round"/>\n')
+
+
+# --- wires ------------------------------------------------------------------------
+def arrow(x1, y1, x2, y2, color=ARROW, marker="a", w=SW_WIRE, dash=""):
     d = f' stroke-dasharray="{dash}"' if dash else ""
+    m = _marker(color) if marker == "a" else marker
     return (f'<path d="M{x1},{y1} L{x2},{y2}" stroke="{color}" stroke-width="{w}" '
-            f'fill="none" marker-end="url(#{marker})"{d}/>\n')
+            f'fill="none" stroke-linecap="round" marker-end="url(#{m})"{d}/>\n')
 
 
-def poly(pts, color=ARROW, marker="a", w=2.0, dash=""):
+def poly(pts, color=ARROW, marker="a", w=SW_WIRE, dash=""):
     d = f' stroke-dasharray="{dash}"' if dash else ""
     p = " L".join(f"{x},{y}" for x, y in pts)
+    m = _marker(color) if marker == "a" else marker
     return (f'<path d="M{p}" stroke="{color}" stroke-width="{w}" fill="none" '
-            f'marker-end="url(#{marker})"{d}/>\n')
+            f'stroke-linejoin="round" stroke-linecap="round" '
+            f'marker-end="url(#{m})"{d}/>\n')
 
 
-def circle(cx, cy, r, label, fill=PEACH, size=20):
-    return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{fill}" stroke="{INK}" '
-            f'stroke-width="1.6"/>\n') + txt(cx, cy + 7, label, size)
+# --- shapes -----------------------------------------------------------------------
+def circle(cx, cy, r, label, fill=PEACH, size=19, stroke=None):
+    return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{fill}" '
+            f'stroke="{_border(fill, stroke)}" stroke-width="1.5"/>\n'
+            ) + txt(cx, cy + size * 0.35, label, size)
 
 
-def domeup(x, y, w, h, label, fill=TEAL, sub=""):
-    """Encoder shape: flat bottom, rounded top (as in the reference)."""
+def domeup(x, y, w, h, label, fill=TEAL, sub="", stroke=None):
+    """Encoder shape: flat bottom, rounded top."""
     r = w / 2
     s = (f'<path d="M{x},{y+h} L{x},{y+r} A{r},{r} 0 0 1 {x+w},{y+r} L{x+w},{y+h} Z" '
-         f'fill="{fill}" stroke="{INK}" stroke-width="2.4"/>\n')
-    s += txt(x + w / 2, y + h - 26, label, 21)
+         f'fill="{fill}" stroke="{_border(fill, stroke)}" stroke-width="{SW_BLOCK}" '
+         f'stroke-linejoin="round"/>\n')
+    s += txt(x + w / 2, y + h - (30 if sub else 24), label, 21)
     if sub:
-        s += txt(x + w / 2, y + h - 6, sub, 13, fill="#444")
+        s += txt(x + w / 2, y + h - 10, sub, 13, fill=MUTED)
     return s
 
 
-def domeright(x, y, w, h, label, fill=LAVENDER, sub=""):
-    """Predictor shape: flat left, rounded right (as in the reference)."""
+def domeright(x, y, w, h, label, fill=LAVENDER, sub="", stroke=None):
+    """Predictor shape: flat left, rounded right."""
     r = h / 2
     s = (f'<path d="M{x},{y} L{x+w-r},{y} A{r},{r} 0 0 1 {x+w-r},{y+h} L{x},{y+h} Z" '
-         f'fill="{fill}" stroke="{INK}" stroke-width="2.4"/>\n')
-    s += txt(x + w / 2 - 6, y + h / 2 + 1, label, 21)
+         f'fill="{fill}" stroke="{_border(fill, stroke)}" stroke-width="{SW_BLOCK}" '
+         f'stroke-linejoin="round"/>\n')
+    cx = x + (w - r) / 2 + 8
+    s += txt(cx, y + h / 2 + (0 if sub else 7), label, 21)
     if sub:
-        s += txt(x + w / 2 - 6, y + h / 2 + 22, sub, 13, fill="#444")
+        s += txt(cx, y + h / 2 + 22, sub, 13, fill=MUTED)
     return s
 
 
-def box(x, y, w, h, label, fill=YELLOW, size=17, rx=4, stroke=INK, sw=1.4, sub=""):
+def box(x, y, w, h, label, fill=YELLOW, size=17, rx=RX, stroke=None, sw=SW_BOX, sub="",
+        dash=""):
+    d = f' stroke-dasharray="{dash}"' if dash else ""
     s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill}" '
-         f'stroke="{stroke}" stroke-width="{sw}"/>\n')
-    s += txt(x + w / 2, y + h / 2 + (0 if not sub else -5) + 6, label, size)
+         f'stroke="{_border(fill, stroke)}" stroke-width="{sw}"{d}/>\n')
+    s += txt(x + w / 2, y + h / 2 + (6 if not sub else 1), label, size)
     if sub:
-        s += txt(x + w / 2, y + h / 2 + 18, sub, 12, fill="#444")
+        s += txt(x + w / 2, y + h / 2 + 19, sub, 12.5, fill=MUTED)
     return s
 
 
 def stack(x, y, pattern, cell=22, gap=3, label=None, lab_dx=0, accent=None, hat=False):
-    """Vertical code stack. pattern: iterable of 0/1 (1 = active, navy)."""
+    """Vertical code stack. pattern: iterable of 0/1 (1 = active) / 2 (accent)."""
     s = ""
     for i, v in enumerate(pattern):
-        f = NAVY if v else WHITE
-        if accent and v == 2:
-            f = accent
+        f = accent if (v == 2 and accent) else (NAVY if v else WHITE)
         s += (f'<rect x="{x}" y="{y + i*(cell+gap)}" width="{cell}" height="{cell}" '
-              f'fill="{f if v != 2 else accent}" stroke="{INK}" stroke-width="1.3"/>\n')
+              f'fill="{f}" stroke="{NAVY}" stroke-width="{SW_CELL}"/>\n')
     if label:
-        s += txt(x + cell / 2 + lab_dx, y - 12, label, 19)
+        lx = x + cell / 2 + lab_dx
+        s += txt(lx, y - 13, label, 19)
         if hat:
-            s += caret(x + cell / 2 + lab_dx - 7, y - 30)
+            # over the leading glyph of the label, one hair above its x-height
+            s += caret(lx - 10, y - 26)
     return s
 
 
 def callout(x, y, w, h, text_lines, key="blue", size=13):
-    """Dashed accent box naming the proposed change."""
+    """The reference's callout: pale fill, matching saturated text, thin matching border.
+    Dashed, because in these diagrams a callout always names a PROPOSED change."""
     c, f = ACCENT[key], ACCENT_FILL[key]
-    s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="7" fill="{f}" '
-         f'fill-opacity="0.75" stroke="{c}" stroke-width="2" stroke-dasharray="7,4"/>\n')
+    s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{f}" '
+         f'stroke="{c}" stroke-width="1.4" stroke-dasharray="6,4"/>\n')
     for i, ln in enumerate(text_lines):
         weight = "bold" if i == 0 else "normal"
-        s += txt(x + w / 2, y + 21 + i * (size + 5), ln, size, fill=c, weight=weight)
+        s += txt(x + w / 2, y + 22 + i * (size + 6), ln.replace(" -- ", " &#8211; "),
+                 size, fill=c, weight=weight)
     return s
 
 
-def sub(main, s, size=13):
-    """Subscript via dy, not baseline-shift: the latter is ignored by cairosvg/rsvg."""
-    return f"{main}<tspan font-size=\"{size}\" dy=\"6\">{s}</tspan>"
+# --- the title line ---------------------------------------------------------------
+_STATUS_HUE = {
+    "COLLAPSED": "crimson", "DEAD": "crimson", "REFUTED": "crimson",
+    "NEGATIVE": "crimson", "FAILED": "crimson", "BROKEN": "crimson",
+    "NULL": "slate", "UNTESTED": "slate", "PLANNED": "slate", "OPEN": "slate",
+    "WORKS": "green", "POSITIVE": "green", "CONFIRMED": "green",
+}
+NBSP, ENDASH = "&#160;", "&#8211;"
 
 
-def caret(cx, cy, w=9, h=6):
-    """A drawn circumflex. The serif face used for these figures has neither the
-    precomposed z-hat (U+1E91) nor the combining accent (U+0302), and no arrow
-    glyphs either -- verified by rendering. So the hat is geometry, not text."""
-    return (f'<path d="M{cx-w/2},{cy} L{cx},{cy-h} L{cx+w/2},{cy}" stroke="{INK}" '
-            f'stroke-width="1.7" fill="none" stroke-linecap="round"/>\n')
+def title_line(x, y, title, size=20):
+    """`(TAG) name -- clause  [STATUS]` as one centred line: the tag in the system green,
+    the variant name bold, the clause muted, the status in its identity hue.  One <text>
+    element, so the mixed run self-centres and nothing can drift apart."""
+    body, status = title, ""
+    m = re.search(r"\s*\[([A-Z][A-Z ]*)\]\s*$", title)
+    if m:
+        status, body = m.group(1).strip(), title[:m.start()]
+    tag = ""
+    m = re.match(r"\s*(\([^)]*\))\s*(.*)$", body, re.S)
+    if m:
+        tag, body = m.group(1), m.group(2)
+    body = " ".join(body.split())
+    name, clause = body, ""
+    for seprt in (" -- ", " – "):
+        if seprt in body:
+            name, clause = body.split(seprt, 1)
+            break
+    runs = []
+    if tag:
+        runs.append((tag + NBSP, C["green"], "bold"))
+    runs.append((name.strip(), INK, "bold"))
+    if clause:
+        runs.append((NBSP + ENDASH + NBSP + clause.strip(), MUTED, "normal"))
+    if status:
+        runs.append((NBSP * 3 + "[" + status + "]", C[_STATUS_HUE.get(status, "slate")],
+                     "bold"))
+    inner = "".join(f'<tspan fill="{c}" font-weight="{w}">{t}</tspan>' for t, c, w in runs)
+    wide = sum(text_width(t, size, w) for t, _, w in runs)
+    return (f'<text x="{round(x - wide / 2, 1)}" y="{y}" font-size="{size}" '
+            f'text-anchor="start">{inner}</text>\n')
 
 
 # --- the shared LpWM base ----------------------------------------------------------
-SP_L = [0, 1, 1, 0, 1, 0]      # z_t          (sparse: white = 0, navy = active)
+SP_L = [0, 1, 1, 0, 1, 0]      # z_t          (sparse: white = 0, filled = active)
 SP_P = [0, 1, 0, 1, 1, 0]      # z_hat_{t+1}
 SP_R = [0, 1, 1, 1, 0, 0]      # z_{t+1}
 
@@ -170,7 +426,11 @@ SP_R = [0, 1, 1, 1, 0, 0]      # z_{t+1}
 def base(title, reg_label="RDMReg", reg_sub="", link_label="ReLU",
          zl=SP_L, zp=SP_P, zr=SP_R, pred_label="Pred", pred_sub="g",
          enc_sub="", skip=()):
-    """The LpWM schematic every variant starts from. `skip` omits pieces a variant redraws."""
+    """The LpWM schematic every variant starts from. `skip` omits pieces a variant redraws.
+
+    Every anchor point is fixed -- the dependent modules hook connectors onto x=880,
+    (766, 315..362), (300, 190), (362, 430), (850, 648), (852, 742), (812, 782) -- so this
+    function may be re-COLOURED but not re-LAID-OUT."""
     s = ""
     # observations
     if "obs" not in skip:
@@ -186,8 +446,8 @@ def base(title, reg_label="RDMReg", reg_sub="", link_label="ReLU",
         s += arrow(812, 520, 812, 470)
     # links
     if "link" not in skip:
-        s += box(78, 420, 84, 44, link_label)
-        s += box(770, 420, 84, 44, link_label)
+        s += box(78, 420, 84, 44, link_label, size=16)
+        s += box(770, 420, 84, 44, link_label, size=16)
         s += arrow(120, 420, 120, 352)
         s += arrow(812, 420, 812, 352)
     # code stacks
@@ -195,25 +455,24 @@ def base(title, reg_label="RDMReg", reg_sub="", link_label="ReLU",
         s += stack(109, 190, zl, label=sub("z", "t", 13))
         s += stack(801, 190, zr, label=sub("z", "t+1", 13))
         s += stack(701, 190, zp, label=sub("z", "t+1", 13), hat=True)
-        # MSE double arrow
-        s += (f'<path d="M737,262 L795,262" stroke="{MSERED}" stroke-width="2" '
-              f'marker-end="url(#ar)" marker-start="url(#am)"/>\n')
-        s += txt(766, 240, "MSE (min)", 16, fill=MSERED)
+        # MSE double arrow, in the 78px gutter between the two right-hand stacks
+        s += (f'<path d="M737,262 L795,262" stroke="{MSERED}" stroke-width="1.8" '
+              f'stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>\n')
+        s += txt(762, 240, "MSE (min)", 14, fill=MSERED)
     # predictor + action
     if "pred" not in skip:
         s += domeright(232, 196, 190, 132, pred_label, sub=pred_sub)
         s += circle(318, 430, 38, sub("a", "t", 13))
         s += arrow(318, 392, 318, 332)
         s += arrow(146, 262, 226, 262)
-        s += txt(186, 248, sub("z", "t", 12), 16)
+        s += txt(186, 248, sub("z", "t", 12), 15, fill=MUTED)
         s += arrow(424, 262, 697, 262)
     # regulariser
     if "reg" not in skip:
-        s += box(430, 556, 160, 52, reg_label, fill=WHITE, stroke=BOXLINE, sw=1.6,
-                 size=17, sub=reg_sub)
+        s += box(430, 556, 160, 52, reg_label, fill=WHITE, sw=1.5, size=17, sub=reg_sub)
         s += poly([(162, 442), (206, 442), (206, 582), (426, 582)])
         s += poly([(770, 442), (726, 442), (726, 582), (594, 582)])
-    s += txt(466, 872, title, 21)
+    s += title_line(470, 872, title)
     return s
 
 
@@ -234,13 +493,15 @@ def build(out):
     # 1. Step 2: k-WTA sparse codes
     b = base("(1) PiWM-sparse -- k-WTA imposed on the code  [REFUTED]",
              link_label="ReLU", skip=("link",))
-    b += box(78, 420, 84, 44, "ReLU") + box(770, 420, 84, 44, "ReLU")
-    b += arrow(120, 420, 120, 352) + arrow(812, 420, 812, 352)
-    b += box(60, 356, 120, 40, "k-WTA", fill=ACCENT_FILL["blue"],
-             stroke=ACCENT["blue"], sw=2.2, size=16)
-    b += box(752, 356, 120, 40, "k-WTA", fill=ACCENT_FILL["blue"],
-             stroke=ACCENT["blue"], sw=2.2, size=16)
-    b += callout(286, 628, 330, 96, [
+    b += box(78, 420, 84, 44, "ReLU", size=16) + box(770, 420, 84, 44, "ReLU", size=16)
+    # the wire enters and leaves the inserted stage, instead of running underneath it
+    b += arrow(120, 420, 120, 402) + arrow(812, 420, 812, 402)
+    b += box(60, 358, 120, 40, "k-WTA", fill=ACCENT_FILL["blue"],
+             stroke=ACCENT["blue"], sw=2.0, size=16, dash="6,4")
+    b += box(752, 358, 120, 40, "k-WTA", fill=ACCENT_FILL["blue"],
+             stroke=ACCENT["blue"], sw=2.0, size=16, dash="6,4")
+    b += arrow(120, 358, 120, 343) + arrow(812, 358, 812, 343)
+    b += callout(268, 626, 366, 100, [
         "Proposed: hard top-k after the link",
         "Realised density = min(k, #positive)/D,",
         "so the arm never ran at its own k:",
@@ -250,13 +511,15 @@ def build(out):
     # 2. Step 3: support gating
     b = base("(2) PiWM-gate -- gate driven by the code's SUPPORT  [NULL]",
              pred_label="Pred", pred_sub="g (LTV)")
-    b += box(150, 352, 150, 40, "1[z &gt; 0]", fill=ACCENT_FILL["magenta"],
-             stroke=ACCENT["magenta"], sw=2.2, size=16)
-    b += poly([(146, 300), (140, 300), (140, 372), (146, 372)],
-              color=ACCENT["magenta"], w=2.0, dash="6,4")
-    b += poly([(300, 372), (392, 372), (392, 332)], color=ACCENT["magenta"],
-              w=2.0, dash="6,4")
-    b += callout(276, 628, 356, 96, [
+    b += box(150, 356, 150, 40, "1[z &gt; 0]", fill=ACCENT_FILL["magenta"],
+             stroke=ACCENT["magenta"], sw=2.0, size=16, dash="6,4")
+    # out of the code stack (x=131), down its own corridor (x=140), into the gate's edge
+    b += poly([(133, 314), (140, 314), (140, 376), (147, 376)],
+              color=ACCENT["magenta"], w=1.8, dash="6,4")
+    # and straight up into the predictor's flat bottom -- x=270 keeps it off the action
+    # wire at x=318, which the old route crossed
+    b += arrow(270, 356, 270, 334, color=ACCENT["magenta"], w=1.8, dash="6,4")
+    b += callout(258, 626, 392, 100, [
         "Proposed: gate on the binary support only",
         "s = 1[z&gt;0] is a deterministic function of z,",
         "so I(s;Y) &lt;= I(z;Y): bounded above by magnitude.",
@@ -269,15 +532,17 @@ def build(out):
     b += domeright(232, 150, 190, 108, "Pred", sub="g, head 1")
     b += (f'<path d="M244,272 L406,272 A54,54 0 0 1 406,380 L244,380 Z" '
           f'fill="{ACCENT_FILL["green"]}" stroke="{ACCENT["green"]}" '
-          f'stroke-width="2.4" stroke-dasharray="7,4"/>\n')
-    b += txt(318, 322, "heads 2 ... J", 19, fill=ACCENT["green"])
+          f'stroke-width="2.0" stroke-dasharray="7,4"/>\n')
+    b += txt(314, 332, "heads 2 ... J", 19, fill=ACCENT["green"])
     b += circle(318, 466, 36, sub("a", "t", 13))
     b += arrow(318, 430, 318, 386)
     b += arrow(146, 204, 226, 204)
-    b += arrow(424, 204, 697, 220)
-    b += box(452, 300, 190, 46, "loss = min_j  L_j",
-             fill=ACCENT_FILL["green"], stroke=ACCENT["green"], sw=2.2, size=17)
-    b += callout(286, 700, 340, 82, [
+    b += arrow(424, 204, 697, 204)
+    b += arrow(462, 326, 494, 326, color=ACCENT["green"], w=1.8)
+    b += box(498, 303, 190, 46, "loss = min_j  L_j",
+             fill=ACCENT_FILL["green"], stroke=ACCENT["green"], sw=2.0, size=17,
+             dash="6,4")
+    b += callout(268, 700, 366, 86, [
         "Proposed: any head may be right (SDR union)",
         "min_j L_j admits z = 0 as a GLOBAL optimum;",
         "a variance floor prevents collapse and the arm",
@@ -290,15 +555,15 @@ def build(out):
 
     # 5. reference frame (pose)
     b = base("(4) PiWM-refframe -- allocentric pose bound to the action")
-    b += circle(318, 566, 34, sub("p", "t", 13),
-                fill=ACCENT_FILL["amber"])
+    # the pose column drops BELOW the regulariser wire (y=582), which the old layout
+    # ran straight through the middle of the p_t circle
+    b += circle(318, 664, 30, sub("p", "t", 13), fill=ACCENT_FILL["amber"])
     b += box(258, 486, 120, 40, "Enc pose", fill=ACCENT_FILL["amber"],
-             stroke=ACCENT["amber"], sw=2.2, size=15)
-    b += arrow(318, 532, 318, 530, color=ACCENT["amber"])
-    b += poly([(318, 532), (318, 528)], color=ACCENT["amber"])
-    b += arrow(318, 486, 318, 470, color=ACCENT["amber"], w=2.2)
-    b += txt(410, 468, "+", 24, fill=ACCENT["amber"], weight="bold")
-    b += callout(556, 640, 350, 96, [
+             stroke=ACCENT["amber"], sw=2.0, size=15, dash="6,4")
+    b += arrow(318, 634, 318, 530, color=ACCENT["amber"], w=1.8)
+    b += arrow(318, 486, 318, 470, color=ACCENT["amber"], w=2.0)
+    b += txt(352, 480, "+", 22, fill=ACCENT["amber"], weight="bold")
+    b += callout(386, 636, 364, 100, [
         "Proposed: bind location to the action embedding",
         "obs['proprio'] was loaded every batch and DROPPED",
         "(adaln path), so the pose encoder got zero gradient.",
@@ -307,22 +572,29 @@ def build(out):
 
     # 6. columns (patch tokens)
     b = base("(5) PiWM-columns -- P=256 patch tokens instead of one CLS",
-             skip=("codes",), enc_sub="feature = patch")
+             skip=("codes", "pred"), enc_sub="feature = patch")
     for k, xoff in enumerate((0, 26, 52)):
         b += stack(95 + xoff, 190 + k * 6, SP_L, cell=18, gap=3)
-    b += txt(148, 170, sub("z", "t", 13) + " (P tokens)", 18)
+    b += txt(148, 168, sub("z", "t", 13) + " (P tokens)", 17)
     for k, xoff in enumerate((0, 26, 52)):
         b += stack(787 + xoff, 190 + k * 6, SP_R, cell=18, gap=3)
-    b += txt(840, 170, sub("z", "t+1", 13), 18)
+    b += txt(822, 168, sub("z", "t+1", 13), 17)
+    # the predicted stack sits 20 further left than the single-token version, so the
+    # 77px gutter that holds the MSE arrow and its label survives
     for k, xoff in enumerate((0, 26, 52)):
-        b += stack(660 + xoff, 190 + k * 6, SP_P, cell=18, gap=3)
-    b += txt(700, 170, sub("z", "t+1", 13), 18) + caret(693, 152)
-    b += (f'<path d="M745,258 L780,258" stroke="{MSERED}" stroke-width="2" '
-          f'marker-end="url(#ar)" marker-start="url(#am)"/>\n')
-    b += txt(762, 238, "MSE (min)", 15, fill=MSERED)
-    b += arrow(160, 262, 226, 262)
-    b += arrow(424, 262, 655, 262)
-    b += callout(286, 700, 340, 82, [
+        b += stack(640 + xoff, 190 + k * 6, SP_P, cell=18, gap=3)
+    b += txt(680, 168, sub("z", "t+1", 13), 17) + caret(670, 155)
+    b += (f'<path d="M727,258 L775,258" stroke="{MSERED}" stroke-width="1.8" '
+          f'stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>\n')
+    b += txt(751, 236, "MSE (min)", 14, fill=MSERED)
+    # the predictor block, redrawn so its wires start and stop clear of the token stacks
+    b += domeright(232, 196, 190, 132, "Pred", sub="g")
+    b += circle(318, 430, 38, sub("a", "t", 13))
+    b += arrow(318, 392, 318, 332)
+    b += arrow(176, 262, 226, 262)
+    b += txt(201, 248, sub("z", "t", 12), 15, fill=MUTED)
+    b += arrow(424, 262, 632, 262)
+    b += callout(268, 700, 366, 86, [
         "Proposed: give the model columns at all",
         "feature=cls gives num_patches = 1, so the predictor",
         "saw ONE token and shared one operator across it.",
@@ -336,11 +608,11 @@ def build(out):
              zl=[1, 1, 1, 1, 1, 1], zp=[1, 1, 1, 1, 1, 1], zr=[1, 1, 1, 1, 1, 1],
              skip=("reg",))
     b += box(418, 552, 184, 60, "SIGReg", fill=ACCENT_FILL["crit"],
-             stroke=ACCENT["crit"], sw=2.4, size=18,
-             sub="Epps-Pulley -> N(0, I)")
+             stroke=ACCENT["crit"], sw=2.0, size=18, dash="6,4",
+             sub="Epps-Pulley &#8594; N(0, I)")
     b += poly([(162, 442), (206, 442), (206, 582), (414, 582)])
     b += poly([(770, 442), (726, 442), (726, 582), (606, 582)])
-    b += callout(276, 646, 356, 96, [
+    b += callout(258, 644, 392, 100, [
         "Proposed: replace the sparse target with N(0, I)",
         "LeJEPA claims the isotropic Gaussian minimises",
         "worst-case probing risk. Here the SAME target under",
@@ -349,12 +621,16 @@ def build(out):
 
     # 8. token dropping
     b = base("(7) PiWM-drop95 -- 95% of patch tokens dropped  [COLLAPSED]",
-             enc_sub="feature = patch")
-    b += box(52, 470, 136, 40, "drop 95%", fill=ACCENT_FILL["amber"],
-             stroke=ACCENT["amber"], sw=2.2, size=16)
-    b += box(744, 470, 136, 40, "drop 95%", fill=ACCENT_FILL["amber"],
-             stroke=ACCENT["amber"], sw=2.2, size=16)
-    b += callout(276, 646, 356, 96, [
+             enc_sub="feature = patch", skip=("enc",))
+    for x in (64, 756):
+        b += domeup(x, 520, 112, 124, "Enc <tspan font-style='italic'>f</tspan>",
+                    sub="feature = patch")
+    for x in (120, 812):
+        # one continuous wire with the inserted stage straddling it
+        b += arrow(x, 520, x, 468)
+        b += box(x - 72, 480, 144, 30, "drop 95%", fill=ACCENT_FILL["amber"],
+                 stroke=ACCENT["amber"], sw=2.0, size=16, dash="6,4")
+    b += callout(258, 644, 392, 100, [
         "Proposed: LeVJEPA's strongest single gain",
         "In a JEPA the encoder output is ALSO the target, so",
         "dropping removes signal from both sides. Paired with",
@@ -370,10 +646,12 @@ def build(out):
                 fill=ACCENT_FILL["green"])
     b += arrow(120, 520, 120, 470)
     b += arrow(812, 520, 812, 470)
-    b += (f'<path d="M176,582 L756,582" stroke="{ACCENT["green"]}" stroke-width="2.4" '
-          f'stroke-dasharray="8,5" fill="none" marker-end="url(#a)"/>\n')
-    b += txt(466, 572, "block-causal attention across frames", 15, fill=ACCENT["green"])
-    b += callout(276, 646, 356, 96, [
+    # under both encoders, in the empty band between them and the observations --
+    # the old straight line at y=582 ran through the RDMReg box and its label
+    b += poly([(150, 650), (150, 676), (782, 676), (782, 652)],
+              color=ACCENT["green"], w=2.0, dash="8,5")
+    b += txt(466, 662, "block-causal attention across frames", 15, fill=ACCENT["green"])
+    b += callout(258, 696, 392, 100, [
         "Proposed: the encoder sees the clip, causally",
         "encode_obs folded t into the batch, so frames were",
         "encoded INDEPENDENTLY -- no temporal structure at all.",
@@ -390,36 +668,38 @@ def _consensus():
     BX, BY, BW, BH = 566, 246, 196, 120        # consensus box
     cy = BY + BH / 2
     for i, y in enumerate(ys):
-        fill = TEAL if i < 2 else "#cfe3e1"
-        s += domeup(70, y, 96, 104, sub("Enc <tspan font-style='italic'>f</tspan>", f"{i+1}", 12), fill=fill)
+        fill = TEAL if i < 2 else "#EAF6F0"
+        s += domeup(70, y, 96, 104,
+                    sub("Enc <tspan font-style='italic'>f</tspan>", f"{i+1}", 12), fill=fill)
         s += domeright(232, y + 12, 150, 80, "Pred", sub=sub("g", f"{i+1}", 11))
         s += arrow(166, y + 52, 226, y + 52)
         s += stack(404, y + 6, [SP_P, SP_L, SP_R][i], cell=16, gap=3)
         s += arrow(384, y + 52, 398, y + 52)
-        s += txt(118, y - 10, f"column {i+1}", 15, fill="#444")
-        # converge into the vote box rather than stopping in mid-air
-        if y + 52 == cy:
-            s += arrow(452, cy, BX - 4, cy)
-        else:
-            s += poly([(452, y + 52), (508, y + 52), (508, cy), (BX - 4, cy)])
-    # drawn ellipsis (the font has no U+22EE)
+        s += txt(118, y - 12, f"column {i+1}", 15, fill=MUTED)
+        # each member gets its OWN corridor and its OWN entry point on the vote box:
+        # the old routing put all three on the shared segment x=508 -> the box.
+        cor, ey = (500, 512, 524)[i], (BY + 30, cy, BY + BH - 30)[i]
+        s += poly([(426, y + 52), (cor, y + 52), (cor, ey), (BX - 6, ey)])
+    # drawn ellipsis (no font here has a reliable U+22EE), with its caption beside it
     for k in range(3):
-        s += f'<circle cx="118" cy="{648 + k*11}" r="2.4" fill="#666"/>\n'
-    s += txt(318, 672, "M independently trained models", 15, fill="#444")
-    s += (f'<rect x="{BX}" y="{BY}" width="{BW}" height="{BH}" rx="10" '
-          f'fill="{ACCENT_FILL["green"]}" stroke="{ACCENT["green"]}" stroke-width="2.6"/>\n')
+        s += f'<circle cx="118" cy="{644 + k*11}" r="2.4" fill="{MUTED}"/>\n'
+    s += txt(150, 672, "M independently trained models", 15, anchor="start", fill=MUTED)
+    s += (f'<rect x="{BX}" y="{BY}" width="{BW}" height="{BH}" rx="9" '
+          f'fill="{ACCENT_FILL["green"]}" stroke="{ACCENT["green"]}" stroke-width="2.0"/>\n')
     s += txt(BX + BW / 2, BY + 34, "CONSENSUS", 19, fill=ACCENT["green"], weight="bold")
     s += txt(BX + BW / 2, BY + 60, "median over", 15, fill=ACCENT["green"])
-    s += txt(BX + BW / 2, BY + 82, "per-member ranks", 15, fill=ACCENT["green"])
-    s += txt(BX + BW / 2, BY + 104, "(at PLAN time)", 13, fill="#555")
-    s += arrow(BX + BW, cy, BX + BW + 52, cy, color=ACCENT["green"], w=2.4)
+    s += txt(BX + BW / 2, BY + 81, "per-member ranks", 15, fill=ACCENT["green"])
+    s += txt(BX + BW / 2, BY + 104, "(at PLAN time)", 13, fill=MUTED)
+    s += arrow(BX + BW, cy, BX + BW + 50, cy, color=ACCENT["green"], w=2.0)
     s += circle(BX + BW + 96, cy, 42, "CEM", fill=PEACH, size=17)
-    s += callout(250, 704, 470, 82, [
+    s += callout(238, 706, 494, 86, [
         "Proposed: vote among columns -- and it WORKS",
         "M=5: delta = +0.228 vs a single model (p = 0.0005), beats its",
         "members' mean 10/10, matches best-of-M, 0/10 catastrophes.",
         "On the OBJECTIVE, not in the loss: min_j L_j is degenerate."], "green")
-    s += txt(490, 818, "(9) PiWM-vote -- plan-time consensus over independently trained columns", 20)
+    s += title_line(490, 824,
+                    "(9) PiWM-vote -- plan-time consensus over independently "
+                    "trained columns")
     return s
 
 

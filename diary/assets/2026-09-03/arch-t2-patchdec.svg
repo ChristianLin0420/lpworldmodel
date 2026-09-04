@@ -1,118 +1,125 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1414" viewBox="0 0 940 1414" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1334" viewBox="0 0 940 1334" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
 <defs>
-  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
-  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
-  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#2E7D6F"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
 </defs>
-<rect width="940" height="1414" fill="white"/>
-<circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
-<circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="812" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t+1</tspan></text>
-<path d="M120,706 L120,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,706 L812,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="120.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
-<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="812.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
-<path d="M120,520 L120,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,520 L812,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="78" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
-<text x="120.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
-<rect x="770" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
-<text x="812.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
-<path d="M120,420 L120,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,420 L812,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="120.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
-<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="812.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
-<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="712.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
-<path d="M700.5,160 L705.0,154 L709.5,160" stroke="#1A1A1A" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-<path d="M737,262 L795,262" stroke="#9E3B3B" stroke-width="2" marker-end="url(#ar)" marker-start="url(#am)"/>
-<text x="766" y="240" font-size="16" text-anchor="middle" fill="#9E3B3B" font-style="" font-weight="normal">MSE (min)</text>
-<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="321.0" y="263.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="321.0" y="284.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
-<circle cx="318" cy="430" r="38" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="318" y="437" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="13" dy="6">t</tspan></text>
-<path d="M318,392 L318,332" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M146,262 L226,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="186" y="248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
-<path d="M424,262 L697,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="430" y="556" width="160" height="52" rx="4" fill="#FFFFFF" stroke="#55707F" stroke-width="1.6"/>
-<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
-<path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(T2) PiWM-patchdec -- 256 located tokens, and something that reads them</text>
-<path d="M880,898 L880,742 L852,742" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
-<text x="858" y="800" font-size="15" text-anchor="end" fill="#0055af" font-style="" font-weight="normal">256 patch tokens  +  a pixel decoder</text>
-<rect x="34" y="898" width="872" height="484" rx="10" fill="#d8e8fb" fill-opacity="0.45" stroke="#0055af" stroke-width="2.4"/>
-<text x="54" y="930" font-size="18" text-anchor="start" fill="#0055af" font-style="" font-weight="bold">module:  the factorial the campaign never opened -- tokens x pixels</text>
-<path d="M52,942 L888,942" stroke="#0055af" stroke-width="1.2" stroke-opacity="0.5"/>
-<text x="290.0" y="968" font-size="16" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">no decoder</text>
-<text x="692.0" y="968" font-size="16" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">+ pixel decoder  (T1)</text>
-<text x="68" y="1038.0" font-size="14" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">cls</text>
-<text x="68" y="1056.0" font-size="12" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">P = 1</text>
-<text x="68" y="1178.0" font-size="14" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">patch</text>
-<text x="68" y="1196.0" font-size="12" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">P = 256</text>
-<rect x="100" y="982" width="380" height="124" rx="9" fill="#e6e6e3" stroke="#3d3d3a" stroke-width="2.6"/>
-<text x="290.0" y="1009" font-size="19" text-anchor="middle" fill="#3d3d3a" font-style="" font-weight="bold">cls  x  no decoder</text>
-<text x="290.0" y="1028" font-size="12.5" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">LpWM-ltv -- 36 of 39 campaign arms</text>
-<rect x="116" y="1038" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#3d3d3a" stroke-width="1.5"/>
-<text x="290.0" y="1061" font-size="14.5" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">CEM 0.347,   rel_mse 0.0092,   rho 0.448</text>
-<rect x="228.0" y="1078" width="124" height="22" rx="11" fill="#3d3d3a"/>
-<text x="290.0" y="1094" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">THE BASELINE</text>
-<rect x="502" y="982" width="380" height="124" rx="9" fill="#f7dcd9" stroke="#b3261e" stroke-width="2.6"/>
-<text x="692.0" y="1009" font-size="19" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">cls  x  decoder</text>
-<text x="692.0" y="1028" font-size="12.5" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">has_decoder: False -- never built</text>
-<rect x="518" y="1038" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#b3261e" stroke-width="1.5"/>
-<text x="692.0" y="1061" font-size="14.5" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">384 numbers must paint 150,528 pixels</text>
-<rect x="630.0" y="1078" width="124" height="22" rx="11" fill="#b3261e"/>
-<text x="692.0" y="1094" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NEVER RUN</text>
-<rect x="100" y="1122" width="380" height="124" rx="9" fill="#faeecb" stroke="#9a6700" stroke-width="2.6"/>
-<text x="290.0" y="1149" font-size="19" text-anchor="middle" fill="#9a6700" font-style="" font-weight="bold">patch  x  no decoder</text>
-<text x="290.0" y="1168" font-size="12.5" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">PiWM-columns  (n = 12)</text>
-<rect x="116" y="1178" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#9a6700" stroke-width="1.5"/>
-<text x="290.0" y="1201" font-size="14.5" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">delta = +0.072,   95% CI [-0.064, +0.207],   p = 0.269</text>
-<rect x="228.0" y="1218" width="124" height="22" rx="11" fill="#9a6700"/>
-<text x="290.0" y="1234" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NULL</text>
-<rect x="502" y="1122" width="380" height="124" rx="9" fill="#d9efd7" stroke="#006e00" stroke-width="2.6"/>
-<text x="692.0" y="1149" font-size="19" text-anchor="middle" fill="#006e00" font-style="" font-weight="bold">patch  x  decoder</text>
-<text x="692.0" y="1168" font-size="12.5" text-anchor="middle" fill="#555555" font-style="" font-weight="normal">T2  PiWM-patchdec  (this round)</text>
-<rect x="518" y="1178" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#006e00" stroke-width="1.5"/>
-<text x="692.0" y="1201" font-size="14.5" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">each token owns one 14 x 14 patch</text>
-<rect x="630.0" y="1218" width="124" height="22" rx="11" fill="#006e00"/>
-<text x="692.0" y="1234" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-style="" font-weight="bold">NEW</text>
-<text x="60" y="1278" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">the whole right column has never existed:</text>
-<text x="354" y="1278" font-size="14" text-anchor="start" fill="#555555" font-style="" font-weight="normal">conf/train_rdmreg.yaml:126  has_decoder: False</text>
-<text x="60" y="1304" font-size="15" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">patch tokens alone gave the encoder more to say and nothing that forced it to say anything -- the decoder is that force</text>
-<rect x="60" y="1318" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="159.0" y="1335" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">patch alone</text>
-<text x="159.0" y="1354" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">+0.072  (null, n=12)</text>
-<rect x="266" y="1318" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="365.0" y="1335" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">tokens the predictor sees</text>
-<text x="365.0" y="1354" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">1  ->  256</text>
-<rect x="472" y="1318" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="571.0" y="1335" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">predictor params</text>
-<text x="571.0" y="1354" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">unchanged (shared op)</text>
-<rect x="678" y="1318" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="777.0" y="1335" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">cells now on record</text>
-<text x="777.0" y="1354" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">3 of 4</text>
+<rect width="940" height="1334" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="136.0" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(T2)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-patchdec</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;256 located tokens, and something that reads them</tspan></text>
+<path d="M880,898 L880,742 L852,742" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)" stroke-dasharray="6,4"/>
+<text x="624.6" y="800" font-size="15" text-anchor="start" fill="#18483C">256 patch tokens  +  a pixel decoder</text>
+<rect x="34" y="898" width="872" height="484" rx="10" fill="#DFE4E4" fill-opacity="0.45" stroke="#546060" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#546060" font-weight="bold">module:  the factorial the campaign never opened – tokens × pixels</text>
+<path d="M52,942 L888,942" stroke="#546060" stroke-width="1.2" stroke-opacity="0.5"/>
+<text x="290.0" y="966" font-size="15.5" text-anchor="middle" fill="#6C786C">no decoder</text>
+<text x="692.0" y="966" font-size="15.5" text-anchor="middle" fill="#6C786C">+ pixel decoder  (T1)</text>
+<text x="90" y="1039.0" font-size="14" text-anchor="end" fill="#6C786C">cls</text>
+<text x="90" y="1057.0" font-size="12" text-anchor="end" fill="#6C786C">P = 1</text>
+<text x="90" y="1179.0" font-size="14" text-anchor="end" fill="#6C786C">patch</text>
+<text x="90" y="1197.0" font-size="12" text-anchor="end" fill="#6C786C">P = 256</text>
+<rect x="100" y="982" width="380" height="124" rx="9" fill="#DFE4E4" stroke="#546060" stroke-width="2.0"/>
+<text x="290.0" y="1009" font-size="19" text-anchor="middle" fill="#546060" font-weight="bold">cls  ×  no decoder</text>
+<text x="290.0" y="1028" font-size="12.5" text-anchor="middle" fill="#6C786C">LpWM-ltv – 36 of 39 campaign arms</text>
+<rect x="116" y="1038" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#546060" stroke-width="1.3"/>
+<text x="290.0" y="1061" font-size="14.5" text-anchor="middle" fill="#14231C">CEM 0.347,   rel_mse 0.0092,   ρ 0.448</text>
+<rect x="229.2" y="1078" width="121.7" height="22" rx="11" fill="#546060"/>
+<text x="290.0" y="1094" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-weight="bold">THE BASELINE</text>
+<rect x="502" y="982" width="380" height="124" rx="9" fill="#F5E2E0" stroke="#A83024" stroke-width="2.0"/>
+<text x="692.0" y="1009" font-size="19" text-anchor="middle" fill="#A83024" font-weight="bold">cls  ×  decoder</text>
+<text x="692.0" y="1028" font-size="12.5" text-anchor="middle" fill="#6C786C">has_decoder: False – never built</text>
+<rect x="518" y="1038" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#A83024" stroke-width="1.3"/>
+<text x="692.0" y="1061" font-size="14.5" text-anchor="middle" fill="#14231C">384 numbers must paint 150,528 pixels</text>
+<rect x="640.2" y="1078" width="103.6" height="22" rx="11" fill="#A83024"/>
+<text x="692.0" y="1094" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-weight="bold">NEVER RUN</text>
+<rect x="100" y="1122" width="380" height="124" rx="9" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2.0"/>
+<text x="290.0" y="1149" font-size="19" text-anchor="middle" fill="#C88A1E" font-weight="bold">patch  ×  no decoder</text>
+<text x="290.0" y="1168" font-size="12.5" text-anchor="middle" fill="#6C786C">PiWM-columns  (n = 12)</text>
+<rect x="116" y="1178" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="290.0" y="1201" font-size="14.5" text-anchor="middle" fill="#14231C">Δ = +0.072,   95% CI [-0.064, +0.207],   p = 0.269</text>
+<rect x="258.4" y="1218" width="63.3" height="22" rx="11" fill="#C88A1E"/>
+<text x="290.0" y="1234" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-weight="bold">NULL</text>
+<rect x="502" y="1122" width="380" height="124" rx="9" fill="#D8F0E4" stroke="#18483C" stroke-width="2.0"/>
+<text x="692.0" y="1149" font-size="19" text-anchor="middle" fill="#18483C" font-weight="bold">patch  ×  decoder</text>
+<text x="692.0" y="1168" font-size="12.5" text-anchor="middle" fill="#6C786C">T2  PiWM-patchdec  (this round)</text>
+<rect x="518" y="1178" width="348" height="34" rx="5" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3"/>
+<text x="692.0" y="1201" font-size="14.5" text-anchor="middle" fill="#14231C">each token owns one 14 × 14 patch</text>
+<rect x="662.4" y="1218" width="59.2" height="22" rx="11" fill="#18483C"/>
+<text x="692.0" y="1234" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-weight="bold">NEW</text>
+<text x="60.0" y="1278" font-size="15.5" text-anchor="start" fill="#14231C">the whole right column has never existed:</text>
+<text x="586.6" y="1278" font-size="13.64" text-anchor="start" fill="#6C786C">conf/train_rdmreg.yaml:126  has_decoder: False</text>
+<text x="60.0" y="1304" font-size="15.0" text-anchor="start" fill="#14231C">patch tokens alone gave the encoder more to say and nothing that forced it to say anything – the decoder is that force</text>
+<rect x="60" y="1318" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="159.0" y="1335" font-size="12" text-anchor="middle" fill="#6C786C">patch alone</text>
+<text x="159.0" y="1354" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.072  (null, n=12)</text>
+<rect x="266" y="1318" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="365.0" y="1335" font-size="12" text-anchor="middle" fill="#6C786C">tokens the predictor sees</text>
+<text x="365.0" y="1354" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">1  →  256</text>
+<rect x="472" y="1318" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="571.0" y="1335" font-size="12" text-anchor="middle" fill="#6C786C">predictor params</text>
+<text x="571.0" y="1354" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">unchanged (shared op)</text>
+<rect x="678" y="1318" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="777.0" y="1335" font-size="12" text-anchor="middle" fill="#6C786C">cells now on record</text>
+<text x="777.0" y="1354" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">3 of 4</text>
+</g>
 </svg>

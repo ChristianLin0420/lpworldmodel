@@ -1,176 +1,192 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1524" viewBox="0 0 940 1524" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1444" viewBox="0 0 940 1444" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
 <defs>
-  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
-  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
-  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
 </defs>
-<rect width="940" height="1524" fill="white"/>
-<circle cx="120" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="120" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t</tspan></text>
-<circle cx="812" cy="742" r="34" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="812" y="749" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">o<tspan font-size="13" dy="6">t+1</tspan></text>
-<path d="M120,706 L120,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,706 L812,646" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="120.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
-<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="812.0" y="618" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan></text>
-<path d="M120,520 L120,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,520 L812,470" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="78" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
-<text x="120.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
-<rect x="770" y="420" width="84" height="44" rx="4" fill="#F9F2C4" stroke="#1A1A1A" stroke-width="1.4"/>
-<text x="812.0" y="448.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">ReLU</text>
-<path d="M120,420 L120,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M812,420 L812,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="120.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t</tspan></text>
-<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="240" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="812.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
-<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="215" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="265" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="290" width="22" height="22" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<text x="712.0" y="178" font-size="19" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="13" dy="6">t+1</tspan></text>
-<path d="M700.5,160 L705.0,154 L709.5,160" stroke="#1A1A1A" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-<path d="M737,262 L795,262" stroke="#9E3B3B" stroke-width="2" marker-end="url(#ar)" marker-start="url(#am)"/>
-<text x="766" y="240" font-size="16" text-anchor="middle" fill="#9E3B3B" font-style="" font-weight="normal">MSE (min)</text>
-<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="321.0" y="263.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="321.0" y="284.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g</text>
-<circle cx="318" cy="430" r="38" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="318" y="437" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">a<tspan font-size="13" dy="6">t</tspan></text>
-<path d="M318,392 L318,332" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M146,262 L226,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="186" y="248" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="12" dy="6">t</tspan></text>
-<path d="M424,262 L697,262" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="430" y="556" width="160" height="52" rx="4" fill="#FFFFFF" stroke="#55707F" stroke-width="1.6"/>
-<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">RDMReg</text>
-<path d="M162,442 L206,442 L206,582 L426,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M770,442 L726,442 L726,582 L594,582" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="466" y="872" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(T4) PiWM-value -- a goal-conditioned V( z , g ) trained by hindsight relabelling</text>
-<rect x="732" y="312" width="66" height="36" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="765.0" y="336.0" font-size="15" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">V</text>
-<path d="M880,898 L880,366 L766,366 L766,352" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
-<path d="M766,312 L766,284" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)" stroke-dasharray="6,4"/>
-<text x="864" y="386" font-size="14" text-anchor="end" fill="#0055af" font-style="" font-weight="bold">a NEW head on the codes</text>
-<rect x="34" y="898" width="872" height="600" rx="10" fill="#d8e8fb" fill-opacity="0.45" stroke="#0055af" stroke-width="2.4"/>
-<text x="54" y="930" font-size="18" text-anchor="start" fill="#0055af" font-style="" font-weight="bold">module:  every later latent is a goal;  the step count is the label</text>
-<path d="M52,942 L888,942" stroke="#0055af" stroke-width="1.2" stroke-opacity="0.5"/>
-<text x="470" y="962" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">hindsight relabelling -- no reward, no extra data, no privileged state</text>
-<rect x="62" y="989" width="68" height="34" rx="17" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
-<text x="96" y="1012" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="11" dy="6">t</tspan></text>
-<rect x="180" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="214" y="1012" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="10" dy="6">t+1</tspan></text>
-<path d="M130,1006 L180,1006" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="214" y="1044" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">-1</text>
-<rect x="298" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="332" y="1012" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="10" dy="6">t+2</tspan></text>
-<path d="M248,1006 L298,1006" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="332" y="1044" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">-2</text>
-<rect x="416" y="989" width="68" height="34" rx="17" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
-<text x="450" y="1012" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="10" dy="6">t+3</tspan></text>
-<path d="M366,1006 L416,1006" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="450" y="1044" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">-3</text>
-<rect x="534" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="568" y="1012" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="10" dy="6">t+4</tspan></text>
-<path d="M484,1006 L534,1006" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="568" y="1044" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">-4</text>
-<rect x="652" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="686" y="1012" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">z<tspan font-size="10" dy="6">t+5</tspan></text>
-<path d="M602,1006 L652,1006" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="686" y="1044" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">-5</text>
-<text x="450" y="984" font-size="13" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">goal g</text>
-<text x="792" y="1044" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">label = steps to the goal</text>
-<path d="M96,1023 L96,1140 L136,1140 M136,1128 L136,1238" stroke="#0055af" stroke-width="2" fill="none"/>
-<path d="M136,1128 L158,1128" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M136,1238 L158,1238" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M470,1023 L470,1066 L191,1066 L191,1100" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="162" y="1104" width="58" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="191.0" y="1134.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">[ ; ]</text>
-<rect x="244" y="1104" width="146" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="317.0" y="1128.0" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">V</text>
-<text x="317.0" y="1145.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">MLP ( 2 x 512 )</text>
-<path d="M220,1128 L240,1128" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="408" y="1109" width="116" height="38" rx="19" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="466" y="1134" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">V( z , g )</text>
-<path d="M390,1128 L404,1128" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M524,1128 L760,1128 L760,1167" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="162" y="1214" width="106" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="215.0" y="1238.0" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">P</text>
-<text x="215.0" y="1255.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">predictor</text>
-<text x="215" y="1204" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">K sampled actions</text>
-<rect x="292" y="1198" width="108" height="24" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="346.0" y="1216.0" font-size="13" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">V-bar</text>
-<path d="M268,1228 L288,1210" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<path d="M400,1210 L420,1228" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<rect x="292" y="1226" width="108" height="24" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="346.0" y="1244.0" font-size="13" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">V-bar</text>
-<path d="M268,1238 L288,1238" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<path d="M400,1238 L420,1238" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<rect x="292" y="1254" width="108" height="24" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="346.0" y="1272.0" font-size="13" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">V-bar</text>
-<path d="M268,1248 L288,1266" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<path d="M400,1266 L420,1248" stroke="#0055af" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
-<rect x="424" y="1214" width="132" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="490.0" y="1238.0" font-size="18" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">max_a</text>
-<text x="490.0" y="1255.0" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">expectile, tau</text>
-<rect x="574" y="1219" width="172" height="38" rx="19" fill="#d8e8fb" stroke="#0055af" stroke-width="2"/>
-<text x="660" y="1244" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">y  =  -1 + gamma m</text>
-<path d="M556,1238 L570,1238" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M746,1238 L760,1238 L760,1199" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="346" y="1292" font-size="11.5" text-anchor="middle" fill="#555" font-style="" font-weight="normal">V-bar  =  a frozen copy of V</text>
-<circle cx="760" cy="1183" r="16" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<path d="M752,1183 L768,1183" stroke="#0055af" stroke-width="2.4" stroke-linecap="round"/>
-<path d="M776,1183 L792,1183" stroke="#0055af" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="796" y="1159" width="92" height="48" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="2"/>
-<text x="842.0" y="1189.0" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">|| . ||<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
-<text x="842" y="1228" font-size="16" text-anchor="middle" fill="#0055af" font-style="" font-weight="bold">L_V</text>
-<text x="60" y="1326" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">V( z , g )  =  MLP( [ z ; g ] )</text>
-<text x="374" y="1326" font-size="17" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">hindsight:   g  =  z_t+k ,    label  =  -k</text>
-<text x="60" y="1352" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">y  =  -1  +  gamma . max_a  V-bar( P( z , a ) , g )</text>
-<text x="464" y="1352" font-size="16" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">expectile:   L_tau( d )  =  | tau - 1[ d &lt; 0 ] | . d<tspan font-size="12" dy="-8">2</tspan><tspan dy="8"> </tspan></text>
-<rect x="60" y="1366" width="820" height="58" rx="6" fill="#FFFFFF" stroke="#0055af" stroke-width="1.8"/>
-<text x="74" y="1390" font-size="13" text-anchor="start" fill="#0055af" font-style="" font-weight="bold">NEW HEAD CHECKLIST</text>
-<text x="74" y="1410" font-size="11.5" text-anchor="start" fill="#b3261e" font-style="" font-weight="normal">path_int had NONE of these</text>
-<circle cx="269.0" cy="1388" r="9" fill="#FFFFFF" stroke="#0055af" stroke-width="1.6"/>
-<path d="M264.5,1388 L268.0,1391.8 L273.8,1383.8" stroke="#0055af" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="286.0" y="1393" font-size="13" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">optimizer group</text>
-<text x="286.0" y="1412" font-size="11" text-anchor="start" fill="#555" font-style="" font-weight="normal">train.py init_optimizers</text>
-<circle cx="422.5" cy="1388" r="9" fill="#FFFFFF" stroke="#0055af" stroke-width="1.6"/>
-<path d="M418.0,1388 L421.5,1391.8 L427.3,1383.8" stroke="#0055af" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="439.5" y="1393" font-size="13" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">checkpoint key</text>
-<text x="439.5" y="1412" font-size="11" text-anchor="start" fill="#555" font-style="" font-weight="normal">_keys_to_save</text>
-<circle cx="576.0" cy="1388" r="9" fill="#FFFFFF" stroke="#0055af" stroke-width="1.6"/>
-<path d="M571.5,1388 L575.0,1391.8 L580.8,1383.8" stroke="#0055af" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="593.0" y="1393" font-size="13" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">lazy .to(device)</text>
-<text x="593.0" y="1412" font-size="11" text-anchor="start" fill="#555" font-style="" font-weight="normal">built inside VWorldModel</text>
-<circle cx="729.5" cy="1388" r="9" fill="#FFFFFF" stroke="#0055af" stroke-width="1.6"/>
-<path d="M725.0,1388 L728.5,1391.8 L734.3,1383.8" stroke="#0055af" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="746.5" y="1393" font-size="13" text-anchor="start" fill="#1A1A1A" font-style="" font-weight="normal">arm mirror</text>
-<text x="746.5" y="1412" font-size="11" text-anchor="start" fill="#555" font-style="" font-weight="normal">tests/lpwm_build.py</text>
-<rect x="60" y="1432" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="159.0" y="1449" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">relabelled pairs</text>
-<text x="159.0" y="1468" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">free, from the demos</text>
-<rect x="266" y="1432" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="365.0" y="1449" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">latent vs task dist</text>
-<text x="365.0" y="1468" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">Spearman +0.398</text>
-<rect x="472" y="1432" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="571.0" y="1449" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">the V5 planner needs</text>
-<text x="571.0" y="1468" font-size="16" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="bold">exactly this head</text>
-<rect x="678" y="1432" width="198" height="44" rx="5" fill="#FFFFFF" stroke="#0055af" stroke-width="1.4" stroke-opacity="0.7"/>
-<text x="777.0" y="1449" font-size="12" text-anchor="middle" fill="#555" font-style="" font-weight="normal">path_int precedent</text>
-<text x="777.0" y="1468" font-size="16" text-anchor="middle" fill="#b3261e" font-style="" font-weight="bold">3 lines missing</text>
+<rect width="940" height="1444" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="121.5" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(T4)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-value</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;a goal-conditioned V( z , g ) trained by hindsight relabelling</tspan></text>
+<rect x="732" y="312" width="66" height="36" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="765.0" y="336.0" font-size="15" text-anchor="middle" fill="#14231C">V</text>
+<path d="M880,898 L880,366 L766,366 L766,352" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<path d="M766,312 L766,284" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<text x="866" y="390" font-size="13.5" text-anchor="end" fill="#18483C" font-weight="bold">a NEW head on the codes</text>
+<rect x="34" y="898" width="872" height="600" rx="10" fill="#D8F0E4" fill-opacity="0.45" stroke="#18483C" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#18483C" font-weight="bold">module:  every later latent is a goal;  the step count is the label</text>
+<path d="M52,942 L888,942" stroke="#18483C" stroke-width="1.2" stroke-opacity="0.5"/>
+<text x="470" y="966" font-size="13" text-anchor="middle" fill="#6C786C">hindsight relabelling – no reward, no extra data, no privileged state</text>
+<rect x="62" y="989" width="68" height="34" rx="17" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8"/>
+<text x="90.5" y="1012" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan></text>
+<rect x="180" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="202.9" y="1012" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="10" dy="4.2">t+1</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M130,1006 L180,1006" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="155.0" y="1044" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">−1</text>
+<rect x="298" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="320.9" y="1012" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="10" dy="4.2">t+2</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M248,1006 L298,1006" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="273.0" y="1044" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">−2</text>
+<rect x="416" y="989" width="68" height="34" rx="17" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8"/>
+<text x="438.9" y="1012" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="10" dy="4.2">t+3</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M366,1006 L416,1006" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="391.0" y="1044" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">−3</text>
+<rect x="534" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="556.9" y="1012" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="10" dy="4.2">t+4</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M484,1006 L534,1006" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="509.0" y="1044" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">−4</text>
+<rect x="652" y="989" width="68" height="34" rx="17" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="674.9" y="1012" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="10" dy="4.2">t+5</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M602,1006 L652,1006" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="627.0" y="1044" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">−5</text>
+<text x="450" y="982" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">goal  g</text>
+<text x="792" y="1044" font-size="12" text-anchor="middle" fill="#6C786C">label = steps to the goal</text>
+<path d="M96,1023 L96,1140 L136,1140" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+<path d="M136,1128 L136,1238" stroke="#18483C" stroke-width="1.8" fill="none"/>
+<circle cx="136" cy="1140" r="4" fill="#18483C"/>
+<path d="M136,1128 L158,1128" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M136,1238 L158,1238" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M450,1023 L450,1066 L191,1066 L191,1100" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="162" y="1104" width="58" height="48" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="191.0" y="1134.0" font-size="17" text-anchor="middle" fill="#14231C">[ ; ]</text>
+<rect x="244" y="1104" width="146" height="48" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="317.0" y="1128.0" font-size="20" text-anchor="middle" fill="#14231C">V</text>
+<text x="317.0" y="1145.0" font-size="11.5" text-anchor="middle" fill="#6C786C">MLP ( 2 × 512 )</text>
+<path d="M220,1128 L240,1128" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="408" y="1109" width="116" height="38" rx="19" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="466" y="1134" font-size="16" text-anchor="middle" fill="#14231C">V( z , g )</text>
+<path d="M390,1128 L404,1128" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M524,1128 L760,1128 L760,1167" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="162" y="1214" width="106" height="48" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="215.0" y="1238.0" font-size="20" text-anchor="middle" fill="#14231C">P</text>
+<text x="215.0" y="1255.0" font-size="11.5" text-anchor="middle" fill="#6C786C">predictor</text>
+<text x="346" y="1188" font-size="11.5" text-anchor="middle" fill="#6C786C">K sampled actions</text>
+<rect x="292" y="1198" width="108" height="24" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="341.7" y="1216.0" font-size="13" text-anchor="start" fill="#14231C">V</text>
+<path d="M342.1,1203.3 L349.9,1203.3" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<path d="M268,1228 L288,1210" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M400,1210 L420,1228" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="292" y="1226" width="108" height="24" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="341.7" y="1244.0" font-size="13" text-anchor="start" fill="#14231C">V</text>
+<path d="M342.1,1231.3 L349.9,1231.3" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<path d="M268,1238 L288,1238" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M400,1238 L420,1238" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="292" y="1254" width="108" height="24" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="341.7" y="1272.0" font-size="13" text-anchor="start" fill="#14231C">V</text>
+<path d="M342.1,1259.3 L349.9,1259.3" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<path d="M268,1248 L288,1266" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M400,1266 L420,1248" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="424" y="1214" width="132" height="48" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="469.7" y="1238.0" font-size="18" text-anchor="start" fill="#14231C">max<tspan font-size="12" dy="5.0">a</tspan><tspan dy="-5.0"></tspan></text>
+<text x="490.0" y="1255.0" font-size="11.5" text-anchor="middle" fill="#6C786C">expectile, τ</text>
+<rect x="574" y="1219" width="172" height="38" rx="19" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8"/>
+<text x="611.3" y="1244" font-size="16" text-anchor="start" fill="#14231C">y  =  −1 + γ m</text>
+<path d="M556,1238 L570,1238" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M746,1238 L760,1238 L760,1199" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="286.1" y="1292" font-size="11.5" text-anchor="start" fill="#6C786C">V</text>
+<path d="M286.5,1280.7 L293.4,1280.7" stroke="#6C786C" stroke-width="1.10" stroke-linecap="round"/>
+<text x="293.8" y="1292" font-size="11.5" text-anchor="start" fill="#6C786C">  =  a frozen copy of V</text>
+<circle cx="760" cy="1183" r="16" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<path d="M752,1183 L768,1183" stroke="#18483C" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M776,1183 L792,1183" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="796" y="1159" width="92" height="48" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="842.0" y="1189.0" font-size="16" text-anchor="middle" fill="#14231C">∥·∥²</text>
+<text x="833.1" y="1228" font-size="16" text-anchor="start" fill="#18483C" font-weight="bold">L<tspan font-size="12" dy="5.0">V</tspan><tspan dy="-5.0"></tspan></text>
+<text x="60.0" y="1326" font-size="16.0" text-anchor="start" fill="#14231C">V( z , g )  =  MLP( [ z ; g ] )</text>
+<text x="632.8" y="1326" font-size="16.0" text-anchor="start" fill="#14231C">hindsight:   g  =  z<tspan font-size="12" dy="5.0">t+k</tspan><tspan dy="-5.0"></tspan> ,    label  =  −k</text>
+<text x="60.0" y="1352" font-size="16.0" text-anchor="start" fill="#14231C">y  =  −1  +  γ · max<tspan font-size="12" dy="5.0">a</tspan><tspan dy="-5.0"></tspan>  </text>
+<text x="207.6" y="1352" font-size="16.0" text-anchor="start" fill="#14231C">V</text>
+<path d="M208.1,1336.3 L217.7,1336.3" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<text x="218.3" y="1352" font-size="16.0" text-anchor="start" fill="#14231C">( P( z , a ) , g )</text>
+<text x="597.0" y="1352" font-size="16.0" text-anchor="start" fill="#14231C">expectile:   L<tspan font-size="12" dy="5.0">τ</tspan><tspan dy="-5.0"></tspan>( d )  =  | τ − 1[ d &lt; 0 ] | · d<tspan font-size="11" dy="-10.4">2</tspan><tspan dy="10.4"></tspan></text>
+<rect x="60" y="1366" width="820" height="58" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="74" y="1390" font-size="13" text-anchor="start" fill="#18483C" font-weight="bold">NEW HEAD CHECKLIST</text>
+<text x="74" y="1410" font-size="11.5" text-anchor="start" fill="#A83024">path_int had NONE of these</text>
+<circle cx="269.0" cy="1388" r="9" fill="#FFFFFF" stroke="#18483C" stroke-width="1.5"/>
+<path d="M264.5,1388 L268.0,1391.8 L273.8,1383.8" stroke="#18483C" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="286.0" y="1393" font-size="13" text-anchor="start" fill="#14231C">optimizer group</text>
+<text x="286.0" y="1412" font-size="11" text-anchor="start" fill="#6C786C">train.py init_optimizers</text>
+<circle cx="422.5" cy="1388" r="9" fill="#FFFFFF" stroke="#18483C" stroke-width="1.5"/>
+<path d="M418.0,1388 L421.5,1391.8 L427.3,1383.8" stroke="#18483C" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="439.5" y="1393" font-size="13" text-anchor="start" fill="#14231C">checkpoint key</text>
+<text x="439.5" y="1412" font-size="11" text-anchor="start" fill="#6C786C">_keys_to_save</text>
+<circle cx="576.0" cy="1388" r="9" fill="#FFFFFF" stroke="#18483C" stroke-width="1.5"/>
+<path d="M571.5,1388 L575.0,1391.8 L580.8,1383.8" stroke="#18483C" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="593.0" y="1393" font-size="13" text-anchor="start" fill="#14231C">lazy .to(device)</text>
+<text x="593.0" y="1412" font-size="10.5" text-anchor="start" fill="#6C786C">built inside VWorldModel</text>
+<circle cx="729.5" cy="1388" r="9" fill="#FFFFFF" stroke="#18483C" stroke-width="1.5"/>
+<path d="M725.0,1388 L728.5,1391.8 L734.3,1383.8" stroke="#18483C" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="746.5" y="1393" font-size="13" text-anchor="start" fill="#14231C">arm mirror</text>
+<text x="746.5" y="1412" font-size="11" text-anchor="start" fill="#6C786C">tests/lpwm_build.py</text>
+<rect x="60" y="1432" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="159.0" y="1449" font-size="12" text-anchor="middle" fill="#6C786C">relabelled pairs</text>
+<text x="159.0" y="1468" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">free, from the demos</text>
+<rect x="266" y="1432" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="365.0" y="1449" font-size="12" text-anchor="middle" fill="#6C786C">latent vs task dist</text>
+<text x="365.0" y="1468" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">Spearman +0.398</text>
+<rect x="472" y="1432" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="571.0" y="1449" font-size="12" text-anchor="middle" fill="#6C786C">the V5 planner needs</text>
+<text x="571.0" y="1468" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">exactly this head</text>
+<rect x="678" y="1432" width="198" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="777.0" y="1449" font-size="12" text-anchor="middle" fill="#6C786C">path_int precedent</text>
+<text x="777.0" y="1468" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">3 lines missing</text>
+</g>
 </svg>
