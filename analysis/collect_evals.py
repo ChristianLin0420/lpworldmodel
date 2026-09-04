@@ -160,6 +160,51 @@ def collect(plan_outputs="plan_outputs", key=SUCCESS_KEY, scheme="fixed"):
     return arms, detail, sorted(set(pending))
 
 
+class ArmNameError(KeyError):
+    """An arm name that does not resolve. Deliberately an exception, not a None."""
+
+
+def resolve_arm(arms, name):
+    """Map a bare arm name to its key in `arms`, accounting for the feature tag.
+
+    A run is named `${arm}_pd${D}${ftag}_${prec}_s${seed}` where ftag is `_patch` for a
+    patch-feature arm and empty for `cls`. collect() strips the pd/precision/seed parts but
+    NOT the feature tag, so the patch arms are keyed "PiWM-patchdecode_patch" while every
+    cls arm is keyed by its bare name.
+
+    THIS HAS BITTEN THREE TIMES, always silently, because the natural spelling is
+    `arms.get("PiWM-patchdecode", {})` and an empty dict is indistinguishable from an arm
+    that has not been evaluated yet:
+
+      * wave23_autopilot.sh reported the T2 contrast as n=0 with n=5 and n=8 on disk.
+      * r6_watch.sh did the same AND gated its ROUND5-COMPLETE marker on every pair
+        reaching n>=8, so the marker became unreachable.
+      * analysis modules taking a caller-supplied arm name have the same exposure.
+
+    So this raises rather than returning None: an unresolvable name is a bug in the caller,
+    never "no data". The trailing underscore in the prefix test matters -- without it
+    "PiWM-vp" would swallow "PiWM-vp-mc".
+    """
+    if name in arms:
+        return name
+    cand = [k for k in arms if k.startswith(name + "_")]
+    if len(cand) == 1:
+        return cand[0]
+    if not cand:
+        raise ArmNameError(f"no arm matches {name!r} (have {len(arms)} arms)")
+    raise ArmNameError(f"{name!r} is ambiguous: {sorted(cand)}")
+
+
+def arm_seeds(arms, name, default=None):
+    """resolve_arm + lookup, with an explicit opt-in to 'missing is empty'."""
+    try:
+        return arms[resolve_arm(arms, name)]
+    except ArmNameError:
+        if default is None:
+            raise
+        return default
+
+
 def build_gates(arms, groups=None, threshold=0.0):
     """Pre-registered gates as paired effects, reusing figures.py's own statistics.
 
