@@ -30,18 +30,30 @@ while true; do
       [ -f "$d/DONE" ] || continue
       r=$(basename "$d"); case "$r" in CANARY-*) continue ;; esac
       case " $DEAD_SEEN " in *" $r "*) continue ;; esac
-      v=$($PY - "$d" <<'EOF' 2>/dev/null
+      # Two guards, and they are in DIFFERENT UNITS -- which has already produced one false
+      # alarm. rel_mse is raw. The SAM guard is on causal/d_action_over_scale, NOT
+      # causal/d_action: the threshold 0.2746 is half the LpWM-ltv PROBE median of 0.5491
+      # (assets/d_action_probe.json, n=16), and that 0.5491 is an over_scale figure. The
+      # baseline's raw d_action median is 0.3535. Comparing raw against the normalised
+      # threshold understates every arm by ~1.55x and invents collapses. Baselines log no
+      # causal/d_action at all (the diagnostic postdates them), so the probe is the only
+      # valid source for the threshold.
+      read -r v ov < <($PY - "$d" <<'EOF' 2>/dev/null
 import json, glob, sys
 f = glob.glob(sys.argv[1] + "/wandb/run-*/files/wandb-summary.json")
-if f:
-    d = json.load(open(f[0]))
-    k = next((k for k in d if "rel_mse" in k), None)
-    if k: print(f"{d[k]:.4f}")
+d = json.load(open(f[0])) if f else {}
+rm = next((d[k] for k in d if "rel_mse" in k), None)
+ov = d.get("causal/d_action_over_scale")
+print(f"{rm if rm is not None else -1:.4f} {ov if ov is not None else -1:.4f}")
 EOF
 )
       [ -z "$v" ] && continue
       DEAD_SEEN="$DEAD_SEEN $r"
       awk -v v="$v" 'BEGIN{exit !(v>=0.5)}' && echo "R6 DEATH-CONDITION $r rel_mse=$v (>=0.5 at end of training)"
+      # per-seed breach is INSIDE baseline variation (baseline probe range [0.222, 0.629]);
+      # report it, but it is an arm-level judgement across seeds, not a per-seed kill switch.
+      awk -v v="$ov" 'BEGIN{exit !(v>=0 && v<0.2746)}' \
+        && echo "R6 SAM-GUARD $r d_action_over_scale=$ov (<0.2746 = half baseline probe median; check the ARM across seeds)"
     done
   done
   # --- 2/3. completion + first results, reported only on change -----------------
