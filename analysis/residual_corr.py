@@ -50,12 +50,15 @@ from plan import load_model                                    # noqa: E402
 RUN_RE = re.compile(r"(.+)_pd\d+_\w+_s(\d+)$")
 
 
-def _batch(cfg, n, device):
+def _batch(cfg, n, device, num_pred=None):
     # The FIRST return is the window-sliced split, which is what training saw; plan.py takes
     # the second (ragged whole trajectories). Same choice as d_action_probe.py, for the same
     # reason -- this is a training-time quantity.
+    # num_pred is overridable: a K-step residual needs K frames of ground-truth future,
+    # and the baseline trains at num_pred=1 so its own config cannot supply them.
     dsets, _ = hydra.utils.call(cfg.env.dataset, num_hist=cfg.num_hist,
-                                num_pred=cfg.num_pred, frameskip=cfg.frameskip)
+                                num_pred=(cfg.num_pred if num_pred is None else num_pred),
+                                frameskip=cfg.frameskip)
     dl = torch.utils.data.DataLoader(dsets["valid"], batch_size=n, shuffle=False)
     obs, act, _ = next(iter(dl))
     return {k: v.to(device) for k, v in obs.items()}, act.to(device)
@@ -74,6 +77,32 @@ def residual(model, obs, act):
     if zp is None or zt is None:
         return None
     return (zp - zt).reshape(-1).float().cpu().numpy()
+
+
+@torch.no_grad()
+def residual_k(model, obs, act, k):
+    """The model's K-step CHAINED rollout error against the true latent K steps ahead.
+
+    Uses the model's own `_chain_rollout` -- the same object R2's consistency loss and T6's
+    overshoot control use -- so this is not a re-implementation that could invent its own
+    disagreement. The target is the ENCODER's latent at frame num_hist+k-1, i.e. the same
+    quantity the 1-step loss regresses, just further out.
+
+    Why this matters separately from the 1-step number: the planner rolls 5 steps, and
+    errors that are independent at one step can become correlated once compounded through
+    a shared dynamics map.
+    """
+    model.eval()
+    u = model.encode_obs(obs)["visual"]
+    z_true = model._link(u)                                  # (b, num_hist+k, p, d)
+    nh = model.num_hist
+    if z_true.shape[1] < nh + k:
+        return None
+    a_emb = model._act_emb_with_pose(act, obs.get("proprio"))
+    if a_emb.shape[1] < nh + k - 1:
+        return None
+    z_chain = model._chain_rollout(z_true[:, :nh], a_emb, k)  # (b, k, p, d)
+    return (z_chain[:, -1] - z_true[:, nh + k - 1]).reshape(-1).float().cpu().numpy()
 
 
 def summarise(R, names):
@@ -131,6 +160,9 @@ def main():
     ap.add_argument("--arm", default="LpWM-ltv", help="exact arm name whose seeds form the committee")
     ap.add_argument("--out", default="assets/residual_corr.json")
     ap.add_argument("--batch", type=int, default=64)
+    ap.add_argument("--horizon", type=int, default=1,
+                    help="K. 1 = the trained 1-step residual; >1 chains K steps, which is "
+                         "the regime the planner actually uses (CEM horizon is 5).")
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     a = ap.parse_args()
 
@@ -146,12 +178,13 @@ def main():
             continue
         try:
             cfg = OmegaConf.load(cfgf)
-            key = (str(cfg.env.dataset), cfg.num_hist, cfg.num_pred, cfg.frameskip)
+            npred = max(cfg.num_pred, a.horizon)
+            key = (str(cfg.env.dataset), cfg.num_hist, npred, cfg.frameskip)
             if key not in cache:
-                cache[key] = _batch(cfg, a.batch, a.device)
+                cache[key] = _batch(cfg, a.batch, a.device, num_pred=npred)
             obs, act = cache[key]
             model = load_model(ck, cfg, cfg.num_action_repeat, device=a.device)
-            r = residual(model, obs, act)
+            r = residual(model, obs, act) if a.horizon == 1 else residual_k(model, obs, act, a.horizon)
             del model
             torch.cuda.empty_cache()
         except Exception as e:
@@ -169,10 +202,11 @@ def main():
     out = summarise(R, names)
     out["arm"] = a.arm
     out["batch"] = a.batch
+    out["horizon"] = a.horizon
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     json.dump(out, open(a.out, "w"), indent=1)
 
-    print(f"\n=== {a.arm}: {out['n_models']} checkpoints ===")
+    print(f"\n=== {a.arm}: {out['n_models']} checkpoints, horizon K={a.horizon} ===")
     print(f"  mean pairwise error correlation  rho_bar = {out['rho_bar']:+.4f}")
     print(f"  range [{out['rho_min']:+.4f}, {out['rho_max']:+.4f}]  median {out['rho_median']:+.4f}")
     print("\n  committee error variance / single-member variance:")

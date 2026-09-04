@@ -1,0 +1,43 @@
+{
+ "n_models": 16,
+ "models": [
+  "LpWM-ltv_pd384_bf16_s0",
+  "LpWM-ltv_pd384_bf16_s1",
+  "LpWM-ltv_pd384_bf16_s10",
+  "LpWM-ltv_pd384_bf16_s11",
+  "LpWM-ltv_pd384_bf16_s12",
+  "LpWM-ltv_pd384_bf16_s13",
+  "LpWM-ltv_pd384_bf16_s14",
+  "LpWM-ltv_pd384_bf16_s15",
+  "LpWM-ltv_pd384_bf16_s2",
+  "LpWM-ltv_pd384_bf16_s3",
+  "LpWM-ltv_pd384_bf16_s4",
+  "LpWM-ltv_pd384_bf16_s5",
+  "LpWM-ltv_pd384_bf16_s6",
+  "LpWM-ltv_pd384_bf16_s7",
+  "LpWM-ltv_pd384_bf16_s8",
+  "LpWM-ltv_pd384_bf16_s9"
+ ],
+ "rho_bar": -0.0008350125388105321,
+ "rho_min": -0.03452674665755639,
+ "rho_max": 0.040753431789958224,
+ "rho_median": -0.0006824631908862349,
+ "var_ratio_vs_M": {
+  "2": 0.49958249373059477,
+  "3": 0.33277665830745967,
+  "5": 0.1993319899689516,
+  "8": 0.12426936402854079,
+  "12": 0.08256790517275701,
+  "1000": 0.00016582247372827843
+ },
+ "irreducible_fraction": -0.0008350125388105321,
+ "committee_resid_norm": 11.586516380310059,
+ "mean_member_resid_norm": 46.330718994140625,
+ "shrink_observed": 0.2500828096748377,
+ "shrink_if_independent": 0.25,
+ "shrink_ratio": 1.0003312386993508,
+ "bias_fraction_of_member_sq_error": 0.0625414116948611,
+ "arm": "LpWM-ltv",
+ "batch": 64,
+ "horizon": 5
+}
