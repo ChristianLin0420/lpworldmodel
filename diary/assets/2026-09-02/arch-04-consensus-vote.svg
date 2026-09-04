@@ -1,71 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="880" viewBox="0 0 980 880" font-family="Georgia, 'Times New Roman', serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="880" viewBox="0 0 980 880" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
 <defs>
-  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A6274"/></marker>
-  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E3B3B"/></marker>
-  <marker id="am" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#9E3B3B"/></marker>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#543C84"/></marker>
+  <marker id="e4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#2E7D6F"/></marker>
 </defs>
-<rect width="980" height="880" fill="white"/>
-<path d="M70,200 L70,144.0 A48.0,48.0 0 0 1 166,144.0 L166,200 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="118.0" y="174" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan><tspan font-size="12" dy="6">1</tspan></text>
-<path d="M232,108 L342.0,108 A40.0,40.0 0 0 1 342.0,188 L232,188 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="301.0" y="149.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="301.0" y="170.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g<tspan font-size="11" dy="6">1</tspan></text>
-<path d="M166,148 L226,148" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="404" y="102" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="121" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="140" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="159" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="178" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="197" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<path d="M384,148 L398,148" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="118" y="86" font-size="15" text-anchor="middle" fill="#444" font-style="" font-weight="normal">column 1</text>
-<path d="M452,148 L508,148 L508,306.0 L562,306.0" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M70,404 L70,348.0 A48.0,48.0 0 0 1 166,348.0 L166,404 Z" fill="#A9D5D1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="118.0" y="378" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan><tspan font-size="12" dy="6">2</tspan></text>
-<path d="M232,312 L342.0,312 A40.0,40.0 0 0 1 342.0,392 L232,392 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="301.0" y="353.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="301.0" y="374.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g<tspan font-size="11" dy="6">2</tspan></text>
-<path d="M166,352 L226,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="404" y="306" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="325" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="344" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="363" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="382" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="401" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<path d="M384,352 L398,352" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="118" y="290" font-size="15" text-anchor="middle" fill="#444" font-style="" font-weight="normal">column 2</text>
-<path d="M452,352 L508,352 L508,306.0 L562,306.0" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<path d="M70,608 L70,552.0 A48.0,48.0 0 0 1 166,552.0 L166,608 Z" fill="#cfe3e1" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="118.0" y="582" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Enc <tspan font-style='italic'>f</tspan><tspan font-size="12" dy="6">3</tspan></text>
-<path d="M232,516 L342.0,516 A40.0,40.0 0 0 1 342.0,596 L232,596 Z" fill="#E2CDE9" stroke="#1A1A1A" stroke-width="2.4"/>
-<text x="301.0" y="557.0" font-size="21" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">Pred</text>
-<text x="301.0" y="578.0" font-size="13" text-anchor="middle" fill="#444" font-style="" font-weight="normal">g<tspan font-size="11" dy="6">3</tspan></text>
-<path d="M166,556 L226,556" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<rect x="404" y="510" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="529" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="548" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="567" width="16" height="16" fill="#40566E" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="586" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<rect x="404" y="605" width="16" height="16" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.3"/>
-<path d="M384,556 L398,556" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<text x="118" y="494" font-size="15" text-anchor="middle" fill="#444" font-style="" font-weight="normal">column 3</text>
-<path d="M452,556 L508,556 L508,306.0 L562,306.0" stroke="#4A6274" stroke-width="2.0" fill="none" marker-end="url(#a)"/>
-<circle cx="118" cy="648" r="2.4" fill="#666"/>
-<circle cx="118" cy="659" r="2.4" fill="#666"/>
-<circle cx="118" cy="670" r="2.4" fill="#666"/>
-<text x="318" y="672" font-size="15" text-anchor="middle" fill="#444" font-style="" font-weight="normal">M independently trained models</text>
-<rect x="566" y="246" width="196" height="120" rx="10" fill="#d9efd7" stroke="#006e00" stroke-width="2.6"/>
-<text x="664.0" y="280" font-size="19" text-anchor="middle" fill="#006e00" font-style="" font-weight="bold">CONSENSUS</text>
-<text x="664.0" y="306" font-size="15" text-anchor="middle" fill="#006e00" font-style="" font-weight="normal">median over</text>
-<text x="664.0" y="328" font-size="15" text-anchor="middle" fill="#006e00" font-style="" font-weight="normal">per-member ranks</text>
-<text x="664.0" y="350" font-size="13" text-anchor="middle" fill="#555" font-style="" font-weight="normal">(at PLAN time)</text>
-<path d="M762,306.0 L814,306.0" stroke="#006e00" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
-<circle cx="858" cy="306.0" r="42" fill="#FAD9BE" stroke="#1A1A1A" stroke-width="1.6"/>
-<text x="858" y="313.0" font-size="17" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">CEM</text>
-<rect x="250" y="704" width="470" height="82" rx="7" fill="#d9efd7" fill-opacity="0.75" stroke="#006e00" stroke-width="2" stroke-dasharray="7,4"/>
-<text x="485.0" y="725" font-size="13" text-anchor="middle" fill="#006e00" font-style="" font-weight="bold">Proposed: vote among columns -- and it WORKS</text>
-<text x="485.0" y="743" font-size="13" text-anchor="middle" fill="#006e00" font-style="" font-weight="normal">M=5: delta = +0.228 vs a single model (p = 0.0005), beats its</text>
-<text x="485.0" y="761" font-size="13" text-anchor="middle" fill="#006e00" font-style="" font-weight="normal">members' mean 10/10, matches best-of-M, 0/10 catastrophes.</text>
-<text x="485.0" y="779" font-size="13" text-anchor="middle" fill="#006e00" font-style="" font-weight="normal">On the OBJECTIVE, not in the loss: min_j L_j is degenerate.</text>
-<text x="490" y="818" font-size="20" text-anchor="middle" fill="#1A1A1A" font-style="" font-weight="normal">(9) PiWM-vote -- plan-time consensus over independently trained columns</text>
+<rect width="980" height="880" fill="#FFFFFF"/>
+<path d="M70,200 L70,144.0 A48.0,48.0 0 0 1 166,144.0 L166,200 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="90.7" y="176" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan><tspan font-size="12" dy="5.0">1</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M232,108 L342.0,108 A40.0,40.0 0 0 1 342.0,188 L232,188 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="295.0" y="148.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="288.3" y="170.0" font-size="13" text-anchor="start" fill="#6C786C">g<tspan font-size="11" dy="4.6">1</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M166,148 L226,148" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="418" y="102" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="121" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="140" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="159" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="178" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="197" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<path d="M384,148 L412,148" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="118" y="84" font-size="15" text-anchor="middle" fill="#6C786C">column 1</text>
+<path d="M440,148 L500,148 L500,276 L560,276" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M70,404 L70,348.0 A48.0,48.0 0 0 1 166,348.0 L166,404 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="90.7" y="380" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan><tspan font-size="12" dy="5.0">2</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M232,312 L342.0,312 A40.0,40.0 0 0 1 342.0,392 L232,392 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="295.0" y="352.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="288.3" y="374.0" font-size="13" text-anchor="start" fill="#6C786C">g<tspan font-size="11" dy="4.6">2</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M166,352 L226,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="418" y="306" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="325" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="344" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="363" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="382" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="401" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<path d="M384,352 L412,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="118" y="288" font-size="15" text-anchor="middle" fill="#6C786C">column 2</text>
+<path d="M440,352 L512,352 L512,306.0 L560,306.0" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M70,608 L70,552.0 A48.0,48.0 0 0 1 166,552.0 L166,608 Z" fill="#EAF6F0" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="90.7" y="584" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan><tspan font-size="12" dy="5.0">3</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M232,516 L342.0,516 A40.0,40.0 0 0 1 342.0,596 L232,596 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="295.0" y="556.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="288.3" y="578.0" font-size="13" text-anchor="start" fill="#6C786C">g<tspan font-size="11" dy="4.6">3</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M166,556 L226,556" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="418" y="510" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="529" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="548" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="567" width="16" height="16" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="586" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="418" y="605" width="16" height="16" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<path d="M384,556 L412,556" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="118" y="492" font-size="15" text-anchor="middle" fill="#6C786C">column 3</text>
+<path d="M440,556 L524,556 L524,336 L560,336" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<circle cx="118" cy="644" r="2.4" fill="#6C786C"/>
+<circle cx="118" cy="655" r="2.4" fill="#6C786C"/>
+<circle cx="118" cy="666" r="2.4" fill="#6C786C"/>
+<text x="138" y="661" font-size="15" text-anchor="start" fill="#6C786C">M independently trained models</text>
+<rect x="566" y="246" width="196" height="120" rx="9" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="2.0"/>
+<text x="664.0" y="280" font-size="19" text-anchor="middle" fill="#2E7D6F" font-weight="bold">CONSENSUS</text>
+<text x="664.0" y="306" font-size="15" text-anchor="middle" fill="#2E7D6F">median over</text>
+<text x="664.0" y="327" font-size="15" text-anchor="middle" fill="#2E7D6F">per-member ranks</text>
+<text x="664.0" y="350" font-size="13" text-anchor="middle" fill="#6C786C">(at PLAN time)</text>
+<path d="M762,306.0 L812,306.0" stroke="#2E7D6F" stroke-width="2.0" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<circle cx="858" cy="306.0" r="42" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="858" y="311.95" font-size="17" text-anchor="middle" fill="#14231C">CEM</text>
+<rect x="238" y="694" width="494" height="100" rx="8" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="1.4" stroke-dasharray="6,4"/>
+<text x="485.0" y="716" font-size="13" text-anchor="middle" fill="#2E7D6F" font-weight="bold">Proposed: vote among columns &#8211; and it WORKS</text>
+<text x="485.0" y="735" font-size="13" text-anchor="middle" fill="#2E7D6F">M=5: delta = +0.228 vs a single model (p = 0.0005), beats its</text>
+<text x="485.0" y="754" font-size="13" text-anchor="middle" fill="#2E7D6F">members' mean 10/10, matches best-of-M, 0/10 catastrophes.</text>
+<text x="485.0" y="773" font-size="13" text-anchor="middle" fill="#2E7D6F">On the OBJECTIVE, not in the loss: min_j L_j is degenerate.</text>
+<text x="160.4" y="824" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(9)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-vote</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;plan-time consensus over independently trained columns</tspan></text>
 </svg>

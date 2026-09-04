@@ -511,14 +511,18 @@ def build(out):
     # 2. Step 3: support gating
     b = base("(2) PiWM-gate -- gate driven by the code's SUPPORT  [NULL]",
              pred_label="Pred", pred_sub="g (LTV)")
-    b += box(150, 356, 150, 40, "1[z &gt; 0]", fill=ACCENT_FILL["magenta"],
+    # the gate box stops at x=286: at the old width its bottom-right corner was 0.5px
+    # off the a_t circle (centre 318,430 r=38), so the two shapes touched.
+    b += box(176, 356, 110, 40, "1[z &gt; 0]", fill=ACCENT_FILL["magenta"],
              stroke=ACCENT["magenta"], sw=2.0, size=16, dash="6,4")
-    # out of the code stack (x=131), down its own corridor (x=140), into the gate's edge
-    b += poly([(133, 314), (140, 314), (140, 376), (147, 376)],
+    # out of the code stack (x=131), down its own corridor (x=145), into the gate's edge.
+    # The final leg is 28px, not 7px: at 7px the 11px arrowhead swallowed the whole
+    # segment and came to rest ON the elbow, reading as a blob rather than an arrow.
+    b += poly([(133, 314), (145, 314), (145, 376), (173, 376)],
               color=ACCENT["magenta"], w=1.8, dash="6,4")
-    # and straight up into the predictor's flat bottom -- x=270 keeps it off the action
+    # and straight up into the predictor's flat bottom -- x=250 keeps it off the action
     # wire at x=318, which the old route crossed
-    b += arrow(270, 356, 270, 334, color=ACCENT["magenta"], w=1.8, dash="6,4")
+    b += arrow(250, 356, 250, 334, color=ACCENT["magenta"], w=1.8, dash="6,4")
     b += callout(258, 626, 392, 100, [
         "Proposed: gate on the binary support only",
         "s = 1[z&gt;0] is a deterministic function of z,",
@@ -533,7 +537,9 @@ def build(out):
     b += (f'<path d="M244,272 L406,272 A54,54 0 0 1 406,380 L244,380 Z" '
           f'fill="{ACCENT_FILL["green"]}" stroke="{ACCENT["green"]}" '
           f'stroke-width="2.0" stroke-dasharray="7,4"/>\n')
-    b += txt(314, 332, "heads 2 ... J", 19, fill=ACCENT["green"])
+    # centred on the shape the way domeright() centres its own label: the flat body runs
+    # 244..406 and the arc bulges to 460, so the optical centre is 333, not 314.
+    b += txt(333, 332, "heads 2 ... J", 19, fill=ACCENT["green"])
     b += circle(318, 466, 36, sub("a", "t", 13))
     b += arrow(318, 430, 318, 386)
     b += arrow(146, 204, 226, 204)
@@ -542,7 +548,9 @@ def build(out):
     b += box(498, 303, 190, 46, "loss = min_j  L_j",
              fill=ACCENT_FILL["green"], stroke=ACCENT["green"], sw=2.0, size=17,
              dash="6,4")
-    b += callout(268, 700, 366, 86, [
+    # h=100, not 86: four lines at 19px leading put the last baseline 79px down, which
+    # left 7px under it and 12px over the first -- visibly bottom-crowded.
+    b += callout(268, 694, 366, 100, [
         "Proposed: any head may be right (SDR union)",
         "min_j L_j admits z = 0 as a GLOBAL optimum;",
         "a variance floor prevents collapse and the arm",
@@ -558,12 +566,20 @@ def build(out):
     # the pose column drops BELOW the regulariser wire (y=582), which the old layout
     # ran straight through the middle of the p_t circle
     b += circle(318, 664, 30, sub("p", "t", 13), fill=ACCENT_FILL["amber"])
-    b += box(258, 486, 120, 40, "Enc pose", fill=ACCENT_FILL["amber"],
+    b += box(258, 498, 120, 40, "Enc pose", fill=ACCENT_FILL["amber"],
              stroke=ACCENT["amber"], sw=2.0, size=15, dash="6,4")
-    b += arrow(318, 634, 318, 530, color=ACCENT["amber"], w=1.8)
-    b += arrow(318, 486, 318, 470, color=ACCENT["amber"], w=2.0)
-    b += txt(352, 480, "+", 22, fill=ACCENT["amber"], weight="bold")
-    b += callout(386, 636, 364, 100, [
+    # a_t sits above the regulariser wire and p_t below it, and both x-positions are fixed
+    # by base(), so the pose column HAS to cross y=582.  It crosses with a hop -- a 9px
+    # semicircle centred on the crossing -- instead of a plain intersection, which read as
+    # a T-junction into the regulariser.
+    b += (f'<path d="M318,634 L318,591 A9,9 0 0 0 318,573 L318,542" '
+          f'stroke="{ACCENT["amber"]}" stroke-width="1.8" fill="none" '
+          f'stroke-linecap="round" marker-end="url(#{_marker(ACCENT["amber"])})"/>\n')
+    b += arrow(318, 498, 318, 472, color=ACCENT["amber"], w=2.0)
+    # the "+" used to sit at (352,480), overlapping the a_t circle's lower-right stroke
+    b += txt(344, 486, "+", 20, fill=ACCENT["amber"], weight="bold")
+    # x=372 (was 386) keeps the right border off the right encoder dome, which starts at 756
+    b += callout(372, 636, 364, 100, [
         "Proposed: bind location to the action embedding",
         "obs['proprio'] was loaded every batch and DROPPED",
         "(adaln path), so the pose encoder got zero gradient.",
@@ -575,26 +591,29 @@ def build(out):
              skip=("codes", "pred"), enc_sub="feature = patch")
     for k, xoff in enumerate((0, 26, 52)):
         b += stack(95 + xoff, 190 + k * 6, SP_L, cell=18, gap=3)
-    b += txt(148, 168, sub("z", "t", 13) + " (P tokens)", 17)
+    # centred on the three sub-stacks (95..165), not on 148
+    b += txt(130, 168, sub("z", "t", 13) + " (P tokens)", 17)
     for k, xoff in enumerate((0, 26, 52)):
         b += stack(787 + xoff, 190 + k * 6, SP_R, cell=18, gap=3)
     b += txt(822, 168, sub("z", "t+1", 13), 17)
-    # the predicted stack sits 20 further left than the single-token version, so the
-    # 77px gutter that holds the MSE arrow and its label survives
+    # the predicted stack sits 32 further left than the single-token version.  Three
+    # sub-stacks are 70px wide where one is 22, so at the old offset the gutter was 77px
+    # and the 68px "MSE (min)" label came within 2px of the target group; 89px gives the
+    # label the same clearance the single-token base gives it.
     for k, xoff in enumerate((0, 26, 52)):
-        b += stack(640 + xoff, 190 + k * 6, SP_P, cell=18, gap=3)
-    b += txt(680, 168, sub("z", "t+1", 13), 17) + caret(670, 155)
-    b += (f'<path d="M727,258 L775,258" stroke="{MSERED}" stroke-width="1.8" '
+        b += stack(628 + xoff, 190 + k * 6, SP_P, cell=18, gap=3)
+    b += txt(668, 168, sub("z", "t+1", 13), 17) + caret(658, 155)
+    b += (f'<path d="M715,258 L775,258" stroke="{MSERED}" stroke-width="1.8" '
           f'stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>\n')
-    b += txt(751, 236, "MSE (min)", 14, fill=MSERED)
+    b += txt(745, 236, "MSE (min)", 14, fill=MSERED)
     # the predictor block, redrawn so its wires start and stop clear of the token stacks
     b += domeright(232, 196, 190, 132, "Pred", sub="g")
     b += circle(318, 430, 38, sub("a", "t", 13))
     b += arrow(318, 392, 318, 332)
     b += arrow(176, 262, 226, 262)
     b += txt(201, 248, sub("z", "t", 12), 15, fill=MUTED)
-    b += arrow(424, 262, 632, 262)
-    b += callout(268, 700, 366, 86, [
+    b += arrow(424, 262, 620, 262)
+    b += callout(268, 694, 366, 100, [
         "Proposed: give the model columns at all",
         "feature=cls gives num_patches = 1, so the predictor",
         "saw ONE token and shared one operator across it.",
@@ -622,14 +641,19 @@ def build(out):
     # 8. token dropping
     b = base("(7) PiWM-drop95 -- 95% of patch tokens dropped  [COLLAPSED]",
              enc_sub="feature = patch", skip=("enc",))
+    # the dome keeps its bottom at 644 (so o_t and the sub-label are where every other
+    # figure puts them) but starts 20px lower, because "one continuous wire with the
+    # inserted stage straddling it" meant the opaque box covered y=480..510 of the only
+    # wire between the encoder and the link: the encoder read as unconnected.
     for x in (64, 756):
-        b += domeup(x, 520, 112, 124, "Enc <tspan font-style='italic'>f</tspan>",
+        b += domeup(x, 540, 112, 104, "Enc <tspan font-style='italic'>f</tspan>",
                     sub="feature = patch")
     for x in (120, 812):
-        # one continuous wire with the inserted stage straddling it
-        b += arrow(x, 520, x, 468)
-        b += box(x - 72, 480, 144, 30, "drop 95%", fill=ACCENT_FILL["amber"],
+        # the wire enters the inserted stage and leaves it, and both legs are visible
+        b += arrow(x, 540, x, 524)
+        b += box(x - 60, 488, 120, 30, "drop 95%", fill=ACCENT_FILL["amber"],
                  stroke=ACCENT["amber"], sw=2.0, size=16, dash="6,4")
+        b += arrow(x, 488, x, 470)
     b += callout(258, 644, 392, 100, [
         "Proposed: LeVJEPA's strongest single gain",
         "In a JEPA the encoder output is ALSO the target, so",
@@ -673,17 +697,22 @@ def _consensus():
                     sub("Enc <tspan font-style='italic'>f</tspan>", f"{i+1}", 12), fill=fill)
         s += domeright(232, y + 12, 150, 80, "Pred", sub=sub("g", f"{i+1}", 11))
         s += arrow(166, y + 52, 226, y + 52)
-        s += stack(404, y + 6, [SP_P, SP_L, SP_R][i], cell=16, gap=3)
-        s += arrow(384, y + 52, 398, y + 52)
+        # the stack sits at 418, not 404: the predictor's arc tips at x=382, so at 404 the
+        # connecting arrow was 14px long carrying an 11px head -- a floating arrowhead with
+        # a 3px shaft. 28px gives the head a shaft to sit on.
+        s += stack(418, y + 6, [SP_P, SP_L, SP_R][i], cell=16, gap=3)
+        s += arrow(384, y + 52, 412, y + 52)
         s += txt(118, y - 12, f"column {i+1}", 15, fill=MUTED)
         # each member gets its OWN corridor and its OWN entry point on the vote box:
         # the old routing put all three on the shared segment x=508 -> the box.
         cor, ey = (500, 512, 524)[i], (BY + 30, cy, BY + BH - 30)[i]
-        s += poly([(426, y + 52), (cor, y + 52), (cor, ey), (BX - 6, ey)])
+        s += poly([(440, y + 52), (cor, y + 52), (cor, ey), (BX - 6, ey)])
     # drawn ellipsis (no font here has a reliable U+22EE), with its caption beside it
     for k in range(3):
         s += f'<circle cx="118" cy="{644 + k*11}" r="2.4" fill="{MUTED}"/>\n'
-    s += txt(150, 672, "M independently trained models", 15, anchor="start", fill=MUTED)
+    # the caption centres on the dot column (dots at 644/655/666, so mid 655), instead of
+    # sitting level with the LAST dot as if it belonged to that dot alone.
+    s += txt(138, 661, "M independently trained models", 15, anchor="start", fill=MUTED)
     s += (f'<rect x="{BX}" y="{BY}" width="{BW}" height="{BH}" rx="9" '
           f'fill="{ACCENT_FILL["green"]}" stroke="{ACCENT["green"]}" stroke-width="2.0"/>\n')
     s += txt(BX + BW / 2, BY + 34, "CONSENSUS", 19, fill=ACCENT["green"], weight="bold")
@@ -692,7 +721,9 @@ def _consensus():
     s += txt(BX + BW / 2, BY + 104, "(at PLAN time)", 13, fill=MUTED)
     s += arrow(BX + BW, cy, BX + BW + 50, cy, color=ACCENT["green"], w=2.0)
     s += circle(BX + BW + 96, cy, 42, "CEM", fill=PEACH, size=17)
-    s += callout(238, 706, 494, 86, [
+    # h=100 like every other four-line callout in the set; raised to 694 so the extra
+    # 14px does not close on the title's cap-height at y=824.
+    s += callout(238, 694, 494, 100, [
         "Proposed: vote among columns -- and it WORKS",
         "M=5: delta = +0.228 vs a single model (p = 0.0005), beats its",
         "members' mean 10/10, matches best-of-M, 0/10 catastrophes.",
