@@ -17,6 +17,8 @@
 #
 # Method-knob env-var overrides (all optional):
 #   PREDICTOR (ar_adaln|ar_adaln_d1|mlp_var|ltv|linear_var|linear_wb), PROJ_DIM (latent dim D),
+#   SUPPORT_W (R6), CONSIST_W/CONSIST_SRC/CONSIST_K/CONSIST_SIGMA (R2), SAM_RHO (R3),
+#   INCR_EPS/INCR_CLIP (R4, with INCR_NORM=true),
 #   MU (sparsity), MUP=1 MUP_LR=1e-4, REG_WEIGHT, LAMB_VAR, LAMB_COV, VAR_SPACE, REGULARIZER
 #   (rdmreg|sigreg|none), TRAIN_ENCODER, SEED, RUN_NAME, WANDB_PROJECT, SAVE_EVERY, DEBUG=1,
 #   and CKPT_BASE (where run dirs are written; default ./runs).
@@ -87,6 +89,17 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${VALUE_MODE:-}" ]   && { add "value_mode=${VALUE_MODE}"; TAG="${TAG}_${VALUE_MODE}"; }
 [ -n "${VALUE_TAU:-}" ]    && { add "value_tau=${VALUE_TAU}"; TAG="${TAG}_tau${VALUE_TAU}"; }
 [ -n "${POLICY_W:-}" ]     && { add "policy_w=${POLICY_W} act_dim_raw=$((2 * FRAMESKIP))"; TAG="${TAG}_bc"; }
+# round 6 (R6 support / R2 consistency / R3 action-SAM / R4 V1's epsilon). Unset =>
+# upstream behaviour, bit-identical on both mlp_var and ltv. Every one of these is a GRID
+# knob: the round's rule is that no arm is single-shot on its own strength parameter.
+[ -n "${SUPPORT_W:-}" ]    && { add "support_w=${SUPPORT_W}"; TAG="${TAG}_sup${SUPPORT_W}"; }
+[ -n "${CONSIST_W:-}" ]    && { add "consist_w=${CONSIST_W}"; TAG="${TAG}_con${CONSIST_W}"; }
+[ -n "${CONSIST_SRC:-}" ]  && { add "consist_src=${CONSIST_SRC}"; TAG="${TAG}_${CONSIST_SRC}"; }
+[ -n "${CONSIST_K:-}" ]    && { add "consist_k=${CONSIST_K}"; TAG="${TAG}_ck${CONSIST_K}"; }
+[ -n "${CONSIST_SIGMA:-}" ] && { add "consist_sigma=${CONSIST_SIGMA}"; TAG="${TAG}_cs${CONSIST_SIGMA}"; }
+[ -n "${SAM_RHO:-}" ]      && { add "sam_rho=${SAM_RHO}"; TAG="${TAG}_sam${SAM_RHO}"; }
+[ -n "${INCR_EPS:-}" ]     && { add "incr_eps=${INCR_EPS}"; TAG="${TAG}_ie${INCR_EPS}"; }
+[ -n "${INCR_CLIP:-}" ]    && { add "incr_clip=${INCR_CLIP}"; TAG="${TAG}_ic${INCR_CLIP}"; }
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }
 [ "${MUP:-0}" = "1" ]    && { add "mup=true"; TAG="${TAG}_mup"; }

@@ -8,6 +8,7 @@ from torchvision import transforms
 from einops import rearrange, repeat
 
 from .heads import MLPHead
+from .stats import soft_jaccard
 
 
 class VWorldModel(nn.Module):
@@ -74,6 +75,23 @@ class VWorldModel(nn.Module):
         act_dim_raw=None,       # RAW action width (2 * frameskip = 10 on pushT), NOT the
                                 # 384-d embedding; required whenever policy_w > 0
         head_ckpt=None,         # plan-time only: restore value/policy heads from this file
+        # --- ROUND 6. Four objective terms, every one inert at the default below.
+        # R6: loss on S_model = 1 - J_S(z_pred, target), the ONE logged quantity that
+        # survives analysis/screen_objective.py (raw -0.769, partial -0.549, monotone).
+        support_w=0.0,
+        # R2: K-step jump vs K chained 1-step predictions, on actions sampled from the
+        # CEM PROPOSAL. Both sides are the model's own output, so no ground truth is
+        # needed for counterfactual actions.
+        consist_w=0.0,
+        consist_src="cem",      # "cem" (the arm) | "data" (the matched control)
+        consist_k=5,            # = CEM's goal_H / horizon (conf/plan_rdmreg.yaml:41,58)
+        consist_sigma=1.0,      # = CEM's var_scale (conf/plan_rdmreg.yaml:61)
+        # R3: sharpness-aware minimisation in ACTION space. rho is the radius of the
+        # ball, in units of the NORMALISED action (per-row L2).
+        sam_rho=0.0,
+        # R4: V1's hard-coded epsilon, made a knob, plus a span clip.
+        incr_eps=1e-4,          # 1e-4 reproduces V1 (PiWM-incr) bit-identically
+        incr_clip=0.0,          # 0 => off; else clip the unit-mean weight to [1/c, c]
         n_heads=1,
         head_entropy_coef=0.0,
         burst_tau=0.5,
@@ -137,6 +155,80 @@ class VWorldModel(nn.Module):
             # Loud: at K=1 "overshoot" is the default one-step loss, so an arm named
             # overshoot would silently be its own control (the V1-V3 failure mode).
             raise ValueError("overshoot=True is meaningless at num_pred=1; set num_pred=K>1")
+
+        # --- ROUND 6 ----------------------------------------------------------------
+        # Every round-6 arm is a GRID, because six of the nine round-3/4/5 proposals were
+        # single-shot on their strength knob and V1 had no knob at all -- its epsilon was
+        # the literal 1e-4 below, 414x under the median increment 4.1e-2, and its ESS was
+        # 0.063. So each term here exposes the scalar that decides whether it does
+        # anything, and each defaults to the value that makes it do nothing.
+        #
+        # R6. S_model = 1 - J_S(z_pred, target). soft_jaccard is imported from
+        # models/stats.py -- the SAME function object train.py's jacc/S_model diagnostic
+        # calls -- because the arm is only readable against analysis/screen_objective.py
+        # if the optimised quantity and the screened quantity are one quantity.
+        self.support_w = float(support_w)
+        if self.support_w > 0 and getattr(self.link, "kind", "identity") not in (
+            "relu", "reprelu"
+        ):
+            # J_S is only DEFINED on non-negative inputs. On an identity link z_pred and
+            # target are signed, min/max no longer bracket an intersection, and the ratio
+            # can leave [0, 1] entirely -- the term would be a different objective wearing
+            # the same name. Loud rather than silent, as with contact_geom below.
+            raise ValueError(
+                "support_w > 0 requires a rectified link (relu | reprelu); got "
+                f"{getattr(self.link, 'kind', None)!r}. J_S is undefined on signed codes."
+            )
+        # R2. Actions from the planner's own proposal distribution. No training arm in
+        # ~60 has fed a non-dataset action into a loss; consist_src='data' is the matched
+        # control that isolates the DISTRIBUTION, which is the entire claim.
+        self.consist_w = float(consist_w)
+        self.consist_src = str(consist_src)
+        self.consist_k = int(consist_k)
+        self.consist_sigma = float(consist_sigma)
+        if self.consist_src not in ("cem", "data"):
+            raise ValueError(f"consist_src must be cem|data, got {self.consist_src!r}")
+        if self.consist_w > 0 and self.consist_k < 2:
+            # At K=1 the "K-step jump" IS the single chained step: P_1 == chain(P_1), the
+            # term is identically 0, and the arm would be its own control -- the exact
+            # failure mode the overshoot guard above exists for.
+            raise ValueError(
+                "consist_w > 0 requires consist_k >= 2; at K=1 the jump and the chain "
+                "are the same call and the term is identically zero"
+            )
+        # R3. Action-space SAM. rho is a radius in NORMALISED action units (the dataset
+        # normalises actions to unit per-component std, datasets/pusht_dset.py:94, and the
+        # CEM proposal draws in that same space), so rho is directly comparable to the
+        # planner's var_scale.
+        self.sam_rho = float(sam_rho)
+        if self.sam_rho > 0 and (self.overshoot or self.n_heads > 1):
+            # SAM perturbs the action that feeds ONE predictor call. Under overshoot the
+            # action drives K chained calls and under J>1 the argmin selects a head, so in
+            # both cases "the loss at the perturbed action" is a different object than the
+            # one this term claims to maximise. Refuse rather than compose silently.
+            raise ValueError(
+                "sam_rho > 0 is not defined together with overshoot or n_heads > 1"
+            )
+        # R4. V1's epsilon and a span clip on its weight.
+        self.incr_eps = float(incr_eps)
+        self.incr_clip = float(incr_clip)
+        if self.incr_eps <= 0:
+            raise ValueError(f"incr_eps must be > 0, got {self.incr_eps}")
+        if self.incr_clip < 0 or (0 < self.incr_clip <= 1.0):
+            # c <= 1 would give the empty interval [1/c, c] with 1/c >= c, i.e. clamp(min
+            # > max), which torch resolves silently to the max -- a constant weight, so
+            # the arm would be the uniform baseline under V1's name.
+            raise ValueError(f"incr_clip must be 0 (off) or > 1, got {self.incr_clip}")
+        # Private RNGs, one per term, cached per device. Same rationale (and same shape)
+        # as T3's _contact_gen and T4's _head_gen: RDMReg draws its target from the GLOBAL
+        # stream later in the same forward, so a term that sampled from it would move
+        # every subsequent draw and the arm would differ from its control by the term AND
+        # by the regulariser's noise -- two factors, not one. Plain attributes, not
+        # buffers, so the state_dict stays byte-identical to upstream. Not checkpointed
+        # (neither are _contact_gen / _head_gen): a resumed run restarts the noise stream,
+        # which changes which counterfactual actions are drawn and nothing else.
+        self._consist_gen = None
+        self._sam_gen = None
         if self.contact_gamma != 0.0 and self.contact_geom is None:
             # Loud, not silent. A weighting arm that quietly falls back to uniform is
             # the path_int failure mode: it would look like a run and be a control.
@@ -454,6 +546,280 @@ class VWorldModel(nn.Module):
             self.path_int.to(x.device)
         return (self.path_int(x) - proprio[:, 1:].detach()).pow(2).mean()
 
+    # --- ROUND 6: four objective terms, each inert at its default -----------------------
+    #
+    # Common shape, deliberately: a scalar knob whose default is the no-op, an explicit
+    # collapse diagnostic emitted as a TENSOR in loss_components (train.py:1232 gathers
+    # and epoch-averages every tensor there, so "logged every epoch" is a property of
+    # where the number is put, not of a logging call), and a matched control that differs
+    # by ONE factor. Pre-registered death condition for all four: rel_mse >= 0.5.
+
+    def _support_loss(self, z_pred, target):
+        """R6: S_model = 1 - J_S(z_pred, target), the quantity the screen endorses.
+
+        analysis/screen_objective.py ranked eight logged quantities against CEM success
+        with rho and rel_mse partialled out. jacc/S_model is the only one that passes
+        every leg: raw Spearman -0.769, partial -0.549, and monotone when binned over
+        healthy predictors (0.407 / 0.365 / 0.249 / 0.058). It has been a diagnostic
+        since the project started and has NEVER been optimised -- soft_jaccard appears
+        zero times in models/ before this. That is the arm: optimise the thing that
+        predicts the outcome.
+
+        ADDED to z_loss, never replacing it. J_S is a support-overlap statistic; on its
+        own it says nothing about the magnitudes on that support, and dropping the MSE
+        would delete the only term that pins them.
+
+        The returned scalar is soft_jaccard's mean over exactly the axes train.py's
+        _jaccard_diagnostics means over ((b, t, p) after the last-axis reduction), on
+        exactly the tensors it stashes in self._diag -- so on a given batch
+        `support_s` here and `jacc/S_model` there are the same number to the bit, and
+        the arm can be read against the screen that motivated it. (They are logged on
+        different schedules: support_s rides loss_components and is epoch-averaged over
+        every batch, jacc/S_model is a tier-1 sample every log_every_x_batch.)
+
+        WATCH: J_S(a, b) is invariant to a COMMON rescaling of a and b, which MSE is not.
+        With detach_target=False the cheapest way to lower S is therefore not to predict
+        better but to inflate z and z_pred together, which would raise the code norm and
+        leave the support structure untouched. support_z_rms / support_tgt_rms /
+        support_z_sum make that visible on the epoch curve; a run whose S falls while its
+        norms climb has gamed the term and is not evidence for the screen.
+        """
+        s = 1.0 - soft_jaccard(z_pred, target)             # (b, t, p)
+        zp, tg = z_pred.detach(), target.detach()
+        logs = {
+            "support_s": s.detach().mean(),                # == jacc/S_model
+            "support_z_rms": zp.pow(2).mean().sqrt(),      # scale-inflation watch
+            "support_tgt_rms": tg.pow(2).mean().sqrt(),
+            "support_z_sum": zp.sum(-1).mean(),            # J_S's denominator scale
+            "support_l0_pred": (zp != 0).to(zp.dtype).mean(),
+        }
+        return s.mean(), logs
+
+    def _consist_generator(self, device):
+        """R2's PRIVATE RNG. See the round-6 block in __init__ for why it is private."""
+        if self._consist_gen is None or self._consist_gen.device != torch.device(device):
+            g = torch.Generator(device=device)
+            g.manual_seed(20260904)
+            self._consist_gen = g
+        return self._consist_gen
+
+    def _consist_actions(self, act):
+        """R2's action sequences: (b, num_hist + K - 1, act_dim_raw), no grad.
+
+        consist_src='cem' IS the CEM proposal, read off planning/cem.py:99-106 rather
+        than guessed: `torch.randn(num_samples, horizon, action_dim) * sigma + mu` with
+        mu = 0 and sigma = var_scale * ones at init (init_mu_sigma, cem.py:42-60), with
+        var_scale = 1 and horizon = goal_H = 5 in conf/plan_rdmreg.yaml:41,58,61. So the
+        proposal is iid N(0, var_scale^2) per row, in the NORMALISED action space the
+        planner and the dataset share (datasets/pusht_dset.py:94).
+
+        consist_src='data' is the MATCHED CONTROL: the same term, the same shapes, the
+        same number of predictor calls, the same private RNG -- rows resampled iid from
+        the batch's own action tensor instead of drawn from the Gaussian. Because
+        normalisation makes the dataset's per-component std 1 and var_scale is 1, the two
+        sources are SCALE-MATCHED by construction (consist_act_rms logs it), so what the
+        contrast isolates is the distribution's shape, not its size.
+
+        The control resamples rows rather than replaying the window's own action sequence
+        because K-step consistency needs num_hist + K - 1 = 7 rows and a num_pred=1
+        training window carries only num_hist + num_pred = 4. Both sources are therefore
+        iid ACROSS TIME; neither reproduces the temporal correlation of a demonstration,
+        and the contrast is empirical-marginal vs Gaussian-marginal. Stated here because
+        an unstated version of this would be exactly the kind of hidden second factor
+        that killed half of round 3.
+        """
+        b, dev = act.shape[0], act.device
+        rows, adim = self.num_hist + self.consist_k - 1, act.shape[-1]
+        gen = self._consist_generator(dev)
+        if self.consist_src == "cem":
+            a = torch.randn(b, rows, adim, device=dev, dtype=act.dtype, generator=gen)
+            return a * self.consist_sigma
+        pool = act.detach().reshape(-1, adim)
+        idx = torch.randint(0, pool.shape[0], (b * rows,), device=dev, generator=gen)
+        return pool[idx].view(b, rows, adim)
+
+    def _consist_loss(self, z_emb, obs, act):
+        """R2: does the K-step jump agree with K chained 1-step steps, off-policy?
+
+            L = || P_K(z, a_1:K) - chain(P_1, z, a_1:K) ||^2
+
+        BOTH SIDES ARE THE MODEL'S OWN OUTPUT, which is the point: a counterfactual
+        action has no recorded next frame, so any loss that needed ground truth is
+        confined to the dataset's action distribution -- and every one of ~60 training
+        arms has been. M3 (diary s16.1) put the bottleneck in the ROLLOUT, not the leaf
+        score: latent-MSE with oracle dynamics scores 0.91 against 0.43 with learned
+        dynamics. A rollout is a chain of 1-step maps evaluated at actions CEM proposes,
+        not at actions the demonstrator took, and nothing in the training objective has
+        ever looked there.
+
+        P_K is one predictor call on the OPTION action (the mean of the K action
+        embeddings the option spans, _option_act_k -- T6's object, at k = consist_k
+        rather than num_pred so a 1-step model can be asked the question). chain is
+        _chain_rollout, i.e. T6's overshoot control verbatim. Both are the model's
+        existing objects; neither is a re-implementation.
+
+        Neither side is detached. Detaching the chain would make it a target and the term
+        a distillation of the compounded map into the jump; the claim is agreement, which
+        is symmetric. The trivial minimiser of agreement alone is a predictor that ignores
+        the action -- z_loss opposes it, and causal/d_action (train.py) plus consist_jump_rms
+        / consist_chain_rms here make the collapse visible if it happens anyway.
+        """
+        a = self._consist_actions(act)
+        a_emb = self._act_emb_with_pose(a, obs.get("proprio"))
+        z_src = z_emb[:, : self.num_hist]
+        opt = self._option_act_k(a_emb, self.consist_k)
+        z_jump = self._predict_next_adaln(z_src, opt)                        # (b,1,p,d)
+        z_chain = self._chain_rollout(z_src, a_emb, self.consist_k)[:, -1:]  # (b,1,p,d)
+        loss = (z_jump - z_chain).pow(2).mean()
+        jr = z_jump.detach().pow(2).mean()
+        cr = z_chain.detach().pow(2).mean()
+        logs = {
+            "consist_loss": loss.detach(),
+            # scale-free: an arm whose codes shrink lowers the raw term for free
+            "consist_rel": loss.detach() / cr.clamp_min(1e-12),
+            "consist_act_rms": a.pow(2).mean().sqrt(),
+            "consist_jump_rms": jr.sqrt(),
+            "consist_chain_rms": cr.sqrt(),
+        }
+        return loss, logs
+
+    def _sam_generator(self, device):
+        """R3's PRIVATE RNG, used only by the d_action guard below."""
+        if self._sam_gen is None or self._sam_gen.device != torch.device(device):
+            g = torch.Generator(device=device)
+            g.manual_seed(20260904)
+            self._sam_gen = g
+        return self._sam_gen
+
+    def _sam_act_src(self, act, proprio):
+        """act -> the conditioning slice the predictor consumes, from the RAW action."""
+        emb = self._act_emb_with_pose(act, proprio)
+        return self._option_act(emb)[:, : self.num_hist]
+
+    def _sam_perturb(self, z_src, target, act, proprio):
+        """R3: one gradient-ascent step on the ACTION, then the loss at that action.
+
+            min_theta  max_{||delta_a|| <= rho}  L(z, a + delta_a)
+
+        SAM's ascent step with the dual-norm solution delta = rho * g / ||g||, g = dL/da,
+        taken PER ACTION ROW: rho is the radius each conditioning row may move, not a
+        budget shared across the window, so its units are those of one normalised action
+        (per-component std 1) and it is directly comparable to CEM's var_scale = 1.
+
+        The ascent pass runs on z_src.detach() and target.detach(). Not an approximation
+        of convenience -- the ascent direction is dL/da, which has no path through the
+        encoder -- and it means the ascent graph shares no buffer with the main graph, so
+        computing it cannot free anything the real backward needs.
+
+        MANDATORY GUARD (spec, and it is the honest one): the unconstrained minimiser of
+        max_delta L is a predictor that is CONSTANT in a over the ball, i.e. d_action = 0
+        -- the collapse mode round 3 spent nine arms on. sam_d_action below is the same
+        statistic as train.py's causal/d_action (shuffle the batch's actions, keep the
+        state, measure how far the prediction moves), computed here on the CLEAN action
+        so it is comparable to analysis/d_action_probe.py, and emitted in loss_components
+        so it lands in the epoch average rather than only in the tier-1 batch log. The
+        measured baseline is d_action = 0.354, d_action/|z| = 0.549, and the relation to
+        CEM is an INVERTED U with its optimum near 0.6 -- so for this arm the number to
+        watch is a FALL, and a run whose d_action collapses has falsified the arm whatever
+        its z_loss does.
+        """
+        # enable_grad, because train.py's val() calls the same forward and a future
+        # `with torch.no_grad()` around it (there is one two blocks up, around
+        # openloop_rollout) would otherwise turn the ascent into a RuntimeError at the
+        # end of epoch 1 -- i.e. after two hours of training. The ascent's graph is
+        # discarded here either way; only `delta`, detached, escapes.
+        with torch.enable_grad():
+            a0 = act.detach().clone().requires_grad_(True)
+            src0 = self._sam_act_src(a0, proprio)
+            l_clean = self.emb_criterion(
+                self._link(self.predict(z_src.detach(), src0)), target.detach()
+            )
+            g = torch.autograd.grad(l_clean, a0)[0]
+        # clamp_min, not a bare divide: rows the loss never reads (row >= num_hist at
+        # num_pred=1) have exactly zero gradient, and 0/0 would be NaN in the action the
+        # model is then conditioned on.
+        delta = (self.sam_rho * g / g.norm(dim=-1, keepdim=True).clamp_min(1e-12)).detach()
+        act_adv = (act.detach() + delta).detach()
+        return self._sam_act_src(act_adv, proprio), l_clean.detach(), delta
+
+    @torch.no_grad()
+    def _sam_diagnostics(self, z_src, act_src_clean, z_pred, target, l_clean, delta):
+        """R3's first-class metrics: the sharpness it bought and the d_action it cost."""
+        z = z_src.detach()
+        base = self._link(self.predict(z, act_src_clean))
+        b = z.shape[0]
+        if b >= 2:
+            # A random NON-ZERO CYCLIC SHIFT, not train.py's torch.randperm. Two reasons,
+            # and they are about this metric being a falsifier rather than a curiosity:
+            #   * a randperm can come up the identity, and then d_action is exactly 0 for
+            #     a reason that has nothing to do with the model. Measured: at b=4 that is
+            #     1/4! = 4% of batches, and it fired on step 2 of a 3-step trace during
+            #     verification. "d_action = 0" is precisely the alarm this arm exists to
+            #     raise, so an estimator that can produce it by coincidence is unusable.
+            #   * a shift is fixed-point free, so every row is paired with a DIFFERENT
+            #     row's action. randperm leaves ~1/b rows paired with themselves, which
+            #     biases d_action down by that factor (3% at the campaign's batch_size=32,
+            #     25% at b=4). Same statistic, one bias removed.
+            # Still random (the shift is drawn from the private generator), so it is not a
+            # fixed pairing across steps.
+            gen = self._sam_generator(z.device)
+            k = int(torch.randint(1, b, (1,), device=z.device, generator=gen))
+            perm = torch.roll(torch.arange(b, device=z.device), k)
+            d_act = (base - self._link(self.predict(z, act_src_clean[perm]))).pow(2).mean().sqrt()
+        else:
+            # emitted anyway: train.py gathers loss_components across ranks, so a key
+            # that appears on some ranks and not others would break the reduction.
+            d_act = torch.zeros((), device=z.device, dtype=base.dtype)
+        scale = base.pow(2).mean().sqrt()
+        l_adv = (z_pred.detach() - target.detach()).pow(2).mean()
+        return {
+            "sam_d_action": d_act,
+            "sam_d_action_over_scale": d_act / scale.clamp_min(1e-12),
+            # the sharpness itself: how much worse the loss is inside the ball. ~0 means
+            # rho is too small to be an intervention (the single-shot failure mode).
+            "sam_sharpness": (l_adv - l_clean) / l_clean.clamp_min(1e-12),
+            "sam_l_clean": l_clean,
+            "sam_delta_rms": delta.pow(2).mean().sqrt(),
+        }
+
+    def _incr_weight(self, z_src, target):
+        """R4: V1's per-sample increment weight, with its epsilon exposed and clipped.
+
+        V1 (PiWM-incr) scored -0.383 [-0.497, -0.268] with 8/8 seeds dead. Its weight is
+
+            w_i = 1 / (mean_pd (target - z_src)^2 + eps),   renormalised to mean 1
+
+        and `eps` was the literal 1e-4 at this line -- 414x below the median increment
+        4.1e-2, so w spans four orders of magnitude and the effective sample size
+        ESS = mean(w)^2 / mean(w^2) is 0.063. Six percent of a batch. That single number
+        is the entire explanation of V1's failure, and V1 had no way to change it.
+
+        incr_eps moves the knee of 1/(x + eps): at eps >> the typical increment the weight
+        is flat (the uniform baseline), at eps << it, V1. incr_clip caps the span directly.
+
+        The clip is applied to the unit-mean weight and the result is RENORMALISED to unit
+        mean again. That is a deliberate deviation from "clip to [1/c, c]" literally: the
+        unit-mean property is load-bearing (V1's own comment says so -- it keeps the term's
+        balance against reg_weight fixed, so a weighting arm is not secretly a
+        learning-rate arm), and clipping breaks it. The bounded quantity that survives the
+        second renormalisation is the one that matters, the SPAN max/min <= c^2, and
+        incr_span logs it.
+        """
+        d_true = (target - z_src).detach()
+        w = 1.0 / (d_true.pow(2).mean(dim=(-1, -2), keepdim=True) + self.incr_eps)
+        w = w / w.mean().clamp_min(1e-12)
+        if self.incr_clip > 0:
+            w = w.clamp(1.0 / self.incr_clip, self.incr_clip)
+            w = w / w.mean().clamp_min(1e-12)
+        wd = w.detach()
+        logs = {
+            "incr_ess": wd.mean().pow(2) / wd.pow(2).mean().clamp_min(1e-30),
+            "incr_w_max": wd.max(),
+            "incr_w_min": wd.min(),
+            "incr_span": wd.max() / wd.min().clamp_min(1e-30),
+        }
+        return w, logs
+
     # --- T4 / V4 -----------------------------------------------------------------------
 
     def load_head_state(self, ckpt, strict=True):
@@ -724,7 +1090,18 @@ class VWorldModel(nn.Module):
         At K == 1 this returns the INPUT OBJECT unchanged, so the default path is
         bit-identical (no new op, no new node in the graph).
         """
-        k = self.num_pred
+        return self._option_act_k(act_emb, self.num_pred)
+
+    def _option_act_k(self, act_emb, k):
+        """_option_act with K passed in rather than read off self.num_pred.
+
+        R2 needs the SAME option action at a horizon (consist_k = the planner's goal_H)
+        that is independent of the model's own K -- the whole point of the consistency
+        term is that a num_pred=1 model is asked whether its 5-step jump agrees with five
+        of its own 1-step steps. Rewriting the averaging there would have been a second
+        definition of "the action of an option", and the two could drift; this is the one
+        definition, and T6's _option_act is now a call to it at k = num_pred.
+        """
         if k <= 1:
             return act_emb
         # pad by holding the last row, so every row i in [0, T) has K rows to average.
@@ -747,17 +1124,32 @@ class VWorldModel(nn.Module):
 
         Returns (z_pred, target) both (b, K, p, d).
         """
-        emb = z_emb[:, : self.num_hist]
+        z_pred = self._chain_rollout(z_emb[:, : self.num_hist], act_emb, self.num_pred)
+        tgt = z_emb[:, self.num_hist : self.num_hist + self.num_pred]
+        return z_pred, (tgt.detach() if self.detach_target else tgt)
+
+    def _chain_rollout(self, emb, act_emb, k):
+        """k chained 1-step predictions from `emb`, with per-row actions. (b, k, p, d).
+
+        Lifted out of _overshoot_rollout verbatim (same loop, same slicing, same ops) so
+        R2's chain(P_1, z, a_1:K) and T6's overshoot control are the SAME code. R2's
+        claim is that the K-step jump disagrees with the compounded 1-step map; if the
+        compounded map here were a re-implementation, the disagreement it measured could
+        be an artefact of the re-implementation.
+
+        Consumes action rows 0 .. num_hist+k-2 (step j is conditioned on rows
+        [j, j+num_hist) and predicts frame num_hist+j), so `act_emb` must be at least
+        num_hist+k-1 rows long. T6 satisfies that with num_pred=k; R2 builds its own
+        action tensor to that length.
+        """
         preds = []
-        for _ in range(self.num_pred):
+        for _ in range(k):
             # window slides exactly as the plan-time K=1 rollout does, so step j is
             # conditioned on act rows [j, j+num_hist) and predicts frame num_hist+j
             nxt = self._predict_next_adaln(emb, act_emb)   # (b, 1, p, d) linked
             preds.append(nxt)
             emb = torch.cat([emb, nxt], dim=1)
-        z_pred = torch.cat(preds, dim=1)                   # (b, K, p, d)
-        tgt = z_emb[:, self.num_hist : self.num_hist + self.num_pred]
-        return z_pred, (tgt.detach() if self.detach_target else tgt)
+        return torch.cat(preds, dim=1)                     # (b, k, p, d)
 
     def _act_emb_with_pose(self, act, proprio):
         """Action embedding with the location signal bound to it (TBT reference frame).
@@ -1072,7 +1464,18 @@ class VWorldModel(nn.Module):
                 # supervised. z_pred/target are (b, K, p, d) here, NOT (b, num_hist, ..).
                 z_pred, target = self._overshoot_rollout(z_emb, act_emb)
             else:
-                u_pred = self.predict(z_src, act_src)   # predictor output (pre-link)
+                # R3. Action-space SAM evaluates the loss at the WORST action in a
+                # rho-ball, so the prediction is conditioned on the ASCENDED action.
+                # `act_src` itself stays CLEAN: it is what self._diag hands train.py's
+                # causal/d_action, and that number must stay comparable to
+                # analysis/d_action_probe.py across every arm in the archive. Inert at
+                # sam_rho=0 -- act_src_used IS act_src, the same object, no new node.
+                act_src_used = act_src
+                if self.sam_rho > 0:
+                    act_src_used, _sam_lc, _sam_delta = self._sam_perturb(
+                        z_src, target, act, obs.get("proprio")
+                    )
+                u_pred = self.predict(z_src, act_src_used)  # predictor output (pre-link)
                 z_pred = self._link(u_pred)             # linked (SAME link -> tied threshold)
             if self.overshoot:
                 # deliberately ahead of incr_norm / contact in this cascade: both index
@@ -1087,10 +1490,13 @@ class VWorldModel(nn.Module):
                 # are exactly where the action's relative contribution is smallest.
                 # Renormalised to unit mean weight so the balance against reg_weight is
                 # unchanged and this is not secretly a learning-rate change.
-                d_true = (target - z_src).detach()
-                w = 1.0 / (d_true.pow(2).mean(dim=(-1, -2), keepdim=True) + 1e-4)
-                w = w / w.mean().clamp_min(1e-12)
+                # R4: the epsilon that used to be the literal 1e-4 here is now
+                # self.incr_eps (default 1e-4 => bit-identical to the run on record), and
+                # incr_clip caps the span. _incr_weight also emits the ESS and the span,
+                # which are what explain V1's 8/8 dead seeds after the fact.
+                w, _ilogs = self._incr_weight(z_src, target)
                 z_loss = ((z_pred - target).pow(2) * w).mean()
+                loss_components.update(_ilogs)
             elif (_cw := self._contact_weight(obs)) is not None:
                 # T3. Both components are TENSORS (train.py:1096-1099 gathers them) and
                 # are emitted ONLY when contact_gamma > 0, so the default component-name
@@ -1100,10 +1506,28 @@ class VWorldModel(nn.Module):
                 loss_components["contact_w_max"] = _cw.max()
             else:
                 z_loss = self.emb_criterion(z_pred, target)
+            if self.sam_rho > 0:
+                # first-class for this arm, not an afterthought: d_action = 0 IS the
+                # unconstrained minimiser of max_delta L, so this is the falsifier.
+                loss_components.update(
+                    self._sam_diagnostics(
+                        z_src, act_src, z_pred, target, _sam_lc, _sam_delta
+                    )
+                )
             if self.act_info > 0:
                 loss_components["act_info_loss"] = self._action_infonce(
                     z_src, act_src, target, z_pred)
             self._diag_heads = None
+
+        # R6. The screen-validated term. ADDED to z_loss (never replacing it): J_S
+        # constrains the support, the MSE constrains the magnitudes on it. Placed after
+        # the whole n_heads branch so it applies to whichever (z_pred, target) pair the
+        # cascade above settled on, and before self._diag, which stashes that same pair
+        # for train.py's jacc/S_model -- the number this term optimises.
+        if self.support_w > 0:
+            _sl, _slogs = self._support_loss(z_pred, target)
+            z_loss = z_loss + self.support_w * _sl
+            loss_components.update(_slogs)
 
         # The encoder code and the loss's own target are not on the return path, and
         # they are what almost every live diagnostic is about (sparsity, predictive
@@ -1126,6 +1550,15 @@ class VWorldModel(nn.Module):
         # in the logs and an ablation can read them apart.
         if self.act_info > 0 and "act_info_loss" in loss_components:
             loss = loss + self.act_info * loss_components["act_info_loss"]
+        # R2: rollout self-consistency on the PLANNER's action distribution. Added to
+        # `loss`, not folded into z_loss, for the same reason V2 is: the two are then
+        # separable in the logs and an ablation can read them apart. Its diagnostics are
+        # emitted only when consist_w > 0, so the default component-name set that
+        # tests/test_bit_identity.py pins is unchanged.
+        if self.consist_w > 0:
+            _kl, _klogs = self._consist_loss(z_emb, obs, act)
+            loss = loss + self.consist_w * _kl
+            loss_components.update(_klogs)
         # V3: path integration of the location signal.
         _pl = self._path_int_loss(obs.get("proprio"), act)
         if _pl is not None:

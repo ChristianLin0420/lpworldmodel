@@ -61,6 +61,39 @@ ARMS = {
     "round5/value_geom":   ["predictor=ltv", "value_w=1.0", "value_mode=geom"],
     "round5/policy":       ["predictor=ltv", "policy_w=1.0"],
     "round5/vp":           ["predictor=ltv", "value_w=1.0", "policy_w=1.0"],
+    # --- Round 6. Every arm is a GRID on its own strength knob, because six of the nine
+    # round-3/4/5 proposals were single-shot on theirs, V1 had no knob at all, and T4
+    # would have died on its primary setting. The entries below are one point of each
+    # grid; the launcher sweeps the rest with the same override names.
+    #
+    # R6 -- the screen-validated term. S_model = 1 - J_S(z_pred, target) is the only
+    # logged quantity that survives analysis/screen_objective.py (raw -0.769, partial
+    # -0.549, monotone), and soft_jaccard appeared zero times in models/ before this.
+    "r6/support":          ["predictor=ltv", "support_w=1.0"],
+    "r6/support_w01":      ["predictor=ltv", "support_w=0.1"],
+    "r6/support_w10":      ["predictor=ltv", "support_w=10.0"],
+    # R2 -- rollout self-consistency on the CEM PROPOSAL distribution. consist_src=data
+    # is the matched control: same term, same shapes, dataset actions, so the contrast
+    # is the distribution and nothing else.
+    "r2/consist_cem":      ["predictor=ltv", "consist_w=1.0"],
+    "r2/consist_data":     ["predictor=ltv", "consist_w=1.0", "consist_src=data"],
+    "r2/consist_k3":       ["predictor=ltv", "consist_w=1.0", "consist_k=3"],
+    # R3 -- action-space sharpness-aware minimisation. rho is a per-row L2 radius in the
+    # normalised action space, so rho=1.0 is one CEM var_scale.
+    "r3/sam01":            ["predictor=ltv", "sam_rho=0.1"],
+    "r3/sam10":            ["predictor=ltv", "sam_rho=1.0"],
+    # R4 -- V1's epsilon made a knob, plus a span clip. incr_eps=1e-4 IS the run on
+    # record (PiWM-incr, -0.383 with 8/8 seeds dead, ESS 0.063); 4.1e-2 is the measured
+    # median increment, i.e. the knee moved to where the data actually lives.
+    "r4/incr":             ["predictor=ltv", "incr_norm=true"],
+    "r4/incr_eps_med":     ["predictor=ltv", "incr_norm=true", "incr_eps=0.041"],
+    "r4/incr_clip3":       ["predictor=ltv", "incr_norm=true", "incr_clip=3.0"],
+    # A clip tight enough to BIND on the synthetic fixture. The fixture's frames are iid
+    # noise, so its increments are nearly uniform (ESS 0.97, span 1.9) and any production
+    # clip is inactive on it by construction; on real PushT the ESS is 0.063 and every
+    # clip in the grid binds hard. Kept as its own arm so ARMS-MUST-DIFFER is checkable
+    # here rather than asserted about data these tests cannot see.
+    "r4/incr_clip_tight":  ["predictor=ltv", "incr_norm=true", "incr_clip=1.05"],
 }
 
 
@@ -744,3 +777,508 @@ def test_v4_policy_planner_refuses_a_fresh_or_missing_head():
     wm.heads_restored_from = None
     with pytest.raises(ValueError, match="FRESH INIT"):
         PolicyPlanner(wm=wm, **base)
+
+
+# =====================================================================================
+# Round 6. Four objective terms. The checklist, per term:
+#   inert at default (no new loss_components key -- tests/test_bit_identity.py pins the
+#   SET, this says which keys and that they are absent), the flag reaches the model, the
+#   term changes the loss AND the gradient of existing parameters (all four are
+#   parameter-free, which is the checklist's stated alternative to "gradient reaches
+#   every new parameter"), the arm differs from its control, and the collapse diagnostic
+#   the term needs is emitted as a TENSOR every epoch.
+# =====================================================================================
+
+
+def _build_must_raise(overrides, needle):
+    """A guard that fires during hydra.utils.instantiate surfaces as
+    InstantiationException with the original ValueError in its message, so match on the
+    message rather than on the type (tests/test_arms.py::test_t3_requires_geometry
+    dodges this by constructing VWorldModel directly; these arms need the real config
+    path, because the point is that the FLAG reaches the model)."""
+    with pytest.raises(Exception) as ei:
+        cfg = load_cfg(overrides)
+        seed_all(0)
+        build(cfg)
+    assert needle in str(ei.value), str(ei.value)
+
+
+_R6_KEYS = {"support_s", "support_z_rms", "support_tgt_rms", "support_z_sum",
+            "support_l0_pred"}
+_R2_KEYS = {"consist_loss", "consist_rel", "consist_act_rms", "consist_jump_rms",
+            "consist_chain_rms"}
+_R3_KEYS = {"sam_d_action", "sam_d_action_over_scale", "sam_sharpness", "sam_l_clean",
+            "sam_delta_rms"}
+_R4_KEYS = {"incr_ess", "incr_w_max", "incr_w_min", "incr_span"}
+
+
+def test_round6_defaults_emit_no_new_component_and_no_new_state():
+    """Inertness, all four terms at once. Also the state-dict leg: none of these adds a
+    parameter or a buffer, so a checkpoint written before round 6 must still load."""
+    cfg, model, _, comps = _step([])
+    assert cfg.support_w == 0.0 and cfg.consist_w == 0.0 and cfg.sam_rho == 0.0
+    assert cfg.incr_eps == 1e-4 and cfg.incr_clip == 0.0
+    assert (model.support_w, model.consist_w, model.sam_rho) == (0.0, 0.0, 0.0)
+    assert (model.incr_eps, model.incr_clip) == (1e-4, 0.0)
+    for k in _R6_KEYS | _R2_KEYS | _R3_KEYS | _R4_KEYS:
+        assert k not in comps, k
+    # the private generators are lazily built and never touched at defaults
+    assert model._consist_gen is None and model._sam_gen is None
+    # no parameter and no buffer: all four terms are parameter-free, so every checkpoint
+    # written before round 6 still loads and the bit-identity fixtures are unaffected
+    names = set(model.state_dict())
+    assert not [n for n in names
+                if any(t in n for t in ("support", "consist", "sam_", "incr_"))], names
+
+
+def test_round6_terms_survive_a_no_grad_forward():
+    """train.py's val() calls this same forward, and there is already a
+    `with torch.no_grad()` two blocks above it (around openloop_rollout). R3 takes a
+    gradient-ascent step INSIDE the forward, so without an explicit enable_grad it would
+    raise there -- at the end of epoch 1, i.e. after two hours of training."""
+    for arm in ("r6/support", "r2/consist_cem", "r3/sam10", "r4/incr"):
+        cfg, model, _o, obs, act = _fresh(ARMS[arm], batch=2)
+        model.eval()
+        with torch.no_grad():
+            _, _, _, loss, comps = model(obs, act)
+        assert torch.isfinite(loss), arm
+        assert all(torch.isfinite(v).all() for v in comps.values()
+                   if torch.is_tensor(v)), arm
+
+
+# --- R6: the support term ------------------------------------------------------------
+
+def test_r6_is_inert_at_default_and_live_when_on():
+    _, _, _, base = _step(["predictor=ltv"])
+    assert not (_R6_KEYS & set(base))
+    _, model, _, comps = _step(ARMS["r6/support"])
+    assert model.support_w == 1.0
+    assert _R6_KEYS <= set(comps)
+    for k in _R6_KEYS:
+        assert torch.is_tensor(comps[k]), k
+    s = float(comps["support_s"])
+    assert 0.0 <= s <= 1.0, s          # S = 1 - J_S on non-negative codes
+
+
+def test_r6_optimises_the_same_function_object_the_screen_scored():
+    """The whole reason R6 exists is analysis/screen_objective.py's ranking of
+    jacc/S_model. If the optimised quantity and the screened quantity were two
+    functions that happened to agree, the arm could not be read against that screen."""
+    import train as T
+    from models import stats
+    from models import visual_world_model as vwm
+
+    assert T.soft_jaccard is stats.soft_jaccard
+    assert vwm.soft_jaccard is stats.soft_jaccard
+
+    cfg, model, _, comps = _step(ARMS["r6/support"])
+    d = model._diag                                   # what train.py's diagnostic reads
+    want = float((1.0 - stats.soft_jaccard(d["z_pred"], d["target"])).flatten().mean())
+    assert float(comps["support_s"]) == pytest.approx(want, rel=0, abs=0)
+
+
+def test_r6_is_added_to_z_loss_and_never_replaces_it():
+    """ADDED, not replacing: J_S constrains the support, the MSE constrains the
+    magnitudes on it. z_loss(support_w=w) - z_loss(0) must be exactly w * S."""
+    _, _, _, c0 = _step(["predictor=ltv"])
+    out = {}
+    for arm, w in (("r6/support_w01", 0.1), ("r6/support", 1.0), ("r6/support_w10", 10.0)):
+        _, _, _, c = _step(ARMS[arm])
+        out[w] = float(c["z_loss"]) - float(c0["z_loss"])
+        assert out[w] == pytest.approx(w * float(c["support_s"]), rel=1e-5)
+    # strictly increasing in the knob: the grid is a grid, not three copies of one point
+    assert out[0.1] < out[1.0] < out[10.0]
+
+
+def test_r6_changes_the_gradient_of_the_parameters_it_shares():
+    """Parameter-free term, so the checklist's gradient leg is: the term reaches the
+    existing parameters, and the total gradient is DIFFERENT because of it."""
+    cfg, model, _opts, obs, act = _fresh(ARMS["r6/support"], batch=4)
+    z = model._link(model.encode_obs(obs)["visual"])
+    z_src, target = z[:, : cfg.num_hist], z[:, cfg.num_pred :]
+    a_emb = model._act_emb_with_pose(act, obs["proprio"])
+    z_pred = model._link(model.predict(z_src, a_emb[:, : cfg.num_hist]))
+    term, logs = model._support_loss(z_pred, target)
+    # the logged value is the term's own value, detached (train.py means it per epoch)
+    assert float(logs["support_s"]) == pytest.approx(float(term), rel=0, abs=0)
+    params = [p for p in model.predictor.parameters() if p.requires_grad] + \
+             [p for p in model.encoder.parameters() if p.requires_grad]
+    # the SUPPORT term ALONE, not the total loss
+    g = torch.autograd.grad(term, params, retain_graph=True, allow_unused=True)
+    assert all(x is not None for x in g), "support term reaches no parameter"
+    assert max(float(x.norm()) for x in g) > 0
+
+    def total_grad(overrides):
+        cfg2, m2, _o, o2, a2 = _fresh(overrides, batch=4)
+        _, _, _, l2, _ = m2(o2, a2)
+        l2.backward()
+        return torch.cat([p.grad.flatten() for p in m2.predictor.parameters()
+                          if p.grad is not None])
+
+    g_on = total_grad(ARMS["r6/support"])
+    g_off = total_grad(["predictor=ltv"])
+    assert not torch.allclose(g_on, g_off)
+
+
+def test_r6_refuses_an_unrectified_link():
+    """J_S is only DEFINED on non-negative inputs. On the identity link the ratio can
+    leave [0, 1] entirely, so the term would be a different objective under the same
+    name -- the silent-fallback failure mode, refused loudly like contact_geom."""
+    _build_must_raise(["predictor=ltv", "link=identity", "support_w=1.0"], "rectified")
+
+
+def test_r6_arms_differ_from_their_control():
+    from lpwm_build import loss_trace
+
+    base = loss_trace(n_steps=3, batch_size=2, overrides=["predictor=ltv"])
+    prev = None
+    for arm in ("r6/support_w01", "r6/support", "r6/support_w10"):
+        t = loss_trace(n_steps=3, batch_size=2, overrides=ARMS[arm])
+        assert t[-1]["z_loss"] != base[-1]["z_loss"], (arm, t[-1], base[-1])
+        if prev is not None:
+            assert t[-1]["z_loss"] != prev[-1]["z_loss"], arm
+        prev = t
+
+
+# --- R2: rollout self-consistency on the planner's action distribution ---------------
+
+def test_r2_is_inert_at_default_and_live_when_on():
+    _, _, _, base = _step(["predictor=ltv"])
+    assert not (_R2_KEYS & set(base))
+    _, model, _, comps = _step(ARMS["r2/consist_cem"])
+    assert model.consist_w == 1.0 and model.consist_src == "cem" and model.consist_k == 5
+    assert _R2_KEYS <= set(comps)
+    for k in _R2_KEYS:
+        assert torch.is_tensor(comps[k]), k
+    # added to `loss`, NOT folded into z_loss, so the two are separable in the logs
+    _, _, _, c0 = _step(["predictor=ltv"])
+    assert float(comps["z_loss"]) == pytest.approx(float(c0["z_loss"]), rel=0, abs=0)
+
+
+def test_r2_feeds_the_loss_actions_no_demonstrator_took():
+    """The point of the arm. ~60 training arms, none of which has ever put a
+    non-dataset action into a loss."""
+    cfg, model, _o, obs, act = _fresh(ARMS["r2/consist_cem"], batch=4)
+    a = model._consist_actions(act)
+    rows = cfg.num_hist + model.consist_k - 1
+    assert a.shape == (4, rows, act.shape[-1])
+    # chained K steps read rows [j, j+num_hist) for j < K, i.e. up to num_hist+K-2
+    assert rows == cfg.num_hist + model.consist_k - 1
+    pool = act.reshape(-1, act.shape[-1])
+    # not a row of the batch, and not the batch's actions reshaped
+    hits = (a.reshape(-1, 1, a.shape[-1]) == pool[None]).all(-1).any()
+    assert not bool(hits), "the 'cem' source returned dataset actions"
+
+
+def test_r2_data_control_draws_only_dataset_actions():
+    """The matched control: identical term, identical shapes, identical predictor-call
+    count, actions from the data instead of from N(0, var_scale^2)."""
+    cfg, model, _o, obs, act = _fresh(ARMS["r2/consist_data"], batch=4)
+    a = model._consist_actions(act)
+    pool = act.reshape(-1, act.shape[-1])
+    member = (a.reshape(-1, 1, a.shape[-1]) == pool[None]).all(-1).any(-1)
+    assert bool(member.all()), "the 'data' source invented an action"
+
+
+def test_r2_cem_source_is_the_planners_own_proposal():
+    """planning/cem.py:99-106 draws randn * sigma + mu with mu = 0 and sigma =
+    var_scale (init_mu_sigma), and conf/plan_rdmreg.yaml sets var_scale = 1."""
+    cfg, model, _o, obs, act = _fresh(
+        ["predictor=ltv", "consist_w=1.0", "consist_sigma=2.0"], batch=64
+    )
+    a = model._consist_actions(act)
+    assert float(a.mean()) == pytest.approx(0.0, abs=0.05)
+    assert float(a.std()) == pytest.approx(2.0, rel=0.05)
+
+
+def test_r2_sampling_never_touches_the_global_rng_stream():
+    """RDMReg draws its target from the global stream LATER in the same forward. A term
+    that sampled from it would move every subsequent draw, and the arm would differ from
+    its control by the term AND by the regulariser's noise -- two factors, not one."""
+    cfg, model, _o, obs, act = _fresh(ARMS["r2/consist_cem"], batch=4)
+    torch.manual_seed(7)
+    before = torch.randn(4)
+    model._consist_actions(act)
+    model._consist_actions(act)
+    torch.manual_seed(7)
+    after = torch.randn(4)
+    assert torch.equal(before, after)
+    # and it is genuinely random: two draws differ
+    assert not torch.equal(model._consist_actions(act), model._consist_actions(act))
+
+
+def test_r2_costs_one_jump_call_plus_k_chain_calls():
+    """Structure check: the jump is ONE predictor call on the option action and the
+    chain is K calls of the 1-step map -- T6's two objects, reused, not reimplemented."""
+    cfg, model, _o, obs, act = _fresh(ARMS["r2/consist_cem"], batch=2)
+    n = [0]
+    h = model.predictor.register_forward_hook(lambda *a: n.__setitem__(0, n[0] + 1))
+    model(obs, act)
+    h.remove()
+    assert n[0] == 1 + 1 + model.consist_k, n[0]   # main + jump + K chained
+
+
+def test_r2_jump_and_chain_agree_exactly_when_the_map_is_the_identity():
+    """The term is a genuine disagreement, not a shape artefact: force the predictor to
+    return its own last input frame and both sides become z, so L must be exactly 0."""
+    class _Hold(torch.nn.Module):
+        """P(z, a) = z: the last frame, unchanged, whatever the action."""
+
+        def forward(self, emb, act_emb=None):
+            return emb
+
+    cfg, model, _o, obs, act = _fresh(ARMS["r2/consist_cem"], batch=2)
+    z_emb = model._link(model.encode_obs(obs)["visual"])
+    model.predictor = _Hold()
+    loss, logs = model._consist_loss(z_emb, obs, act)
+    assert float(loss) == pytest.approx(0.0, abs=1e-12)
+    # and it is not zero for the real map, or the assertion above proves nothing
+    cfg2, m2, _o2, obs2, act2 = _fresh(ARMS["r2/consist_cem"], batch=2)
+    z2 = m2._link(m2.encode_obs(obs2)["visual"])
+    assert float(m2._consist_loss(z2, obs2, act2)[0]) > 0.0
+
+
+def test_r2_gradient_reaches_the_predictor_and_the_encoder():
+    cfg, model, _o, obs, act = _fresh(ARMS["r2/consist_cem"], batch=4)
+    z_emb = model._link(model.encode_obs(obs)["visual"])
+    loss, _logs = model._consist_loss(z_emb, obs, act)
+    for name, mod in (("predictor", model.predictor), ("encoder", model.encoder)):
+        ps = [p for p in mod.parameters() if p.requires_grad]
+        g = torch.autograd.grad(loss, ps, retain_graph=True, allow_unused=True)
+        assert all(x is not None for x in g), f"{name}: consistency term does not reach"
+        assert max(float(x.norm()) for x in g) > 0, name
+
+
+def test_r2_rejects_k1_where_the_jump_is_its_own_control():
+    """At K=1 P_1 IS chain(P_1) and the term is identically zero -- the arm would be its
+    own control, which is what the overshoot@K=1 guard exists for."""
+    _build_must_raise(["predictor=ltv", "consist_w=1.0", "consist_k=1"], "consist_k")
+
+
+def test_r2_rejects_an_unknown_source():
+    _build_must_raise(["predictor=ltv", "consist_w=1.0", "consist_src=uniform"],
+                      "consist_src")
+
+
+def test_r2_arm_differs_from_its_control_and_from_the_baseline():
+    from lpwm_build import loss_trace
+
+    base = loss_trace(n_steps=3, batch_size=2, overrides=["predictor=ltv"])
+    cem = loss_trace(n_steps=3, batch_size=2, overrides=ARMS["r2/consist_cem"])
+    dat = loss_trace(n_steps=3, batch_size=2, overrides=ARMS["r2/consist_data"])
+    assert cem[-1]["loss"] != base[-1]["loss"]
+    assert dat[-1]["loss"] != base[-1]["loss"]
+    # the single factor that separates the arm from its control is the DISTRIBUTION
+    assert cem[-1]["consist_loss"] != dat[-1]["consist_loss"], (cem[-1], dat[-1])
+    assert set(cem[0]) == set(dat[0])
+
+
+# --- R3: action-space sharpness-aware minimisation -----------------------------------
+
+def test_r3_is_inert_at_default_and_live_when_on():
+    _, _, _, base = _step(["predictor=ltv"])
+    assert not (_R3_KEYS & set(base))
+    _, model, _, comps = _step(ARMS["r3/sam01"])
+    assert model.sam_rho == 0.1
+    assert _R3_KEYS <= set(comps)
+    for k in _R3_KEYS:
+        assert torch.is_tensor(comps[k]), k
+
+
+def test_r3_perturbation_has_exactly_the_requested_radius():
+    """rho is a per-ROW L2 radius in the normalised action space. Rows the loss never
+    reads (row >= num_hist at num_pred=1) have zero gradient and must move by exactly 0
+    -- a bare g/||g|| would put NaN into the action the model is then conditioned on."""
+    for rho in (0.1, 1.0):
+        cfg, model, _o, obs, act = _fresh(
+            ["predictor=ltv", f"sam_rho={rho}"], batch=4
+        )
+        z = model._link(model.encode_obs(obs)["visual"])
+        z_src, target = z[:, : cfg.num_hist], z[:, cfg.num_pred :]
+        _src, _lc, delta = model._sam_perturb(z_src, target, act, obs["proprio"])
+        assert torch.isfinite(delta).all()
+        n = delta.norm(dim=-1)
+        assert torch.allclose(n[:, : cfg.num_hist],
+                              torch.full_like(n[:, : cfg.num_hist], rho), atol=1e-5)
+        assert float(n[:, cfg.num_hist:].abs().max()) == 0.0
+
+
+def test_r3_evaluates_the_loss_at_a_worse_action():
+    """That IS the objective: max over the ball. An ascent step must not lower the loss,
+    and a bigger ball must not be easier -- if sam_sharpness is ~0 the arm is a null for
+    the single-shot reason (rho too small to be an intervention)."""
+    _, _, _, c1 = _step(ARMS["r3/sam01"])
+    _, _, _, c2 = _step(ARMS["r3/sam10"])
+    assert float(c1["sam_sharpness"]) > 0.0
+    assert float(c2["sam_sharpness"]) > float(c1["sam_sharpness"])
+    assert float(c2["sam_delta_rms"]) == pytest.approx(
+        10.0 * float(c1["sam_delta_rms"]), rel=1e-4
+    )
+
+
+def test_r3_logs_d_action_as_a_first_class_metric():
+    """MANDATORY GUARD. The unconstrained minimiser of max_delta L is a predictor that
+    ignores the action inside the ball, i.e. d_action = 0. It is emitted in
+    loss_components (not only in train.py's tier-1 batch log) so it lands in the EPOCH
+    average, and it is measured at the CLEAN action so it stays comparable to
+    analysis/d_action_probe.py."""
+    _, model, _, comps = _step(ARMS["r3/sam01"])
+    d = float(comps["sam_d_action"])
+    assert torch.isfinite(comps["sam_d_action"]) and d > 0.0
+    assert float(comps["sam_d_action_over_scale"]) > 0.0
+    # and it must not be able to read 0 by coincidence: the shuffle is a NON-ZERO cyclic
+    # shift, so every row is paired with a different row's action on every step. With
+    # torch.randperm (train.py's version) the identity comes up 1/b! of the time -- 4% at
+    # b=4 -- and 0 is exactly the alarm value this metric exists to raise.
+    from lpwm_build import loss_trace
+
+    t = loss_trace(n_steps=4, batch_size=4, overrides=ARMS["r3/sam01"])
+    assert all(step["sam_d_action"] > 0.0 for step in t), [s["sam_d_action"] for s in t]
+
+
+def test_r3_diag_act_src_is_the_clean_action_not_the_perturbed_one():
+    cfg, model, _o, obs, act = _fresh(ARMS["r3/sam10"], batch=4)
+    model(obs, act)
+    clean = model._option_act(
+        model._act_emb_with_pose(act, obs["proprio"])
+    )[:, : cfg.num_hist]
+    assert torch.allclose(model._diag["act_src"], clean.detach(), atol=0, rtol=0)
+
+
+def test_r3_changes_the_gradient_of_the_parameters_it_shares():
+    def total_grad(overrides):
+        cfg2, m2, _o, o2, a2 = _fresh(overrides, batch=4)
+        _, _, _, l2, _ = m2(o2, a2)
+        l2.backward()
+        return torch.cat([p.grad.flatten() for p in m2.predictor.parameters()
+                          if p.grad is not None])
+
+    assert not torch.allclose(total_grad(ARMS["r3/sam10"]), total_grad(["predictor=ltv"]))
+
+
+def test_r3_refuses_the_combinations_it_is_not_defined_for():
+    """Under overshoot the action drives K chained calls and under J>1 an argmin selects
+    a head, so 'the loss at the perturbed action' is a different object in both cases."""
+    for extra in (["num_pred=5", "overshoot=true"], ["n_heads=4"]):
+        _build_must_raise(["predictor=ltv", "sam_rho=0.1"] + extra, "sam_rho")
+
+
+def test_r3_arms_differ_from_their_control():
+    from lpwm_build import loss_trace
+
+    base = loss_trace(n_steps=3, batch_size=2, overrides=["predictor=ltv"])
+    prev = None
+    for arm in ("r3/sam01", "r3/sam10"):
+        t = loss_trace(n_steps=3, batch_size=2, overrides=ARMS[arm])
+        assert t[-1]["z_loss"] != base[-1]["z_loss"], (arm, t[-1], base[-1])
+        if prev is not None:
+            assert t[-1]["z_loss"] != prev[-1]["z_loss"], arm
+        prev = t
+
+
+# --- R4: V1's epsilon, made a knob ---------------------------------------------------
+
+def test_r4_is_inert_unless_incr_norm_is_on():
+    _, _, _, base = _step(["predictor=ltv"])
+    assert not (_R4_KEYS & set(base))
+    # eps and clip alone change nothing: the weight only exists on the incr_norm branch
+    from lpwm_build import loss_trace
+
+    a = loss_trace(n_steps=2, batch_size=2, overrides=["predictor=ltv"])
+    b = loss_trace(n_steps=2, batch_size=2,
+                   overrides=["predictor=ltv", "incr_eps=1.0", "incr_clip=2.0"])
+    assert a == b
+
+
+def test_r4_default_eps_reproduces_v1_exactly():
+    """1e-4 is the literal constant PiWM-incr ran with. Making it a flag must not move
+    the arm on record by one bit, or every V1 number becomes uncomparable."""
+    from lpwm_build import loss_trace
+
+    a = loss_trace(n_steps=3, batch_size=2, overrides=ARMS["r4/incr"])
+    b = loss_trace(n_steps=3, batch_size=2,
+                   overrides=["predictor=ltv", "incr_norm=true", "incr_eps=1e-4"])
+    assert a == b
+
+
+def test_r4_logs_the_ess_and_the_span_that_explain_v1():
+    """ESS = mean(w)^2 / mean(w^2) = 0.063 on real PushT at eps=1e-4 -- six percent of a
+    batch -- and that single number is the whole explanation of V1's 8/8 dead seeds."""
+    _, _, _, comps = _step(ARMS["r4/incr"])
+    assert _R4_KEYS <= set(comps)
+    for k in _R4_KEYS:
+        assert torch.is_tensor(comps[k]), k
+    ess = float(comps["incr_ess"])
+    assert 0.0 < ess <= 1.0 + 1e-6, ess
+    assert float(comps["incr_span"]) == pytest.approx(
+        float(comps["incr_w_max"]) / float(comps["incr_w_min"]), rel=1e-5
+    )
+
+
+def test_r4_epsilon_moves_the_ess_toward_one_monotonically():
+    """The knob is the knee of 1/(x + eps): at eps >> the typical increment the weight is
+    flat (ESS -> 1, the uniform baseline), at eps << it, V1. Measured on a controlled
+    spread rather than on the fixture's near-uniform noise, so the direction is a
+    property of the weight and not of the synthetic batch."""
+    cfg = load_cfg(["predictor=ltv", "incr_norm=true"])
+    seed_all(0)
+    model, _ = build(cfg)
+    g = torch.Generator().manual_seed(3)
+    # increments spanning four orders of magnitude, as real transitions do
+    scale = torch.logspace(-3, 1, 16, base=10.0).view(16, 1, 1, 1)
+    z_src = torch.zeros(16, cfg.num_hist, 1, D)
+    target = scale * torch.randn(16, cfg.num_hist, 1, D, generator=g)
+    ess = []
+    for eps in (1e-4, 1e-2, 1.0, 1e3):
+        model.incr_eps = eps
+        _w, logs = model._incr_weight(z_src, target)
+        ess.append(float(logs["incr_ess"]))
+    # measured on this fixture: 0.329 / 0.557 / 0.787 / 1.000. The absolute value is a
+    # property of the spread (real PushT gives 0.063 at eps=1e-4); what is a property of
+    # the WEIGHT, and is what the knob has to deliver, is that it is monotone and that
+    # the top of the range is the uniform baseline.
+    assert ess == sorted(ess), ess
+    assert ess[0] < 0.4, ess
+    assert ess[-1] > 0.99, ess
+
+
+def test_r4_clip_bounds_the_span_and_raises_the_ess():
+    """The clip is applied to the unit-mean weight and the result is RENORMALISED to unit
+    mean -- a deliberate deviation from clipping to [1/c, c] literally, because unit mean
+    is what keeps a weighting arm from being secretly a learning-rate arm. The bounded
+    quantity that survives the second renormalisation is the SPAN, max/min <= c^2."""
+    cfg = load_cfg(["predictor=ltv", "incr_norm=true"])
+    seed_all(0)
+    model, _ = build(cfg)
+    g = torch.Generator().manual_seed(3)
+    scale = torch.logspace(-3, 1, 16, base=10.0).view(16, 1, 1, 1)
+    z_src = torch.zeros(16, cfg.num_hist, 1, D)
+    target = scale * torch.randn(16, cfg.num_hist, 1, D, generator=g)
+    _w, off = model._incr_weight(z_src, target)
+    for c in (3.0, 10.0):
+        model.incr_clip = c
+        w, on = model._incr_weight(z_src, target)
+        assert float(on["incr_span"]) <= c * c + 1e-4, (c, float(on["incr_span"]))
+        assert float(on["incr_span"]) < float(off["incr_span"])
+        assert float(on["incr_ess"]) > float(off["incr_ess"])
+        assert float(w.mean()) == pytest.approx(1.0, rel=1e-5)   # unit mean preserved
+
+
+def test_r4_rejects_a_degenerate_epsilon_or_clip():
+    """c <= 1 gives the empty interval [1/c, c] with 1/c >= c, which torch.clamp
+    resolves silently to a CONSTANT weight -- the uniform baseline under V1's name."""
+    for extra, needle in ((["incr_eps=0.0"], "incr_eps"),
+                          (["incr_clip=1.0"], "incr_clip"),
+                          (["incr_clip=0.5"], "incr_clip"),
+                          (["incr_clip=-1.0"], "incr_clip")):
+        _build_must_raise(["predictor=ltv", "incr_norm=true"] + extra, needle)
+
+
+def test_r4_arms_differ_from_their_control():
+    from lpwm_build import loss_trace
+
+    incr = loss_trace(n_steps=3, batch_size=2, overrides=ARMS["r4/incr"])
+    for arm in ("r4/incr_eps_med", "r4/incr_clip_tight"):
+        t = loss_trace(n_steps=3, batch_size=2, overrides=ARMS[arm])
+        assert t[-1]["z_loss"] != incr[-1]["z_loss"], (arm, t[-1], incr[-1])
+        assert set(t[0]) == set(incr[0])

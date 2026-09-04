@@ -160,6 +160,82 @@ model:
   policy_w: ${policy_w}
   act_dim_raw: ${act_dim_raw}
 
+# --- ROUND 6 knobs. All inert at these defaults. -------------------------------------
+# Every arm this round is a GRID, not a single point: six of the nine round-3/4/5
+# proposals were single-shot on their strength knob, V1 had no knob at all (its epsilon
+# was a literal 1e-4 in the source), and T4 would have died on its primary setting and
+# was saved only by a variant. Training-only (they touch the LOSS, never the rollout),
+# so they live top-level like decode_grad/contact_* rather than inside `model:`.
+#
+# PRE-REGISTERED DEATH CONDITION, all four terms, every grid point: err/rel_mse >= 0.5.
+# An arm at or above it is not a world model and its CEM number is not evidence about the
+# objective -- it is evidence that the objective broke prediction (T3's contact family
+# sat at the floor and its own contrast was uninformative for exactly this reason).
+#
+# R6: loss on S_model = 1 - J_S(z_pred, target), added to z_loss. This is the one logged
+# quantity that survives analysis/screen_objective.py -- raw Spearman -0.769 against CEM,
+# partial (rho, rel_mse removed) -0.549, monotone over healthy predictors -- and
+# soft_jaccard has never been optimised by anything in models/. Requires a rectified link
+# (J_S is undefined on signed codes); VWorldModel raises otherwise.
+#
+# CALIBRATED 2026-09-04 on the trained baseline LpWM-ltv_pd384_bf16_s0 over 4 x 32 real
+# pushT valid windows: S_model = 0.0866 (p90 0.135) against a z_loss MSE of 0.00578, so
+# PARITY between the support term and the MSE is support_w = 0.0667. Suggested grid, one
+# decade either side of parity: 0.0067 / 0.067 / 0.67. support_w = 1 is ~15x parity -- a
+# legitimate top-of-grid point, not a default. rel_mse at that operating point is 0.0125,
+# i.e. 40x under the death condition, and |z_pred| = 0.679 vs |target| = 0.681 is the
+# scale the WATCH in _support_loss is about.
+support_w: 0.0
+# R2: rollout self-consistency, || P_K(z, a) - chain(P_1, z, a) ||^2, on actions drawn
+# from the CEM PROPOSAL (planning/cem.py:99-106: randn*sigma + mu, mu=0, sigma=var_scale).
+# Both sides are the model's own output, so no ground truth is needed and the loss can be
+# evaluated at actions no demonstrator took -- which no training arm in ~60 has done.
+consist_w: 0.0
+consist_src: cem           # cem (the arm) | data (the matched control: same term,
+                           # dataset actions, so the contrast IS the distribution)
+consist_k: 5               # = CEM's goal_H / horizon (conf/plan_rdmreg.yaml:41,58)
+consist_sigma: 1.0         # = CEM's var_scale (conf/plan_rdmreg.yaml:61)
+# CALIBRATED on the same checkpoint and batch: consist_loss = 0.1107 for src=cem and
+# 0.1915 for src=data (consist_rel 0.231 / 0.388), against z_loss MSE 0.00578 -- so the
+# trained baseline's 5-step jump already disagrees with its own 5-step chain by ~19x its
+# own 1-step error, and PARITY is consist_w = 0.052. Suggested grid: 0.005 / 0.05 / 0.5.
+# The CONTROL is the larger term here: real action values disagree MORE than the
+# planner's Gaussian ones. Worth having on record before the arm runs.
+# R3: action-space sharpness-aware minimisation, min_theta max_{||da|| <= rho} L(z, a+da).
+# rho is a per-action-row L2 radius in the NORMALISED action space, so it is directly
+# comparable to var_scale = 1. The collapse mode is d_action -> 0 (a predictor that
+# ignores the action inside the ball); sam_d_action is logged every epoch for that reason.
+#
+# CALIBRATED on the same checkpoint/batch. sam_sharpness = (L(a+delta) - L(a)) / L(a):
+#   rho = 0.03 -> 0.061   rho = 0.1 -> 0.236   rho = 0.3 -> 0.997   rho = 1.0 -> 6.02
+# so rho = 0.3 doubles the loss inside the ball and rho = 1 makes it 7x. Suggested grid:
+# 0.03 / 0.1 / 0.3. The same measurement puts the baseline at sam_d_action = 0.345 and
+# d_action/|z| = 0.509, which agrees with the archive's independent probe (0.354, 0.549,
+# diary 2026-09-03 s12b) -- so this arm's falsifier is calibrated against a known number.
+sam_rho: 0.0
+# R4: V1's epsilon, made a knob. 1e-4 is the literal value PiWM-incr ran with -- 414x
+# below the median increment 4.1e-2, giving ESS = 0.063, which is the whole explanation of
+# its -0.383 [-0.497, -0.268] with 8/8 seeds dead. incr_clip caps the weight span
+# (0 = off). Both are inert unless incr_norm is also true.
+#
+# CALIBRATED on the same checkpoint/batch (median increment MSE 0.0771, p05/p95
+# 0.0089 / 0.272). ESS = mean(w)^2 / mean(w^2), sp = span = max/min:
+#     eps      clip=0             clip=3             clip=10
+#     1e-4     ESS 0.220 sp 312   ESS 0.524 sp 9     ESS 0.267 sp 100
+#     1e-3     ESS 0.282 sp 209   ESS 0.537 sp 9     ESS 0.300 sp 100
+#     4.1e-2   ESS 0.780 sp 14.3  ESS 0.785 sp 7.0   ESS 0.780 sp 14.3
+#     1.0      ESS 0.995 sp 1.57  (the uniform baseline; the clip cannot bind)
+# NB this measurement disagrees with the ESS = 0.063 / median-increment = 4.1e-2 quoted
+# above: on LpWM-ltv s0's own valid windows the median increment is 0.0771 and ESS at
+# eps=1e-4 is 0.220, not 0.063. Both are recorded rather than one silently replacing the
+# other -- they are different populations (this one is a trained checkpoint's 4x32 valid
+# windows), and 0.22 is still a 4.5x loss of effective batch, which is the point.
+# So eps in {1e-4, 1e-3, 4.1e-2} x clip in {0, 3, 10} moves ESS over 0.22 -> 0.99, and
+# the span bound max/min <= clip^2 is exact (9 and 100 above). V1 ran at the top-left
+# cell of this table and had no way to leave it.
+incr_eps: 1.0e-4
+incr_clip: 0.0
+
 debug: False
 
 plan_settings:

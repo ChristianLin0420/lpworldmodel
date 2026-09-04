@@ -162,6 +162,17 @@ def build(cfg, device="cpu"):
         value_p_future=float(cfg.get("value_p_future", 0.5)),
         policy_w=float(cfg.get("policy_w", 0.0)),
         act_dim_raw=2 * int(cfg.get("frameskip", 5)),
+        # ROUND 6. This builder mirrors train.py's construction (its docstring says so);
+        # omitting V1-V3's kwargs here once made every variant silently identical to the
+        # baseline in loss_trace, which is the one thing this file exists to prevent.
+        support_w=float(cfg.get("support_w", 0.0)),
+        consist_w=float(cfg.get("consist_w", 0.0)),
+        consist_src=str(cfg.get("consist_src", "cem")),
+        consist_k=int(cfg.get("consist_k", 5)),
+        consist_sigma=float(cfg.get("consist_sigma", 1.0)),
+        sam_rho=float(cfg.get("sam_rho", 0.0)),
+        incr_eps=float(cfg.get("incr_eps", 1e-4)),
+        incr_clip=float(cfg.get("incr_clip", 0.0)),
     ).to(device)
 
     from models.mup import mup_param_groups
