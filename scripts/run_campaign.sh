@@ -487,6 +487,106 @@ wave24_arms() {
     ARMS[PiWM-vp-geom]="ltv 1.0 5e-4 VALUE_W=1.0 POLICY_W=1.0 VALUE_MODE=geom"
 }
 
+# ROUND 6, wave25. Five GRIDS. Not five arms: every cell below brackets its own failure
+# mode around a MEASURED quantity, because the audit that opened this round found that six
+# of the nine round-3/4/5 proposals were SINGLE-SHOT on their strength knob -- V1 had no
+# knob at all (its epsilon was the literal 1e-4 at visual_world_model.py:1091, 414x below
+# the median increment) and T4 would have died on its primary setting (val/rho_k 0.443
+# against a 0.6 gate) and was saved only by a variant. A grid cannot be killed by one
+# unlucky choice of scalar, and a grid's SHAPE is itself the result.
+#
+# The harness has no native grid, so a grid is N hand-written ARMS[...] lines and N names
+# in ORDER -- exactly as PiWM-actgain-b03/-b30 and PiWM-decode/-w1 already are.
+#
+# Death condition, PRE-REGISTERED for every arm in this wave (conf/train_rdmreg.yaml):
+# err/rel_mse >= 0.5. An arm at or above it is not a world model and its CEM number is
+# evidence about the objective breaking prediction, not about the objective.
+#
+#  R6  support-w0p03 / -w0p1 / -w0p3            control: LpWM-ltv (support_w=0, n=16)
+#      Optimise the ONE logged quantity analysis/screen_objective.py endorses:
+#      jacc/S_model = 1 - soft_jaccard(z_pred, target), raw Spearman -0.769 against CEM,
+#      partial (rho and rel_mse removed) -0.549, monotone over healthy predictors
+#      (0.407 / 0.365 / 0.249 / 0.058). soft_jaccard appeared ZERO times in models/ before
+#      this round -- it has only ever been a diagnostic. Grid centred on PARITY with the
+#      MSE, measured on the trained baseline over 4 x 32 real valid windows: S_model =
+#      0.0866 against z_loss = 0.00578, so parity is support_w = 0.0667 and the grid
+#      0.03 / 0.1 / 0.3 is [0.45x, 4.5x] parity.
+#  R2  consist-w0p03 / -w0p1 / -w0p3 (src=cem)  + consist-w0p1-data (DISTRIBUTION control)
+#      || P_K(z, a) - chain(P_1, z, a) ||^2 at actions the CEM PROPOSAL draws, which no
+#      training arm in ~60 has ever done: both sides are the model's own output, so a
+#      counterfactual action needs no recorded next frame. Measured on the baseline:
+#      consist_loss 0.1107 (cem) vs 0.1915 (data) against z_loss 0.00578, i.e. the trained
+#      model's 5-step jump already disagrees with its own 5-step chain by ~19x its 1-step
+#      error; parity is consist_w = 0.052, so 0.03 / 0.1 / 0.3 brackets it. The -data cell
+#      is the matched control at the SAME weight: same term, same shapes, same predictor
+#      calls, same private RNG, dataset actions instead of the planner's Gaussian -- so
+#      the contrast is the DISTRIBUTION and nothing else.
+#  R3  sam-r0p01 / -r0p03 / -r0p1               control: LpWM-ltv (sam_rho=0)
+#      min_theta max_{||da|| <= rho} L(z, a+da), one SAM ascent step per action ROW, so
+#      rho is in units of one normalised action and directly comparable to CEM's
+#      var_scale = 1. Measured sharpness (L(a+d)-L(a))/L(a) on the baseline: 0.061 at
+#      rho=0.03, 0.236 at 0.1, 0.997 at 0.3. The grid runs one step LOWER than that table
+#      (0.01 / 0.03 / 0.1) because the falsifier here is a COLLAPSE, not a null:
+#      d_action -> 0 is the unconstrained minimiser of the inner max, and rho=0.3 already
+#      doubles the loss inside the ball. sam_d_action is logged every epoch for exactly
+#      this; the baseline sits at 0.345 and CEM's relation to it is an inverted U.
+#  R4  incr-eps0p001 / -eps0p01 / -eps0p041     + -eps0p041-clip10 (bounded-weight cell)
+#      V1 COMPLETED. PiWM-incr scored -0.383 [-0.497,-0.268] with 8/8 seeds dead at the
+#      hardcoded eps=1e-4; its per-sample weight 1/(increment + eps) then spans four
+#      orders of magnitude and ESS/N = 0.063 -- six percent of a batch, and V1 had no way
+#      to leave that cell. This grid walks the knee: ESS/N = 0.242 / 0.591 / 0.813 at the
+#      three eps (the round's pre-launch measurement), and the clip10 cell bounds the
+#      SPAN (max/min <= 100) at the top eps instead, separating "the weighting was too
+#      sharp" from "the weighting was wrong". eps = 0.041 is the MEDIAN increment, so the
+#      top cell is the one where the weight is flat by construction.
+#  R1  jump2/overshoot2, jump3/overshoot3, jump8/overshoot8
+#      T6's K sweep. num_pred IS K and K is T6's whole hypothesis, yet only K=5 has ever
+#      run (PiWM-jump5 / PiWM-overshoot5, already in flight at 8 seeds -- deliberately not
+#      repeated here). Each K carries its OWN matched overshoot control at the same K,
+#      because NUM_PRED changes the dataset window (num_frames = num_hist + num_pred) and
+#      therefore the window count and batch composition: a jump arm compared against an
+#      overshoot arm at a different K would confound the horizon with the data. Within a
+#      K the two differ only in whether error compounds, which is the attribution T6
+#      claims. K=2 and K=3 sit below the planner's goal_H=5, K=8 above it.
+#
+# Controls: LpWM-ltv (n=16, trained) is the matched zero-strength control for R6, R3 and
+# R4, and is deliberately NOT retrained here. R2's control is in-wave (-data); R1's are
+# in-wave (the three overshoot cells) plus the existing K=5 pair.
+wave25_arms() {
+    ORDER[wave25]="${WAVE25_ARMS:-PiWM-support-w0p03 PiWM-support-w0p1 PiWM-support-w0p3 PiWM-consist-w0p03 PiWM-consist-w0p1 PiWM-consist-w0p3 PiWM-consist-w0p1-data PiWM-sam-r0p01 PiWM-sam-r0p03 PiWM-sam-r0p1 PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip10 PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8}"
+    # R6. The '0p03' spelling of 0.03 follows PiWM-sigreg-w0p5: a '.' in a run dir is
+    # legal but analysis/figures.py's _ARM_STRIP and every glob in the analysis path are
+    # easier to read without one, and the arm token must survive collect_evals.py intact.
+    ARMS[PiWM-support-w0p03]="ltv 1.0 5e-4 SUPPORT_W=0.03"
+    ARMS[PiWM-support-w0p1]="ltv 1.0 5e-4 SUPPORT_W=0.1"
+    ARMS[PiWM-support-w0p3]="ltv 1.0 5e-4 SUPPORT_W=0.3"
+    # R2. CONSIST_SRC is passed EXPLICITLY on the cem cells even though cem is the config
+    # default, so the run's own .hydra/overrides.yaml records which distribution it was
+    # trained on rather than leaving it to be inferred from the default of the day.
+    ARMS[PiWM-consist-w0p03]="ltv 1.0 5e-4 CONSIST_W=0.03 CONSIST_SRC=cem"
+    ARMS[PiWM-consist-w0p1]="ltv 1.0 5e-4 CONSIST_W=0.1 CONSIST_SRC=cem"
+    ARMS[PiWM-consist-w0p3]="ltv 1.0 5e-4 CONSIST_W=0.3 CONSIST_SRC=cem"
+    ARMS[PiWM-consist-w0p1-data]="ltv 1.0 5e-4 CONSIST_W=0.1 CONSIST_SRC=data"
+    # R3.
+    ARMS[PiWM-sam-r0p01]="ltv 1.0 5e-4 SAM_RHO=0.01"
+    ARMS[PiWM-sam-r0p03]="ltv 1.0 5e-4 SAM_RHO=0.03"
+    ARMS[PiWM-sam-r0p1]="ltv 1.0 5e-4 SAM_RHO=0.1"
+    # R4. INCR_NORM=true is what turns the weighting ON; INCR_EPS alone is inert, which is
+    # why every cell carries both (the flag that once made three variants silently
+    # identical to baseline was exactly this kind of missing second leg).
+    ARMS[PiWM-incr-eps0p001]="ltv 1.0 5e-4 INCR_NORM=true INCR_EPS=1e-3"
+    ARMS[PiWM-incr-eps0p01]="ltv 1.0 5e-4 INCR_NORM=true INCR_EPS=1e-2"
+    ARMS[PiWM-incr-eps0p041]="ltv 1.0 5e-4 INCR_NORM=true INCR_EPS=4.1e-2"
+    ARMS[PiWM-incr-eps0p041-clip10]="ltv 1.0 5e-4 INCR_NORM=true INCR_EPS=4.1e-2 INCR_CLIP=10"
+    # R1. Both cells of each K set NUM_PRED, so their dataset windows are identical.
+    ARMS[PiWM-jump2]="ltv 1.0 5e-4 NUM_PRED=2"
+    ARMS[PiWM-overshoot2]="ltv 1.0 5e-4 NUM_PRED=2 OVERSHOOT=true"
+    ARMS[PiWM-jump3]="ltv 1.0 5e-4 NUM_PRED=3"
+    ARMS[PiWM-overshoot3]="ltv 1.0 5e-4 NUM_PRED=3 OVERSHOOT=true"
+    ARMS[PiWM-jump8]="ltv 1.0 5e-4 NUM_PRED=8"
+    ARMS[PiWM-overshoot8]="ltv 1.0 5e-4 NUM_PRED=8 OVERSHOOT=true"
+}
+
 wave21_arms() {
     ORDER[wave21]="LpWM-ltv-relu-p2 LpWM-ltv-ident-p1"
     ARMS[LpWM-ltv-relu-p2]="ltv 1.0 5e-4"
@@ -593,11 +693,12 @@ for gate in "$@"; do
         wave22)       wave22_arms; gate=wave22 ;;
         wave23)       wave23_arms; gate=wave23 ;;
         wave24)       wave24_arms; gate=wave24 ;;
+        wave25)       wave25_arms; gate=wave25 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;
         wave17)       wave17_arms; gate=wave17 ;;
-        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave24)" >&2; exit 1 ;;
+        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave25)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do
