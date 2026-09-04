@@ -1,0 +1,9 @@
+{
+ "key": "rollout/val_z_visual_err_rollout_h8",
+ "over": "rollout/val_z_visual_err_rollout_h1",
+ "n": 323,
+ "raw": 0.5579205251757127,
+ "partial": -0.016831102526861985,
+ "p": 0.76535,
+ "healthy": 0.00249867748928887
+}

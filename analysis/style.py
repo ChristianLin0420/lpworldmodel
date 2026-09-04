@@ -138,15 +138,20 @@ def ax_style(ax, grid="y"):
     return ax
 
 
-def panel_title(ax, letter, title, sub=None, y=1.06):
+def panel_title(ax, letter, title, sub=None, y=1.06, gap=None):
     """The reference's header: a coloured panel letter, the title, and a rule beneath."""
     ax.set_title("")
     t = ax.text(0, y, f"{letter}", transform=ax.transAxes, fontsize=11.5, fontweight="bold",
                 color=HEAD, va="bottom", ha="left")
-    ax.text(0.032, y, title, transform=ax.transAxes, fontsize=11.5, fontweight="bold",
+    # The gap must scale with the axes WIDTH IN INCHES, not with its fraction: a fixed 0.032
+    # collides with the title on a narrow panel and floats on a wide one.
+    if gap is None:
+        w_in = ax.get_figure().get_size_inches()[0] * ax.get_position().width
+        gap = 0.16 / max(w_in, 1e-6)
+    ax.text(gap, y, title, transform=ax.transAxes, fontsize=11.5, fontweight="bold",
             color=INK, va="bottom", ha="left")
     if sub:
-        ax.text(0.032, y - 0.058, sub, transform=ax.transAxes, fontsize=9.5,
+        ax.text(0.0, y - 0.062, sub, transform=ax.transAxes, fontsize=9.5,
                 color=MUTED, va="bottom", ha="left")
     return t
 
