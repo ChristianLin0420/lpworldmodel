@@ -37,6 +37,15 @@ while true; do
         EVALED="$EVALED $r"; continue
       fi
       squeue -u "$USER" -h -o "%j" | grep -qx "eval_${r}" && continue
+      # RACE, observed on PiWM-vp_s10 (two eval dirs, 062624 and 064048). The two checks
+      # above are "has it FINISHED?" and "is it QUEUED?" -- there is a window between them
+      # where a job has left the queue but has not yet written the terminal marker, and in
+      # that window an eval submitted by another process (a manual EVAL=1 run_campaign.sh,
+      # say) is invisible here. collect_evals is newest-timestamp-wins, so the duplicate
+      # REPLACES the first value with a fresh noisy draw -- not corrupt, both draws are
+      # valid 50-episode evals, but it silently resamples an arm and wastes an allocation.
+      # An existing output dir means an eval has at least STARTED; that closes the window.
+      compgen -G "plan_outputs/*_${r}_gH5" >/dev/null 2>&1 && continue
       RUN_NAME="$r" SEED="$s" NEVALS=50 MAXITER=10 \
         sbatch --job-name="eval_${r}" scripts/plan_slurm.sbatch >/dev/null 2>&1 \
         && { echo "EVAL SUBMITTED $r"; EVALED="$EVALED $r"; }
