@@ -1,63 +1,67 @@
 #!/bin/bash
-# Report (a) each round-6 canary as it PASSES or FAILS its own guard, and (b) the moment the
-# full 8-seed wave25 grids are submitted. Reports only on change.
+# Round 6 (wave25) watch, POST-LAUNCH phase.
+#
+# The launch-phase version of this file reported "WAVE25 FULL LAUNCH || N run dirs || M training
+# jobs queued". M decrements every time a job finishes, so the line changed on every cycle and
+# the monitor re-reported an event that had already happened -- the same noise failure that
+# r6_watch.sh had. Anything that embeds a COUNTDOWN in a change-detected string will do this.
+# Report state that is monotone or terminal, never a draining queue depth.
+#
+# What matters now:
+#   1. DEATH CONDITION AT END OF TRAINING. rel_mse >= 0.5 was pre-registered as death, but it is
+#      an END-OF-TRAINING threshold. The 1-epoch canaries are NOT a valid place to apply it
+#      (3 of 4 incr-eps canaries exceeded it; judging them there would repeat the mid-training
+#      read this campaign has four retractions for). So it is applied HERE, on finished runs.
+#   2. Arms completing training, by proposal.
+#   3. First CEM results per arm.
 cd /lustre/fs11/portfolios/edgeai/projects/edgeai_tao-ptm_image-foundation-model-clip/users/chrislin/projects/lpworldmodel
 PY=/lustre/fsw/portfolios/edgeai/users/chrislin/envs/lpwm/bin/python
-LASTC=""; LASTF=""
+ARMS="PiWM-support-w0p03 PiWM-support-w0p1 PiWM-support-w0p3 \
+PiWM-consist-w0p03 PiWM-consist-w0p1 PiWM-consist-w0p3 PiWM-consist-w0p1-data \
+PiWM-sam-r0p01 PiWM-sam-r0p03 PiWM-sam-r0p1 \
+PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip10 \
+PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8"
+LAST=""
+DEAD_SEEN=""
 while true; do
-  CUR=$($PY - <<'EOF' 2>/dev/null
-import json, glob, os, re
-# Each round-6 family: the key that proves its term is LIVE, and the guard that would damn it.
-FAM = {
-    "support":   ("train/support_s",     "train/support_z_rms"),
-    "consist":   ("train/consist_loss",  "train/consist_rel"),
-    "sam":       ("train/sam_sharpness", "train/sam_d_action_over_scale"),
-    "incr-eps":  ("train/incr_ess",      "train/incr_span"),
-    "jump2": (None, None), "jump3": (None, None), "jump8": (None, None),
-    "overshoot2": (None, None), "overshoot3": (None, None), "overshoot8": (None, None),
-}
-# Longest prefix first, so "jump2" is not shadowed by a shorter family, and so round 5's
-# PiWM-jump5 / PiWM-overshoot5 canaries -- which are NOT round-6 arms -- never match at all.
-ORDER = sorted(FAM, key=len, reverse=True)
-out = []
-for d in sorted(glob.glob("runs/outputs/CANARY-PiWM-*/")):
-    arm = os.path.basename(d.rstrip("/")).replace("CANARY-", "").split("_pd")[0]
-    fam = next((f for f in ORDER if arm.startswith("PiWM-" + f)), None)
-    if fam is None or not os.path.exists(d + "DONE"):
-        continue
-    f = d + "wandb/latest-run/files/wandb-summary.json"
-    if not os.path.exists(f):
-        continue
-    try: s = json.load(open(f))
-    except Exception: continue
-    rm = s.get("err/rel_mse")
-    key, guard = FAM[fam]
-    bits = [f"rel_mse={rm:.4f}" if rm is not None else "rel_mse=?"]
-    verdict = "PASS"
-    if rm is None or rm >= 0.5:
-        verdict = "FAIL(death condition)"
-    if key:
-        v = s.get(key)
-        if v is None:
-            verdict = "FAIL(term not logged)"
-        elif v != v:
-            verdict = "FAIL(NaN)"
-        else:
-            bits.append(f"{key.split('/')[-1]}={v:.4g}")
-        g = s.get(guard) if guard else None
-        if g is not None: bits.append(f"{guard.split('/')[-1]}={g:.4g}")
-    out.append(f"{arm} {verdict} " + " ".join(bits))
-if out: print("CANARY || " + " || ".join(sorted(out)))
+  # --- 1. death condition on FINISHED runs only ---------------------------------
+  for a in $ARMS; do
+    for d in runs/outputs/${a}_pd*/; do
+      [ -f "$d/DONE" ] || continue
+      r=$(basename "$d"); case "$r" in CANARY-*) continue ;; esac
+      case " $DEAD_SEEN " in *" $r "*) continue ;; esac
+      v=$($PY - "$d" <<'EOF' 2>/dev/null
+import json, glob, sys
+f = glob.glob(sys.argv[1] + "/wandb/run-*/files/wandb-summary.json")
+if f:
+    d = json.load(open(f[0]))
+    k = next((k for k in d if "rel_mse" in k), None)
+    if k: print(f"{d[k]:.4f}")
 EOF
 )
-  [ -n "$CUR" ] && [ "$CUR" != "$LASTC" ] && { echo "$CUR"; LASTC="$CUR"; }
-  # full 8-seed grids: non-canary wave25 arms on disk
-  N=$(ls -d runs/outputs/PiWM-{support,consist,sam,incr-eps,jump2,jump3,jump8,overshoot2,overshoot3,overshoot8}*/ 2>/dev/null | wc -l)
-  J=$(squeue -u "$USER" -h -o "%j" 2>/dev/null | grep -cE "^PiWM-(support|consist|sam|incr-eps|jump[238]|overshoot[238])")
-  F="${N}|${J}"
-  if [ "$F" != "$LASTF" ] && [ "$N" -gt 0 ]; then
-    echo "WAVE25 FULL LAUNCH || $N run dirs || $J training jobs queued"
-    LASTF="$F"
-  fi
-  sleep 420
+      [ -z "$v" ] && continue
+      DEAD_SEEN="$DEAD_SEEN $r"
+      awk -v v="$v" 'BEGIN{exit !(v>=0.5)}' && echo "R6 DEATH-CONDITION $r rel_mse=$v (>=0.5 at end of training)"
+    done
+  done
+  # --- 2/3. completion + first results, reported only on change -----------------
+  $PY analysis/collect_evals.py --out /tmp/w25.json >/dev/null 2>&1
+  CUR=$($PY - <<'EOF' 2>/dev/null
+import json, glob, os
+A = json.load(open("/tmp/w25.json"))["arms"]
+GROUP = {"R1 K-sweep": ["jump2","overshoot2","jump3","overshoot3","jump8","overshoot8"],
+         "R2 consist": ["consist-w0p03","consist-w0p1","consist-w0p3","consist-w0p1-data"],
+         "R3 sam":     ["sam-r0p01","sam-r0p03","sam-r0p1"],
+         "R4 incr-eps":["incr-eps0p001","incr-eps0p01","incr-eps0p041","incr-eps0p041-clip10"]}
+out = []
+for g, arms in GROUP.items():
+    done = sum(1 for a in arms for d in glob.glob(f"runs/outputs/PiWM-{a}_pd*/")
+               if os.path.exists(d + "/DONE") and "CANARY-" not in d)
+    ev = sum(len(A.get(f"PiWM-{a}", {})) for a in arms)
+    out.append(f"{g}: trained {done}/{len(arms)*8} evald {ev}")
+print("R6 || " + " || ".join(out))
+EOF
+)
+  [ -n "$CUR" ] && [ "$CUR" != "$LAST" ] && { echo "$CUR"; LAST="$CUR"; }
+  sleep 900
 done
