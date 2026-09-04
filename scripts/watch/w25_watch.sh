@@ -23,6 +23,11 @@ PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip1
 PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8"
 LAST=""
 DEAD_SEEN=""
+# Report each guard AT MOST ONCE PER ARM. The verdict is an arm-level judgement across
+# seeds (a single seed below the threshold is inside baseline variation), so per-seed
+# reporting is both noisy and misleading -- R4 alone would emit ~32 identical lines.
+ARM_DEATH=""
+ARM_DACT=""
 while true; do
   # --- 1. death condition on FINISHED runs only ---------------------------------
   for a in $ARMS; do
@@ -50,11 +55,21 @@ EOF
 )
       [ -z "$v" ] && continue
       DEAD_SEEN="$DEAD_SEEN $r"
-      awk -v v="$v" 'BEGIN{exit !(v>=0.5)}' && echo "R6 DEATH-CONDITION $r rel_mse=$v (>=0.5 at end of training)"
+      arm="${r%%_pd*}"
+      if awk -v v="$v" 'BEGIN{exit !(v>=0.5)}'; then
+        case " $ARM_DEATH " in *" $arm "*) ;; *)
+          ARM_DEATH="$ARM_DEATH $arm"
+          echo "R6 DEATH-CONDITION $arm (first seed $r) rel_mse=$v >=0.5 at end of training" ;;
+        esac
+      fi
       # per-seed breach is INSIDE baseline variation (baseline probe range [0.222, 0.629]);
       # report it, but it is an arm-level judgement across seeds, not a per-seed kill switch.
-      awk -v v="$ov" 'BEGIN{exit !(v>=0 && v<0.2746)}' \
-        && echo "R6 DACTION-GUARD $r d_action_over_scale=$ov (<0.2746 = half baseline probe median; check the ARM across seeds)"
+      if awk -v v="$ov" 'BEGIN{exit !(v>=0 && v<0.2746)}'; then
+        case " $ARM_DACT " in *" $arm "*) ;; *)
+          ARM_DACT="$ARM_DACT $arm"
+          echo "R6 DACTION-GUARD $arm (first seed $r) d_action_over_scale=$ov <0.2746; judge the ARM across seeds" ;;
+        esac
+      fi
     done
   done
   # --- 2/3. completion + first results, reported only on change -----------------
