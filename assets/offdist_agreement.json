@@ -1,0 +1,30 @@
+{
+ "arm": "LpWM-ltv",
+ "horizon": 5,
+ "n_models": 16,
+ "models": [
+  "LpWM-ltv_pd384_bf16_s0",
+  "LpWM-ltv_pd384_bf16_s1",
+  "LpWM-ltv_pd384_bf16_s10",
+  "LpWM-ltv_pd384_bf16_s11",
+  "LpWM-ltv_pd384_bf16_s12",
+  "LpWM-ltv_pd384_bf16_s13",
+  "LpWM-ltv_pd384_bf16_s14",
+  "LpWM-ltv_pd384_bf16_s15",
+  "LpWM-ltv_pd384_bf16_s2",
+  "LpWM-ltv_pd384_bf16_s3",
+  "LpWM-ltv_pd384_bf16_s4",
+  "LpWM-ltv_pd384_bf16_s5",
+  "LpWM-ltv_pd384_bf16_s6",
+  "LpWM-ltv_pd384_bf16_s7",
+  "LpWM-ltv_pd384_bf16_s8",
+  "LpWM-ltv_pd384_bf16_s9"
+ ],
+ "on_across": 0.2792950313905637,
+ "on_batch": 0.29675039320573204,
+ "on_ratio": 0.9411783026583327,
+ "off_across": 0.3161874100990297,
+ "off_batch": 0.33663001451858504,
+ "off_ratio": 0.9392727815765616,
+ "off_over_on": 0.9979753877916766
+}
