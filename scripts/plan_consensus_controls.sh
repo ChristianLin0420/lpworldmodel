@@ -33,9 +33,10 @@
 #   DRYRUN=1 scripts/plan_consensus_controls.sh        # print, submit nothing
 #   scripts/plan_consensus_controls.sh                 # submit both
 #   ONLY=A scripts/plan_consensus_controls.sh          # just the compute control
+#   ONLY=C scripts/plan_consensus_controls.sh          # just the over-optimisation control
 set -euo pipefail
 REPO=$(cd "$(dirname "$0")/.." && pwd); cd "${REPO}"
-ONLY=${ONLY:-AB}
+ONLY=${ONLY:-ABC}
 sub() {  # label ckpt seed extra
     local label=$1 ckpt=$2 seed=$3 extra=${4:-}
     if compgen -G "plan_outputs/*_${label}_gH5" >/dev/null 2>&1; then
@@ -57,6 +58,29 @@ if [[ "${ONLY}" == *A* ]]; then
   for b in 3 4 5 6 7 8 9 10 11 12; do
       sub "PiWM-cem5x_pd384_bf16_s${b}" "LpWM-ltv_pd384_bf16_s${b}" "${b}" \
           "planner.sub_planner.num_samples=1500"
+  done
+fi
+
+if [[ "${ONLY}" == *C* ]]; then
+  # C. THE OTHER SIDE OF THE SAME KNOB -- the over-optimisation test.
+  #
+  # A tests whether MORE single-model search reaches the ensemble's 0.602. But the same knob,
+  # turned down, tests a different and sharper hypothesis. M4 measured that CEM's predicted
+  # improvement beats the realised one on 38% of baseline episodes and only 6.7% under ORACLE
+  # dynamics -- the signature of a planner finding and exploiting the places its model is
+  # wrong. If that is what limits planning, then SHRINKING the search should HELP, because a
+  # weaker maximiser cannot find the model's failure modes.
+  #
+  # Two directions on one axis makes this a real test rather than a fishing trip:
+  #   success rises with samples  -> the planner is search-limited; compute explains consensus
+  #   success falls with samples  -> the planner is EXPLOITING the model; more search is worse
+  #   flat                        -> neither; search is not the binding constraint at all
+  # Nothing in six rounds has varied the planner's budget: 549/549 archived plan runs use an
+  # identical CEM configuration, so this axis is completely unmeasured in either direction.
+  echo "=== C. over-optimisation control: one model, 60 CEM samples (1/5 of default) ==="
+  for b in 3 4 5 6 7 8 9 10 11 12; do
+      sub "PiWM-cem0p2x_pd384_bf16_s${b}" "LpWM-ltv_pd384_bf16_s${b}" "${b}" \
+          "planner.sub_planner.num_samples=60"
   done
 fi
 
