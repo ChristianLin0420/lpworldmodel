@@ -30,7 +30,8 @@ while true; do
       [ -f "$d/DONE" ] || continue
       r=$(basename "$d"); case "$r" in CANARY-*) continue ;; esac
       case " $DEAD_SEEN " in *" $r "*) continue ;; esac
-      # Two guards, and they are in DIFFERENT UNITS -- which has already produced one false
+      # Two guards, applied to EVERY arm (the d_action one is not SAM-specific: it fired
+      # first on R6's support arms). They are in DIFFERENT UNITS -- which has already produced one false
       # alarm. rel_mse is raw. The SAM guard is on causal/d_action_over_scale, NOT
       # causal/d_action: the threshold 0.2746 is half the LpWM-ltv PROBE median of 0.5491
       # (assets/d_action_probe.json, n=16), and that 0.5491 is an over_scale figure. The
@@ -53,7 +54,7 @@ EOF
       # per-seed breach is INSIDE baseline variation (baseline probe range [0.222, 0.629]);
       # report it, but it is an arm-level judgement across seeds, not a per-seed kill switch.
       awk -v v="$ov" 'BEGIN{exit !(v>=0 && v<0.2746)}' \
-        && echo "R6 SAM-GUARD $r d_action_over_scale=$ov (<0.2746 = half baseline probe median; check the ARM across seeds)"
+        && echo "R6 DACTION-GUARD $r d_action_over_scale=$ov (<0.2746 = half baseline probe median; check the ARM across seeds)"
     done
   done
   # --- 2/3. completion + first results, reported only on change -----------------
@@ -61,7 +62,8 @@ EOF
   CUR=$($PY - <<'EOF' 2>/dev/null
 import json, glob, os
 A = json.load(open("/tmp/w25.json"))["arms"]
-GROUP = {"R1 K-sweep": ["jump2","overshoot2","jump3","overshoot3","jump8","overshoot8"],
+GROUP = {"R6 support": ["support-w0p03","support-w0p1","support-w0p3"],
+         "R1 K-sweep": ["jump2","overshoot2","jump3","overshoot3","jump8","overshoot8"],
          "R2 consist": ["consist-w0p03","consist-w0p1","consist-w0p3","consist-w0p1-data"],
          "R3 sam":     ["sam-r0p01","sam-r0p03","sam-r0p1"],
          "R4 incr-eps":["incr-eps0p001","incr-eps0p01","incr-eps0p041","incr-eps0p041-clip10"]}
