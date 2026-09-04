@@ -2604,8 +2604,20 @@ class Trainer:
             count, sum = value
             to_log = sum / count
             epoch_log[key] = to_log
-        log.info(f"Epoch {self.epoch}  Training loss: {epoch_log['train_loss']:.4f}  \
-                Validation loss: {epoch_log['val_loss']:.4f}")
+        # A resume can land AT or PAST the last batch of the final epoch. The run then
+        # trains ZERO batches, self.epoch_log stays empty, and this line used to raise
+        # KeyError('train_loss') and kill the job BEFORE save_ckpt could write the DONE
+        # sentinel. That is a PERMANENT stall, not a transient one: every resubmission
+        # resumes from the same batch and fails identically. Observed on
+        # PiWM-vp-mc_pd384_bf16_s10, which burned 8 consecutive jobs across two
+        # submission waves (resume_steps [2.0]*7, no checkpoint written for 20 h) and was
+        # the single contrast blocking round 5 from closing.
+        # Report what exists and let the epoch finish, so the run reaches save_ckpt.
+        def _fmt(k):
+            return f"{epoch_log[k]:.4f}" if k in epoch_log else "n/a (no batches this epoch)"
+
+        log.info(f"Epoch {self.epoch}  Training loss: {_fmt('train_loss')}  "
+                 f"Validation loss: {_fmt('val_loss')}")
 
         if self.accelerator.is_main_process:
             # sectioned keys for a readable run page; "epoch" stays top-level so it
