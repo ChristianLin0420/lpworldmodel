@@ -245,20 +245,38 @@ def fig_contrasts(out, floor=8):
         try:
             X, Y = A[resolve_arm(A, x)], A[resolve_arm(A, y)]
         except ArmNameError:
-            rows.append((label, key, 0, None, None, None))
+            rows.append((label, key, 0, None, None, None, False))
             continue
         s = sorted(set(X) & set(Y), key=int)
         if len(s) < 3:
-            rows.append((label, key, len(s), None, None, None))
+            rows.append((label, key, len(s), None, None, None, False))
             continue
         d = np.array([X[k] - Y[k] for k in s])
         se = d.std(ddof=1) / np.sqrt(len(d))
+        # A DEGENERATE interval is not a precise one. When every paired delta is identical the
+        # sd is exactly 0 and the t-interval collapses to a point, which draws as infinite
+        # confidence while actually carrying NO variance information. This is not hypothetical:
+        # PiWM-blockcausal is 0.000 on 3/3 seeds against a baseline that is 0.380 on the same
+        # 3, giving "-0.380 [-0.380, -0.380]". R4's arms are collapsing to identical values too
+        # (rel_mse exactly 0.0000), so a round-6 contrast can reach the same state. Such a row
+        # is flagged, not plotted as an interval.
+        # NOT `se == 0`: np.std on three identical floats returns 6.8e-17, not 0.0, so an
+        # exact test silently misses the very case it is written for (checked: it did).
+        # Compare against the spread of the values themselves, scale-free.
+        degenerate = bool(np.ptp(d) <= 1e-9 * max(1.0, abs(float(d.mean()))))
         t = stats.t.ppf(0.975, len(d) - 1)
-        rows.append((label, key, len(s), d.mean(), d.mean() - t * se, d.mean() + t * se))
+        lo, hi = (d.mean(), d.mean()) if degenerate else (d.mean() - t * se, d.mean() + t * se)
+        rows.append((label, key, len(s), d.mean(), lo, hi, degenerate))
 
     fig, ax = plt.subplots(figsize=(11.4, 0.42 * len(rows) + 2.5))
     ys = np.arange(len(rows))[::-1]
-    for y, (label, key, n, d, lo, hi) in zip(ys, rows):
+    for y, (label, key, n, d, lo, hi, degenerate) in zip(ys, rows):
+        if n >= floor and degenerate:
+            ax.scatter([d], [y], s=90, facecolor="white", edgecolor=C["crimson"], lw=1.9, zorder=4)
+            ax.annotate(f"{d:+.3f} on {n}/{n} seeds — identical, no interval", (0.62, y),
+                        fontsize=9, color=C["crimson"], va="center", ha="left",
+                        annotation_clip=False, style="italic")
+            continue
         if n < floor:
             ax.annotate(f"pending — n = {n} of {floor}", (0.0, y), ha="center", va="center",
                         fontsize=9, color=MUTED, style="italic",
