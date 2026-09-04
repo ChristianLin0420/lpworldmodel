@@ -40,39 +40,110 @@ BAND = "#F1F3F2"         # the pale band behind a group header row
 
 
 # ------------------------------------------------------------------ figure 1: the forest
-# (label, control, n, d, lo, hi). Groups are ordered by their most negative member, so the
-# round reads top-to-bottom from "the one thing that worked" down to "the model collapse".
-GROUPS = [
+# WHAT IS SPECIFIED HERE AND WHAT IS MEASURED.
+#
+# This table used to hold literal (n, d, lo, hi) tuples, so regenerating the figure could not
+# pick up new evaluations -- and it silently did not: jump5 was frozen at n=6, patchdecode at
+# n=5, and all three T4 arms sat under a "still training, no paired evaluation exists yet"
+# header long after they had reached n=8. A results figure whose results are a literal is a
+# figure that goes quietly stale.
+#
+# What genuinely CANNOT be derived from the data is the arm -> CONTROL mapping: that each arm
+# is read against the control ITS OWN SPEC names, never a generic baseline. That is what this
+# table specifies now. Every number is computed live from analysis.collect_evals.collect().
+SPEC = [
     ("V1", "consensus rule over 5 independent rollouts", [
-        ("borda", "single-model baseline", 8, +0.215, +0.089, +0.341),
-        ("median", "borda", 8, +0.000, -0.027, +0.027),
-        ("cvar1", "borda", 8, -0.022, -0.055, +0.010),
-        ("cvar2", "borda", 8, -0.022, -0.081, +0.036),
-        ("max", "borda", 8, -0.040, -0.088, +0.008),
+        ("borda", "PiWM-vote5-borda", "LpWM-ltv", "single-model baseline"),
+        ("median", "PiWM-vote5-median", "PiWM-vote5-borda", "borda"),
+        ("cvar1", "PiWM-vote5-cvar1", "PiWM-vote5-borda", "borda"),
+        ("cvar2", "PiWM-vote5-cvar2", "PiWM-vote5-borda", "borda"),
+        ("max", "PiWM-vote5-max", "PiWM-vote5-borda", "borda"),
+    ]),
+    ("T2", "patch decoder on the predicted latent", [
+        ("patchdecode", "PiWM-patchdecode", "PiWM-patchdecode-detach", "detach (own control)"),
     ]),
     ("T1", "attach the decoder, gradient into the encoder", [
-        ("detach", "baseline", 8, +0.055, -0.085, +0.195),
-        ("decode-w1", "detach (own control)", 8, -0.048, -0.148, +0.053),
-        ("decode", "detach (own control)", 8, -0.060, -0.205, +0.085),
+        ("detach", "PiWM-decode-detach", "LpWM-ltv", "baseline"),
+        ("decode-w1", "PiWM-decode-w1", "PiWM-decode-detach", "detach (own control)"),
+        ("decode", "PiWM-decode", "PiWM-decode-detach", "detach (own control)"),
+    ]),
+    ("T6", "K-step jump vs K chained 1-steps", [
+        ("jump5", "PiWM-jump5", "PiWM-overshoot5", "overshoot5 (own control)"),
+        ("overshoot5", "PiWM-overshoot5", "LpWM-ltv", "baseline"),
+    ]),
+    ("T4", "value + policy head on the latent", [
+        ("vp-mc", "PiWM-vp-mc", "LpWM-ltv", "baseline"),
+        ("vp-geom", "PiWM-vp-geom", "LpWM-ltv", "baseline"),
+        ("vp", "PiWM-vp", "LpWM-ltv", "baseline"),
     ]),
     ("V3", "two-level contact planner", [
-        ("2lvl", "baseline", 8, -0.067, -0.158, +0.023),
+        ("2lvl", "PiWM-2lvl", "LpWM-ltv", "baseline"),
     ]),
     ("V2", "gradient planner instead of CEM", [
-        ("gd-noise0", "baseline", 8, -0.070, -0.118, -0.022),
-        ("gd", "baseline", 8, -0.077, -0.123, -0.032),
+        ("gd-noise0", "PiWM-gd-noise0", "LpWM-ltv", "baseline"),
+        ("gd", "PiWM-gd", "LpWM-ltv", "baseline"),
     ]),
     ("T7", "frozen-encoder ranking head as the CEM leaf", [
-        ("energy", "energy-distill (own control)", 8, -0.015, -0.085, +0.055),
-        ("energy", "baseline", 8, -0.143, -0.246, -0.039),
+        ("energy", "PiWM-energy", "PiWM-energy-distill", "energy-distill (own control)"),
+        ("energy", "PiWM-energy", "LpWM-ltv", "baseline"),
     ]),
     ("T3", "weight transitions by unexplained visual change", [
-        ("contact", "contact-shuf (own control)", 8, -0.022, -0.140, +0.095),
-        ("contact-g05", "contact-shuf (own control)", 6, -0.027, -0.201, +0.147),
-        ("contact-shuf", "baseline", 8, -0.345, -0.476, -0.214),
+        ("contact", "PiWM-contact", "PiWM-contact-shuf", "contact-shuf (own control)"),
+        ("contact-g05", "PiWM-contact-g05", "PiWM-contact-shuf", "contact-shuf (own control)"),
+        ("contact-shuf", "PiWM-contact-shuf", "LpWM-ltv", "baseline"),
     ]),
 ]
-TRAINING = [("T2", "patchdecode", 0), ("T6", "jump5", 1), ("T4", "vp", 0)]
+
+
+def _contrast(arms, treated, control):
+    """(n, d, lo, hi) or None. The project's paired estimator: matched seeds only, seeds
+    present in one arm dropped rather than imputed (analysis/figures.py:344)."""
+    from scipy import stats as _st
+
+    from analysis.collect_evals import ArmNameError, resolve_arm
+    try:
+        X, Y = arms[resolve_arm(arms, treated)], arms[resolve_arm(arms, control)]
+    except ArmNameError:
+        return None
+    seeds = sorted(set(X) & set(Y), key=int)
+    if len(seeds) < 2:
+        return (len(seeds), None, None, None)
+    d = np.array([X[k] - Y[k] for k in seeds])
+    se = d.std(ddof=1) / np.sqrt(len(d))
+    t = _st.t.ppf(0.975, len(d) - 1)
+    # A degenerate spread (every paired delta identical) makes a zero-width interval, which
+    # reads as infinite confidence. Report the point and let the caller see lo == hi.
+    if np.ptp(d) <= 1e-9 * max(1.0, abs(float(d.mean()))):
+        return (len(seeds), float(d.mean()), float(d.mean()), float(d.mean()))
+    return (len(seeds), float(d.mean()), float(d.mean() - t * se), float(d.mean() + t * se))
+
+
+def build_groups(floor=8):
+    """SPEC -> the (label, control, n, d, lo, hi) rows the layout code consumes, measured.
+
+    Groups keep their spec order within themselves but are ordered by their most negative
+    member, so the round still reads top-to-bottom from what worked down to what collapsed.
+    An arm below the floor is carried with its n so the figure can mark it, never dropped.
+    """
+    from analysis.collect_evals import collect
+    arms = collect()[0]
+    out, pending = [], []
+    for tag, blurb, items in SPEC:
+        rows = []
+        for label, treated, control, ctrl_disp in items:
+            r = _contrast(arms, treated, control)
+            if r is None or r[1] is None:
+                pending.append((tag, label, 0 if r is None else r[0]))
+                continue
+            n, d, lo, hi = r
+            rows.append((label, ctrl_disp, n, d, lo, hi))
+        if rows:
+            out.append((tag, blurb, rows))
+    out.sort(key=lambda g: min(r[3] for r in g[2]))
+    return out, pending
+
+
+GROUPS, TRAINING = build_groups()
 XLO, XHI = -0.52, 0.38
 
 # column geometry, in axes fractions. Everything outside [0, 1] is drawn with clipping off:
@@ -103,9 +174,12 @@ def fig_forest(out):
         rows.append(("head", (tag, blurb)))
         for it in items:
             rows.append(("row", it))
-    rows.append(("head", ("", "still training — no paired evaluation exists yet")))
-    for tag, nm, n in TRAINING:
-        rows.append(("train", (tag, nm, n)))
+    # Only when something actually is still training. Round 5 finished, so this header
+    # otherwise renders as a band with nothing under it.
+    if TRAINING:
+        rows.append(("head", ("", "still training — no paired evaluation exists yet")))
+        for tag, nm, n in TRAINING:
+            rows.append(("train", (tag, nm, n)))
     N = len(rows)
 
     fig, ax = plt.subplots(figsize=(14.6, 10.4))
@@ -148,7 +222,12 @@ def fig_forest(out):
 
         nm, ctrl, n, d, lo, hi = payload
         col = _colour(lo, hi)
-        hero = d > 0.1                                   # V1 borda: the round's one positive
+        # A RESULT, not a magnitude. This was `d > 0.1`, which is a size threshold with no
+        # reference to the interval -- so when T2 patchdecode landed at +0.140 [-0.047,
+        # +0.327] it inherited the green band, the bold type and the diamond that mean "the
+        # round's one positive", while actually being a null whose interval spans zero. A
+        # figure that promotes a null to a finding is worse than no figure.
+        hero = lo > 0
         if hero:
             ax.add_patch(Rectangle((X_L, y - 0.5), X_R - X_L, 1.0, transform=bx,
                                    fc=FILL["green"], ec="none", zorder=2.4, clip_on=False))
@@ -209,21 +288,31 @@ def fig_forest(out):
                       label="interval excludes zero, negative"),
                Line2D([], [], color=C["slate"], lw=2.4, marker="o", ms=7.5, mec="white",
                       label="interval spans zero (a null)"),
-               Line2D([], [], color=DIM, lw=1.4, ls=(0, (2, 3)),
-                      label="still training, no paired eval")]
+               ]
+    # Only advertise an encoding that something actually uses. Round 5 finished, so the
+    # dashed "still training" key would name an empty category.
+    if TRAINING:
+        handles.append(Line2D([], [], color=DIM, lw=1.4, ls=(0, (2, 3)),
+                              label="still training, no paired eval"))
     ax.legend(handles=handles, loc="lower left", bbox_to_anchor=(X_GROUP, 1.012),
-              frameon=False, fontsize=10.5, ncol=4, handlelength=2.6, handletextpad=0.6,
+              frameon=False, fontsize=10.5, ncol=len(handles), handlelength=2.6, handletextpad=0.6,
               columnspacing=2.4, borderpad=0.0)
 
     xt = L + X_GROUP * (R - L)
-    fig.text(xt, 0.988, "Round 5: sixteen proposals, one positive — and it is the ensemble "
-                        "that was already known", fontsize=13, fontweight="bold", color=INK,
+    # Counts are DERIVED. They were prose ("one positive", "four of the five ... negative")
+    # and the figure gained three groups since, so prose would have gone stale silently.
+    _rows = [r for _, _, items in GROUPS for r in items]
+    _pos = [r for r in _rows if r[4] > 0]
+    _neg = [r for r in _rows if r[5] < 0]
+    _head = (f"Round 5: {len(_rows)} contrasts, {len(_pos)} positive"
+             + (" — and it is the ensemble that was already known" if len(_pos) == 1 else ""))
+    _sub = (f"Every paired contrast in the campaign, matched seeds and a 95% interval. "
+            f"{len(_pos) + len(_neg)} intervals exclude zero; {len(_neg)} of them are negative.\n"
+            f"Each arm is read against the control its own spec names, never a generic baseline.")
+    fig.text(xt, 0.988, _head, fontsize=13, fontweight="bold", color=INK,
              ha="left", va="bottom")
-    fig.text(xt, 0.980,
-             "Every paired contrast in the campaign, matched seeds and a 95% interval. Four "
-             "of the five intervals that exclude zero are negative;\nT3's −0.345 is its own "
-             "control arm, so both T3 arms sit at the floor.",
-             fontsize=10.5, color=MUTED, ha="left", va="top", linespacing=1.45)
+    fig.text(xt, 0.980, _sub, fontsize=10.5, color=MUTED, ha="left", va="top",
+             linespacing=1.45)
 
     p = os.path.join(out, "round5-forest.png")
     fig.savefig(p, dpi=155, facecolor="white", bbox_inches="tight")
