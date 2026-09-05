@@ -1,0 +1,92 @@
+[
+ {
+  "run": "CANARY-PiWM-sam-r0p03_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-sam-r0p03",
+  "seed": 3,
+  "d_action": 0.1071612760424614,
+  "d_state": 0.32597285509109497,
+  "scale": 0.3616434335708618,
+  "d_action_over_scale": 0.2963174942355584,
+  "state_over_action": 3.0418903836301094
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s10",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 10,
+  "d_action": 0.34794679284095764,
+  "d_state": 0.8043854236602783,
+  "scale": 0.6485738158226013,
+  "d_action_over_scale": 0.5364798645157276,
+  "state_over_action": 2.3118058283927145
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s3",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 3,
+  "d_action": 0.3970835208892822,
+  "d_state": 0.8116330504417419,
+  "scale": 0.669495701789856,
+  "d_action_over_scale": 0.593108394613593,
+  "state_over_action": 2.043985730317042
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s4",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 4,
+  "d_action": 0.33173033595085144,
+  "d_state": 0.7914325594902039,
+  "scale": 0.6534518599510193,
+  "d_action_over_scale": 0.5076584156876023,
+  "state_over_action": 2.3857708316656967
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s5",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 5,
+  "d_action": 0.3793136775493622,
+  "d_state": 0.8052974939346313,
+  "scale": 0.6536481976509094,
+  "d_action_over_scale": 0.5803024913287381,
+  "state_over_action": 2.123038375883067
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s6",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 6,
+  "d_action": 0.33614474534988403,
+  "d_state": 0.7862175703048706,
+  "scale": 0.6490060091018677,
+  "d_action_over_scale": 0.5179378012463409,
+  "state_over_action": 2.338925659797293
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s7",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 7,
+  "d_action": 0.30415529012680054,
+  "d_state": 0.7915334701538086,
+  "scale": 0.6397314071655273,
+  "d_action_over_scale": 0.4754421726368389,
+  "state_over_action": 2.602399155457145
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s8",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 8,
+  "d_action": 0.3972133696079254,
+  "d_state": 0.7997483015060425,
+  "scale": 0.6493958234786987,
+  "d_action_over_scale": 0.6116660367172113,
+  "state_over_action": 2.0133972386061534
+ },
+ {
+  "run": "PiWM-sam-r0p03_pd384_bf16_s9",
+  "arm": "PiWM-sam-r0p03",
+  "seed": 9,
+  "d_action": 0.3710315227508545,
+  "d_state": 0.7919904589653015,
+  "scale": 0.6482169032096863,
+  "d_action_over_scale": 0.5723879166273956,
+  "state_over_action": 2.1345638049657536
+ }
+]

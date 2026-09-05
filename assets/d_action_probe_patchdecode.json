@@ -1,0 +1,422 @@
+[
+ {
+  "run": "CANARY-PiWM-patchdecode-detach_pd384_patch_bf16_s3",
+  "arm": "CANARY-PiWM-patchdecode-detach",
+  "seed": 3,
+  "d_action": 0.08635473251342773,
+  "d_state": 0.19079019129276276,
+  "scale": 0.2843780219554901,
+  "d_action_over_scale": 0.3036617665444754,
+  "state_over_action": 2.209377364038454
+ },
+ {
+  "run": "CANARY-PiWM-patchdecode_pd384_patch_bf16_s3",
+  "arm": "CANARY-PiWM-patchdecode",
+  "seed": 3,
+  "d_action": 0.11146529763936996,
+  "d_state": 0.1615504026412964,
+  "scale": 0.30456072092056274,
+  "d_action_over_scale": 0.3659871085885792,
+  "state_over_action": 1.4493336138030117
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s10",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 10,
+  "d_action": 0.41742366552352905,
+  "d_state": 0.8022933602333069,
+  "scale": 0.6601365804672241,
+  "d_action_over_scale": 0.6323292449997083,
+  "state_over_action": 1.9220121581441187
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s11",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 11,
+  "d_action": 0.2976316809654236,
+  "d_state": 0.7966451048851013,
+  "scale": 0.6678966283798218,
+  "d_action_over_scale": 0.44562536823612375,
+  "state_over_action": 2.676613935388313
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s12",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 12,
+  "d_action": 0.333549439907074,
+  "d_state": 0.7915207147598267,
+  "scale": 0.6675150990486145,
+  "d_action_over_scale": 0.4996882323448115,
+  "state_over_action": 2.3730236662377315
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s13",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 13,
+  "d_action": 0.29687443375587463,
+  "d_state": 0.7918700575828552,
+  "scale": 0.6452823877334595,
+  "d_action_over_scale": 0.46006901691310637,
+  "state_over_action": 2.6673568604901314
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s14",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 14,
+  "d_action": 0.3497695326805115,
+  "d_state": 0.7791247963905334,
+  "scale": 0.6545897126197815,
+  "d_action_over_scale": 0.5343339895774915,
+  "state_over_action": 2.227537631478629
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s15",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 15,
+  "d_action": 0.31908169388771057,
+  "d_state": 0.7881432771682739,
+  "scale": 0.64420086145401,
+  "d_action_over_scale": 0.4953139819892806,
+  "state_over_action": 2.4700360198214093
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s16",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 16,
+  "d_action": 0.22646358609199524,
+  "d_state": 0.7887204885482788,
+  "scale": 0.6732019782066345,
+  "d_action_over_scale": 0.3363976836421058,
+  "state_over_action": 3.482769579688103
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s17",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 17,
+  "d_action": 0.19621038436889648,
+  "d_state": 0.7550618052482605,
+  "scale": 0.6442831754684448,
+  "d_action_over_scale": 0.3045405992888702,
+  "state_over_action": 3.8482255038482758
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s18",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 18,
+  "d_action": 0.3023013174533844,
+  "d_state": 0.7830421328544617,
+  "scale": 0.6405390501022339,
+  "d_action_over_scale": 0.4719483026134555,
+  "state_over_action": 2.5902703284619615
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s19",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 19,
+  "d_action": 0.22514808177947998,
+  "d_state": 0.7764225602149963,
+  "scale": 0.6447167992591858,
+  "d_action_over_scale": 0.34922012585710066,
+  "state_over_action": 3.448497335968685
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s20",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 20,
+  "d_action": 0.2809789776802063,
+  "d_state": 0.7679086327552795,
+  "scale": 0.6562194228172302,
+  "d_action_over_scale": 0.4281783926387445,
+  "state_over_action": 2.73297539586491
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s21",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 21,
+  "d_action": 0.1193586066365242,
+  "d_state": 0.6717860698699951,
+  "scale": 0.5648691654205322,
+  "d_action_over_scale": 0.2113031015733784,
+  "state_over_action": 5.628300202227947
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s22",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 22,
+  "d_action": 0.2971802353858948,
+  "d_state": 0.784484326839447,
+  "scale": 0.6491568088531494,
+  "d_action_over_scale": 0.45779422064588116,
+  "state_over_action": 2.639759423505327
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s3",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 3,
+  "d_action": 0.4288053810596466,
+  "d_state": 0.7915510535240173,
+  "scale": 0.6508107781410217,
+  "d_action_over_scale": 0.6588787332079654,
+  "state_over_action": 1.8459447770174158
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s4",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 4,
+  "d_action": 0.3900719881057739,
+  "d_state": 0.7979817390441895,
+  "scale": 0.651384174823761,
+  "d_action_over_scale": 0.5988355308314208,
+  "state_over_action": 2.0457294124586167
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s5",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 5,
+  "d_action": 0.4067198932170868,
+  "d_state": 0.7984723448753357,
+  "scale": 0.6675388813018799,
+  "d_action_over_scale": 0.6092827018912724,
+  "state_over_action": 1.9631996324535594
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s6",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 6,
+  "d_action": 0.35935989022254944,
+  "d_state": 0.803829550743103,
+  "scale": 0.6795088052749634,
+  "d_action_over_scale": 0.5288524408114688,
+  "state_over_action": 2.2368371446387525
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s7",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 7,
+  "d_action": 0.42957693338394165,
+  "d_state": 0.8008821606636047,
+  "scale": 0.6551322937011719,
+  "d_action_over_scale": 0.655710209241931,
+  "state_over_action": 1.8643509425768043
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s8",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 8,
+  "d_action": 0.21234680712223053,
+  "d_state": 0.7576115727424622,
+  "scale": 0.6488101482391357,
+  "d_action_over_scale": 0.32728650699829165,
+  "state_over_action": 3.5678029870558294
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s9",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 9,
+  "d_action": 0.6053863763809204,
+  "d_state": 0.7998071312904358,
+  "scale": 0.6563183665275574,
+  "d_action_over_scale": 0.9223974327945332,
+  "state_over_action": 1.321151519913263
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s10",
+  "arm": "PiWM-patchdecode",
+  "seed": 10,
+  "d_action": 0.38033220171928406,
+  "d_state": 0.800076961517334,
+  "scale": 0.656487226486206,
+  "d_action_over_scale": 0.5793444051531375,
+  "state_over_action": 2.1036266661108427
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s11",
+  "arm": "PiWM-patchdecode",
+  "seed": 11,
+  "d_action": 0.3578454554080963,
+  "d_state": 0.7969529032707214,
+  "scale": 0.6520910859107971,
+  "d_action_over_scale": 0.5487660591285062,
+  "state_over_action": 2.2270868365838417
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s12",
+  "arm": "PiWM-patchdecode",
+  "seed": 12,
+  "d_action": 0.30002427101135254,
+  "d_state": 0.7803089022636414,
+  "scale": 0.6615320444107056,
+  "d_action_over_scale": 0.4535294602071997,
+  "state_over_action": 2.6008192591662542
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s13",
+  "arm": "PiWM-patchdecode",
+  "seed": 13,
+  "d_action": 0.3406094014644623,
+  "d_state": 0.7886516451835632,
+  "scale": 0.6472273468971252,
+  "d_action_over_scale": 0.5262592860103624,
+  "state_over_action": 2.3154136139305823
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s14",
+  "arm": "PiWM-patchdecode",
+  "seed": 14,
+  "d_action": 0.38470616936683655,
+  "d_state": 0.7937599420547485,
+  "scale": 0.6654465198516846,
+  "d_action_over_scale": 0.5781173360897286,
+  "state_over_action": 2.0632888299169925
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s15",
+  "arm": "PiWM-patchdecode",
+  "seed": 15,
+  "d_action": 0.3392083942890167,
+  "d_state": 0.8061479330062866,
+  "scale": 0.6600743532180786,
+  "d_action_over_scale": 0.5138942190910232,
+  "state_over_action": 2.3765565551406196
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s16",
+  "arm": "PiWM-patchdecode",
+  "seed": 16,
+  "d_action": 0.3115781247615814,
+  "d_state": 0.7971736788749695,
+  "scale": 0.6733548641204834,
+  "d_action_over_scale": 0.46272499296274594,
+  "state_over_action": 2.5585033592617075
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s17",
+  "arm": "PiWM-patchdecode",
+  "seed": 17,
+  "d_action": 0.2030431479215622,
+  "d_state": 0.7564142942428589,
+  "scale": 0.650591254234314,
+  "d_action_over_scale": 0.3120901896545248,
+  "state_over_action": 3.7253869533931283
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s18",
+  "arm": "PiWM-patchdecode",
+  "seed": 18,
+  "d_action": 0.252419650554657,
+  "d_state": 0.7738358378410339,
+  "scale": 0.631036102771759,
+  "d_action_over_scale": 0.4000082553849621,
+  "state_over_action": 3.065671932199564
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s19",
+  "arm": "PiWM-patchdecode",
+  "seed": 19,
+  "d_action": 0.32128745317459106,
+  "d_state": 0.8054497838020325,
+  "scale": 0.6650590896606445,
+  "d_action_over_scale": 0.4830961010374768,
+  "state_over_action": 2.506944407083156
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s20",
+  "arm": "PiWM-patchdecode",
+  "seed": 20,
+  "d_action": 0.2548001706600189,
+  "d_state": 0.7860543131828308,
+  "scale": 0.6736247539520264,
+  "d_action_over_scale": 0.37825238631026475,
+  "state_over_action": 3.08498346428373
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s21",
+  "arm": "PiWM-patchdecode",
+  "seed": 21,
+  "d_action": 0.19213755428791046,
+  "d_state": 0.7753832936286926,
+  "scale": 0.6611828207969666,
+  "d_action_over_scale": 0.2905967128067765,
+  "state_over_action": 4.035563461304455
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s22",
+  "arm": "PiWM-patchdecode",
+  "seed": 22,
+  "d_action": 0.2012844979763031,
+  "d_state": 0.7680472135543823,
+  "scale": 0.639890193939209,
+  "d_action_over_scale": 0.3145609979380706,
+  "state_over_action": 3.8157295831336366
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s3",
+  "arm": "PiWM-patchdecode",
+  "seed": 3,
+  "d_action": 0.42309775948524475,
+  "d_state": 0.7944784164428711,
+  "scale": 0.6497598886489868,
+  "d_action_over_scale": 0.6511601698974844,
+  "state_over_action": 1.8777655958506156
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s4",
+  "arm": "PiWM-patchdecode",
+  "seed": 4,
+  "d_action": 0.37076908349990845,
+  "d_state": 0.7992173433303833,
+  "scale": 0.6568443775177002,
+  "d_action_over_scale": 0.5644702096729407,
+  "state_over_action": 2.155566305006066
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s5",
+  "arm": "PiWM-patchdecode",
+  "seed": 5,
+  "d_action": 0.43091970682144165,
+  "d_state": 0.8009189963340759,
+  "scale": 0.6688869595527649,
+  "d_action_over_scale": 0.6442339780544768,
+  "state_over_action": 1.8586269870130336
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s6",
+  "arm": "PiWM-patchdecode",
+  "seed": 6,
+  "d_action": 0.3978036344051361,
+  "d_state": 0.7970742583274841,
+  "scale": 0.6687593460083008,
+  "d_action_over_scale": 0.5948382430534264,
+  "state_over_action": 2.003687722761522
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s7",
+  "arm": "PiWM-patchdecode",
+  "seed": 7,
+  "d_action": 0.4075242578983307,
+  "d_state": 0.7917035818099976,
+  "scale": 0.6684314012527466,
+  "d_action_over_scale": 0.6096725215700003,
+  "state_over_action": 1.9427152285190152
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s8",
+  "arm": "PiWM-patchdecode",
+  "seed": 8,
+  "d_action": 0.4178747534751892,
+  "d_state": 0.796912670135498,
+  "scale": 0.6680072546005249,
+  "d_action_over_scale": 0.6255542145647544,
+  "state_over_action": 1.9070610595832842
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s9",
+  "arm": "PiWM-patchdecode",
+  "seed": 9,
+  "d_action": 0.3852529227733612,
+  "d_state": 0.7924083471298218,
+  "scale": 0.6472836136817932,
+  "d_action_over_scale": 0.5951841119258626,
+  "state_over_action": 2.0568522658450648
+ }
+]

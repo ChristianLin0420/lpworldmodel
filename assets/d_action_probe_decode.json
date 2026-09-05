@@ -1,0 +1,692 @@
+[
+ {
+  "run": "CANARY-PiWM-decode-detach_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-decode-detach",
+  "seed": 3,
+  "d_action": 0.09530352056026459,
+  "d_state": 0.19835713505744934,
+  "scale": 0.25604814291000366,
+  "d_action_over_scale": 0.37220938014677213,
+  "state_over_action": 2.081320122188135
+ },
+ {
+  "run": "CANARY-PiWM-decode-w1_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-decode-w1",
+  "seed": 3,
+  "d_action": 0.06095144525170326,
+  "d_state": 0.1265006959438324,
+  "scale": 0.3203833997249603,
+  "d_action_over_scale": 0.19024532889041154,
+  "state_over_action": 2.07543390351843
+ },
+ {
+  "run": "CANARY-PiWM-decode_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-decode",
+  "seed": 3,
+  "d_action": 0.0677158534526825,
+  "d_state": 0.2906370759010315,
+  "scale": 0.3140740692615509,
+  "d_action_over_scale": 0.2156047253818044,
+  "state_over_action": 4.292009346144011
+ },
+ {
+  "run": "CANARY-PiWM-patchdecode-detach_pd384_patch_bf16_s3",
+  "arm": "CANARY-PiWM-patchdecode-detach",
+  "seed": 3,
+  "d_action": 0.08374141156673431,
+  "d_state": 0.19673119485378265,
+  "scale": 0.27195900678634644,
+  "d_action_over_scale": 0.307919243257578,
+  "state_over_action": 2.3492701063082237
+ },
+ {
+  "run": "CANARY-PiWM-patchdecode_pd384_patch_bf16_s3",
+  "arm": "CANARY-PiWM-patchdecode",
+  "seed": 3,
+  "d_action": 0.10422380268573761,
+  "d_state": 0.16054072976112366,
+  "scale": 0.29962778091430664,
+  "d_action_over_scale": 0.3478442565228808,
+  "state_over_action": 1.5403461169536916
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s10",
+  "arm": "PiWM-decode-detach",
+  "seed": 10,
+  "d_action": 0.3506101071834564,
+  "d_state": 0.8002106547355652,
+  "scale": 0.6639764904975891,
+  "d_action_over_scale": 0.5280459657851839,
+  "state_over_action": 2.2823376689390638
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s3",
+  "arm": "PiWM-decode-detach",
+  "seed": 3,
+  "d_action": 0.40528440475463867,
+  "d_state": 0.7984176278114319,
+  "scale": 0.6613004803657532,
+  "d_action_over_scale": 0.6128596860091244,
+  "state_over_action": 1.9700181365103306
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s4",
+  "arm": "PiWM-decode-detach",
+  "seed": 4,
+  "d_action": 0.37557312846183777,
+  "d_state": 0.8146462440490723,
+  "scale": 0.6721903681755066,
+  "d_action_over_scale": 0.5587303035615305,
+  "state_over_action": 2.169074894642919
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s5",
+  "arm": "PiWM-decode-detach",
+  "seed": 5,
+  "d_action": 0.38337329030036926,
+  "d_state": 0.7983508706092834,
+  "scale": 0.6598603129386902,
+  "d_action_over_scale": 0.5809915868299685,
+  "state_over_action": 2.0824373810282486
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s6",
+  "arm": "PiWM-decode-detach",
+  "seed": 6,
+  "d_action": 0.37044861912727356,
+  "d_state": 0.8002063035964966,
+  "scale": 0.6456567049026489,
+  "d_action_over_scale": 0.5737547775998535,
+  "state_over_action": 2.160100651695432
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s7",
+  "arm": "PiWM-decode-detach",
+  "seed": 7,
+  "d_action": 0.37322285771369934,
+  "d_state": 0.7886480093002319,
+  "scale": 0.6595844030380249,
+  "d_action_over_scale": 0.5658454869379062,
+  "state_over_action": 2.113075319478977
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s8",
+  "arm": "PiWM-decode-detach",
+  "seed": 8,
+  "d_action": 0.35190150141716003,
+  "d_state": 0.7995915412902832,
+  "scale": 0.6488026976585388,
+  "d_action_over_scale": 0.5423860022270804,
+  "state_over_action": 2.2722026989660695
+ },
+ {
+  "run": "PiWM-decode-detach_pd384_bf16_s9",
+  "arm": "PiWM-decode-detach",
+  "seed": 9,
+  "d_action": 0.31940439343452454,
+  "d_state": 0.7959979772567749,
+  "scale": 0.6485151052474976,
+  "d_action_over_scale": 0.4925165055525236,
+  "state_over_action": 2.4921322111367528
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s10",
+  "arm": "PiWM-decode-w1",
+  "seed": 10,
+  "d_action": 0.14296047389507294,
+  "d_state": 0.7855192422866821,
+  "scale": 0.6392549872398376,
+  "d_action_over_scale": 0.2236360712840815,
+  "state_over_action": 5.494660313334025
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s3",
+  "arm": "PiWM-decode-w1",
+  "seed": 3,
+  "d_action": 0.3152060806751251,
+  "d_state": 0.8032621145248413,
+  "scale": 0.666182816028595,
+  "d_action_over_scale": 0.47315252373846184,
+  "state_over_action": 2.5483712522435225
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s4",
+  "arm": "PiWM-decode-w1",
+  "seed": 4,
+  "d_action": 0.323740154504776,
+  "d_state": 0.79555344581604,
+  "scale": 0.6646825671195984,
+  "d_action_over_scale": 0.48705979443345987,
+  "state_over_action": 2.4573826717077925
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s5",
+  "arm": "PiWM-decode-w1",
+  "seed": 5,
+  "d_action": 0.3307037949562073,
+  "d_state": 0.7975152730941772,
+  "scale": 0.6606801152229309,
+  "d_action_over_scale": 0.5005505498596988,
+  "state_over_action": 2.4115697650212526
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s6",
+  "arm": "PiWM-decode-w1",
+  "seed": 6,
+  "d_action": 0.3244132995605469,
+  "d_state": 0.7907329201698303,
+  "scale": 0.6589272618293762,
+  "d_action_over_scale": 0.4923355252594649,
+  "state_over_action": 2.4374244867302424
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s7",
+  "arm": "PiWM-decode-w1",
+  "seed": 7,
+  "d_action": 0.34588363766670227,
+  "d_state": 0.7949612140655518,
+  "scale": 0.6438223123550415,
+  "d_action_over_scale": 0.5372346236362832,
+  "state_over_action": 2.298348714695739
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s8",
+  "arm": "PiWM-decode-w1",
+  "seed": 8,
+  "d_action": 0.356366366147995,
+  "d_state": 0.8119553327560425,
+  "scale": 0.6598254442214966,
+  "d_action_over_scale": 0.5400918822832884,
+  "state_over_action": 2.278428633803355
+ },
+ {
+  "run": "PiWM-decode-w1_pd384_bf16_s9",
+  "arm": "PiWM-decode-w1",
+  "seed": 9,
+  "d_action": 0.3648558259010315,
+  "d_state": 0.8039196133613586,
+  "scale": 0.6541129350662231,
+  "d_action_over_scale": 0.557787205146911,
+  "state_over_action": 2.2033898222017836
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s10",
+  "arm": "PiWM-decode",
+  "seed": 10,
+  "d_action": 0.352841854095459,
+  "d_state": 0.8069785833358765,
+  "scale": 0.6559835076332092,
+  "d_action_over_scale": 0.5378822028140824,
+  "state_over_action": 2.2870829352278426
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s3",
+  "arm": "PiWM-decode",
+  "seed": 3,
+  "d_action": 0.324057936668396,
+  "d_state": 0.7924157977104187,
+  "scale": 0.6584275960922241,
+  "d_action_over_scale": 0.4921694330427276,
+  "state_over_action": 2.4452905114966734
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s4",
+  "arm": "PiWM-decode",
+  "seed": 4,
+  "d_action": 0.361809641122818,
+  "d_state": 0.8098746538162231,
+  "scale": 0.6699054837226868,
+  "d_action_over_scale": 0.5400905798116922,
+  "state_over_action": 2.2383998704481933
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s5",
+  "arm": "PiWM-decode",
+  "seed": 5,
+  "d_action": 0.3248002827167511,
+  "d_state": 0.7882755994796753,
+  "scale": 0.6501255631446838,
+  "d_action_over_scale": 0.4995962336039809,
+  "state_over_action": 2.426954782447365
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s6",
+  "arm": "PiWM-decode",
+  "seed": 6,
+  "d_action": 0.3897019028663635,
+  "d_state": 0.7855176329612732,
+  "scale": 0.6413968801498413,
+  "d_action_over_scale": 0.6075830970292878,
+  "state_over_action": 2.0156884715819383
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s7",
+  "arm": "PiWM-decode",
+  "seed": 7,
+  "d_action": 0.35713890194892883,
+  "d_state": 0.7948400378227234,
+  "scale": 0.6623966693878174,
+  "d_action_over_scale": 0.5391616812913541,
+  "state_over_action": 2.225576753149076
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s8",
+  "arm": "PiWM-decode",
+  "seed": 8,
+  "d_action": 0.3997105062007904,
+  "d_state": 0.792237401008606,
+  "scale": 0.6576021909713745,
+  "d_action_over_scale": 0.6078302531358047,
+  "state_over_action": 1.9820279645354975
+ },
+ {
+  "run": "PiWM-decode_pd384_bf16_s9",
+  "arm": "PiWM-decode",
+  "seed": 9,
+  "d_action": 0.34228456020355225,
+  "d_state": 0.7988517880439758,
+  "scale": 0.6449288725852966,
+  "d_action_over_scale": 0.5307322632826964,
+  "state_over_action": 2.3338820412142134
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s10",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 10,
+  "d_action": 0.3936397135257721,
+  "d_state": 0.8047179579734802,
+  "scale": 0.6538422703742981,
+  "d_action_over_scale": 0.6020407846993884,
+  "state_over_action": 2.0443007408112908
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s11",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 11,
+  "d_action": 0.274019718170166,
+  "d_state": 0.8060885071754456,
+  "scale": 0.6635295152664185,
+  "d_action_over_scale": 0.41297291509352435,
+  "state_over_action": 2.941717160204016
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s12",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 12,
+  "d_action": 0.30938392877578735,
+  "d_state": 0.8113892078399658,
+  "scale": 0.6689537763595581,
+  "d_action_over_scale": 0.46248924770176586,
+  "state_over_action": 2.6225964970145075
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s13",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 13,
+  "d_action": 0.2783052623271942,
+  "d_state": 0.7959238886833191,
+  "scale": 0.6468691229820251,
+  "d_action_over_scale": 0.43023426600457415,
+  "state_over_action": 2.8598952173156467
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s14",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 14,
+  "d_action": 0.3262825310230255,
+  "d_state": 0.7768208384513855,
+  "scale": 0.654082715511322,
+  "d_action_over_scale": 0.49883986120617435,
+  "state_over_action": 2.380822644766617
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s15",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 15,
+  "d_action": 0.2859859764575958,
+  "d_state": 0.7900807857513428,
+  "scale": 0.6454184055328369,
+  "d_action_over_scale": 0.44310167482982593,
+  "state_over_action": 2.762655692204862
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s16",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 16,
+  "d_action": 0.21408075094223022,
+  "d_state": 0.8008872270584106,
+  "scale": 0.6716259121894836,
+  "d_action_over_scale": 0.31874998724264875,
+  "state_over_action": 3.74105202608585
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s17",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 17,
+  "d_action": 0.176925927400589,
+  "d_state": 0.7689366340637207,
+  "scale": 0.6419380307197571,
+  "d_action_over_scale": 0.2756121602613498,
+  "state_over_action": 4.346093562209927
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s18",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 18,
+  "d_action": 0.2782604992389679,
+  "d_state": 0.7831795811653137,
+  "scale": 0.6333789229393005,
+  "d_action_over_scale": 0.43932705867074584,
+  "state_over_action": 2.814555365591885
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s19",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 19,
+  "d_action": 0.20734132826328278,
+  "d_state": 0.7916443943977356,
+  "scale": 0.6443840265274048,
+  "d_action_over_scale": 0.32176671011019364,
+  "state_over_action": 3.818073323966087
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s20",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 20,
+  "d_action": 0.2603510320186615,
+  "d_state": 0.7687846422195435,
+  "scale": 0.6450634002685547,
+  "d_action_over_scale": 0.4036053384989311,
+  "state_over_action": 2.9528772605919165
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s21",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 21,
+  "d_action": 0.11668842285871506,
+  "d_state": 0.6414214372634888,
+  "scale": 0.5385327935218811,
+  "d_action_over_scale": 0.21667839779189582,
+  "state_over_action": 5.496872967767455
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s22",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 22,
+  "d_action": 0.2759741544723511,
+  "d_state": 0.7969435453414917,
+  "scale": 0.6435762047767639,
+  "d_action_over_scale": 0.42881348381747225,
+  "state_over_action": 2.8877470314754956
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s3",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 3,
+  "d_action": 0.406008780002594,
+  "d_state": 0.7947014570236206,
+  "scale": 0.6437886953353882,
+  "d_action_over_scale": 0.6306553422642497,
+  "state_over_action": 1.9573504223690514
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s4",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 4,
+  "d_action": 0.363907128572464,
+  "d_state": 0.7954906225204468,
+  "scale": 0.6512109637260437,
+  "d_action_over_scale": 0.558816034807355,
+  "state_over_action": 2.185971529716936
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s5",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 5,
+  "d_action": 0.38024023175239563,
+  "d_state": 0.7985228300094604,
+  "scale": 0.6596819758415222,
+  "d_action_over_scale": 0.5763993040242502,
+  "state_over_action": 2.100048241421864
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s6",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 6,
+  "d_action": 0.3357979655265808,
+  "d_state": 0.8119699954986572,
+  "scale": 0.680694043636322,
+  "d_action_over_scale": 0.49331703232295265,
+  "state_over_action": 2.4180313130407693
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s7",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 7,
+  "d_action": 0.40188610553741455,
+  "d_state": 0.8030574321746826,
+  "scale": 0.6512107849121094,
+  "d_action_over_scale": 0.6171367471926238,
+  "state_over_action": 1.9982214391333817
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s8",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 8,
+  "d_action": 0.18826784193515778,
+  "d_state": 0.7520408630371094,
+  "scale": 0.6321056485176086,
+  "d_action_over_scale": 0.2978423660295976,
+  "state_over_action": 3.994526390205946
+ },
+ {
+  "run": "PiWM-patchdecode-detach_pd384_patch_bf16_s9",
+  "arm": "PiWM-patchdecode-detach",
+  "seed": 9,
+  "d_action": 0.5872253775596619,
+  "d_state": 0.8076759576797485,
+  "scale": 0.6574695110321045,
+  "d_action_over_scale": 0.8931598617216904,
+  "state_over_action": 1.3754105128021124
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s10",
+  "arm": "PiWM-patchdecode",
+  "seed": 10,
+  "d_action": 0.3595481812953949,
+  "d_state": 0.8033931255340576,
+  "scale": 0.6538887619972229,
+  "d_action_over_scale": 0.5498613865104504,
+  "state_over_action": 2.2344519241887415
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s11",
+  "arm": "PiWM-patchdecode",
+  "seed": 11,
+  "d_action": 0.34130704402923584,
+  "d_state": 0.8067619204521179,
+  "scale": 0.6539646983146667,
+  "d_action_over_scale": 0.5219043855254246,
+  "state_over_action": 2.363742367951281
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s12",
+  "arm": "PiWM-patchdecode",
+  "seed": 12,
+  "d_action": 0.27815547585487366,
+  "d_state": 0.7879968285560608,
+  "scale": 0.6592050790786743,
+  "d_action_over_scale": 0.42195590519968756,
+  "state_over_action": 2.832936601856418
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s13",
+  "arm": "PiWM-patchdecode",
+  "seed": 13,
+  "d_action": 0.3265587091445923,
+  "d_state": 0.8012037873268127,
+  "scale": 0.644919216632843,
+  "d_action_over_scale": 0.5063559911419175,
+  "state_over_action": 2.4534754850836307
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s14",
+  "arm": "PiWM-patchdecode",
+  "seed": 14,
+  "d_action": 0.3527556359767914,
+  "d_state": 0.8027183413505554,
+  "scale": 0.6611630916595459,
+  "d_action_over_scale": 0.5335380035981147,
+  "state_over_action": 2.275564893889798
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s15",
+  "arm": "PiWM-patchdecode",
+  "seed": 15,
+  "d_action": 0.3180859684944153,
+  "d_state": 0.8130132555961609,
+  "scale": 0.6564233303070068,
+  "d_action_over_scale": 0.48457444123085575,
+  "state_over_action": 2.5559544781065537
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s16",
+  "arm": "PiWM-patchdecode",
+  "seed": 16,
+  "d_action": 0.2958143949508667,
+  "d_state": 0.8012522459030151,
+  "scale": 0.672007143497467,
+  "d_action_over_scale": 0.4401953131201822,
+  "state_over_action": 2.708631694668203
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s17",
+  "arm": "PiWM-patchdecode",
+  "seed": 17,
+  "d_action": 0.18684284389019012,
+  "d_state": 0.7724122405052185,
+  "scale": 0.6454434394836426,
+  "d_action_over_scale": 0.2894798094774426,
+  "state_over_action": 4.134021000874804
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s18",
+  "arm": "PiWM-patchdecode",
+  "seed": 18,
+  "d_action": 0.23579590022563934,
+  "d_state": 0.7841033339500427,
+  "scale": 0.625923752784729,
+  "d_action_over_scale": 0.3767166514716618,
+  "state_over_action": 3.325347612913174
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s19",
+  "arm": "PiWM-patchdecode",
+  "seed": 19,
+  "d_action": 0.2999665141105652,
+  "d_state": 0.7998846769332886,
+  "scale": 0.6519339084625244,
+  "d_action_over_scale": 0.4601179816186971,
+  "state_over_action": 2.6665798991098644
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s20",
+  "arm": "PiWM-patchdecode",
+  "seed": 20,
+  "d_action": 0.2366371601819992,
+  "d_state": 0.7795351147651672,
+  "scale": 0.6588234901428223,
+  "d_action_over_scale": 0.3591814252565586,
+  "state_over_action": 3.2942210520343536
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s21",
+  "arm": "PiWM-patchdecode",
+  "seed": 21,
+  "d_action": 0.1782044768333435,
+  "d_state": 0.7855414748191833,
+  "scale": 0.6537535786628723,
+  "d_action_over_scale": 0.2725866177250251,
+  "state_over_action": 4.408090575377746
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s22",
+  "arm": "PiWM-patchdecode",
+  "seed": 22,
+  "d_action": 0.19348633289337158,
+  "d_state": 0.780748188495636,
+  "scale": 0.6334514617919922,
+  "d_action_over_scale": 0.30544776445224636,
+  "state_over_action": 4.035159366661307
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s3",
+  "arm": "PiWM-patchdecode",
+  "seed": 3,
+  "d_action": 0.39990949630737305,
+  "d_state": 0.7991992235183716,
+  "scale": 0.6451441049575806,
+  "d_action_over_scale": 0.6198762311153224,
+  "state_over_action": 1.9984502266085271
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s4",
+  "arm": "PiWM-patchdecode",
+  "seed": 4,
+  "d_action": 0.3511045277118683,
+  "d_state": 0.8031411170959473,
+  "scale": 0.6531121730804443,
+  "d_action_over_scale": 0.537586868203454,
+  "state_over_action": 2.287470122729491
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s5",
+  "arm": "PiWM-patchdecode",
+  "seed": 5,
+  "d_action": 0.4040182828903198,
+  "d_state": 0.8090078234672546,
+  "scale": 0.665604293346405,
+  "d_action_over_scale": 0.6069947068085599,
+  "state_over_action": 2.002403994392696
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s6",
+  "arm": "PiWM-patchdecode",
+  "seed": 6,
+  "d_action": 0.3754652142524719,
+  "d_state": 0.8069108128547668,
+  "scale": 0.672146737575531,
+  "d_action_over_scale": 0.5586060204752238,
+  "state_over_action": 2.149096060633144
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s7",
+  "arm": "PiWM-patchdecode",
+  "seed": 7,
+  "d_action": 0.3860173523426056,
+  "d_state": 0.7934237122535706,
+  "scale": 0.6666474342346191,
+  "d_action_over_scale": 0.5790427331139343,
+  "state_over_action": 2.0554094458152123
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s8",
+  "arm": "PiWM-patchdecode",
+  "seed": 8,
+  "d_action": 0.39627742767333984,
+  "d_state": 0.7923444509506226,
+  "scale": 0.6612290740013123,
+  "d_action_over_scale": 0.5993043005131886,
+  "state_over_action": 1.9994690477393768
+ },
+ {
+  "run": "PiWM-patchdecode_pd384_patch_bf16_s9",
+  "arm": "PiWM-patchdecode",
+  "seed": 9,
+  "d_action": 0.36405447125434875,
+  "d_state": 0.798681914806366,
+  "scale": 0.645186722278595,
+  "d_action_over_scale": 0.5642621874929846,
+  "state_over_action": 2.193852782674278
+ }
+]

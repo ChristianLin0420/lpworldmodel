@@ -1,0 +1,92 @@
+[
+ {
+  "run": "CANARY-PiWM-vp-geom_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-vp-geom",
+  "seed": 3,
+  "d_action": 0.14552192389965057,
+  "d_state": 0.12247525155544281,
+  "scale": 0.2755577266216278,
+  "d_action_over_scale": 0.5280995952600116,
+  "state_over_action": 0.841627490026174
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s10",
+  "arm": "PiWM-vp-geom",
+  "seed": 10,
+  "d_action": 0.3656858205795288,
+  "d_state": 0.7687524557113647,
+  "scale": 0.6466425061225891,
+  "d_action_over_scale": 0.5655146655487613,
+  "state_over_action": 2.102221121106274
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s3",
+  "arm": "PiWM-vp-geom",
+  "seed": 3,
+  "d_action": 0.39803558588027954,
+  "d_state": 0.7867559790611267,
+  "scale": 0.6617337465286255,
+  "d_action_over_scale": 0.6015041366234164,
+  "state_over_action": 1.9765970857132502
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s4",
+  "arm": "PiWM-vp-geom",
+  "seed": 4,
+  "d_action": 0.4163910746574402,
+  "d_state": 0.7829700708389282,
+  "scale": 0.6430228352546692,
+  "d_action_over_scale": 0.647552546858664,
+  "state_over_action": 1.880371887132951
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s5",
+  "arm": "PiWM-vp-geom",
+  "seed": 5,
+  "d_action": 0.3961541950702667,
+  "d_state": 0.7613866329193115,
+  "scale": 0.6451220512390137,
+  "d_action_over_scale": 0.6140763508384464,
+  "state_over_action": 1.9219451476066352
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s6",
+  "arm": "PiWM-vp-geom",
+  "seed": 6,
+  "d_action": 0.36998236179351807,
+  "d_state": 0.7689046263694763,
+  "scale": 0.6683101058006287,
+  "d_action_over_scale": 0.5536088091175623,
+  "state_over_action": 2.0782196822630996
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s7",
+  "arm": "PiWM-vp-geom",
+  "seed": 7,
+  "d_action": 0.33438196778297424,
+  "d_state": 0.7751432061195374,
+  "scale": 0.6382243037223816,
+  "d_action_over_scale": 0.5239254692005988,
+  "state_over_action": 2.3181369834590866
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s8",
+  "arm": "PiWM-vp-geom",
+  "seed": 8,
+  "d_action": 0.1860320270061493,
+  "d_state": 0.67181396484375,
+  "scale": 0.6130247712135315,
+  "d_action_over_scale": 0.30346575822357724,
+  "state_over_action": 3.6112812167635155
+ },
+ {
+  "run": "PiWM-vp-geom_pd384_bf16_s9",
+  "arm": "PiWM-vp-geom",
+  "seed": 9,
+  "d_action": 0.3274177312850952,
+  "d_state": 0.7806721329689026,
+  "scale": 0.6715337634086609,
+  "d_action_over_scale": 0.48756704297806935,
+  "state_over_action": 2.384330652786612
+ }
+]

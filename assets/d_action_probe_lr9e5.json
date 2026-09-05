@@ -1,0 +1,82 @@
+[
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s10",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 10,
+  "d_action": 0.2597843110561371,
+  "d_state": 0.795718789100647,
+  "scale": 0.6614857912063599,
+  "d_action_over_scale": 0.3927284826214713,
+  "state_over_action": 3.062997861055201
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s3",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 3,
+  "d_action": 0.3463592827320099,
+  "d_state": 0.8116032481193542,
+  "scale": 0.6585348844528198,
+  "d_action_over_scale": 0.5259543433599598,
+  "state_over_action": 2.34324093097086
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s4",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 4,
+  "d_action": 0.4120595455169678,
+  "d_state": 0.8140764236450195,
+  "scale": 0.6660364866256714,
+  "d_action_over_scale": 0.6186741324106395,
+  "state_over_action": 1.9756281161347287
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s5",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 5,
+  "d_action": 0.28053656220436096,
+  "d_state": 0.8002158403396606,
+  "scale": 0.6480816006660461,
+  "d_action_over_scale": 0.43287228323724675,
+  "state_over_action": 2.852447588477725
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s6",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 6,
+  "d_action": 0.34207090735435486,
+  "d_state": 0.8034443855285645,
+  "scale": 0.6453883647918701,
+  "d_action_over_scale": 0.5300233565020475,
+  "state_over_action": 2.3487656162944837
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s7",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 7,
+  "d_action": 0.3238860070705414,
+  "d_state": 0.811779260635376,
+  "scale": 0.6593017578125,
+  "d_action_over_scale": 0.49125609515309665,
+  "state_over_action": 2.506373362584241
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s8",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 8,
+  "d_action": 0.38283050060272217,
+  "d_state": 0.8110734224319458,
+  "scale": 0.6566585898399353,
+  "d_action_over_scale": 0.5829977807737801,
+  "state_over_action": 2.1186227877742367
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s9",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 9,
+  "d_action": 0.2954115867614746,
+  "d_state": 0.7974713444709778,
+  "scale": 0.6466282606124878,
+  "d_action_over_scale": 0.4568491740241295,
+  "state_over_action": 2.6995262887737823
+ }
+]

@@ -1,0 +1,92 @@
+[
+ {
+  "run": "CANARY-PiWM-jump2_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-jump2",
+  "seed": 3,
+  "d_action": 0.1190345287322998,
+  "d_state": 0.1915995329618454,
+  "scale": 0.2753613293170929,
+  "d_action_over_scale": 0.43228484198384065,
+  "state_over_action": 1.6096130677573321
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s10",
+  "arm": "PiWM-jump2",
+  "seed": 10,
+  "d_action": 0.6618641018867493,
+  "d_state": 0.8159533739089966,
+  "scale": 0.6604516506195068,
+  "d_action_over_scale": 1.0021386141830633,
+  "state_over_action": 1.2328110432081016
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s3",
+  "arm": "PiWM-jump2",
+  "seed": 3,
+  "d_action": 0.634763240814209,
+  "d_state": 0.783851146697998,
+  "scale": 0.6460499167442322,
+  "d_action_over_scale": 0.9825297153710624,
+  "state_over_action": 1.2348716754495022
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s4",
+  "arm": "PiWM-jump2",
+  "seed": 4,
+  "d_action": 0.49782562255859375,
+  "d_state": 0.7434970736503601,
+  "scale": 0.6377025246620178,
+  "d_action_over_scale": 0.7806549344029039,
+  "state_over_action": 1.49348896472851
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s5",
+  "arm": "PiWM-jump2",
+  "seed": 5,
+  "d_action": 0.6454024910926819,
+  "d_state": 0.8065260648727417,
+  "scale": 0.6545211672782898,
+  "d_action_over_scale": 0.9860681722127852,
+  "state_over_action": 1.2496482055829592
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s6",
+  "arm": "PiWM-jump2",
+  "seed": 6,
+  "d_action": 0.5568650960922241,
+  "d_state": 0.7760761976242065,
+  "scale": 0.6452242136001587,
+  "d_action_over_scale": 0.8630567240883334,
+  "state_over_action": 1.3936520767243028
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s7",
+  "arm": "PiWM-jump2",
+  "seed": 7,
+  "d_action": 0.6402270793914795,
+  "d_state": 0.8092736601829529,
+  "scale": 0.6640975475311279,
+  "d_action_over_scale": 0.9640557803166265,
+  "state_over_action": 1.264041597478426
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s8",
+  "arm": "PiWM-jump2",
+  "seed": 8,
+  "d_action": 0.651072084903717,
+  "d_state": 0.791335940361023,
+  "scale": 0.6665714383125305,
+  "d_action_over_scale": 0.9767476484620297,
+  "state_over_action": 1.2154352163294617
+ },
+ {
+  "run": "PiWM-jump2_pd384_bf16_s9",
+  "arm": "PiWM-jump2",
+  "seed": 9,
+  "d_action": 0.6327760219573975,
+  "d_state": 0.7999351024627686,
+  "scale": 0.6439112424850464,
+  "d_action_over_scale": 0.9827069015215905,
+  "state_over_action": 1.2641678488200132
+ }
+]

@@ -1,0 +1,82 @@
+[
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s10",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 10,
+  "d_action": 0.4131758213043213,
+  "d_state": 0.7454833388328552,
+  "scale": 0.6641059517860413,
+  "d_action_over_scale": 0.6221534684234188,
+  "state_over_action": 1.8042762920625395
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s3",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 3,
+  "d_action": 0.38863489031791687,
+  "d_state": 0.7471240758895874,
+  "scale": 0.6582490801811218,
+  "d_action_over_scale": 0.5904070389448646,
+  "state_over_action": 1.9224318106858957
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s4",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 4,
+  "d_action": 0.3280326724052429,
+  "d_state": 0.7405307292938232,
+  "scale": 0.6462929844856262,
+  "d_action_over_scale": 0.5075603175026241,
+  "state_over_action": 2.257490767197089
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s5",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 5,
+  "d_action": 0.39248907566070557,
+  "d_state": 0.7440024018287659,
+  "scale": 0.6732723116874695,
+  "d_action_over_scale": 0.5829573990306876,
+  "state_over_action": 1.8956002802787115
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s6",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 6,
+  "d_action": 0.37537163496017456,
+  "d_state": 0.7403620481491089,
+  "scale": 0.6603534817695618,
+  "d_action_over_scale": 0.5684404570023377,
+  "state_over_action": 1.9723441496256326
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s7",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 7,
+  "d_action": 0.33457279205322266,
+  "d_state": 0.7345556616783142,
+  "scale": 0.651936411857605,
+  "d_action_over_scale": 0.5131985052037553,
+  "state_over_action": 2.1955032779876005
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s8",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 8,
+  "d_action": 0.395593523979187,
+  "d_state": 0.7370099425315857,
+  "scale": 0.672111988067627,
+  "d_action_over_scale": 0.5885827525804865,
+  "state_over_action": 1.863048553267928
+ },
+ {
+  "run": "LpWM-ltv-relu-p2_pd384_bf16_s9",
+  "arm": "LpWM-ltv-relu-p2",
+  "seed": 9,
+  "d_action": 0.39742231369018555,
+  "d_state": 0.7426291704177856,
+  "scale": 0.6547502279281616,
+  "d_action_over_scale": 0.6069830856687999,
+  "state_over_action": 1.8686146822563905
+ }
+]

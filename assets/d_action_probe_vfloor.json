@@ -1,0 +1,122 @@
+[
+ {
+  "run": "LpWM-ltv-vfloor_pd384_bf16_s0",
+  "arm": "LpWM-ltv-vfloor",
+  "seed": 0,
+  "d_action": 0.37456271052360535,
+  "d_state": 0.7934815883636475,
+  "scale": 0.6656851768493652,
+  "d_action_over_scale": 0.5626724517081494,
+  "state_over_action": 2.1184212044344477
+ },
+ {
+  "run": "LpWM-ltv-vfloor_pd384_bf16_s1",
+  "arm": "LpWM-ltv-vfloor",
+  "seed": 1,
+  "d_action": 0.15570184588432312,
+  "d_state": 0.721851646900177,
+  "scale": 0.6308443546295166,
+  "d_action_over_scale": 0.24681499444623545,
+  "state_over_action": 4.636114895108362
+ },
+ {
+  "run": "LpWM-ltv-vfloor_pd384_bf16_s2",
+  "arm": "LpWM-ltv-vfloor",
+  "seed": 2,
+  "d_action": 0.381337970495224,
+  "d_state": 0.7787308096885681,
+  "scale": 0.6482967138290405,
+  "d_action_over_scale": 0.5882151835120746,
+  "state_over_action": 2.042101416434536
+ },
+ {
+  "run": "LpWM-ltv-vfloor_pd384_bf16_s3",
+  "arm": "LpWM-ltv-vfloor",
+  "seed": 3,
+  "d_action": 0.3662662208080292,
+  "d_state": 0.789427638053894,
+  "scale": 0.6611332297325134,
+  "d_action_over_scale": 0.5539975973620568,
+  "state_over_action": 2.155338366481948
+ },
+ {
+  "run": "LpWM-ltv-vfloor_pd384_bf16_s4",
+  "arm": "LpWM-ltv-vfloor",
+  "seed": 4,
+  "d_action": 0.3634004294872284,
+  "d_state": 0.7921206951141357,
+  "scale": 0.6623082756996155,
+  "d_action_over_scale": 0.5486877377507596,
+  "state_over_action": 2.1797461720995974
+ },
+ {
+  "run": "LpWM-ltv-vfloor_pd384_bf16_s5",
+  "arm": "LpWM-ltv-vfloor",
+  "seed": 5,
+  "d_action": 0.4117085337638855,
+  "d_state": 0.7974416613578796,
+  "scale": 0.6666238903999329,
+  "d_action_over_scale": 0.6176024287351688,
+  "state_over_action": 1.9369082638816804
+ },
+ {
+  "run": "PiWM-union4-vfloor_pd384_bf16_s0",
+  "arm": "PiWM-union4-vfloor",
+  "seed": 0,
+  "d_action": 0.1147342324256897,
+  "d_state": 0.5773330330848694,
+  "scale": 0.5688233375549316,
+  "d_action_over_scale": 0.2017045097320919,
+  "state_over_action": 5.031916114999005
+ },
+ {
+  "run": "PiWM-union4-vfloor_pd384_bf16_s1",
+  "arm": "PiWM-union4-vfloor",
+  "seed": 1,
+  "d_action": 0.015549590811133385,
+  "d_state": 0.11891470104455948,
+  "scale": 0.11594606190919876,
+  "d_action_over_scale": 0.134110555848898,
+  "state_over_action": 7.647448893601592
+ },
+ {
+  "run": "PiWM-union4-vfloor_pd384_bf16_s2",
+  "arm": "PiWM-union4-vfloor",
+  "seed": 2,
+  "d_action": 0.02064174972474575,
+  "d_state": 0.26637962460517883,
+  "scale": 0.3645123541355133,
+  "d_action_over_scale": 0.05662839541803801,
+  "state_over_action": 12.904895571223669
+ },
+ {
+  "run": "PiWM-union4-vfloor_pd384_bf16_s3",
+  "arm": "PiWM-union4-vfloor",
+  "seed": 3,
+  "d_action": 0.00919315405189991,
+  "d_state": 0.1161634773015976,
+  "scale": 0.3604597747325897,
+  "d_action_over_scale": 0.025503966590224757,
+  "state_over_action": 12.635867586445
+ },
+ {
+  "run": "PiWM-union4-vfloor_pd384_bf16_s4",
+  "arm": "PiWM-union4-vfloor",
+  "seed": 4,
+  "d_action": 0.0365593396127224,
+  "d_state": 0.37487757205963135,
+  "scale": 0.5716591477394104,
+  "d_action_over_scale": 0.06395303872472603,
+  "state_over_action": 10.253948130101795
+ },
+ {
+  "run": "PiWM-union4-vfloor_pd384_bf16_s5",
+  "arm": "PiWM-union4-vfloor",
+  "seed": 5,
+  "d_action": 0.015148305334150791,
+  "d_state": 0.07054374366998672,
+  "scale": 0.5878158211708069,
+  "d_action_over_scale": 0.02577049611216404,
+  "state_over_action": 4.6568736313329255
+ }
+]

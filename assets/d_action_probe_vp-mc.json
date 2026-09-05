@@ -1,0 +1,92 @@
+[
+ {
+  "run": "CANARY-PiWM-vp-mc_pd384_bf16_s3",
+  "arm": "CANARY-PiWM-vp-mc",
+  "seed": 3,
+  "d_action": 0.16110239923000336,
+  "d_state": 0.1802748292684555,
+  "scale": 0.29210495948791504,
+  "d_action_over_scale": 0.5515223004512817,
+  "state_over_action": 1.1190077250871973
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s10",
+  "arm": "PiWM-vp-mc",
+  "seed": 10,
+  "d_action": 0.3739851415157318,
+  "d_state": 0.7919729948043823,
+  "scale": 0.6640961766242981,
+  "d_action_over_scale": 0.5631490658728908,
+  "state_over_action": 2.1176589839761526
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s3",
+  "arm": "PiWM-vp-mc",
+  "seed": 3,
+  "d_action": 0.4034724533557892,
+  "d_state": 0.8030233383178711,
+  "scale": 0.6498674750328064,
+  "d_action_over_scale": 0.6208534337488135,
+  "state_over_action": 1.990280455676489
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s4",
+  "arm": "PiWM-vp-mc",
+  "seed": 4,
+  "d_action": 0.3696507215499878,
+  "d_state": 0.7842373251914978,
+  "scale": 0.6410375237464905,
+  "d_action_over_scale": 0.5766444363343894,
+  "state_over_action": 2.1215630850200995
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s5",
+  "arm": "PiWM-vp-mc",
+  "seed": 5,
+  "d_action": 0.37265488505363464,
+  "d_state": 0.7868227958679199,
+  "scale": 0.6444929838180542,
+  "d_action_over_scale": 0.5782140293381972,
+  "state_over_action": 2.111398045284381
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s6",
+  "arm": "PiWM-vp-mc",
+  "seed": 6,
+  "d_action": 0.34423062205314636,
+  "d_state": 0.7898261547088623,
+  "scale": 0.6628206968307495,
+  "d_action_over_scale": 0.5193419935422524,
+  "state_over_action": 2.294468022623855
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s7",
+  "arm": "PiWM-vp-mc",
+  "seed": 7,
+  "d_action": 0.395475834608078,
+  "d_state": 0.7896229028701782,
+  "scale": 0.6491069793701172,
+  "d_action_over_scale": 0.6092614117195925,
+  "state_over_action": 1.9966400820740549
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s8",
+  "arm": "PiWM-vp-mc",
+  "seed": 8,
+  "d_action": 0.349220335483551,
+  "d_state": 0.7898105978965759,
+  "scale": 0.6707995533943176,
+  "d_action_over_scale": 0.5206031126831535,
+  "state_over_action": 2.2616397662036425
+ },
+ {
+  "run": "PiWM-vp-mc_pd384_bf16_s9",
+  "arm": "PiWM-vp-mc",
+  "seed": 9,
+  "d_action": 0.33217793703079224,
+  "d_state": 0.78449547290802,
+  "scale": 0.6420353651046753,
+  "d_action_over_scale": 0.517382616418077,
+  "state_over_action": 2.361672421474816
+ }
+]
