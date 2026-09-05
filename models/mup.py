@@ -187,6 +187,29 @@ def mup_init_(model, emb_std=0.02, tag="", verbose=True):
                     schema[f"{pfx}lags.{i}.weight"] = "deliberate  zeros (VAR older lag=0)"
                 nn.init.zeros_(m.B.weight)
                 schema[f"{pfx}B.weight"] = "deliberate  zeros (VAR B=0)"
+            elif m.mode == "ssm":
+                # ROUND 8 / T1. The generic muP pass above gives every Linear
+                # N(0, 1/sqrt(fan_in)); this restores the deliberate init, exactly as
+                # additive/var/lie do above. Without it the state starts random and the
+                # arm is not a near-identity dynamics at step 0, which is the convention
+                # every other predictor in this file follows.
+                #   A  = 0.9 I  -- a CONTRACTION, so the recurrent state cannot blow up
+                #                  before it has learned anything (this is the one init
+                #                  choice with no precedent in the FIR modes, because they
+                #                  have no state to diverge).
+                #   Bz = I      -- the current frame passes straight through
+                #   Ba = 0      -- AdaLN-zero: no action effect at init, as additive/var
+                #   C  = I      -- readout starts as the state itself
+                nn.init.eye_(m.A.weight); m.A.weight.data.mul_(0.9)
+                nn.init.eye_(m.Bz.weight); nn.init.zeros_(m.Bz.bias)
+                nn.init.zeros_(m.Ba.weight)
+                nn.init.eye_(m.C.weight); nn.init.zeros_(m.C.bias)
+                schema[f"{pfx}A.weight"] = "deliberate  0.9*I (SSM contraction)"
+                schema[f"{pfx}Bz.weight"] = "deliberate  identity (SSM input=I)"
+                schema[f"{pfx}Bz.bias"] = "deliberate  zeros"
+                schema[f"{pfx}Ba.weight"] = "deliberate  zeros (SSM action=0 at init)"
+                schema[f"{pfx}C.weight"] = "deliberate  identity (SSM readout=I)"
+                schema[f"{pfx}C.bias"] = "deliberate  zeros"
             elif m.mode == "mlp_var":
                 pass
             elif m.mode == "lie":

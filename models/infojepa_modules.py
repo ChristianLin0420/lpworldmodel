@@ -436,6 +436,8 @@ class LinearDynamicsPredictor(nn.Module):
         gate_input="magnitude",
         gate_norm="sigmoid",
         n_heads=1,
+        lag_mask_p=0.0,
+        lag_dilation=None,
         lie_sim=False,
         act_gain=None,
         **kwargs,
@@ -444,11 +446,27 @@ class LinearDynamicsPredictor(nn.Module):
         D = input_dim
         out = output_dim or input_dim
         assert out == D, f"linear predictor assumes output_dim==input_dim (code space), got {out} vs {D}"
-        assert mode in {"action_linear", "additive", "var", "mlp_var", "ltv", "lie"}, \
+        assert mode in {"action_linear", "additive", "var", "mlp_var", "ltv", "lie", "ssm"}, \
             f"mode {mode} not supported"
         assert gate_input in {"magnitude", "support", "both"}, f"gate_input {gate_input} not supported"
         assert gate_norm in {"sigmoid", "softmax"}, f"gate_norm {gate_norm} not supported"
         self.mode = mode
+        # ROUND 8 / T4. Masking and dilation over the LAG axis. Both default to the
+        # upstream behaviour exactly: p=0 draws no mask, and dilation None means lag k
+        # reads z_{t-k}, which is what every arm before round 8 did.
+        self.lag_mask_p = float(lag_mask_p)
+        # "1,2,5" -> lag slot k reads z_{t-d_k}. Same parameter count, wider temporal span:
+        # the block is static in 48.1% of single steps, so tight uniform lags may spend two
+        # thirds of the history on frames carrying no block motion.
+        # Accept either a list ([1,2,5], hydra list syntax) or a string ("1,2,5", quoted on
+        # the command line). Hydra treats a bare comma as a sweep, so the shell must quote it;
+        # taking both forms means a config file and a CLI override behave the same.
+        if not lag_dilation:
+            self.lag_dilation = None
+        elif isinstance(lag_dilation, str):
+            self.lag_dilation = [int(v) for v in lag_dilation.split(",") if v.strip() != ""]
+        else:
+            self.lag_dilation = [int(v) for v in lag_dilation]
         self.rank = rank
         # Step 3, ltv only. Factorized deliberately: the original single flag changed
         # the gate's INPUT and its NORMALIZATION at the same time, so a result could
@@ -473,6 +491,31 @@ class LinearDynamicsPredictor(nn.Module):
             for k in range(1, num_frames):
                 nn.init.zeros_(self.lags[k].weight)  # older frames ignored at init -> z' = z_t
             nn.init.zeros_(self.B.weight)            # no action effect at init
+        elif mode == "ssm":
+            # ROUND 8 / T1. The IIR generalisation of `var`. Every other mode here is FIR:
+            # z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k}, a fixed H-tap window (H = num_frames = 3
+            # in all 400 sampled configs across seven rounds). This carries a STATE instead:
+            #     s_t = A s_{t-1} + Bz z_t + Ba a_t ,   core_t = C s_t
+            # so the past enters with unbounded, learned decay rather than a hard cutoff.
+            # `var`'s own docstring calls itself "state-augmentation"; this is that, without
+            # the truncation.
+            #
+            # Init follows `additive`'s conventions exactly so the arm starts near-identity
+            # and action-free: A near-identity (0.9 * I, a contraction so the state cannot
+            # blow up before it has learned anything), Bz identity, Ba ZERO (AdaLN-zero: no
+            # action effect at init), C identity.
+            self.n_lags = num_frames        # unused by ssm; kept so shared code paths hold
+            self.A = nn.Linear(D, D, bias=False)
+            self.Bz = nn.Linear(D, D, bias=True)
+            self.Ba = nn.Linear(D, D, bias=False)
+            self.C = nn.Linear(D, D, bias=True)
+            self.W = nn.Linear(D, D, bias=True)   # same ReLU->W readout as mlp_var / ltv
+            nn.init.eye_(self.A.weight); self.A.weight.data.mul_(0.9)
+            nn.init.eye_(self.Bz.weight); nn.init.zeros_(self.Bz.bias)
+            nn.init.zeros_(self.Ba.weight)
+            nn.init.eye_(self.C.weight); nn.init.zeros_(self.C.bias)
+            nn.init.normal_(self.W.weight, mean=0.0, std=D ** -0.5)
+            nn.init.zeros_(self.W.bias)
         elif mode == "mlp_var":
             self.n_lags = num_frames
             self.lags = nn.ModuleList([nn.Linear(D, D, bias=(k == 0)) for k in range(num_frames)])
@@ -553,7 +596,7 @@ class LinearDynamicsPredictor(nn.Module):
         # the state dict stays byte-identical to upstream.
         self.n_heads = n_heads
         if n_heads > 1:
-            if mode in {"mlp_var", "ltv"}:
+            if mode in {"mlp_var", "ltv", "ssm"}:
                 self.W_heads = nn.ModuleList(
                     [nn.Linear(D, D, bias=True) for _ in range(n_heads - 1)]
                 )
@@ -605,33 +648,79 @@ class LinearDynamicsPredictor(nn.Module):
         a = Ba.pow(2).mean(dim=-1, keepdim=True).sqrt().clamp_min(1e-8)
         return self.act_gain * Ba * (s / a)
 
+    def _lag_offset(self, k):
+        """Which past frame lag slot k reads. Identity (k) unless T4 dilation is set."""
+        if self.lag_dilation is None or k >= len(self.lag_dilation):
+            return k
+        return self.lag_dilation[k]
+
+    def _lag_keep(self, k, B, device, dtype):
+        """(B,1,1,1) per-sample keep mask for lag k, or None when T4 masking is off.
+
+        Independent Bernoulli over lags k>=1, so the model cannot rely on any one past
+        frame being present. Lag 0 (z_t) is never masked -- dropping the current frame is
+        not a temporal-redundancy test, it is an ablation of the input.
+
+        Structurally free: _trunk already drops unavailable lags at cold start
+        (`if k >= T: break`) and A_k * 0 = 0 exactly, so a zeroed lag is a state the model
+        already sees. Eval is untouched (self.training guard), so nothing about planning
+        or the rollout changes.
+        """
+        if not self.training or self.lag_mask_p <= 0 or k == 0:
+            return None
+        keep = (torch.rand(B, device=device) >= self.lag_mask_p).to(dtype)
+        return keep.view(B, 1, 1, 1)
+
     def _trunk(self, x, c):
-        """Pre-readout core for mlp_var / ltv: the value fed to ReLU then W."""
+        """Pre-readout core for mlp_var / ltv / ssm: the value fed to ReLU then W."""
         B, T, P, D = x.shape
+        if self.mode == "ssm":
+            # ROUND 8 / T1. Sequential scan over T. T = num_hist = 3 at train time, so the
+            # Python loop is cheap; it is the same length the FIR modes unroll anyway.
+            # Causal by construction, and the cold start matches `var`'s convention: the
+            # state begins at zero and A * 0 = 0 exactly, so no lag is silently invented.
+            s_t = x.new_zeros(B, P, D)
+            outs = []
+            for t in range(T):
+                s_t = self.A(s_t) + self.Bz(x[:, t]) + self.Ba(c[:, t]).unsqueeze(1)
+                outs.append(self.C(s_t))
+            return torch.stack(outs, dim=1)
+
         if self.mode == "mlp_var":
             u = self.lags[0](x)
             for k in range(1, self.n_lags):
-                if k >= T:
+                dk = self._lag_offset(k)
+                if dk >= T:
                     break
-                xk = self.lags[k](x[:, : T - k])
-                u = u + torch.cat([x.new_zeros(B, k, P, D), xk], dim=1)
+                xk = self.lags[k](x[:, : T - dk])
+                keep = self._lag_keep(k, B, x.device, x.dtype)
+                if keep is not None:
+                    xk = xk * keep
+                u = u + torch.cat([x.new_zeros(B, dk, P, D), xk], dim=1)
             return u + self._action_term(u, self.B(c).unsqueeze(2))
 
         g = self.gates(x)                            # ltv: gates g(z_t) from this frame
         core = self.lags[0](x) + self.Ulag[0](g[..., 0, :] * self.Vlag[0](x))
         for k in range(1, self.n_lags):
-            if k >= T:
-                break                                # z_{t-k} unavailable (cold-start)
-            xk = x[:, : T - k]                       # z_{t-k} feeds output positions [k:]
-            base_k = self.lags[k](xk)                # A_k z_{t-k}
-            corr_k = self.Ulag[k](g[:, k:, :, k, :] * self.Vlag[k](xk))
-            core = core + torch.cat([x.new_zeros(B, k, P, D), base_k + corr_k], dim=1)
+            dk = self._lag_offset(k)                 # T4: which past frame slot k reads
+            if dk >= T:
+                break                                # z_{t-dk} unavailable (cold-start)
+            xk = x[:, : T - dk]                      # z_{t-dk} feeds output positions [dk:]
+            base_k = self.lags[k](xk)                # A_k z_{t-dk}
+            # the gate is indexed by the SLOT k (there are n_lags+1 slots) but sliced by the
+            # TIME offset dk, so dilation moves which frame is read without renumbering gates.
+            corr_k = self.Ulag[k](g[:, dk:, :, k, :] * self.Vlag[k](xk))
+            contrib = base_k + corr_k
+            keep = self._lag_keep(k, B, x.device, x.dtype)
+            if keep is not None:
+                contrib = contrib * keep
+            core = core + torch.cat([x.new_zeros(B, dk, P, D), contrib], dim=1)
         corr_B = self.UB(g[..., self.n_lags, :] * self.VB(c).unsqueeze(2))
         return core + self._action_term(core, self.B(c).unsqueeze(2) + corr_B)
 
     def forward_heads(self, x, c):
         """(J,B,T,P,D): every head's PRE-link output. Index 0 equals forward(x, c)."""
-        if self.mode in {"mlp_var", "ltv"}:
+        if self.mode in {"mlp_var", "ltv", "ssm"}:
             core = torch.relu(self._trunk(x, c))
             outs = [self.W(core)] + [Wj(core) for Wj in self.W_heads]
         elif self.mode == "additive":
@@ -683,7 +772,7 @@ class LinearDynamicsPredictor(nn.Module):
                 xk = self.lags[k](x[:, : T - k])        # lag-k on frames [0 .. T-1-k]
                 out = out + torch.cat([x.new_zeros(B, k, P, D), xk], dim=1)  # place at output positions [k:]
             return out + self.B(c).unsqueeze(2)         # + B a_t   (B,T,1,D) broadcast over patches
-        if self.mode in {"mlp_var", "ltv"}:
+        if self.mode in {"mlp_var", "ltv", "ssm"}:
             # z' = W ReLU(trunk); trunk is shared with forward_heads so the single-head
             # and multi-head paths cannot drift apart.
             # PRE-link; VWorldModel applies identity/reprelu.

@@ -1,0 +1,20 @@
+_target_: models.infojepa_modules.LinearDynamicsPredictor
+# ROUND 8 / T1. The IIR generalisation of `var`, and the first predictor in this codebase
+# that carries a STATE rather than a fixed window.
+#
+#     s_t = A s_{t-1} + Bz z_t + Ba a_t ,   z_{t+1} = W ReLU( C s_t )
+#
+# Every other mode is FIR: z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k} + B a_t, a hard H-tap cutoff
+# with H = num_frames = num_hist, which has been 3 in all 400 sampled run configs across seven
+# rounds. Here the past enters with a learned decay and no cutoff. `var`'s own docstring calls
+# itself "state-augmentation"; this is that without the truncation.
+#
+# Init matches `additive`'s conventions so the arm starts near-identity and action-free:
+# A = 0.9 I (a contraction, so the state cannot blow up before it has learned anything),
+# Bz = I, Ba = 0 (AdaLN-zero), C = I. The ReLU->W readout is shared with mlp_var/ltv, so the
+# link, the rollout and the planner all see the same interface.
+#
+# CAUSAL by construction; the cold start matches `var`'s convention (s begins at zero and
+# A*0 = 0 exactly, so no lag is silently invented).
+# input_dim / output_dim / num_frames / num_patches injected by train.py.
+mode: ssm

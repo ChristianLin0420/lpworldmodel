@@ -26,7 +26,7 @@ cd /lustre/fs11/portfolios/edgeai/projects/edgeai_tao-ptm_image-foundation-model
 PY=/lustre/fsw/portfolios/edgeai/users/chrislin/envs/lpwm/bin/python
 R=/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs/outputs
 
-ARMS="PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003"
+ARMS="PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003 PiWM-ssm PiWM-mlpvar PiWM-lagmask25 PiWM-lagmask50 PiWM-lagdil"
 EVALED=""
 
 # A K=8 run needs 6 windows, not 4. Anything whose per-window cost is high gets more.

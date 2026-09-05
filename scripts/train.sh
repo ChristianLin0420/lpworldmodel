@@ -108,6 +108,14 @@ add(){ EXTRA="${EXTRA} $1"; }
 # at :581. A JEPA needs a stop-gradient. The ctor default is already True; only the config
 # overrides it, and no arm in ~160 runs has ever contrasted the two.
 [ -n "${DETACH_TARGET:-}" ] && { add "detach_target=${DETACH_TARGET}"; TAG="${TAG}_dt${DETACH_TARGET}"; }
+# round 8 (T4). Masking and dilation over the LAG axis. Unset => upstream exactly:
+# p=0 draws no mask, and no dilation means lag slot k reads z_{t-k} as it always has.
+# '+' because these keys live on the predictor OBJECT, not in any predictor yaml -- hydra
+# requires append syntax for a key the selected config group does not already define, and
+# every predictor config would otherwise need the same two lines.
+[ -n "${LAG_MASK_P:-}" ]   && { add "+predictor.lag_mask_p=${LAG_MASK_P}"; TAG="${TAG}_lm${LAG_MASK_P}"; }
+# quoted: hydra reads a bare comma as a sweep, so "1,2,5" must arrive as one scalar.
+[ -n "${LAG_DILATION:-}" ] && { add "+predictor.lag_dilation='${LAG_DILATION}'"; TAG="${TAG}_ld"; }
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }
 [ "${MUP:-0}" = "1" ]    && { add "mup=true"; TAG="${TAG}_mup"; }

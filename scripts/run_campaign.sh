@@ -668,7 +668,7 @@ wave29_arms() {
     # DISTINCT from T6/jump{K}, which changed the TARGET horizon (num_pred) and failed at every
     # K measured (-0.035, -0.220, -0.195, -0.413 on shared seeds). This changes the INPUT
     # CONTEXT and leaves the target at one step -- the only axis that survives arm-demeaning.
-    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003}"
+    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003 PiWM-ssm PiWM-mlpvar PiWM-lagmask25 PiWM-lagmask50 PiWM-lagdil}"
     ARMS[PiWM-hist1]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist1]=1
     ARMS[PiWM-hist2]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist2]=2
     ARMS[PiWM-hist5]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist5]=5
@@ -701,6 +701,36 @@ wave29_arms() {
     ARM_FEAT[PiWM-pdpred]="patch"
     ARMS[PiWM-pdpred-w003]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=true LAMB_DECODE=0.1 DECODE_PRED_W=0.03"
     ARM_FEAT[PiWM-pdpred-w003]="patch"
+
+    # ROUND 8 / T1. The first predictor in this codebase that carries a STATE. Every other
+    # mode is FIR -- z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k} + B a_t, a hard H-tap cutoff with
+    # H = num_hist = 3 in all 400 sampled configs. ssm is the IIR generalisation:
+    #     s_t = A s_{t-1} + Bz z_t + Ba a_t ,  z_{t+1} = W ReLU(C s_t)
+    #
+    # PiWM-mlpvar is the CONTROL and it is a good one, measured not assumed: 738,048 params
+    # against ssm's 738,432 -- a 384-parameter difference out of 738k -- and it shares the
+    # identical ReLU->W readout. FIR vs IIR is then the only real difference. LpWM-base also
+    # uses mlp_var but at reg_weight 0.1, so it is NOT matched and cannot serve here.
+    ARMS[PiWM-ssm]="ssm 1.0 5e-4"
+    ARMS[PiWM-mlpvar]="mlp_var 1.0 5e-4"
+
+    # ROUND 8 / T4. Masking and dilation over the LAG axis; control is LpWM-ltv, already
+    # evaluated on seeds 3-15, so both contrasts are free.
+    #
+    # Masking is structurally free rather than new machinery: _trunk already drops
+    # unavailable lags at cold start (`if dk >= T: break`) and A_k * 0 = 0 exactly, so a
+    # zeroed lag is a state the model already meets. Lag 0 is never masked -- dropping the
+    # current frame is an input ablation, not a temporal-redundancy test. Two doses, because
+    # six of nine round-3/4/5 proposals were single-shot on their own strength parameter.
+    ARMS[PiWM-lagmask25]="ltv 1.0 5e-4 LAG_MASK_P=0.25"
+    ARMS[PiWM-lagmask50]="ltv 1.0 5e-4 LAG_MASK_P=0.5"
+    # Dilation: slot k reads z_{t-d_k}. Verified [0,1,2] reproduces the default EXACTLY and
+    # [0,2,3] does not. The window is T = num_hist + num_pred = 4, so offsets must stay < 4
+    # and [0,2,3] is the widest meaningful dilation at num_hist=3. Same parameter count,
+    # ~1.5x the temporal span -- motivated by the measured 48.1% zero-block-motion rate at
+    # single steps, which says tight uniform lags may spend most of the history on frames
+    # carrying no block signal.
+    ARMS[PiWM-lagdil]="ltv 1.0 5e-4 LAG_DILATION=0,2,3"
 }
 
 wave25_arms() {
