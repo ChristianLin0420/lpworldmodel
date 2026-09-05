@@ -537,16 +537,7 @@ class Trainer:
             else []
         )
         self._keys_to_save += ["action_encoder", "proprio_encoder"]
-        # ROUND 8 / T2 rung 2. The EMA teacher lives on the MODEL, not the Trainer, so
-        # save_ckpt's walk over self.__dict__ would not see it -- and training spans 3-4
-        # chained 4h windows, so an unsaved teacher would silently RESET to the student at
-        # every window boundary and the arm would not test what it claims. Expose it here so
-        # it travels with the checkpoint. It carries no optimizer state (it has no gradient),
-        # which is why only the module and not an optimizer is registered.
-        _m0 = getattr(self.model, "module", self.model)
-        if getattr(_m0, "encoder_ema", None) is not None:
-            self.encoder_ema = _m0.encoder_ema
-            self._keys_to_save += ["encoder_ema"]
+
         # init_optimizers() builds one AdamW over action+proprio params, so its Adam
         # moments must travel with the checkpoint too. Omitting it restarts those
         # moments at zero on every resume, which puts a visible step in the loss
@@ -1012,6 +1003,19 @@ class Trainer:
             incr_eps=float(self.cfg.get("incr_eps", 1e-4)),
             incr_clip=float(self.cfg.get("incr_clip", 0.0)),
         )
+        # ROUND 8 / T2 rung 2. The EMA teacher lives on the MODEL, so save_ckpt's walk over
+        # self.__dict__ would not see it -- and training spans 3-4 chained 4h windows, so an
+        # unsaved teacher would silently RESET to the student at every boundary, and the arm
+        # would not test what it claims.
+        #
+        # Registered HERE and not beside the other _keys_to_save lines in __init__: the model
+        # is built ~400 lines after them, so reading self.model there raises AttributeError
+        # and takes down EVERY arm on its next window. That is exactly what it did.
+        # It carries no optimizer state (no gradient), so only the module is registered.
+        _m0 = getattr(self.model, "module", self.model)
+        if getattr(_m0, "encoder_ema", None) is not None:
+            self.encoder_ema = _m0.encoder_ema
+            self._keys_to_save += ["encoder_ema"]
 
         # V3 warm start: assets/pose_dynamics_pusht.pt is the linear pose map fit on the
         # dataset (95.2% of the 1-step pose change explained). Starting there rather than
