@@ -3,16 +3,54 @@ import torch
 import torch.nn as nn
 
 
-def create_objective_fn(alpha, base, mode="last"):
+def create_objective_fn(alpha, base, mode="last", wmat_path=None):
     """
     Loss calculated on the last pred frame.
     Args:
         alpha: int
         base: int. only used for objective_fn_all
+        wmat_path: optional path to a (D, D) whitening matrix, ROUND 8 / M2. None => the
+            objective is byte-identical to every evaluation in the archive.
     Returns:
         loss: tensor (B, )
+
+    ROUND 8 / M2 -- why a whitening matrix belongs here at all.
+
+    `metric` below is an isotropic MSE and the callers average it over every latent
+    coordinate, so CEM ranks candidate action sequences by unweighted squared error in a
+    space where the code's Frobenius mass sits in ~25 of 384 directions (the measured
+    participation ratio). Directions the encoder never produces are weighted exactly as
+    heavily as the ones that carry the task.
+
+    W = (C + eps I)^(-1/2), with C the encoder's own code covariance for THAT checkpoint,
+    makes the metric Mahalanobis in the directions the code actually uses. It is applied to
+    the RESIDUAL, so it is a change of metric and not a change of target.
+
+    This is a cheap gate, not a proposal: it runs on already-trained checkpoints, so the
+    contrast is SAME-CHECKPOINT paired and the 82% training-seed variance is fully
+    controlled -- which is why its bar is +0.05 rather than the +0.09 a retrained arm needs.
+    If plan-time whitening does nothing here, the anisotropy mechanism has no interventional
+    support and three proposals die for ~12 GPU-h instead of ~500.
     """
     metric = nn.MSELoss(reduction="none")
+
+    _W = None
+    if wmat_path:
+        _W = torch.load(wmat_path, map_location="cpu")
+        if isinstance(_W, dict):
+            _W = _W["W"]
+        _W = _W.float()
+
+    def _white(pred, tgt):
+        """Residual in the whitened basis, or the plain residual when no matrix is set.
+
+        Returns a tensor the caller squares and averages exactly as before, so the shape
+        contract and every downstream reduction are unchanged.
+        """
+        if _W is None:
+            return None
+        r = pred - tgt
+        return r @ _W.to(r.device, r.dtype)
 
     def objective_fn_last(z_obs_pred, z_obs_tgt):
         """
@@ -22,9 +60,13 @@ def create_objective_fn(alpha, base, mode="last"):
         Returns:
             loss: tensor (B, )
         """
-        loss_visual = metric(z_obs_pred["visual"][:, -1:], z_obs_tgt["visual"]).mean(
-            dim=tuple(range(1, z_obs_pred["visual"].ndim))
-        )
+        _rw = _white(z_obs_pred["visual"][:, -1:], z_obs_tgt["visual"])
+        if _rw is None:
+            loss_visual = metric(z_obs_pred["visual"][:, -1:], z_obs_tgt["visual"]).mean(
+                dim=tuple(range(1, z_obs_pred["visual"].ndim))
+            )
+        else:
+            loss_visual = (_rw ** 2).mean(dim=tuple(range(1, _rw.ndim)))
         loss = loss_visual
         if "proprio" in z_obs_pred and "proprio" in z_obs_tgt:
             loss_proprio = metric(
