@@ -896,6 +896,17 @@ submit_arm() {  # $1 = arm name, $2 = seed
     # would write ${dir}/checkpoints/model_latest.pth and corrupt each other's
     # resume point. This is the case when re-running the launcher to repair one
     # broken arm while the rest of the campaign is still training.
+    #
+    # THE GUARD IS POINT-IN-TIME, AND THAT IS ITS LIMIT. It reads squeue at submit
+    # time, so re-running the launcher while an old chain is still DRAINING gives
+    # different answers minute to minute: a seed whose last window just exited is
+    # "free" and gets a second chain, while its neighbour is still "in flight" and
+    # gets skipped. Round 8 produced seeds carrying 8 and 9 queued windows this way
+    # -- two and a bit chains on one run directory.
+    #
+    # So when repairing an arm: scancel ALL of its jobs, WAIT for squeue to report
+    # zero for that arm, and only then relaunch. Topping up a partially-drained arm
+    # is what creates duplicates, not what fixes them.
     if squeue -u "${USER}" -h -o "%j" 2>/dev/null | grep -q "^${run}_w[0-9]*$"; then
         echo "  in flight already, skipping: ${run}"
         return
