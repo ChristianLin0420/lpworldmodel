@@ -4,7 +4,7 @@
 rounds 1–7; the failure is named beside each rule so the rule can be argued with rather than
 obeyed. Numbers recomputed from the archive on 2026-09-05.
 
-The short version: **one metric decides, four gates guard it, six popular metrics are disqualified
+The short version: **one metric decides, three gates guard it, six popular metrics are disqualified
 as targets, and nothing becomes a target without passing a four-stage screen that includes an
 intervention.**
 
