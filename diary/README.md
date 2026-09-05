@@ -4,7 +4,7 @@ This file is the glossary and the reading guide. It exists because almost every 
 this campaign was a **metric** misread rather than a model failure, and because the entries
 themselves are written for someone who already knows what the numbers mean.
 
-Read this first, then the four entries in date order.
+Read this first, then the five entries in date order.
 
 Every definition below is verified against the source it is computed in; the file and line are
 given so a disagreement can be settled without re-deriving anything.
@@ -43,7 +43,7 @@ Two consequences run through the whole record:
 
 ---
 
-## 1. The four entries
+## 1. The five entries
 
 | file | covers | length |
 |---|---|---|
@@ -51,6 +51,7 @@ Two consequences run through the whole record:
 | `2026-09-02.md` | the architecture round (arch-00..09), the one positive, and the rounds 1–2 conclusion | 15 figures |
 | `2026-09-03.md` | rounds 4–5: the causal round, the audit, and the measurement round that overturned its own premise | 41 figures |
 | `2026-09-04.md` | round 6: the duplication audit, the objective screen, and the round it produced | 7 figures |
+| `2026-09-05.md` | round 7: the representation round, its own audit of itself (§7.1–§7.7), and the shared-seed ranking of the whole campaign (§8) | 7 figures |
 
 **Two measurement instruments, never pooled.** `plan.py:134` used to build the eval episode list
 as `[seed*n + 1 for n in range(n_evals)]`, which degenerates at seed 0 to `[1]*50` — fifty
@@ -70,6 +71,9 @@ place, with their reasoning, because a corrected mistake is more useful than a c
 (a null by construction → an *interventional* null, corrected in `2026-09-04` §5.2), §16.4 (the
 round-5 panel's premise refuted by its own measurement M3), and `2026-09-04` §1 (three of five
 proposals were duplicates) and §2 (`h8/h1` and `d_action` are collapse detectors).
+[2026-09-05 §7.1–§7.7](2026-09-05.md) turns the same instrument on that entry's own numbers, and
+[2026-09-05 §8](2026-09-05.md) re-ranks every arm of the campaign on shared seeds. The three of
+those that change how *this* file is read are carried into §2, §7 and §8 below.
 
 ---
 
@@ -93,9 +97,9 @@ fifty that did.
 | | value |
 |---|---|
 | floor | **0.000** — 23 % of all evaluated runs on the repaired instrument score exactly zero |
-| baseline `LpWM-ltv` | **0.357** (n = 13) |
+| baseline `LpWM-ltv` | **0.357** (n = 13, seeds 3–15) — **not the number an 8-seed arm is scored against; that is 0.3925, its mean on the shared seeds 3–10. See the seed-set rule below** |
 | best single model `LpWM-ltv-d2048` | 0.587 (n = 6) — **but see the note below: no readable contrast supports this** |
-| best arm `PiWM-vote5-borda` (5-model plan-time vote) | **0.608** (n = 8), paired **+0.215 [+0.089, +0.341]** vs baseline |
+| best arm `PiWM-vote5-borda` (5-model plan-time vote) | **0.608** (n = 8), paired **+0.215 [+0.089, +0.341]** vs baseline — a **plan-time** arm; see the caveat below |
 | best observed single seed | 0.780 |
 | oracle-dynamics ceiling | ≈ **0.913** (`2026-09-03` §16.1's ladder) |
 
@@ -116,6 +120,29 @@ fifty that did.
 > supported by any readable contrast in the archive, and the phrase has been removed from the
 > descriptions above. Closing it needs s6–s10 on `d2048`, not a re-reading.
 
+> **The seed-set rule (added 2026-09-05).** The `d2048` note above is one instance of an error the
+> campaign's whole ranking made. `LpWM-ltv`'s registered **0.357** is over seeds 3–15. Almost every
+> treated arm holds seeds 3–10, and on those eight the same baseline averages **0.3925**:
+>
+> | `LpWM-ltv` | mean |
+> |---|---|
+> | registered, seeds 3–15 (n = 13) | 0.3569 |
+> | the eight shared seeds 3–10 that treated arms actually hold | **0.3925** |
+> | head start an 8-seed arm collects before it does anything | **+0.036** |
+>
+> So a table of registered arm means read against the registered baseline mean compares **seed sets,
+> not treatments**. Re-reading every arm on its own shared seeds cut the list of arms "beating
+> baseline" from **35 to 16** ([2026-09-05 §8.1](2026-09-05.md)). This is a standing requirement, not
+> a note about one row: §7 states it as a rule, and no contrast in this record may be read any other
+> way.
+
+> **Seven of the top eight arms never touched the world model (added 2026-09-05).** `vote5-borda`
+> 0.608, `vote5-median` 0.602, `vote5-cvar1`/`-cvar2` 0.585, `vote3-borda` 0.583, `vote5-max` 0.568
+> and `loo5` 0.552 all load `LpWM-ltv` checkpoints and differ only at plan time, so **their
+> world-model diagnostics are the baseline's** — every quantity in §3 and §4 is constant across them.
+> No training-side axis can order the campaign's largest success differences
+> ([2026-09-05 §8.7](2026-09-05.md)). Which consensus arm best *supports* the positive is a separate
+> question, and it is not the one the diaries lead with ([2026-09-05 §7.4](2026-09-05.md)).
 
 **Good** is anything that clears its own matched control by more than the paired interval.
 **Bad**, in this campaign, has a very specific shape: **0.000 on every seed**. A collapsed model
@@ -169,6 +196,11 @@ magnitudes comparable at all.
 `rel_mse > 0.025` at end of training flagged **23/23** catastrophic runs with zero false alarms
 (`2026-09-02` §10 item 6). It is the cheapest screen in the project.
 
+**And, uniquely here, it is more than a screen (2026-09-05).** Demeaned within arm over 174 runs
+in the 19 non-degenerate arms, one-step latent prediction — `val/z_loss`, `mse_t1`, `rel_mse` —
+is the **only** diagnostic in this glossary still correlated with success, ρ = **−0.680** (§8).
+Its +0.003 in the §8 screen table is a self-null by construction, not a verdict on the quantity.
+
 **The trap.** `rel_mse` is normalised by target *energy*, not against a trivial predictor, so it
 cannot see a target that stopped moving. `PiWM-blockcausal` posted `rel_mse` = 0.0022, five
 times better than any arm at full training, while the **identity predictor** ("copy the previous
@@ -198,6 +230,10 @@ every unit firing half the time, or from half the units firing always and the re
 those. And ρ ≈ 0.5 comes from the **ReLU link, not from the sparse prior** — `2026-09-02` §7
 shows RDMReg structurally cannot distinguish a p=1 target from a p=2 one at D=384.
 
+**Collapse detector, and not even that within arm (2026-09-05).** Both ends of ρ separate dead
+models from live ones, which is worth having. Demeaned within arm, sparsity is **dead at every
+measure and every threshold** — it orders nothing among the models that plan (§8).
+
 ### 3.3 `sparsity/effective_dim` — how many directions the code actually uses
 
 `train.py:141`: the participation ratio `tr(C)² / ‖C‖_F²` of the code's covariance. 1 when the
@@ -219,6 +255,11 @@ D=1536 → 24.1 at matched epoch): the metric tracks the task, not the width.
 
 **Second trap.** It is still rising at 100 % of training (18.2 → 28.7 on one run), so
 mid-training cross-arm comparisons of it are not trustworthy.
+
+**Read it as a death detector, not a target (2026-09-05).** `effective_dim == 0` is the only
+perfect predictor of SR ≈ 0 in the archive (§7). Above zero it screens non-monotone, an interior
+optimum (§8), so "raise it" is not a direction — and the width sweep above is the demonstration:
+4× the dimensions buys +15 % here and no planning.
 
 ### 3.4 `causal/d_action`, and the ratio `d_action/|z|`
 
@@ -252,6 +293,16 @@ too much and the latent is dominated by the action rather than the world. Binned
 predictors, mean CEM goes 0.014 → 0.134 → 0.328 → **0.465** → 0.376. A partial correlation
 cannot see that, which is why `analysis/screen_objective.py` reports binned quartile means as a
 mandatory fourth item. **"Raise `d_action`" is not a direction.**
+
+**Amended 2026-09-05: refuted as a lever, not merely mis-measured.** The ~2900× correction above
+fixed the baseline's *value*; the re-probe at **66 arms / 449 runs** fixes what the quantity is.
+Split by health, the correlation is entirely a dead-arm effect — healthy arms only (SR ≥ 0.20,
+n = 23) give ρ = +0.316 at **p = 0.142**, dead arms +0.486 at p = 0.022. And the interventional
+test: `PiWM-jump2` carries **1.8×** the baseline's action sensitivity (0.980 against 0.549), the
+highest of any healthy arm, and plans at baseline (**−0.035** on shared seeds), while the arms
+that do win move it 0.90×–1.07× (`patchdecode`, the best of them, 0.98×). **`d_action` is a
+collapse detector**; the inverted U above is the shape of that detector and not a design target
+(§8, [2026-09-05 §8.6](2026-09-05.md)).
 
 **Second trap.** `causal/d_action` is computed inside the training loop, so it exists only for
 runs trained after the diagnostic was added — which excludes `LpWM-ltv`, `-d2048`, `-vfloor`,
@@ -317,6 +368,11 @@ healthy only (rel_mse < 0.05)       = +0.002
 
 The raw number looks like a strong signal. It is entirely explained by dead models planning at
 zero. `h1` on its own behaves the same way: raw −0.552, partial −0.090.
+
+**Confirmed 2026-09-05, at the within-arm level.** Demeaned within arm over 174 runs, `h8/h1`
+measures ρ = **−0.001** — the flattest quantity in the record. Compounding error orders nothing
+among models that plan, which closes the premise of any rollout-stability objective without
+spending a horizon sweep on it ([2026-09-05 §8.5](2026-09-05.md)).
 
 **A second trap it exposes.** A *low* `h8/h1` is not good news — the audit found that an
 action-information objective produced the contraction it was proposed to prevent
@@ -410,7 +466,8 @@ reachability-conditioning as a direction rather than merely failing to test it
 Note also `Spearman(log10 cond, CEM) = +0.473` raw. That looks like a strong signal and, given
 every other example in this glossary, is almost certainly another collapse detector. Nothing
 proposes to optimise it, so it has not been through the screen — but it must be if anyone ever
-does.
+does. The 2026-09-05 recount makes the reading near-certain: **31 of 56 trained arms are broken**,
+which is enough on its own to produce a raw correlation of that size (§8).
 
 ---
 
@@ -506,6 +563,10 @@ was both better (0.340 vs 0.300) and far more stable (sd 0.072 vs 0.267).
 **Consensus voting / plan-time ensemble** — M independently trained models, each rolling the
 same candidate action sequences, combined by a rank rule (Borda, median, CVaR) into one
 ordering. **No retraining, no new loss term, no new module.** The campaign's only positive.
+Its members are `LpWM-ltv` checkpoints, so **every consensus arm has the baseline's world-model
+diagnostics exactly** — and seven of the campaign's top eight arms are of this kind, which is why
+nothing in §3 or §4 can order the largest success differences on record (§2's caveat,
+[2026-09-05 §8.7](2026-09-05.md)).
 
 ---
 
@@ -517,6 +578,16 @@ initialisation. Seeds present in only one arm are **dropped, not mean-imputed**.
 in the variance decomposition over four D=384 arms × 11 shared seeds
 (`2026-09-02` §2.4): **arm 3.8 % / seed 51.5 % / arm×seed 44.7 %**. Seed instability, not
 representation design, owns the variance. An unpaired comparison is measuring the seed.
+
+**On shared seeds, or not at all (added 2026-09-05).** Pairing is not enough on its own, because the
+*means* being differenced can still come from different seed sets. `LpWM-ltv`'s registered mean is
+over seeds 3–15 and is **0.3569**; almost every treated arm holds seeds 3–10, where the same
+baseline averages **0.3925**. Scoring an 8-seed arm against the registered number therefore gives it
+**+0.036 for free**, before the treatment does anything. This is not a rounding-level concern:
+correcting it cut the arms "beating baseline" from **35 to 16** ([2026-09-05 §8.1](2026-09-05.md)).
+It is the same error as the `d2048` note in §2 — that note is the one-row version, this is the
+whole-campaign version. A contrast is a set of per-seed differences on the intersection of the two
+seed sets, and an arm mean quoted against a baseline mean is not a contrast at all.
 
 **Choose the control by its variance, not only by its configuration match.** The first campaign
 looked uniformly underpowered until a second baseline finished: `LpWM-ltv` had a dead seed
@@ -671,7 +742,8 @@ Model means in family A: **0.180, 0.268, 0.380, 0.412, 0.600** — a **3.3× ran
 and five seeds**. Training-seed sd is **0.144** against a binomial sd of 0.043, i.e. ~2.4–3×
 the episode noise. And the seed effect is an **arm × seed interaction**, not common-mode: mean
 pairwise correlation of demeaned seed profiles across arms is only 0.150, so **pairing buys about
-a 7 % variance reduction, not cancellation**.
+a 7 % variance reduction, not cancellation**. The pooled 50-cell version of this matrix, and the
+margin bar it sets, are at the end of this section.
 
 #### 4. The pre-registered kill gate has a blind spot
 
@@ -696,9 +768,57 @@ a 7 % variance reduction, not cancellation**.
 * **Defending the conditional mean with Spearman(P, SR|work) = +0.814.** No power: a simulated
   world with **no death mechanism at all** gives +0.781 [+0.729, +0.823].
 
-## 8. The standing trap## 8. The standing trap: nearly every metric here is a collapse detector
+### The variance bar: what a margin has to clear (2026-09-05)
 
-This is the single most useful thing to carry into the entries.
+`PiWM-solo{m}` is one **unchanged** baseline checkpoint *m* replayed on episode block *b*, so the
+50-cell matrix separates the campaign's two noise sources exactly:
+
+| source | share of variance | sd |
+|---|---|---|
+| **checkpoint (training seed)** | **82 %** | 0.128 |
+| episode block | 5 % | 0.030 |
+| residual | 13 % | — |
+
+A single unchanged model spans only **0.08–0.24 across blocks**. The **0.165–0.585** span in that
+matrix is across **ten different checkpoints of one config** — so any reading that charges that
+span to episode blocks is charging it to the 5 % term ([2026-09-05 §8.2](2026-09-05.md)).
+
+**The bar this sets: a margin under about +0.05 is inside what an unchanged re-draw produces.**
+`PiWM-decode-detach` is the demonstration — it clears the baseline by +0.055 and is *measurably* an
+unchanged re-draw of it, with a same-seed success correlation of **+0.061**
+([2026-09-05 §8.4](2026-09-05.md)). The retrained arms that looked like winners on registered
+means, re-read on shared seeds, with the frequency an unchanged re-draw of the baseline beats
+each of them:
+
+| arm | vs same-seed control | an unchanged re-draw beats it |
+|---|---|---|
+| `PiWM-patchdecode` | **+0.085** | 8–13 % |
+| `LpWM-ltv-relu-p2` | **+0.068** | 4–7 % |
+| `PiWM-decode-detach` | +0.055 | 6–10 % |
+| `PiWM-vp-mc` | +0.018 | 19–29 % |
+| `PiWM-decode-w1` | +0.008 | 19–29 % |
+| `PiWM-sam-r0p03` | +0.005 | 19–29 % |
+| `PiWM-decode` | −0.005 | — |
+| `PiWM-actgain-b03` | −0.010 | — |
+| `PiWM-vp-geom` | −0.015 | — |
+| `PiWM-sam-r0p01` | −0.018 | — |
+| `PiWM-jump2` | −0.035 | — |
+
+Controls: `patchdecode` against its dimension-matched arm `PiWM-columns` (patch, 98 304), seeds
+3–10; every other row against `LpWM-ltv` on seeds 3–10. **Five of these arms are negative once the
+seeds match**, and only the top two clear the bar — they are the entire training-side result of the
+campaign ([2026-09-05 §8.3](2026-09-05.md)). Note what this does *not* say: an arm below the bar is
+not thereby refuted, it is **unmeasured** — this section's point about uninformative intervals,
+in its sharpest form. And the training side is not where the campaign's largest differences
+are: seven of the top eight arms are plan-time consensus over unmodified `LpWM-ltv`
+checkpoints (§2's caveat, [2026-09-05 §8.7](2026-09-05.md)).
+
+## 8. The standing trap: nearly every metric here is a collapse detector
+
+This is the single most useful thing to carry into the entries, and as of 2026-09-05 it is
+confirmed rather than suspected: **31 of the 56 trained arms are broken**, which is enough on its
+own to manufacture every cross-arm correlation in the table below
+([2026-09-05 §8.5](2026-09-05.md)).
 
 A quantity that separates dead models from live ones will correlate with CEM at r = 0.5–0.8,
 because **dead models plan at exactly zero** and there are a lot of them (23 % of all evaluated
@@ -736,6 +856,55 @@ in isolation turns out to be a collapse detector.** `rel_mse`, ρ, `effective_di
 `h8/h1`, `h1`, support churn — all of them separate dead from live and then go flat.
 `S_model` is the first exception found, and it is an exception about *structure* (which units
 fire) rather than *magnitude*.
+
+**Amended 2026-09-05.** One name on that list does not belong: `rel_mse` does **not** go flat.
+Demeaned within arm it is part of the one axis that is still alive (ρ = **−0.680**, below); its
+**+0.003** in the table above is arithmetic, because it is one of the covariates being removed,
+and a self-null is not a verdict. The rest of the list stands and is now stronger: `d_action` has
+been refuted **interventionally** as well as correlationally, and `h8/h1` measures **−0.001**
+within arm, the flattest quantity in the record.
+
+### Demeaned within arm, exactly one axis is left (2026-09-05)
+
+The screen above conditions across arms. Demeaning **within** arm is the harder version of the same
+question — hold the arm fixed, vary only the seed, and ask what still tracks success. Over **174
+runs in the 19 non-degenerate arms**:
+
+| axis | within-arm ρ | reading |
+|---|---|---|
+| **one-step latent prediction** (`val/z_loss`, `mse_t1`, `rel_mse`) | **−0.680** | the only axis alive |
+| compounding growth `h8/h1` | **−0.001** | dead, as the screen said |
+| probe decodability, among the 16 arms whose latent encodes anything | **+0.45** position · **+0.51** angle | **inverted**: better decoding, *worse* planning |
+| sparsity, every measure at every threshold | dead | — |
+
+Three consequences. **Compounding does not matter**, which closes the premise of any
+rollout-stability objective without running the horizon sweep. **Probe decodability runs backwards**
+among models that plan at all — the same result [2026-09-05 §7.3](2026-09-05.md) reaches from the
+orientation probe, where the five best orientation decoders are five of the worst planners. And the
+surviving axis is not a representation axis: it is one-step prediction, the thing the training loss
+already optimises ([2026-09-05 §8.5](2026-09-05.md)).
+
+### `d_action` is refuted as a lever, interventionally (2026-09-05)
+
+Re-probed at the campaign's widest coverage, **66 arms / 449 runs**:
+
+| subset | n arms | ρ | p |
+|---|---|---|---|
+| all arms | 45 | +0.624 | < 0.0001 |
+| **healthy** (SR ≥ 0.20) | 23 | +0.316 | **0.142** |
+| dead (SR < 0.20) | 22 | +0.486 | 0.022 |
+
+The relation lives **entirely in the dead arms** — the collapse-detector signature, and the
+healthy-arm test is nowhere near resolving at the campaign's widest coverage. It now has an
+**interventional** test rather than a correlational one: **`PiWM-jump2` carries the highest
+action sensitivity of any healthy arm — 0.980 against the baseline's 0.549, a factor of 1.8 —
+and plans at baseline
+(−0.035 on shared seeds)**. The arms that do win barely move it at all: 0.90× to 1.07×, with
+`patchdecode`, the best of them, at 0.98×.
+
+So the root cause named in `2026-09-02` §8 — *the action is causally inert; raise its influence and
+planning improves* — has been tested directly and does not hold. Action inertness is a symptom of a
+dead model, not a lever on a live one ([2026-09-05 §8.6](2026-09-05.md)).
 
 Two corollaries, both learned the expensive way:
 
