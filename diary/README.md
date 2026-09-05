@@ -552,88 +552,96 @@ of an effect; it is evidence that three numbers happened to agree.**
 
 ---
 
-### A mean difference is not the whole contrast (added 2026-09-05)
+### What the success rate actually is, and what the instrument can resolve (2026-09-05)
 
-Every verdict in rounds 1–6 was a **single number plus a gate**: the paired Δ in mean success
-rate, and "does the 95 % interval exclude zero at n ≥ 8". That gate is sound, but reporting only
-its output dichotomises away most of what the experiment measured, and it hid a real distinction.
+*(The user's instruction was to judge a method from the success rates and a deep analysis of
+them, not from an arm-or-gate verdict. Doing that produced four findings that change how every
+earlier number should be read — and two retractions of my own first attempt at it.)*
 
-**Success rate is not unimodal.** Over 700 evaluations, **24.0 % are exactly 0.000** and 31.9 %
-are ≤ 0.02; the rest form a broad mode from about 0.2 to 0.65. And the split is mostly *between*
-arms, not within them: **76 % of the SR variance is between-arm**, 33 of 69 arms have no
-zero-scoring seed at all, and only 15 arms contain both a zero and a seed above 0.2.
+#### 1. `SR = 0` is a METRIC floor, not a model floor
 
-So two arms with the same Δ mean can be doing different things, and the campaign contains both:
+`env/pusht/pusht_wrapper.py:eval_state` defines success as
+`pos_diff = ‖goal[:4] − cur[:4]‖ < 20 px` — a **joint** norm over the agent position *and* the
+block position. So the historical metric requires the gripper to be **parked** near its goal as
+well as the block placed. The file says so itself: *"success ⇒ success_block … the historical
+metric is the STRICTER one."*
 
-| | Δ mean SR | seeds with SR > 0, treated / control | McNemar p |
+Re-scoring the archived traces on the **task alone** (`block_pos_diff < 20 px`, `|angle| < π/9`,
+dropping the end-effector term):
+
+| arm | official SR | block-only SR | "parking tax" |
 |---|---|---|---|
-| **consensus** | **+0.228** | **10 / 10** | 1.000 |
-| SAM ρ = 0.1 | −0.130 | 8 / 8 | 1.000 |
-| `PiWM-gd` | −0.077 | 8 / 8 | 1.000 |
-| **`support` w = 0.1** | **−0.260** | **7 / 8** | 1.000 |
-| **`support` w = 0.3** | −0.390 | **1 / 8** | **0.016** |
-| **`consist` w = 0.3** | −0.388 | **2 / 8** | **0.031** |
-| **`incr` ε = 1e-3** | −0.385 | **2 / 8** | **0.031** |
+| `PiWM-consist-w0p3` | **0.005** | **0.255** | 0.250 |
+| `PiWM-support-w0p3` | **0.003** | **0.260** | 0.258 |
+| `PiWM-incr-eps0p041-clip10` | **0.000** | **0.217** | 0.217 |
+| `PiWM-contact-shuf` | 0.048 | 0.287 | 0.240 |
+| `LpWM-ltv` (baseline) | 0.357 | 0.580 | 0.223 |
+| `PiWM-columns` | 0.418 | 0.630 | 0.212 |
+| `PiWM-vote5-borda` | 0.608 | 0.665 | **0.057** |
 
-The top group moves the mean while still returning a non-zero success rate on **every** seed. The
-bottom group returns one on **one or two of eight**, and McNemar on the discordant pairs says so
-at p ≈ 0.02–0.03 without any modelling. Those are different phenomena and the verdict column
-rendered them identically.
+**Arms that score ~0.00 place the block correctly 22–26 % of the time.** They are not dead
+models; they are models that solve the task and fail to park the gripper. Note also that the
+baseline pays a 0.223 tax and the consensus arm pays **0.057** — which is a lead worth chasing,
+though it cannot be settled here because only 2 baseline runs have traces on disk.
 
-**So report both.** `Δ mean` and `Δ P(SR > 0)` with a McNemar test. Both are order-free and
-neither requires a model.
+The ordering is largely preserved (Spearman(official, block-only) ≈ 0.96 across arms), so past
+*rankings* stand. What does not stand is any statement of the form "this arm cannot plan at all".
 
-#### What must NOT be written down, and why
+#### 2. The instrument is coarser than the effects it was applied to
 
-The obvious next step is to *decompose* the mean into the two channels — mean = P(SR>0) ×
-mean(SR | SR>0), then attribute part of Δ to each. **That decomposition is not identified, and an
-attempt to use it was retracted the same day it was made.** Δ(pq) can be written
-`Δp·q_C + p_T·Δq` or `Δp·q_T + p_C·Δq`; the two differ by exactly the interaction `Δp·Δq`, and on
-this data that term is **48–84 % of the effect** — for `support` w = 0.3 it is **larger than
-either named channel**. Every contrast that looked "death-dominated" under one ordering flips to
-"quality-dominated" under the reverse, under a Shapley split, and under the log form.
+| contrast type | n | median sd of the paired difference | **MDE at n = 8, 80 % power** |
+|---|---|---|---|
+| **retrained arms** | 33 | **0.147** | **0.150** |
+| same checkpoints, planner/eval varied | 13 | 0.084 | 0.086 |
 
-There is therefore **no defensible statement of the form "X % of this effect is training failure
-and Y % is worse planning."** Report the two facts side by side and let them stand.
+Against that: the between-arm sd of the whole healthy-arm population is **0.099**
+(noise-corrected). **The minimum effect a retrained-arm contrast at n = 8 can detect is larger
+than the entire spread of the population it is measuring.**
 
-#### P(SR > 0) does NOT mean "the model trained" — checked, and it can mean the opposite
+So **every "null" verdict issued for a retrained arm is uninformative below ≈ ±0.13.** Only the
+large negatives (−0.26 to −0.39) and the consensus positive were ever visible to this design.
+The n = 8 floor was necessary and is not sufficient.
 
-This is the correction that matters, and it reverses the first version of this section.
+#### 3. The dominant axis of variation is the training seed, and pairing does not remove it
 
-**Read the optimisation diagnostics of the zero-scoring seeds** (`err/rel_mse`,
-`sparsity/effective_dim`, from `wandb/latest-run`, never `glob()[0]`). Control `LpWM-ltv`
-spans `rel_mse` 0.0082–0.0281 and `effective_dim` 15.5–27.7.
+The `PiWM-soloM` matrix gives a fully crossed 5 × 5 **model × episode-block** design — identical
+configs differing only in the training seed:
 
-* **`PiWM-consist-w0p3`** — all **8** seeds sit at `rel_mse` 0.0096–0.0179 and `effective_dim`
-  18.9–20.6, i.e. **every one inside the control's range on every optimisation diagnostic**,
-  while six of them score exactly 0.000. These models trained *as well as the baseline* and
-  cannot plan. That is a **planning** result, and the first version of this section called it a
-  training-stability result. Exactly backwards.
-* **`PiWM-drop95`** — the two seeds that "work" (s3, s7, SR = 0.02) both have
-  **`effective_dim` = 0.0**: constant-output models. The three seeds that retain any
-  representation at all (3.4, 4.8, 6.1) score **0.00**.
-* **`PiWM-incr-eps0p001`** — same inversion. The two "working" seeds have `effective_dim` 0.0;
-  the two healthiest models in the arm (43.5 and 40.2) both score **0.00**.
+| family | SS(model) | SS(block) | SS(residual) | residual sd | binomial sd |
+|---|---|---|---|---|---|
+| A | **92 %** | 1 % | 7 % | 0.048 | 0.065 |
+| B | **63 %** | 18 % | 19 % | 0.057 | 0.067 |
 
-So in those arms **P(SR > 0) is anti-correlated with model health**: a collapsed constant-output
-model is counted as "working" because it drew one success in fifty episodes. The statistic is a
-fact about the score distribution and nothing more. Use it as a *description* — "this arm returns
-a non-zero score on 2 of 8 seeds" — and never as evidence about optimisation. If you want to know
-whether an arm trained, **read the training diagnostics**, which is one command.
+Model means in family A: **0.180, 0.268, 0.380, 0.412, 0.600** — a **3.3× range from one config
+and five seeds**. Training-seed sd is **0.144** against a binomial sd of 0.043, i.e. ~2.4–3×
+the episode noise. And the seed effect is an **arm × seed interaction**, not common-mode: mean
+pairwise correlation of demeaned seed profiles across arms is only 0.150, so **pairing buys about
+a 7 % variance reduction, not cancellation**.
 
-#### Two arguments that do not work, recorded so they are not made again
+#### 4. The pre-registered kill gate has a blind spot
 
-* **`mean(SR | SR > 0)` conditions on a post-treatment variable.** The first version defended it
-  by noting Spearman(P(SR>0), mean SR | SR>0) = +0.814, arguing selection would have produced a
-  negative sign. **That argument has no power.** Simulating 69 arms at the observed sample sizes:
-  a single continuous latent censored at zero with *no death mechanism at all* gives ρ = **+0.842**;
-  two mechanisms with a common damage factor give **+0.848**; only two *independent* mechanisms
-  give **+0.001**. The observed +0.812 excludes only the last, which nobody proposed. And in the
-  censoring model, selection **is** inflating the conditional mean (by +0.053) while ρ = +0.839 —
-  so the sign of a between-arm correlation says nothing about within-arm selection.
-* **The product decomposition is not identified**, as above.
+`rel_mse ≥ 0.5` cannot see total representational collapse, because a constant-output model has
+`rel_mse ≈ 0`. **`sparsity/effective_dim == 0` is the only perfect predictor of SR ≈ 0 found** —
+24 runs across 12 arms, every evaluated one at SR ≤ 0.04. Check both.
 
-## 8. The standing trap: nearly every metric here is a collapse detector
+#### Retracted from my own first attempt at this reanalysis
+
+* **A death/quality decomposition of Δ mean.** Not identified: the interaction `Δp·Δq` is
+  **48–84 %** of the effect, and every contrast flips label under the mirror ordering, under
+  Shapley, and under the log form. "Death-dominated" turned out to be a re-encoding of `P_t`
+  (Spearman −0.817).
+* **Reporting `Δ P(SR > 0)` with McNemar as though it separated training from planning.** Three
+  problems. The antimode of the distribution is at **SR ≈ 0.15, not 0**, so that cut sits inside
+  the left mode. Five of the six arms it flagged show **no within-arm heterogeneity at all**
+  (bootstrap LRT p = 0.08–0.63) — they are uniformly at the floor, not a mixture of live and dead
+  seeds. And a training-side definition of "dead" (`rel_mse ≥ 0.5`) gives **ΔP = 0.00** for four
+  of them. `consist-w0p3`'s eight seeds sit inside the baseline's range on `rel_mse`,
+  `effective_dim` *and* `val/loss` while scoring 0.005 — that is a planning result, which is what
+  the original verdict said.
+* **Defending the conditional mean with Spearman(P, SR|work) = +0.814.** No power: a simulated
+  world with **no death mechanism at all** gives +0.781 [+0.729, +0.823].
+
+## 8. The standing trap## 8. The standing trap: nearly every metric here is a collapse detector
 
 This is the single most useful thing to carry into the entries.
 
