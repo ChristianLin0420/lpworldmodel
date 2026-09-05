@@ -106,6 +106,13 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${MUP_LR:-}" ]     && { add "training.mup_lr=${MUP_LR}"; TAG="${TAG}_mlr${MUP_LR}"; }
 [ -n "${SEED:-}" ]       && { add "training.seed=${SEED}"; TAG="${TAG}_seed${SEED}"; }
 [ -n "${PROJ_DIM:-}" ]   && { add "encoder.proj_dim=${PROJ_DIM} action_emb_dim=${PROJ_DIM}"; TAG="${TAG}_pd${PROJ_DIM}"; }
+# PATCH_SIZE sets the ViT grid, hence the TOKEN COUNT: num_patches = (img_size/patch_size)^2.
+# At img_size=224 that is 14 -> 256 tokens, 56 -> 16, 112 -> 4, 224 -> 1. This is the only knob
+# that makes a DIMENSION-MATCHED cls-vs-patch comparison possible: a patch arm carries
+# num_patches x proj_dim latent values, so at proj_dim 384 the default patch arm carries 98304
+# against a cls arm's 384 -- a 256x capacity gap that "columns vs LpWM-ltv" silently confounds
+# with the feature itself (diary/2026-09-05 §2c).
+[ -n "${PATCH_SIZE:-}" ] && { add "encoder.patch_size=${PATCH_SIZE}"; TAG="${TAG}_ps${PATCH_SIZE}"; }
 [ -n "${SAVE_EVERY:-}" ] && add "training.save_every_x_epoch=${SAVE_EVERY}"
 [ -n "${TRAIN_ENCODER:-}" ] && add "model.train_encoder=${TRAIN_ENCODER}"
 [ -n "${WANDB_PROJECT:-}" ] && add "wandb_project=${WANDB_PROJECT}"

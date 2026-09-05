@@ -552,6 +552,48 @@ wave24_arms() {
 # Controls: LpWM-ltv (n=16, trained) is the matched zero-strength control for R6, R3 and
 # R4, and is deliberately NOT retrained here. R2's control is in-wave (-data); R1's are
 # in-wave (the three overshoot cells) plus the existing K=5 pair.
+wave27_arms() {
+    # ROUND 7, REDESIGNED -- the DIMENSION-MATCHED cls-vs-patch grid.
+    #
+    # THE CONFOUND THIS FIXES. A patch arm carries num_patches x proj_dim latent values; a cls
+    # arm carries proj_dim. At the campaign's defaults that is 256 x 384 = 98304 against 384 --
+    # a 256x capacity gap. So "PiWM-columns vs LpWM-ltv" (+0.072) and the orientation probe
+    # (9.58 deg vs 15.72) BOTH confound the feature with a 256x capacity change, and
+    # LpWM-ltv-d2048 -- the only width control ever run -- is 5.3x, nowhere near matched.
+    #
+    # num_patches = (img_size/patch_size)^2 and img_size is 224, so patch_size is the token
+    # knob: 14 -> 256, 56 -> 16, 112 -> 4, 224 -> 1. encoder.proj_dim is settable independently
+    # of the ViT width (scripts/train.sh PROJ_DIM), so the two can be matched on TOTAL LATENT:
+    #
+    #     total dims | cls                        | patch
+    #     -----------|----------------------------|---------------------------------
+    #        384     | LpWM-ltv          (exists) | LpWM-ltv-p1   patch_size=224, 1 token
+    #       1536     | LpWM-ltv-d1536             | PiWM-cols-p4  patch_size=112, 4 tokens
+    #       6144     | LpWM-ltv-d6144             | PiWM-cols-p16 patch_size=56, 16 tokens
+    #      98304     | infeasible                 | PiWM-columns      (exists)
+    #
+    # Each row is a within-capacity cls-vs-patch contrast; each column is a capacity ladder at
+    # fixed feature. That separates "tokens carry orientation" from "more latent is better",
+    # which nothing in rounds 1-7 could.
+    #
+    # PROJ_D is invocation-wide, so the cls rungs are launched with their own PROJ_D and carry
+    # it in the ARM NAME -- reusing "LpWM-ltv" at a different PROJ_D would file them under the
+    # baseline's key in collect_evals and silently pool two architectures.
+    ORDER[wave27]="${WAVE27_ARMS:-LpWM-ltv-p1 PiWM-cols-p4 PiWM-cols-p16}"
+    ARMS[LpWM-ltv-p1]="ltv 1.0 5e-4 PATCH_SIZE=224";   ARM_FEAT[LpWM-ltv-p1]="patch"
+    ARMS[PiWM-cols-p4]="ltv 1.0 5e-4 PATCH_SIZE=112";  ARM_FEAT[PiWM-cols-p4]="patch"
+    ARMS[PiWM-cols-p16]="ltv 1.0 5e-4 PATCH_SIZE=56";  ARM_FEAT[PiWM-cols-p16]="patch"
+}
+
+wave28_arms() {
+    # The cls half of the same grid. Launched separately because PROJ_D is invocation-wide:
+    #   PROJ_D=1536 scripts/run_campaign.sh wave28   -> LpWM-ltv-d1536
+    #   PROJ_D=6144 scripts/run_campaign.sh wave28   -> LpWM-ltv-d6144
+    # The arm name must match the PROJ_D or collect_evals pools them; the launcher checks.
+    ORDER[wave28]="${WAVE28_ARMS:-LpWM-ltv-d${PROJ_D}}"
+    ARMS[LpWM-ltv-d${PROJ_D}]="ltv 1.0 5e-4"
+}
+
 wave26_arms() {
     # ROUND 7 -- the representation, not the objective.
     #
@@ -743,11 +785,13 @@ for gate in "$@"; do
         wave24)       wave24_arms; gate=wave24 ;;
         wave25)       wave25_arms; gate=wave25 ;;
         wave26)       wave26_arms; gate=wave26 ;;
+        wave27)       wave27_arms; gate=wave27 ;;
+        wave28)       wave28_arms; gate=wave28 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;
         wave17)       wave17_arms; gate=wave17 ;;
-        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave26)" >&2; exit 1 ;;
+        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave28)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do
