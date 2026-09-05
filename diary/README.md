@@ -94,10 +94,28 @@ fifty that did.
 |---|---|
 | floor | **0.000** — 23 % of all evaluated runs on the repaired instrument score exactly zero |
 | baseline `LpWM-ltv` | **0.357** (n = 13) |
-| best single model `LpWM-ltv-d2048` | 0.587 (n = 6) |
+| best single model `LpWM-ltv-d2048` | 0.587 (n = 6) — **but see the note below: no readable contrast supports this** |
 | best arm `PiWM-vote5-borda` (5-model plan-time vote) | **0.608** (n = 8), paired **+0.215 [+0.089, +0.341]** vs baseline |
 | best observed single seed | 0.780 |
 | oracle-dynamics ceiling | ≈ **0.913** (`2026-09-03` §16.1's ladder) |
+
+> **Note on `LpWM-ltv-d2048` (added 2026-09-05).** Its 0.587 is an **arm mean on a seed set the
+> baseline never ran**, not a measured effect. `d2048` holds seeds 0–5; `LpWM-ltv` holds 3–15, so
+> only s3, s4, s5 pair. The whole apparent gap lives in the unmatched block:
+>
+> | | mean |
+> |---|---|
+> | `d2048` on s0, s1, s2 — **no control exists for these** | 0.727 |
+> | `d2048` on the shared s3, s4, s5 | 0.447 |
+> | `LpWM-ltv` on the shared s3, s4, s5 | 0.427 |
+>
+> The paired contrast is **+0.020 [−1.464, +1.504] at n = 3** — an interval nearly three units wide
+> on a metric bounded in [0, 1] — with per-seed deltas +0.46, +0.26, **−0.66** (d2048's s5 is dead at
+> 0.00 where the baseline scores 0.66). The eval instrument checks out (disjoint post-fix episode
+> blocks), so this is a **seed-set artifact, not an instrument one**. "Best single model" is not
+> supported by any readable contrast in the archive, and the phrase has been removed from the
+> descriptions above. Closing it needs s6–s10 on `d2048`, not a re-reading.
+
 
 **Good** is anything that clears its own matched control by more than the paired interval.
 **Bad**, in this campaign, has a very specific shape: **0.000 on every seed**. A collapsed model
@@ -217,7 +235,7 @@ sequences to the extent that different actions produce different predictions.
 | **0.000** | the predictor is action-blind. `PiWM-incr` measures exactly 0 on 7 of its 8 seeds |
 | **healthy** | `LpWM-ltv`, re-probed over 16 seeds: `d_action` **0.354**, `d_action/‖z‖` **0.549** |
 | campaign (327 checkpoints re-probed) | 0.000 · median **0.428** · 6.76 |
-| **the optimum is near 0.6** | `LpWM-ltv-d2048`, the best single model, sits at 0.647 |
+| **the optimum is near 0.6** | `LpWM-ltv-d2048` sits at 0.647 — an arm mean on an unmatched seed set, not a contrast |
 | too much | `PiWM-actinfo` at 1.25 plans at 0.09 |
 
 **This metric carries the campaign's largest single error, and the record keeps it visible.** A
@@ -285,7 +303,7 @@ future and scores the end. `h8/h1` asks how much the error compounds along that 
 | | |
 |---|---|
 | **≈ 1.0** | the predictor is emitting a constant — error does not grow because nothing moves. `PiWM-actinfo-cond` measures **1.02** |
-| **healthy** | arm medians ~12 (`LpWM-ltv-d2048`, the best single model) to ~25 (`LpWM-linvar`); `LpWM-ltv` s15 measures **19.4** |
+| **healthy** | arm medians ~12 (`LpWM-ltv-d2048` (see the d2048 note)) to ~25 (`LpWM-linvar`); `LpWM-ltv` s15 measures **19.4** |
 | campaign span | arm medians 0.88 to 74; per-run 0.05 to 184 |
 
 **`h8/h1` is a collapse detector and was killed as a design target before a line was written**
@@ -378,7 +396,7 @@ directions any action sequence can reach at all; `cond(W_c)` is how unevenly it 
 | **median rank/dim** | **0.32** |
 | **34 %** of checkpoints | below **0.05** |
 | baseline `LpWM-ltv` | 255 / 1152 |
-| `LpWM-ltv-d2048`, the best single model | **18 / 6144** |
+| `LpWM-ltv-d2048` (see the d2048 note) | **18 / 6144** |
 
 **The trap, and it cost a correction.** `2026-09-03` §12 called P4 (`PiWM-ctrb`) "a null by
 construction — the Gramian was already close to isotropic", reading its *converged*
