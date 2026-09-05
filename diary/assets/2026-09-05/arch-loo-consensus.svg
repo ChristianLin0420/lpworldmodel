@@ -198,8 +198,8 @@
 <text x="722" y="1316" font-size="16" text-anchor="middle" fill="#14231C">CEM</text>
 <text x="722" y="1352" font-size="11.5" text-anchor="middle" fill="#6C786C">argsort( loss )[ : topk ]</text>
 <text x="574" y="1274" font-size="12" text-anchor="middle" fill="#2E7D6F" font-weight="bold">no rule knob</text>
-<text x="468" y="1378" font-size="11.5" text-anchor="middle" fill="#6C786C">filled = a member of this block's committee     ·     crossed = the one seed left out, a different one every block</text>
-<text x="468" y="1398" font-size="11.5" text-anchor="middle" fill="#6C786C">the first M members are taken in order, and M is capped to the value below</text>
+<text x="468" y="1378" font-size="11.5" text-anchor="middle" fill="#6C786C">filled = eligible for this block's committee     ·     crossed = the one seed left out, a different one every block</text>
+<text x="468" y="1398" font-size="11.5" text-anchor="middle" fill="#6C786C">the committee is the first M of the filled slots, in order · M is the capped value below, not the 15 drawn</text>
 <rect x="60" y="1428" width="816" height="176" rx="8" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.6"/>
 <text x="468.0" y="1454" font-size="17" text-anchor="middle" fill="#2E7D6F" font-weight="bold">M is CAPPED – first by the smaller arm, then by memory</text>
 <text x="468.0" y="1473" font-size="12" text-anchor="middle" fill="#6C786C">an unmatched M would confound committee size with the feature –  the same error as the unmatched latent dimension</text>

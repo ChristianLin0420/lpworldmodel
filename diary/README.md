@@ -616,6 +616,13 @@ The ordering is largely preserved (Spearman(official, block-only) ≈ 0.96 acros
 > every failing one, with no overlap. It is free, it comes from traces already on disk, and
 > unlike `rel_mse` it cannot be fooled by a constant-output model.
 
+**Amended 2026-09-05.** The "no overlap" in the line above holds for the eight arms tabulated here,
+not for the archive. Over all 49 arms with traces the ranges overlap (worst healthy arm 1138 px,
+best failing arm 122 px). At a 100 px threshold the detector is **94.5 % accurate (273/289 runs)**
+with 14 healthy runs above the line — good enough to flag on, not to gate on. See
+[2026-09-05 §7.2](2026-09-05.md).
+
+
 
 #### 2. The instrument is coarser than the effects it was applied to
 
