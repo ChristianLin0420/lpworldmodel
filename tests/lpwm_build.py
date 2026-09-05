@@ -141,6 +141,7 @@ def build(cfg, device="cpu"):
         # T1/T2
         decode_grad=bool(cfg.get("decode_grad", False)),
         decode_pred_w=float(cfg.get("decode_pred_w", 0.0)),
+        ema_m=float(cfg.get("ema_m", 0.0)),
         lamb_decode=float(cfg.get("lamb_decode", 1.0)),
         # T3: mirrors train.py _contact_geom() with the dataset's literal constants
         # (datasets/pusht_dset.py PROPRIO_MEAN / PROPRIO_STD), so no dataset is needed.

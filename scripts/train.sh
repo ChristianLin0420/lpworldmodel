@@ -76,6 +76,8 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${LAMB_DECODE:-}" ]  && { add "lamb_decode=${LAMB_DECODE}"; TAG="${TAG}_ld${LAMB_DECODE}"; }
 # round 8 (S1). Pixel gradient through the PREDICTOR, not just the encoder.
 [ -n "${DECODE_PRED_W:-}" ] && { add "decode_pred_w=${DECODE_PRED_W}"; TAG="${TAG}_dpw${DECODE_PRED_W}"; }
+# round 8 (T2 rung 2). EMA teacher momentum; unset => no teacher, upstream exactly.
+[ -n "${EMA_M:-}" ]        && { add "ema_m=${EMA_M}"; TAG="${TAG}_ema${EMA_M}"; }
 # round 5 (T3 contact weighting). CONTACT_GAMMA=0 is the uniform upstream objective.
 [ -n "${CONTACT_GAMMA:-}" ] && { add "contact_gamma=${CONTACT_GAMMA}"; TAG="${TAG}_cg${CONTACT_GAMMA}"; }
 [ -n "${CONTACT_SHUF:-}" ]  && { add "contact_shuffle=${CONTACT_SHUF}"; TAG="${TAG}_cshuf"; }

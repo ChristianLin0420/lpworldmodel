@@ -43,6 +43,7 @@ class VWorldModel(nn.Module):
         # gradient from decoder_recon_loss (measured; see diary 2026-09-03 s13.4).
         decode_grad=False,
         decode_pred_w=0.0,
+        ema_m=0.0,
         var_space="u",
         var_gamma=1.0,   # VICReg hinge target: penalise per-dim std below this
         use_pose=False,  # bind the allocentric location signal to the action (TBT reference frame)
@@ -124,6 +125,10 @@ class VWorldModel(nn.Module):
         self.lamb_cov = lamb_cov
         self.lamb_decode = lamb_decode
         self.decode_pred_w = float(decode_pred_w)
+        # ROUND 8 / T2 rung 2. EMA teacher. 0.0 => not built at all, so the model is
+        # bit-identical to upstream and no new parameter enters any optimizer.
+        self.ema_m = float(ema_m)
+        self.encoder_ema = None
         self.decode_grad = bool(decode_grad)
         self.var_space = var_space
         self.var_gamma = var_gamma
@@ -358,6 +363,24 @@ class VWorldModel(nn.Module):
             self.encoder_transform = lambda x: x
 
         self.decoder_criterion = nn.MSELoss()
+
+        # ROUND 8 / T2 rung 2. A frozen copy of the encoder, updated only by EMA.
+        #
+        # conf/train_rdmreg.yaml:95 sets detach_target: False, so every campaign run so far
+        # trained with a LIVE target -- the encoder received gradient through its own
+        # prediction target, which is the hazard documented at :581 ("the cheapest way to
+        # lower S is therefore not to predict"). A JEPA needs a stop-gradient; an EMA teacher
+        # is the stronger form, giving a target that moves slowly instead of not at all.
+        #
+        # requires_grad_(False) AND never handed to an optimizer: train.py builds optimizers
+        # from named sub-modules, and this is deliberately not one of them, so mup.py's
+        # printed LR schema will not list it. That is the check.
+        if self.ema_m > 0:
+            import copy as _copy
+            self.encoder_ema = _copy.deepcopy(self.encoder)
+            for _p in self.encoder_ema.parameters():
+                _p.requires_grad_(False)
+            self.encoder_ema.eval()
         self.decoder_latent_loss_weight = 0.25
         self.emb_criterion = nn.MSELoss()
 
@@ -1224,6 +1247,24 @@ class VWorldModel(nn.Module):
         proprio = self.proprio_encoder(proprio)
         return proprio
 
+    @staticmethod
+    def _encode_visual(encoder, visual_flat, b, t_frames):
+        """Run ONE encoder over already-flattened, already-transformed frames -> (b,t,p,d).
+
+        Factored so the student encoder and the ROUND 8 / T2 EMA teacher cannot drift: the
+        block-causal branch, the DDP unwrap and the rearrange all live here once. That is the
+        same one-definition-two-consumers rule models/stats.py states for soft_jaccard.
+
+        getattr on the UNWRAPPED module: accelerate's DDP wrapper only proxies forward(), so
+        reaching forward_temporal through it raises AttributeError.
+        """
+        _enc = getattr(encoder, "module", encoder)
+        if getattr(_enc, "block_causal", False):
+            out = _enc.forward_temporal(visual_flat, t_frames)
+        else:
+            out = encoder.forward(visual_flat)
+        return rearrange(out, "(b t) p d -> b t p d", b=b)
+
     def encode_obs(self, obs):
         """
         input : obs (dict): "visual", "proprio" (b, t, 3, img_size, img_size)
@@ -1240,12 +1281,7 @@ class VWorldModel(nn.Module):
         # getattr on the UNWRAPPED module: accelerate's DDP wrapper only proxies
         # forward(), so reaching forward_temporal through it raises AttributeError --
         # the same trap documented for forward_heads on _pred above.
-        _enc = getattr(self.encoder, "module", self.encoder)
-        if getattr(_enc, "block_causal", False):
-            visual_embs = _enc.forward_temporal(visual, t_frames)
-        else:
-            visual_embs = self.encoder.forward(visual)
-        visual_embs = rearrange(visual_embs, "(b t) p d -> b t p d", b=b)
+        visual_embs = self._encode_visual(self.encoder, visual, b, t_frames)
 
         if self.action_conditioning == "adaln":
             return {"visual": visual_embs}
@@ -1317,6 +1353,23 @@ class VWorldModel(nn.Module):
     def _link(self, x):
         """Apply the RDMReg link h(.); identity when no link is configured."""
         return self.link(x) if self.link is not None else x
+
+    @torch.no_grad()
+    def ema_update(self):
+        """theta_ema <- m * theta_ema + (1-m) * theta. Called AFTER the optimizer step.
+
+        No-op unless the teacher was built (ema_m > 0), so the default path costs nothing.
+        Buffers are copied outright rather than averaged: running statistics are not
+        parameters and averaging them would blend two different normalisation states.
+        """
+        if self.encoder_ema is None:
+            return
+        m = self.ema_m
+        src = getattr(self.encoder, "module", self.encoder)
+        for pe, ps in zip(self.encoder_ema.parameters(), src.parameters()):
+            pe.mul_(m).add_(ps.detach(), alpha=1.0 - m)
+        for be, bs in zip(self.encoder_ema.buffers(), src.buffers()):
+            be.copy_(bs)
 
     def encode_obs_linked(self, obs):
         """Observation encoded into the LINKED representation space that the predictor,
@@ -1455,7 +1508,18 @@ class VWorldModel(nn.Module):
         act_src = act_opt[:, : self.num_hist]   # (b, num_hist, act_emb_dim)
         z_tgt = z_emb[:, self.num_pred :]       # (b, num_hist, p, d)
 
-        target = z_tgt.detach() if self.detach_target else z_tgt
+        # ROUND 8 / T2 rung 2. With a teacher the target is the EMA encoder's code, not the
+        # student's own -- a slowly moving target rather than a live or merely detached one.
+        # Always detached: an EMA copy has no graph to begin with.
+        if self.encoder_ema is not None:
+            with torch.no_grad():
+                _v = obs["visual"]
+                _b, _t = _v.shape[0], _v.shape[1]
+                _flat = self.encoder_transform(rearrange(_v, "b t ... -> (b t) ..."))
+                _u_ema = self._encode_visual(self.encoder_ema, _flat, _b, _t)
+                target = self._link(_u_ema)[:, self.num_pred:]
+        else:
+            target = z_tgt.detach() if self.detach_target else z_tgt
 
         if self.n_heads > 1:
             z_pred, z_loss, head_logs = self._union_head_loss(z_src, act_src, target)

@@ -467,6 +467,28 @@ class LinearDynamicsPredictor(nn.Module):
             self.lag_dilation = [int(v) for v in lag_dilation.split(",") if v.strip() != ""]
         else:
             self.lag_dilation = [int(v) for v in lag_dilation]
+        if self.lag_dilation is not None:
+            # HARD GUARD, and it exists because its absence cost 45 jobs.
+            #
+            # n_lags == num_frames == num_hist, and _forward_adaln feeds the predictor
+            # z_src = z_emb[:, :num_hist] -- so T == num_hist exactly. A slot whose offset
+            # is >= T hits `if dk >= T: break`, its lags[k]/Vlag[k]/Ulag[k] never receive
+            # gradient, and DDP raises "Expected to have finished reduction in the prior
+            # iteration" partway through the first epoch. A single-process CPU test does NOT
+            # catch this: it just silently drops the slot.
+            #
+            # So there is no spare frame to dilate INTO. Offsets must lie in [0, num_frames),
+            # which means a dilation can only SKIP frames (by repeating an offset), never
+            # reach past the window.
+            bad = [d for d in self.lag_dilation if d < 0 or d >= num_frames]
+            assert not bad, (
+                f"lag_dilation {self.lag_dilation} has offsets {bad} outside [0,{num_frames}); "
+                f"n_lags == num_frames == num_hist, so the predictor only ever sees "
+                f"{num_frames} frames and a larger offset leaves that lag slot without "
+                f"gradient (DDP unused-parameter error).")
+            assert len(self.lag_dilation) >= num_frames, (
+                f"lag_dilation {self.lag_dilation} has {len(self.lag_dilation)} entries for "
+                f"{num_frames} lag slots; every slot needs an offset or it is unused.")
         self.rank = rank
         # Step 3, ltv only. Factorized deliberately: the original single flag changed
         # the gate's INPUT and its NORMALIZATION at the same time, so a result could

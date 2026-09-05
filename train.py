@@ -537,6 +537,16 @@ class Trainer:
             else []
         )
         self._keys_to_save += ["action_encoder", "proprio_encoder"]
+        # ROUND 8 / T2 rung 2. The EMA teacher lives on the MODEL, not the Trainer, so
+        # save_ckpt's walk over self.__dict__ would not see it -- and training spans 3-4
+        # chained 4h windows, so an unsaved teacher would silently RESET to the student at
+        # every window boundary and the arm would not test what it claims. Expose it here so
+        # it travels with the checkpoint. It carries no optimizer state (it has no gradient),
+        # which is why only the module and not an optimizer is registered.
+        _m0 = getattr(self.model, "module", self.model)
+        if getattr(_m0, "encoder_ema", None) is not None:
+            self.encoder_ema = _m0.encoder_ema
+            self._keys_to_save += ["encoder_ema"]
         # init_optimizers() builds one AdamW over action+proprio params, so its Adam
         # moments must travel with the checkpoint too. Omitting it restarts those
         # moments at zero on every resume, which puts a visible step in the loss
@@ -964,6 +974,8 @@ class Trainer:
             lamb_decode=float(self.cfg.get("lamb_decode", 1.0)),
             # ROUND 8 / S1. 0.0 => the term is not built; the path stays bit-identical.
             decode_pred_w=float(self.cfg.get("decode_pred_w", 0.0)),
+            # ROUND 8 / T2 rung 2. 0.0 => no teacher is built at all.
+            ema_m=float(self.cfg.get("ema_m", 0.0)),
             # T3. Geometry from the DATASET's own normalisation constants
             # (datasets/pusht_dset.py:83-84) plus the env's window size (512,
             # env/pusht/pusht_env.py:381) and agent radius (15, :709). Passed as plain
@@ -1331,6 +1343,12 @@ class Trainer:
             if self.cfg.has_predictor and self.model.train_predictor:
                 self.predictor_optimizer.step()
                 self.action_encoder_optimizer.step()
+                # ROUND 8 / T2 rung 2. theta_ema <- m*theta_ema + (1-m)*theta, AFTER the
+                # step so the teacher trails the student it is averaging. No-op unless a
+                # teacher was built, and it holds no optimizer state of its own.
+                _m = getattr(self.model, "module", self.model)
+                if getattr(_m, "encoder_ema", None) is not None:
+                    _m.ema_update()
             if _vopt is not None:
                 _vopt.step()
             if _popt is not None:

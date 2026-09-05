@@ -668,7 +668,7 @@ wave29_arms() {
     # DISTINCT from T6/jump{K}, which changed the TARGET horizon (num_pred) and failed at every
     # K measured (-0.035, -0.220, -0.195, -0.413 on shared seeds). This changes the INPUT
     # CONTEXT and leaves the target at one step -- the only axis that survives arm-demeaning.
-    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003 PiWM-ssm PiWM-mlpvar PiWM-lagmask25 PiWM-lagmask50 PiWM-lagdil}"
+    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003 PiWM-ssm PiWM-mlpvar PiWM-lagmask25 PiWM-lagmask50 PiWM-lagskip PiWM-st-ssm PiWM-st-pdpred}"
     ARMS[PiWM-hist1]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist1]=1
     ARMS[PiWM-hist2]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist2]=2
     ARMS[PiWM-hist5]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist5]=5
@@ -724,13 +724,46 @@ wave29_arms() {
     # six of nine round-3/4/5 proposals were single-shot on their own strength parameter.
     ARMS[PiWM-lagmask25]="ltv 1.0 5e-4 LAG_MASK_P=0.25"
     ARMS[PiWM-lagmask50]="ltv 1.0 5e-4 LAG_MASK_P=0.5"
-    # Dilation: slot k reads z_{t-d_k}. Verified [0,1,2] reproduces the default EXACTLY and
-    # [0,2,3] does not. The window is T = num_hist + num_pred = 4, so offsets must stay < 4
-    # and [0,2,3] is the widest meaningful dilation at num_hist=3. Same parameter count,
-    # ~1.5x the temporal span -- motivated by the measured 48.1% zero-block-motion rate at
-    # single steps, which says tight uniform lags may spend most of the history on frames
-    # carrying no block signal.
-    ARMS[PiWM-lagdil]="ltv 1.0 5e-4 LAG_DILATION=0,2,3"
+    # LAG SKIP, not dilation -- the name matters because dilation is not expressible here.
+    #
+    # I launched PiWM-lagdil at LAG_DILATION=0,2,3 and all 45 jobs died with a DDP
+    # unused-parameter error. n_lags == num_frames == num_hist, and _forward_adaln feeds the
+    # predictor z_src = z_emb[:, :num_hist], so T == num_hist == 3 exactly. Offset 3 hits
+    # `if dk >= T: break`, lags[2]/Vlag[2]/Ulag[2] never enter the graph, and DDP refuses.
+    # There is no spare frame to dilate INTO; a single-process CPU test cannot see this
+    # because it silently drops the slot instead. A hard guard now rejects any offset
+    # outside [0, num_frames) at construction.
+    #
+    # What IS expressible is a SKIP: [0,2,2] reads {z_t, z_{t-2}, z_{t-2}}, dropping the
+    # adjacent frame and spending the freed slot on the older one. Verified DDP-safe -- zero
+    # params with grad-is-None, identical to the baseline (the 6 zero-GRADIENT params are
+    # pre-existing, from ltv's zero-initialised Ulag).
+    #
+    # The question it asks is still the one worth asking: the block is static in 48.1% of
+    # single steps, so is z_{t-1} carrying anything the model needs?
+    ARMS[PiWM-lagskip]="ltv 1.0 5e-4 LAG_DILATION=0,2,2"
+
+    # ROUND 8 / ST2. T1's state carried PER TOKEN. Spatial because each patch keeps its own
+    # history -- today the predictor is ONE operator broadcast over every token (measured:
+    # 811,840 params at P=1 and at P=256 alike, so a token's dynamics are not its own).
+    # Temporal because it is IIR rather than a 3-tap FIR. Removing either axis destroys the
+    # mechanism, which is what makes it a joint arm rather than two terms side by side.
+    #
+    # No new code: _trunk's ssm branch already carries the P axis (s is (B,P,D)), so ST2 is
+    # exactly T1 with FEATURE=patch. patch_size stays at the default 14 -- the only
+    # granularity round 7 leaves standing, since 224/112/56 came back 4/4, 4/5 and 4/7 flagged.
+    #
+    # ABLATIONS, both of which run: PiWM-ssm is the same mechanism with no spatial axis, and
+    # PiWM-columns (already evaluated, n=12) is the same spatial axis with no state. A win
+    # here is therefore attributable, which is precisely what patchdecode's +0.085 was not.
+    ARMS[PiWM-st-ssm]="ssm 1.0 5e-4";   ARM_FEAT[PiWM-st-ssm]="patch"
+
+    # ROUND 8 / ST3. S1's pixel target is (this patch, next timestep) -- spatial and temporal
+    # in one supervision signal -- and T4's dilation widens the history each token integrates.
+    # Ablated by PiWM-pdpred (pixels, uniform lags) and PiWM-lagskip (skip, no pixel
+    # gradient), both of which are running, so either half can be charged for the result.
+    ARMS[PiWM-st-pdpred]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=true LAMB_DECODE=0.1 DECODE_PRED_W=0.1 LAG_DILATION=0,2,2"
+    ARM_FEAT[PiWM-st-pdpred]="patch"
 }
 
 wave25_arms() {
