@@ -299,3 +299,60 @@ def test_restored_optimizer_state_is_moved_to_the_device(tmp_path):
             assert not torch.is_tensor(v) or v.device == dev, (
                 f"optimizer state '{k}' left on {v.device}, expected {dev}"
             )
+
+
+# --- corrupt-checkpoint handling ------------------------------------------------------------
+# PiWM-overshoot8_s8 was left with a full-size 167.8 MB model_latest.pth whose zip central
+# directory never reached disk. Because windows are pre-chained, EVERY remaining window then
+# died in 43 s on the same load error: no DONE, no epoch, and eight queued jobs guaranteed to
+# repeat it. These pin both halves of the fix.
+
+def test_ckpt_readable_detects_a_lost_tail(tmp_path):
+    """The observed corruption is a truncated tail, which is what the zip index catches."""
+    from train import _ckpt_readable
+    good = tmp_path / "good.pth"
+    torch.save({"a": torch.zeros(4)}, good)
+    assert _ckpt_readable(good) is True
+
+    raw = good.read_bytes()
+    bad = tmp_path / "bad.pth"
+    bad.write_bytes(raw[: len(raw) // 2])
+    assert _ckpt_readable(bad) is False
+    assert _ckpt_readable(tmp_path / "absent.pth") is False
+
+
+def test_save_ckpt_is_fsynced_before_the_rename(tmp_path, monkeypatch):
+    """os.replace must not run until the data is on disk, or the rename publishes a partial file.
+
+    Asserted by ORDER, not by mocking fsync away: a checkpoint that is renamed into place
+    before its bytes are durable is exactly how the corrupt one was produced.
+    """
+    import train as T
+    calls = []
+    real_fsync, real_replace = os.fsync, os.replace
+    monkeypatch.setattr(T.os, "fsync", lambda fd: (calls.append("fsync"), real_fsync(fd))[1])
+    monkeypatch.setattr(T.os, "replace",
+                        lambda a, b: (calls.append("replace"), real_replace(a, b))[1])
+
+    trained, _, _, h = _run(tmp_path)
+    assert "fsync" in calls and "replace" in calls, calls
+    assert calls.index("fsync") < calls.index("replace"), (
+        f"os.replace ran before the first fsync: {calls[:6]}")
+
+
+def test_a_corrupt_checkpoint_is_quarantined_and_the_run_restarts(tmp_path):
+    """One unreadable file must not kill the whole pre-chained window sequence."""
+    trained, _, _, h = _run(tmp_path)
+    ck = tmp_path / "checkpoints" / "model_latest.pth"
+    assert ck.exists()
+
+    raw = ck.read_bytes()
+    ck.write_bytes(raw[: len(raw) // 2])          # lose the tail, as the node failure did
+
+    # Without the fix this raises PytorchStreamReader inside load_ckpt and _run never returns.
+    trained2, epochs2, restarts2, h2 = _run(tmp_path)
+    assert (tmp_path / "checkpoints" / "model_latest.pth.corrupt").exists(), \
+        "the unreadable checkpoint was not quarantined"
+    assert epochs2 == [1, 2, 3], f"did not restart from scratch: {epochs2}"
+    assert len(trained2) == EPOCHS * N_BATCHES, (
+        f"restarted run trained {len(trained2)} batches, expected a full budget")

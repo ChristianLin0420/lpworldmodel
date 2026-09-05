@@ -14,6 +14,7 @@ import logging
 import warnings
 import threading
 import itertools
+import zipfile
 import numpy as np
 from tqdm import tqdm
 from omegaconf import OmegaConf, open_dict
@@ -34,6 +35,42 @@ from utils import slice_trajdict_with_t, cfg_to_dict, seed, sample_tensors
 
 warnings.filterwarnings("ignore")
 log = logging.getLogger(__name__)
+
+
+def _fsync_dir(path):
+    """fsync a DIRECTORY so a rename inside it is itself durable.
+
+    Renaming into place is only half of an atomic replace: the directory entry has to reach
+    disk too, or a node failure can lose the rename and leave the old name pointing at the
+    temp file's inode. Best-effort -- some filesystems refuse O_RDONLY fsync on a directory,
+    and that must not take down training.
+    """
+    try:
+        fd = os.open(path, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+def _ckpt_readable(path):
+    """True if `path` is a torch checkpoint whose zip directory can be read.
+
+    torch.save has written the zip format since 1.6, so an unreadable central directory means
+    the tail of the file is missing -- the signature of a write that was renamed into place
+    but never flushed. Reading the index is a seek, not a full load, so this is cheap enough
+    to run on every resume.
+    """
+    try:
+        with zipfile.ZipFile(path) as z:
+            z.infolist()
+        return True
+    except Exception:
+        return False
 
 # Sections for the wandb run page. Without these every scalar lands in one flat
 # alphabetical list, which makes a 9-arm campaign unreadable; the tuple order is
@@ -576,7 +613,15 @@ class Trainer:
 
         Stores ``state_dict``s rather than pickled modules so a checkpoint stays
         loadable across edits to the model classes, and writes via a temp file +
-        os.replace so a kill mid-write cannot corrupt the resume point.
+        fsync + os.replace so a kill mid-write cannot corrupt the resume point.
+
+        The fsync is not decoration. os.replace makes the RENAME atomic, but on a network
+        filesystem it does not make the DATA durable: if the node dies after the rename and
+        before writeback, the name points at a partially-written file. Not hypothetical --
+        PiWM-overshoot8_s8 was left with a full-size 167.8 MB checkpoint whose zip central
+        directory (written last, at the tail) never reached disk, and every window of its
+        chain then died in 43 s on "PytorchStreamReader failed reading zip archive: failed
+        finding central directory".
         """
         self.accelerator.wait_for_everyone()
         if self.accelerator.is_main_process:
@@ -595,8 +640,12 @@ class Trainer:
                     continue
                 ckpt[k] = self.accelerator.unwrap_model(obj).state_dict()
             tmp = "checkpoints/.model_latest.pth.tmp"
-            torch.save(ckpt, tmp)
+            with open(tmp, "wb") as fh:
+                torch.save(ckpt, fh)
+                fh.flush()
+                os.fsync(fh.fileno())
             os.replace(tmp, "checkpoints/model_latest.pth")
+            _fsync_dir("checkpoints")
             if epoch_end:
                 torch.save(ckpt, f"checkpoints/model_{self.epoch}.pth")
             log.info(
@@ -661,6 +710,26 @@ class Trainer:
         """Load ``model_latest.pth`` after models and optimizers are constructed."""
         model_ckpt = Path(self.cfg.saved_folder) / "checkpoints" / "model_latest.pth"
         if not model_ckpt.exists():
+            return
+        # A checkpoint that cannot be read is worse than none: windows are pre-chained, so
+        # every remaining window re-raises the same load error in under a minute and the run
+        # silently never progresses -- it just accumulates FAILEDs with no DONE and no epoch.
+        # Quarantine it and start fresh instead.
+        #
+        # Deliberately gated on PROVABLE corruption (the zip central directory is unreadable),
+        # NOT on any exception from load_ckpt. A transient filesystem error must keep failing
+        # loudly rather than silently discard a trained checkpoint and restart from zero.
+        if not _ckpt_readable(model_ckpt):
+            bad = Path(str(model_ckpt) + ".corrupt")
+            log.error(
+                f"CORRUPT CHECKPOINT: {model_ckpt} has no readable zip directory "
+                f"({model_ckpt.stat().st_size / 1e6:.1f} MB). Quarantining it to {bad} and "
+                f"restarting this run from scratch."
+            )
+            try:
+                os.replace(model_ckpt, bad)
+            except OSError as e:
+                log.error(f"could not quarantine the corrupt checkpoint: {e}")
             return
         self.load_ckpt(model_ckpt)
         log.info(
