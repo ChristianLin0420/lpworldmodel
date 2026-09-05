@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1930" viewBox="0 0 940 1930" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#2E7D6F"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+</defs>
+<rect width="940" height="1930" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="147.1" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(loo)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-loo5</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;the committee is chosen by the data</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[EVALUATED]</tspan></text>
+<path d="M712,341 L712,490 L718.0,490 A8,8 0 0 1 734.0,490 L804.0,490 A8,8 0 0 1 820.0,490 L880,490 L880,898" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<text x="700" y="404" font-size="14" text-anchor="end" fill="#2E7D6F" font-weight="bold">eval only – no term in the loss</text>
+<rect x="34" y="898" width="872" height="1072" rx="10" fill="#DCEFE9" fill-opacity="0.45" stroke="#2E7D6F" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#2E7D6F" font-weight="bold">module:  committee( b ) = every finished seed EXCEPT b  –  M = min ( n − 1 , 5 ) , median of ranks</text>
+<path d="M52,942 L888,942" stroke="#2E7D6F" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="60" y="950" width="816" height="330" rx="8" fill="#FFFFFF" stroke="#A83024" stroke-width="1.6"/>
+<text x="468.0" y="976" font-size="17" text-anchor="middle" fill="#A83024" font-weight="bold">the knob that measured nothing  –  the committee is a STEP FUNCTION of the episode block</text>
+<text x="468.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">vote { 2 , 3 , 5 , 8 , 12 }  ×  { borda , median , cvar1 , cvar2 , max } :  two knobs, and the seed sets the BLOCK, not the models</text>
+<text x="78" y="1022" font-size="12.5" text-anchor="start" fill="#A83024" font-weight="bold">what each seed actually selected, read back from the eval logs</text>
+<text x="220" y="1058" font-size="12.5" text-anchor="end" fill="#A83024" font-weight="bold">PiWM-vote5-median</text>
+<text x="220" y="1074" font-size="10.5" text-anchor="end" fill="#6C786C">10 episode blocks</text>
+<rect x="232" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="245.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">3</text>
+<rect x="261" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="274.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">4</text>
+<rect x="290" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="303.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">5</text>
+<rect x="319" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="332.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">6</text>
+<rect x="348" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="361.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">7</text>
+<rect x="377" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="390.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">8</text>
+<rect x="406" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="419.0" y="1060.0" font-size="12" text-anchor="middle" fill="#14231C">9</text>
+<rect x="435" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="448.0" y="1060.0" font-size="11.5" text-anchor="middle" fill="#14231C">10</text>
+<rect x="464" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="477.0" y="1060.0" font-size="11.5" text-anchor="middle" fill="#14231C">11</text>
+<rect x="493" y="1042" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="506.0" y="1060.0" font-size="11.5" text-anchor="middle" fill="#14231C">12</text>
+<path d="M232,1066 L232,1073 L374,1073 L374,1066" stroke="#A83024" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M377,1066 L377,1073 L519,1073 L519,1066" stroke="#A83024" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="303.0" y="1084" font-size="10.5" text-anchor="middle" fill="#A83024">s3 – s7</text>
+<text x="448.0" y="1084" font-size="10.5" text-anchor="middle" fill="#A83024">s8 – s12</text>
+<rect x="753.8" y="1043" width="72.5" height="22" rx="11" fill="#FFFFFF" stroke="#A83024" stroke-width="1.3"/>
+<text x="790.0424999999999" y="1058.5" font-size="11.5" text-anchor="middle" fill="#A83024" font-weight="bold">2 distinct</text>
+<text x="220" y="1106" font-size="12.5" text-anchor="end" fill="#A83024" font-weight="bold">PiWM-vote3-median</text>
+<text x="220" y="1122" font-size="10.5" text-anchor="end" fill="#6C786C">12 episode blocks</text>
+<rect x="232" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="245.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">3</text>
+<rect x="261" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="274.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">4</text>
+<rect x="290" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="303.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">5</text>
+<rect x="319" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="332.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">6</text>
+<rect x="348" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="361.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">7</text>
+<rect x="377" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="390.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">8</text>
+<rect x="406" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="419.0" y="1108.0" font-size="12" text-anchor="middle" fill="#14231C">9</text>
+<rect x="435" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="448.0" y="1108.0" font-size="11.5" text-anchor="middle" fill="#14231C">10</text>
+<rect x="464" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="477.0" y="1108.0" font-size="11.5" text-anchor="middle" fill="#14231C">11</text>
+<rect x="493" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="506.0" y="1108.0" font-size="11.5" text-anchor="middle" fill="#14231C">12</text>
+<rect x="522" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="535.0" y="1108.0" font-size="11.5" text-anchor="middle" fill="#14231C">13</text>
+<rect x="551" y="1090" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="564.0" y="1108.0" font-size="11.5" text-anchor="middle" fill="#14231C">14</text>
+<path d="M232,1114 L232,1121 L316,1121 L316,1114" stroke="#A83024" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M319,1114 L319,1121 L403,1121 L403,1114" stroke="#A83024" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M406,1114 L406,1121 L490,1121 L490,1114" stroke="#A83024" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M493,1114 L493,1121 L577,1121 L577,1114" stroke="#A83024" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="274.0" y="1132" font-size="10.5" text-anchor="middle" fill="#A83024">s3 – s5</text>
+<text x="361.0" y="1132" font-size="10.5" text-anchor="middle" fill="#A83024">s6 – s8</text>
+<text x="448.0" y="1132" font-size="10.5" text-anchor="middle" fill="#A83024">s9 – s11</text>
+<text x="535.0" y="1132" font-size="10.5" text-anchor="middle" fill="#A83024">s12 – s14</text>
+<rect x="753.8" y="1091" width="72.5" height="22" rx="11" fill="#FFFFFF" stroke="#A83024" stroke-width="1.3"/>
+<text x="790.0424999999999" y="1106.5" font-size="11.5" text-anchor="middle" fill="#A83024" font-weight="bold">4 distinct</text>
+<text x="220" y="1154" font-size="12.5" text-anchor="end" fill="#2E7D6F" font-weight="bold">PiWM-loo5-ltv</text>
+<text x="220" y="1170" font-size="10.5" text-anchor="end" fill="#6C786C">16 episode blocks</text>
+<rect x="232" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="245.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">0</text>
+<rect x="261" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="274.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">1</text>
+<rect x="290" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="303.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">2</text>
+<rect x="319" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="332.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">3</text>
+<rect x="348" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="361.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">4</text>
+<rect x="377" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="390.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">5</text>
+<rect x="406" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="419.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">6</text>
+<rect x="435" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="448.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">7</text>
+<rect x="464" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="477.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">8</text>
+<rect x="493" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="506.0" y="1156.0" font-size="12" text-anchor="middle" fill="#14231C">9</text>
+<rect x="522" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="535.0" y="1156.0" font-size="11.5" text-anchor="middle" fill="#14231C">10</text>
+<rect x="551" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="564.0" y="1156.0" font-size="11.5" text-anchor="middle" fill="#14231C">11</text>
+<rect x="580" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="593.0" y="1156.0" font-size="11.5" text-anchor="middle" fill="#14231C">12</text>
+<rect x="609" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="622.0" y="1156.0" font-size="11.5" text-anchor="middle" fill="#14231C">13</text>
+<rect x="638" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="651.0" y="1156.0" font-size="11.5" text-anchor="middle" fill="#14231C">14</text>
+<rect x="667" y="1138" width="26" height="24" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="680.0" y="1156.0" font-size="11.5" text-anchor="middle" fill="#14231C">15</text>
+<path d="M232,1162 L232,1169 L258,1169 L258,1162" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M261,1162 L261,1169 L287,1169 L287,1162" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M290,1162 L290,1169 L316,1169 L316,1162" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M319,1162 L319,1169 L345,1169 L345,1162" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M348,1162 L348,1169 L374,1169 L374,1162" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M377,1162 L377,1169 L693,1169 L693,1162" stroke="#2E7D6F" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="535.0" y="1180" font-size="10.5" text-anchor="middle" fill="#2E7D6F">s0 – s4</text>
+<rect x="753.8" y="1139" width="72.5" height="22" rx="11" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3"/>
+<text x="790.0424999999999" y="1154.5" font-size="11.5" text-anchor="middle" fill="#2E7D6F" font-weight="bold">6 distinct</text>
+<text x="862" y="1180" font-size="10.5" text-anchor="end" fill="#6C786C">the 5 unlabelled braces are one block each</text>
+<text x="78" y="1210" font-size="12.5" text-anchor="start" fill="#A83024" font-weight="bold">and what that does to the interval  –  the same paired contrast against LpWM-ltv , re-aggregated onto its unit of independence</text>
+<text x="220" y="1232" font-size="11.5" text-anchor="end" fill="#A83024">PiWM-vote5-median</text>
+<circle cx="238" cy="1228" r="4.5" fill="#A83024" stroke="#A83024" stroke-width="1.8"/>
+<text x="250.0" y="1232" font-size="11.5" text-anchor="start" fill="#14231C">block  +0.228 [+0.130, +0.326]  n = 10</text>
+<text x="458.4" y="1232" font-size="11.5" text-anchor="start" fill="#14231C">→</text>
+<text x="482.0" y="1232" font-size="11.5" text-anchor="start" fill="#14231C">committee  +0.228 [+0.025, +0.431]  k = 2</text>
+<circle cx="758" cy="1228" r="4.5" fill="#A83024" stroke="#A83024" stroke-width="1.8"/>
+<text x="862" y="1232" font-size="11.5" text-anchor="end" fill="#A83024" font-weight="bold">× 2.1 width</text>
+<text x="220" y="1252" font-size="11.5" text-anchor="end" fill="#A83024">PiWM-vote3-median</text>
+<circle cx="238" cy="1248" r="4.5" fill="#A83024" stroke="#A83024" stroke-width="1.8"/>
+<text x="250.0" y="1252" font-size="11.5" text-anchor="start" fill="#14231C">block  +0.165 [+0.052, +0.278]  n = 12</text>
+<text x="458.4" y="1252" font-size="11.5" text-anchor="start" fill="#14231C">→</text>
+<text x="482.0" y="1252" font-size="11.5" text-anchor="start" fill="#14231C">committee  +0.165 [+0.101, +0.229]  k = 4</text>
+<circle cx="758" cy="1248" r="4.5" fill="#A83024" stroke="#A83024" stroke-width="1.8"/>
+<text x="862" y="1252" font-size="11.5" text-anchor="end" fill="#14231C" font-weight="bold">× 0.6 width</text>
+<text x="220" y="1272" font-size="11.5" text-anchor="end" fill="#2E7D6F">PiWM-loo5-ltv</text>
+<circle cx="238" cy="1268" r="4.5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="250.0" y="1272" font-size="11.5" text-anchor="start" fill="#14231C">block  +0.189 [+0.077, +0.302]  n = 13</text>
+<text x="458.4" y="1272" font-size="11.5" text-anchor="start" fill="#14231C">→</text>
+<text x="482.0" y="1272" font-size="11.5" text-anchor="start" fill="#14231C">committee  +0.311 [−0.158, +0.780]  k = 3 of 6</text>
+<circle cx="758" cy="1268" r="4.5" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="862" y="1272" font-size="11.5" text-anchor="end" fill="#A83024" font-weight="bold">× 4.2 width</text>
+<rect x="60" y="1296" width="816" height="232" rx="8" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.6"/>
+<text x="468.0" y="1322" font-size="17" text-anchor="middle" fill="#2E7D6F" font-weight="bold">leave-one-out  –  the members are set by the data, the rule is fixed</text>
+<text x="468.0" y="1341" font-size="12" text-anchor="middle" fill="#6C786C">filled = a member  ·  dashed = eligible but past the M cap  ·  crossed = the seed left out, a different one every block</text>
+<text x="220" y="1360" font-size="11.5" text-anchor="start" fill="#6C786C">PiWM-loo5-ltv  ·  16 finished seeds  ·  rule = median</text>
+<text x="210" y="1381" font-size="12" text-anchor="end" fill="#6C786C">block b = 0</text>
+<rect x="220" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#A83024" stroke-width="1.4"/>
+<path d="M221.0,1371.0 L232.0,1382.0 M232.0,1371.0 L221.0,1382.0" stroke="#A83024" stroke-width="1.7" stroke-linecap="round"/>
+<rect x="236" y="1370" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="252" y="1370" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="268" y="1370" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="284" y="1370" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="300" y="1370" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="316" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="332" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="348" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="364" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="380" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="396" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="412" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="428" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="444" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="460" y="1370" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<text x="210" y="1407" font-size="12" text-anchor="end" fill="#6C786C">block b = 1</text>
+<rect x="220" y="1396" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="236" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#A83024" stroke-width="1.4"/>
+<path d="M237.0,1397.0 L248.0,1408.0 M248.0,1397.0 L237.0,1408.0" stroke="#A83024" stroke-width="1.7" stroke-linecap="round"/>
+<rect x="252" y="1396" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="268" y="1396" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="284" y="1396" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="300" y="1396" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="316" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="332" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="348" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="364" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="380" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="396" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="412" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="428" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="444" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="460" y="1396" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<text x="210" y="1451" font-size="12" text-anchor="end" fill="#6C786C">block b = 15</text>
+<rect x="220" y="1440" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="236" y="1440" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="252" y="1440" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="268" y="1440" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="284" y="1440" width="13" height="13" rx="2" fill="#2E7D6F" fill-opacity="0.78" stroke="#2E7D6F" stroke-width="1"/>
+<rect x="300" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="316" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="332" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="348" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="364" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="380" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="396" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="412" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="428" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="444" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="3,2"/>
+<rect x="460" y="1440" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#A83024" stroke-width="1.4"/>
+<path d="M461.0,1441.0 L472.0,1452.0 M472.0,1441.0 L461.0,1452.0" stroke="#A83024" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="346" cy="1420" r="2.2" fill="#546060"/>
+<circle cx="346" cy="1429" r="2.2" fill="#546060"/>
+<path d="M483,1370 L492,1370 L492,1453 L483,1453" stroke="#2E7D6F" stroke-width="1.6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M492,1410 L518,1410" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="522" y="1386" width="150" height="48" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="597.0" y="1410.0" font-size="18" text-anchor="middle" fill="#14231C">median</text>
+<text x="597.0" y="1427.0" font-size="11.5" text-anchor="middle" fill="#6C786C">of the per-member ranks</text>
+<path d="M672,1410 L696,1410" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="698" y="1390" width="84" height="40" rx="20" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="740" y="1416" font-size="16" text-anchor="middle" fill="#14231C">CEM</text>
+<text x="740" y="1452" font-size="11" text-anchor="middle" fill="#6C786C">argsort( loss )[ : topk ]</text>
+<text x="596" y="1370" font-size="12" text-anchor="middle" fill="#2E7D6F" font-weight="bold">no rule knob</text>
+<text x="78" y="1476" font-size="11.5" text-anchor="start" fill="#A83024" font-weight="bold">M = 11 ( = n − 1 ) does not fit:  12 of 12 PiWM-loo11-columns jobs died with torch.cuda.OutOfMemoryError</text>
+<text x="78" y="1496" font-size="11.5" text-anchor="start" fill="#6C786C">members stack on the PATCH axis, so a patch member costs 256 slots where a cls member costs 1  →  M = 11 patch = 2 816 slots</text>
+<text x="78" y="1518" font-size="11.5" text-anchor="start" fill="#A83024" font-weight="bold">so the emitted runs are M = 5 , and 'first M in order' gives every block from 5 up the SAME members  →  6 distinct committees, not 16</text>
+<rect x="60" y="1544" width="816" height="290" rx="8" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.6"/>
+<text x="468.0" y="1570" font-size="17" text-anchor="middle" fill="#2E7D6F" font-weight="bold">the bar the gain has to clear  –  one unchanged checkpoint, on somebody else's block</text>
+<text x="468.0" y="1589" font-size="12" text-anchor="middle" fill="#6C786C">PiWM-solo m :  checkpoint s m , nothing changed, planned on its family's other blocks  ·  final_eval/success_rate</text>
+<text x="238" y="1622" font-size="12" text-anchor="end" fill="#546060" font-weight="bold">LpWM-ltv</text>
+<text x="238" y="1637" font-size="10.5" text-anchor="end" fill="#6C786C">one model, no committee</text>
+<circle cx="491.8" cy="1618" r="6" fill="#546060" stroke="#546060" stroke-width="1.8"/>
+<text x="862" y="1622" font-size="11.5" text-anchor="end" fill="#6C786C">0.357   n = 13</text>
+<rect x="361.8" y="1651" width="284.6" height="18" rx="3" fill="#543C84" fill-opacity="0.3" stroke="#543C84" stroke-width="1.4"/>
+<circle cx="361.8" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="507.4" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="646.3" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="432.9" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="534.5" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="558.3" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="524.4" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="548.1" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="548.1" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="419.4" cy="1660" r="4.5" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<text x="238" y="1664" font-size="12" text-anchor="end" fill="#543C84" font-weight="bold">PiWM-solo 3 – 12</text>
+<text x="238" y="1679" font-size="10.5" text-anchor="end" fill="#6C786C">10 lone models  ·  n = 4 each</text>
+<text x="862" y="1664" font-size="11.5" text-anchor="end" fill="#543C84" font-weight="bold">0.165 – 0.585</text>
+<text x="238" y="1708" font-size="12" text-anchor="end" fill="#2E7D6F" font-weight="bold">PiWM-loo5-ltv</text>
+<circle cx="624.3" cy="1704" r="6.5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="862" y="1708" font-size="11.5" text-anchor="end" fill="#14231C">0.552   n = 16</text>
+<text x="238" y="1729" font-size="12" text-anchor="end" fill="#2E7D6F">PiWM-vote5-median</text>
+<circle cx="657.9" cy="1725" r="5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="862" y="1729" font-size="11.5" text-anchor="end" fill="#6C786C">0.602   n = 10</text>
+<text x="238" y="1750" font-size="12" text-anchor="end" fill="#2E7D6F">PiWM-vote3-median</text>
+<circle cx="600.0" cy="1746" r="5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="862" y="1750" font-size="11.5" text-anchor="end" fill="#6C786C">0.517   n = 12</text>
+<text x="238" y="1771" font-size="12" text-anchor="end" fill="#2E7D6F">PiWM-vote5-borda</text>
+<circle cx="661.6" cy="1767" r="5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="862" y="1771" font-size="11.5" text-anchor="end" fill="#6C786C">0.608   n = 8</text>
+<path d="M646.3,1651 L646.3,1775" stroke="#543C84" stroke-width="1.3" stroke-dasharray="5,4" stroke-opacity="0.8"/>
+<path d="M250,1786 L792,1786" stroke="#546060" stroke-width="1.3" stroke-opacity="0.8"/>
+<path d="M250.0,1786 L250.0,1791" stroke="#546060" stroke-width="1.2" stroke-opacity="0.8"/>
+<text x="250.0" y="1804" font-size="11" text-anchor="middle" fill="#6C786C">0.0</text>
+<path d="M385.5,1786 L385.5,1791" stroke="#546060" stroke-width="1.2" stroke-opacity="0.8"/>
+<text x="385.5" y="1804" font-size="11" text-anchor="middle" fill="#6C786C">0.2</text>
+<path d="M521.0,1786 L521.0,1791" stroke="#546060" stroke-width="1.2" stroke-opacity="0.8"/>
+<text x="521.0" y="1804" font-size="11" text-anchor="middle" fill="#6C786C">0.4</text>
+<path d="M656.5,1786 L656.5,1791" stroke="#546060" stroke-width="1.2" stroke-opacity="0.8"/>
+<text x="656.5" y="1804" font-size="11" text-anchor="middle" fill="#6C786C">0.6</text>
+<path d="M792.0,1786 L792.0,1791" stroke="#546060" stroke-width="1.2" stroke-opacity="0.8"/>
+<text x="792.0" y="1804" font-size="11" text-anchor="middle" fill="#6C786C">0.8</text>
+<text x="468" y="1826" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">the best lone model (solo5, 0.585) outscores 2 of the 4 committees  –  consensus buys insurance against a bad seed, not a better model</text>
+<text x="60.0" y="1856" font-size="16.0" text-anchor="start" fill="#14231C" font-weight="bold">committee( b )  =  { finished seeds }  \  { b } ,  first M</text>
+<text x="486.1" y="1856" font-size="16.0" text-anchor="start" fill="#14231C">score( c )  =  median<tspan font-size="12" dy="5.0">m</tspan><tspan dy="-5.0"></tspan>  rank<tspan font-size="12" dy="5.0">m</tspan><tspan dy="-5.0"></tspan>( c )  within the CEM batch</text>
+<text x="60.0" y="1880" font-size="16.0" text-anchor="start" fill="#14231C">median-of-ranks is scale-free, so members need not share a latent basis</text>
+<text x="651.0" y="1880" font-size="15.2" text-anchor="start" fill="#6C786C">nothing here enters a training loss</text>
+<rect x="60" y="1896" width="176" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="148.0" y="1913" font-size="12" text-anchor="middle" fill="#6C786C">knobs removed</text>
+<text x="148.0" y="1932" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">M , and the rule</text>
+<rect x="244" y="1896" width="176" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="332.0" y="1913" font-size="12" text-anchor="middle" fill="#6C786C">blocks → committees</text>
+<text x="332.0" y="1932" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">16 → 6</text>
+<rect x="428" y="1896" width="176" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="516.0" y="1913" font-size="12" text-anchor="middle" fill="#6C786C">M = 11 patch</text>
+<text x="516.0" y="1932" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">12 / 12 OOM</text>
+<rect x="612" y="1896" width="176" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="700.0" y="1913" font-size="12" text-anchor="middle" fill="#6C786C">the bar to clear</text>
+<text x="700.0" y="1932" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">the best lone model</text>
+</g>
+</svg>

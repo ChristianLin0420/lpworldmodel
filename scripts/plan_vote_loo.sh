@@ -53,10 +53,25 @@ if [ -n "${M_CAP:-}" ] && [ "${M_CAP}" -lt "$M" ]; then M=${M_CAP}; fi
 echo "  ${ARM}: ${#SEEDS[@]} finished seeds -> leave-one-out committees of M=${M}"
 
 for b in "${SEEDS[@]}"; do
-    mem=""; k=0
-    for s in "${SEEDS[@]}"; do
+    # Take M members from a ROTATING start, not from the front of the list.
+    #
+    # "the first M, excluding b" is only leave-one-out while b is inside the first M+1. With
+    # 16 seeds and M capped to 5 it collapsed: blocks 0-5 each dropped their own seed, but
+    # EVERY block from 6 to 15 got the identical committee {0,1,2,3,4}, because b was never
+    # among the first five to begin with. Six distinct committees over sixteen blocks, eleven
+    # of them sharing one -- which is the pseudo-replication this design exists to remove,
+    # reintroduced by the memory cap.
+    #
+    # Rotating the start by the block index gives each block its own member set while still
+    # excluding b and still honouring the cap. Deterministic, no RNG.
+    mem=""; k=0; nseeds=${#SEEDS[@]}
+    start=0
+    for i in "${!SEEDS[@]}"; do [ "${SEEDS[$i]}" = "$b" ] && start=$i; done
+    for off in $(seq 0 $(( nseeds - 1 ))); do
+        idx=$(( (start + 1 + off) % nseeds ))
+        s="${SEEDS[$idx]}"
         [ "$s" = "$b" ] && continue          # leave out the matching index
-        [ "$k" -ge "$M" ] && break           # take the first M, deterministically
+        [ "$k" -ge "$M" ] && break
         mem="${mem}${mem:+,}${ARM}_pd384${SUFFIX}_bf16_s${s}"; k=$((k+1))
     done
     label="PiWM-${TAG}${M}-$(echo "$ARM" | sed 's/^PiWM-//;s/^LpWM-//')_pd384_bf16_s${b}"
