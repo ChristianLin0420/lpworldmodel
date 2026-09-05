@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1608" viewBox="0 0 940 1608" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#C88A1E"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#543C84"/></marker>
+  <marker id="e3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e5" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+</defs>
+<rect width="940" height="1608" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="146.1" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(T5)&#160;</tspan><tspan fill="#14231C" font-weight="bold">the num_hist ladder</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;the ORDER of the dynamics</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[LAUNCHED]</tspan></text>
+<path d="M880,898 L880,142 L300,142 L300,190" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<text x="312" y="166" font-size="15" text-anchor="start" fill="#C88A1E">how much past the predictor integrates</text>
+<rect x="34" y="898" width="872" height="750" rx="10" fill="#F7E8C8" fill-opacity="0.45" stroke="#C88A1E" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#C88A1E" font-weight="bold">module:  n_lags = num_hist , so H is the FIR ORDER:  z<tspan font-size="12" dy="5.0">t+1</tspan><tspan dy="-5.0"></tspan> = Σ<tspan font-size="12" dy="5.0">k &lt; H</tspan><tspan dy="-5.0"></tspan> A<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> z<tspan font-size="12" dy="5.0">t−k</tspan><tspan dy="-5.0"></tspan> + B a<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M52,942 L888,942" stroke="#C88A1E" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="60" y="950" width="816" height="302" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="468.0" y="976" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">the ladder –  H taps of past, with the TARGET held at one step</text>
+<text x="468.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">H has been 3 in all 400 sampled run configs across seven rounds</text>
+<text x="400" y="1014" font-size="11.5" text-anchor="end" fill="#6C786C" font-weight="bold">H</text>
+<text x="548" y="1014" font-size="11.5" text-anchor="middle" fill="#6C786C">the frames its taps read</text>
+<text x="690" y="1014" font-size="11" text-anchor="start" fill="#6C786C">predictor params</text>
+<text x="270" y="1037" font-size="12.5" text-anchor="end" fill="#C88A1E" font-weight="bold">PiWM-hist1</text>
+<text x="400" y="1038" font-size="16" text-anchor="end" fill="#C88A1E" font-weight="bold">1</text>
+<rect x="430" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="460" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="490" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="520" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="550" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="580" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="610" y="1019" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="640" y="1019" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="690" y="1037" font-size="12" text-anchor="start" fill="#14231C">480 032</text>
+<rect x="788" y="1026" width="47.7" height="22" rx="11" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="811.8315" y="1041.5" font-size="11" text-anchor="middle" fill="#C88A1E" font-weight="bold">NEW</text>
+<text x="270" y="1079" font-size="12.5" text-anchor="end" fill="#C88A1E" font-weight="bold">PiWM-hist2</text>
+<text x="400" y="1080" font-size="16" text-anchor="end" fill="#C88A1E" font-weight="bold">2</text>
+<rect x="430" y="1061" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="460" y="1061" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="490" y="1061" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="520" y="1061" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="550" y="1061" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="580" y="1061" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="610" y="1061" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<rect x="640" y="1061" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="690" y="1079" font-size="12" text-anchor="start" fill="#14231C">645 936</text>
+<rect x="788" y="1068" width="47.7" height="22" rx="11" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="811.8315" y="1083.5" font-size="11" text-anchor="middle" fill="#C88A1E" font-weight="bold">NEW</text>
+<text x="270" y="1121" font-size="12.5" text-anchor="end" fill="#18483C" font-weight="bold">LpWM-ltv</text>
+<text x="400" y="1122" font-size="16" text-anchor="end" fill="#18483C" font-weight="bold">3</text>
+<rect x="430" y="1103" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="460" y="1103" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="490" y="1103" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="520" y="1103" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="550" y="1103" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="580" y="1103" width="26" height="26" rx="4" fill="#D8F0E4" fill-opacity="0.85" stroke="#18483C" stroke-width="1.6"/>
+<rect x="610" y="1103" width="26" height="26" rx="4" fill="#D8F0E4" fill-opacity="0.85" stroke="#18483C" stroke-width="1.6"/>
+<rect x="640" y="1103" width="26" height="26" rx="4" fill="#D8F0E4" fill-opacity="0.85" stroke="#18483C" stroke-width="1.6"/>
+<text x="690" y="1121" font-size="12" text-anchor="start" fill="#14231C">811 840</text>
+<rect x="788" y="1110" width="72.7" height="22" rx="11" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3"/>
+<text x="824.3605" y="1125.5" font-size="11" text-anchor="middle" fill="#18483C" font-weight="bold">AS BUILT</text>
+<text x="270" y="1163" font-size="12.5" text-anchor="end" fill="#C88A1E" font-weight="bold">PiWM-hist5</text>
+<text x="400" y="1164" font-size="16" text-anchor="end" fill="#C88A1E" font-weight="bold">5</text>
+<rect x="430" y="1145" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="460" y="1145" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="490" y="1145" width="26" height="26" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
+<rect x="520" y="1145" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<rect x="550" y="1145" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<rect x="580" y="1145" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<rect x="610" y="1145" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<rect x="640" y="1145" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="690" y="1163" font-size="12" text-anchor="start" fill="#14231C">1 143 648</text>
+<rect x="788" y="1152" width="47.7" height="22" rx="11" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="811.8315" y="1167.5" font-size="11" text-anchor="middle" fill="#C88A1E" font-weight="bold">NEW</text>
+<text x="270" y="1205" font-size="12.5" text-anchor="end" fill="#C88A1E" font-weight="bold">PiWM-hist8</text>
+<text x="400" y="1206" font-size="16" text-anchor="end" fill="#C88A1E" font-weight="bold">8</text>
+<rect x="430" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="443.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C">t−7</text>
+<rect x="460" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="473.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C"></text>
+<rect x="490" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="503.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C"></text>
+<rect x="520" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="533.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C"></text>
+<rect x="550" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="563.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C"></text>
+<rect x="580" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="593.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C"></text>
+<rect x="610" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="623.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C"></text>
+<rect x="640" y="1187" width="26" height="26" rx="4" fill="#F7E8C8" fill-opacity="0.85" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="653.0" y="1228" font-size="11" text-anchor="middle" fill="#14231C">t</text>
+<text x="690" y="1205" font-size="12" text-anchor="start" fill="#14231C">1 641 360</text>
+<rect x="788" y="1194" width="47.7" height="22" rx="11" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="811.8315" y="1209.5" font-size="11" text-anchor="middle" fill="#C88A1E" font-weight="bold">NEW</text>
+<text x="468" y="1244" font-size="11.5" text-anchor="middle" fill="#6C786C">H moves the parameter count too, from 480 032 to 1 641 360 – a ladder, not a matched pair</text>
+<rect x="60" y="1268" width="400" height="224" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
+<text x="260.0" y="1294" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">H = 1 is a PLUMBING TEST</text>
+<text x="260.0" y="1313" font-size="12" text-anchor="middle" fill="#6C786C">the docstring's own identity, exercised here</text>
+<rect x="84" y="1344" width="140" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="154.0" y="1370.0" font-size="15" text-anchor="middle" fill="#14231C">var , H = 1</text>
+<text x="154.0" y="1387.0" font-size="11.5" text-anchor="middle" fill="#6C786C">one tap</text>
+<rect x="238" y="1344" width="40" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="258.0" y="1376.0" font-size="24" text-anchor="middle" fill="#14231C">=</text>
+<rect x="292" y="1344" width="140" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="362.0" y="1370.0" font-size="16" text-anchor="middle" fill="#14231C">additive</text>
+<text x="362.0" y="1387.0" font-size="11.5" text-anchor="middle" fill="#6C786C">W z  +  B a</text>
+<text x="258" y="1424" font-size="11.5" text-anchor="middle" fill="#6C786C">checked at render, on matched weights:</text>
+<text x="258" y="1444" font-size="13" text-anchor="middle" fill="#546060" font-weight="bold">max | var(H=1) − additive |  =  0.0</text>
+<text x="258" y="1466" font-size="11.5" text-anchor="middle" fill="#6C786C">and 295 296 parameters each, at D = 384</text>
+<rect x="476" y="1268" width="400" height="224" rx="8" fill="#FFFFFF" stroke="#A83024" stroke-width="1.6"/>
+<text x="676.0" y="1294" font-size="17" text-anchor="middle" fill="#A83024" font-weight="bold">jump{K} moved the TARGET horizon</text>
+<text x="676.0" y="1313" font-size="12" text-anchor="middle" fill="#6C786C">num_pred = K ; this ladder leaves the target at one step</text>
+<path d="M734.3,1338 L734.3,1452" stroke="#6C786C" stroke-width="1.2" stroke-dasharray="4,4"/>
+<text x="734.3" y="1332" font-size="11" text-anchor="middle" fill="#6C786C">0</text>
+<text x="530" y="1360" font-size="12.5" text-anchor="end" fill="#14231C" font-weight="bold">K = 2</text>
+<text x="594" y="1360" font-size="12.5" text-anchor="end" fill="#546060" font-weight="bold">−0.035</text>
+<path d="M689.2,1356 L763.9,1356 M689.2,1350 L689.2,1362 M763.9,1350 L763.9,1362" stroke="#546060" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+<circle cx="726.6" cy="1356" r="5.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="806" y="1360" font-size="11" text-anchor="end" fill="#546060" font-weight="bold">NULL</text>
+<text x="858" y="1360" font-size="11.5" text-anchor="end" fill="#6C786C">n = 8</text>
+<text x="530" y="1386" font-size="12.5" text-anchor="end" fill="#14231C" font-weight="bold">K = 3</text>
+<text x="594" y="1386" font-size="12.5" text-anchor="end" fill="#A83024" font-weight="bold">−0.220</text>
+<path d="M654.5,1382 L717.3,1382 M654.5,1376 L654.5,1388 M717.3,1376 L717.3,1388" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+<circle cx="685.9" cy="1382" r="5.0" fill="#A83024" stroke="#A83024" stroke-width="1.8"/>
+<text x="858" y="1386" font-size="11.5" text-anchor="end" fill="#6C786C">n = 8</text>
+<text x="530" y="1412" font-size="12.5" text-anchor="end" fill="#14231C" font-weight="bold">K = 5</text>
+<text x="594" y="1412" font-size="12.5" text-anchor="end" fill="#546060" font-weight="bold">−0.195</text>
+<path d="M643.6,1408 L739.3,1408 M643.6,1402 L643.6,1414 M739.3,1402 L739.3,1414" stroke="#546060" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+<circle cx="691.4" cy="1408" r="5.0" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="806" y="1412" font-size="11" text-anchor="end" fill="#546060" font-weight="bold">NULL</text>
+<text x="858" y="1412" font-size="11.5" text-anchor="end" fill="#6C786C">n = 8</text>
+<text x="530" y="1438" font-size="12.5" text-anchor="end" fill="#14231C" font-weight="bold">K = 8</text>
+<text x="594" y="1438" font-size="12.5" text-anchor="end" fill="#A83024" font-weight="bold">−0.383</text>
+<path d="M612.1,1434 L688.0,1434 M612.1,1428 L612.1,1440 M688.0,1428 L688.0,1440" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+<circle cx="650.0" cy="1434" r="5.0" fill="#A83024" stroke="#A83024" stroke-width="1.8"/>
+<text x="858" y="1438" font-size="11.5" text-anchor="end" fill="#6C786C">n = 6</text>
+<text x="676" y="1462" font-size="11" text-anchor="middle" fill="#6C786C">paired against LpWM-ltv on shared seeds, read at render</text>
+<text x="676" y="1478" font-size="11.5" text-anchor="middle" fill="#A83024" font-weight="bold">2 negative, 2 NULL – and not one positive</text>
+<text x="60.0" y="1536" font-size="16.0" text-anchor="start" fill="#14231C" font-weight="bold">the ladder:  H ∈ { 1 , 2 , 3 , 5 , 8 } ,   target at t + 1</text>
+<text x="610.9" y="1536" font-size="16.0" text-anchor="start" fill="#14231C">jump{K}:  target at t + K ,   H fixed at 3</text>
+<text x="60.0" y="1560" font-size="13.75" text-anchor="start" fill="#14231C">one axis changes what the model READS, the other changes what it is ASKED for</text>
+<text x="585.0" y="1560" font-size="12.65" text-anchor="start" fill="#6C786C">H = 1 doubles as the plumbing test for the knob itself</text>
+<rect x="60" y="1578" width="173.4" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="146.69799999999998" y="1595" font-size="12" text-anchor="middle" fill="#6C786C">H, in all 400 sampled configs</text>
+<text x="146.69799999999998" y="1614" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">3</text>
+<rect x="241.4" y="1578" width="170" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="326.39599999999996" y="1595" font-size="12" text-anchor="middle" fill="#6C786C">the new rungs</text>
+<text x="326.39599999999996" y="1614" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">1 , 2 , 5 , 8</text>
+<rect x="419.4" y="1578" width="170" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="504.39599999999996" y="1595" font-size="12" text-anchor="middle" fill="#6C786C">H = 1</text>
+<text x="504.39599999999996" y="1614" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">= additive</text>
+<rect x="597.4" y="1578" width="170" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="682.396" y="1595" font-size="12" text-anchor="middle" fill="#6C786C">jump{K}, best to worst</text>
+<text x="682.396" y="1614" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">−0.035 to −0.383</text>
+</g>
+</svg>

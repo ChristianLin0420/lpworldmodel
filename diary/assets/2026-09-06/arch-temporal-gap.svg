@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1808" viewBox="0 0 940 1808" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+</defs>
+<rect width="940" height="1808" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="120.4" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(G1)&#160;</tspan><tspan fill="#14231C" font-weight="bold">the temporal axis as built</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;a 3-tap FIR, and a live target</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[UNTESTED]</tspan></text>
+<rect x="117.0" y="703.0" width="42" height="42" rx="4" fill="#DFE4E4" stroke="#546060" stroke-width="1.6"/>
+<rect x="108.0" y="712.0" width="42" height="42" rx="4" fill="#DFE4E4" stroke="#546060" stroke-width="1.6"/>
+<rect x="99.0" y="721.0" width="42" height="42" rx="4" fill="#DFE4E4" stroke="#546060" stroke-width="1.6"/>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="120" y="800" font-size="12.5" text-anchor="middle" fill="#18483C" font-weight="bold">num_hist = 3  ·  frameskip = 5</text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="812" y="800" font-size="12.5" text-anchor="middle" fill="#6C786C">one target frame</text>
+<text x="190" y="502" font-size="13.5" text-anchor="start" fill="#18483C" font-weight="bold">every frame encoded INDEPENDENTLY  ·  t folded into the batch</text>
+<text x="327" y="176" font-size="13" text-anchor="middle" fill="#18483C" font-weight="bold">a 3-tap FIR  ·  n_lags = num_frames = num_hist</text>
+<path d="M823,300 L838,300 L838,412" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="5,4"/>
+<path d="M838,470 L838,522" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="5,4"/>
+<text x="850" y="488" font-size="11.5" text-anchor="start" fill="#A83024" font-weight="bold">detach_target</text>
+<text x="850" y="504" font-size="11.5" text-anchor="start" fill="#A83024" font-weight="bold">= False</text>
+<path d="M868,560 L890,560 L890,898" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e2)" stroke-dasharray="6,4"/>
+<rect x="34" y="898" width="872" height="950" rx="10" fill="#D8F0E4" fill-opacity="0.45" stroke="#18483C" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#18483C" font-weight="bold">module:  the encoder, the predictor and the target –  none of the three carries time</text>
+<path d="M52,942 L888,942" stroke="#18483C" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="60" y="958" width="816" height="190" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="468.0" y="984" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold">the encoder –  t is folded into the BATCH</text>
+<text x="468.0" y="1003" font-size="12" text-anchor="middle" fill="#6C786C">models/visual_world_model.py:1275   rearrange( visual , "b t ... → (b t) ..." )</text>
+<rect x="86" y="1028" width="36" height="36" rx="4" fill="#DFE4E4" stroke="#546060" stroke-width="1.4"/>
+<text x="93.7" y="1080" font-size="11.5" text-anchor="start" fill="#6C786C">o<tspan font-size="10" dy="4.2">t−2</tspan><tspan dy="-4.2"></tspan></text>
+<rect x="132" y="1028" width="36" height="36" rx="4" fill="#DFE4E4" stroke="#546060" stroke-width="1.4"/>
+<text x="139.7" y="1080" font-size="11.5" text-anchor="start" fill="#6C786C">o<tspan font-size="10" dy="4.2">t−1</tspan><tspan dy="-4.2"></tspan></text>
+<rect x="178" y="1028" width="36" height="36" rx="4" fill="#DFE4E4" stroke="#546060" stroke-width="1.4"/>
+<text x="191.4" y="1080" font-size="11.5" text-anchor="start" fill="#6C786C">o<tspan font-size="10" dy="4.2">t</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M226,1046 L244,1046" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="248" y="1024" width="128" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="312.0" y="1046.0" font-size="15" text-anchor="middle" fill="#14231C">( b t )</text>
+<text x="312.0" y="1063.0" font-size="11.5" text-anchor="middle" fill="#6C786C">one batch axis</text>
+<path d="M376,1046 L394,1046" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="398" y="1024" width="122" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="441.9" y="1046.0" font-size="15" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<text x="459.0" y="1063.0" font-size="11.5" text-anchor="middle" fill="#6C786C">one set of weights</text>
+<path d="M520,1046 L538,1046" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="542" y="1028" width="66" height="36" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="563.7" y="1052.0" font-size="14" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t−2</tspan><tspan dy="-4.6"></tspan></text>
+<rect x="616" y="1028" width="66" height="36" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="637.7" y="1052.0" font-size="14" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t−1</tspan><tspan dy="-4.6"></tspan></text>
+<rect x="690" y="1028" width="66" height="36" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="718.0" y="1052.0" font-size="14" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan></text>
+<text x="468" y="1106" font-size="12.5" text-anchor="middle" fill="#A83024" font-weight="bold">“the encoder otherwise has no temporal structure whatsoever”   ·   visual_world_model.py:1280</text>
+<text x="468" y="1128" font-size="11.5" text-anchor="middle" fill="#6C786C">no attention across t, no state, no positional link – block_causal is the flag that would change it, and it is off in 872 of 875 archived configs</text>
+<rect x="60" y="1164" width="816" height="296" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="468.0" y="1190" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold">the predictor –  a 3-tap FIR bank, and a HARD cutoff at H</text>
+<text x="275.6" y="1209" font-size="12" text-anchor="start" fill="#6C786C">z<tspan font-size="11" dy="4.6">t+1</tspan><tspan dy="-4.6"></tspan>  =  Σ<tspan font-size="11" dy="4.6">k=0</tspan><tspan dy="-4.6"></tspan> A<tspan font-size="11" dy="4.6">k</tspan><tspan dy="-4.6"></tspan> z<tspan font-size="11" dy="4.6">t−k</tspan><tspan dy="-4.6"></tspan>  +  B a<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan> ,   k  &lt;  H  =  num_frames  =  num_hist  =  3</text>
+<text x="104" y="1251" font-size="12" text-anchor="end" fill="#6C786C">k = 0</text>
+<rect x="116" y="1232" width="104" height="28" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="163.0" y="1252.0" font-size="14" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M220,1246 L242,1246" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="246" y="1232" width="76" height="28" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="276.6" y="1252.0" font-size="14" text-anchor="start" fill="#14231C">A<tspan font-size="10" dy="4.2">0</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M322,1246 L346,1246" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<text x="104" y="1287" font-size="12" text-anchor="end" fill="#6C786C">k = 1</text>
+<rect x="116" y="1268" width="104" height="28" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="156.7" y="1288.0" font-size="14" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t−1</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M220,1282 L242,1282" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="246" y="1268" width="76" height="28" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="276.6" y="1288.0" font-size="14" text-anchor="start" fill="#14231C">A<tspan font-size="10" dy="4.2">1</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M322,1282 L346,1282" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<text x="104" y="1323" font-size="12" text-anchor="end" fill="#6C786C">k = 2</text>
+<rect x="116" y="1304" width="104" height="28" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="156.7" y="1324.0" font-size="14" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t−2</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M220,1318 L242,1318" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="246" y="1304" width="76" height="28" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="276.6" y="1324.0" font-size="14" text-anchor="start" fill="#14231C">A<tspan font-size="10" dy="4.2">2</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M322,1318 L346,1318" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<path d="M358,1246 L352,1246 L352,1318 L358,1318" stroke="#18483C" stroke-width="1.6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M352,1282 L374,1282" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="376" y="1260" width="48" height="44" rx="22" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8"/>
+<text x="400" y="1288" font-size="16" text-anchor="middle" fill="#14231C">Σ</text>
+<path d="M426,1282 L448,1282" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="452" y="1260" width="104" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="484.9" y="1282.0" font-size="15" text-anchor="start" fill="#14231C">+ B a<tspan font-size="10" dy="4.2">t</tspan><tspan dy="-4.2"></tspan></text>
+<text x="504.0" y="1299.0" font-size="11.5" text-anchor="middle" fill="#6C786C">the action term</text>
+<path d="M556,1282 L578,1282" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="582" y="1260" width="88" height="44" rx="22" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8"/>
+<text x="614.2" y="1288" font-size="16" text-anchor="start" fill="#14231C">z<tspan font-size="11" dy="4.6">t+1</tspan><tspan dy="-4.6"></tspan></text>
+<text x="626" y="1330" font-size="11.5" text-anchor="middle" fill="#6C786C">one step, always</text>
+<path d="M80,1352 L560,1352" stroke="#A83024" stroke-width="1.8" stroke-opacity="0.9" stroke-dasharray="7,5"/>
+<text x="576" y="1348" font-size="13" text-anchor="start" fill="#A83024" font-weight="bold">H = 3 – the cutoff</text>
+<text x="576" y="1366" font-size="11.5" text-anchor="start" fill="#6C786C">not a decay, a WALL</text>
+<text x="104" y="1385" font-size="12" text-anchor="end" fill="#AAB4AF">k = 3</text>
+<rect x="116" y="1366" width="104" height="28" rx="6" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.3" stroke-dasharray="5,4"/>
+<text x="156.7" y="1385" font-size="14" text-anchor="start" fill="#AAB4AF">z<tspan font-size="11" dy="4.6">t−3</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M272,1369 L294,1391 M294,1369 L272,1391" stroke="#A83024" stroke-width="2.0" stroke-linecap="round"/>
+<text x="310" y="1385" font-size="12" text-anchor="start" fill="#6C786C">no A<tspan font-size="10" dy="4.2">3</tspan><tspan dy="-4.2"></tspan>   ·   nothing older than z<tspan font-size="11" dy="4.6">t−2</tspan><tspan dy="-4.6"></tspan> is in the graph</text>
+<text x="104" y="1421" font-size="12" text-anchor="end" fill="#AAB4AF">k = 4</text>
+<rect x="116" y="1402" width="104" height="28" rx="6" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1.3" stroke-dasharray="5,4"/>
+<text x="156.7" y="1421" font-size="14" text-anchor="start" fill="#AAB4AF">z<tspan font-size="11" dy="4.6">t−4</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M272,1405 L294,1427 M294,1405 L272,1427" stroke="#A83024" stroke-width="2.0" stroke-linecap="round"/>
+<text x="310" y="1421" font-size="12" text-anchor="start" fill="#6C786C">no A<tspan font-size="10" dy="4.2">4</tspan><tspan dy="-4.2"></tspan>   ·   and no state carries it forward</text>
+<text x="468" y="1444" font-size="12" text-anchor="middle" fill="#6C786C">models/infojepa_modules.py:729   `if dk >= T: break`   ·   T = num_hist, so a lag at or beyond H is dropped, exactly</text>
+<rect x="60" y="1476" width="816" height="216" rx="8" fill="#FFFFFF" stroke="#A83024" stroke-width="1.6"/>
+<text x="468.0" y="1502" font-size="17" text-anchor="middle" fill="#A83024" font-weight="bold">the target –  it is NOT detached, so the encoder trains through its own prediction target</text>
+<text x="468.0" y="1521" font-size="12" text-anchor="middle" fill="#6C786C">conf/train_rdmreg.yaml:95   detach_target: False   ·   visual_world_model.py:1154 , :1522</text>
+<path d="M470,1540 L470,1652" stroke="#A83024" stroke-width="1.2" stroke-opacity="0.45"/>
+<text x="78" y="1552" font-size="13" text-anchor="start" fill="#546060" font-weight="bold">what a JEPA does</text>
+<rect x="78" y="1568" width="92" height="40" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="108.0" y="1594.0" font-size="14" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M170,1588 L206,1588" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="210" y="1568" width="100" height="40" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="260.0" y="1594.0" font-size="14" text-anchor="middle" fill="#14231C">target</text>
+<path d="M310,1588 L342,1588" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="346" y="1568" width="84" height="40" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="388.0" y="1594.0" font-size="14" text-anchor="middle" fill="#14231C">MSE</text>
+<path d="M184,1577 L184,1599 M192,1577 L192,1599" stroke="#546060" stroke-width="2.4" stroke-linecap="round"/>
+<text x="188" y="1630" font-size="12.5" text-anchor="middle" fill="#546060" font-weight="bold">sg</text>
+<text x="78" y="1662" font-size="12" text-anchor="start" fill="#6C786C">the target branch is CUT</text>
+<text x="490" y="1552" font-size="13" text-anchor="start" fill="#A83024" font-weight="bold">what every run in this archive did</text>
+<rect x="490" y="1568" width="92" height="40" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="520.0" y="1594.0" font-size="14" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M582,1588 L618,1588" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="622" y="1568" width="100" height="40" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="672.0" y="1594.0" font-size="14" text-anchor="middle" fill="#14231C">target</text>
+<path d="M722,1588 L754,1588" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="758" y="1568" width="84" height="40" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="800.0" y="1594.0" font-size="14" text-anchor="middle" fill="#14231C">MSE</text>
+<path d="M596,1577 L596,1599 M604,1577 L604,1599" stroke="#546060" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M587,1575 L613,1601 M613,1575 L587,1601" stroke="#A83024" stroke-width="2.4" stroke-linecap="round"/>
+<text x="600" y="1630" font-size="12.5" text-anchor="middle" fill="#A83024" font-weight="bold">no sg</text>
+<path d="M800,1608 L800,1642 L536,1642 L536,1610" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="5,4"/>
+<text x="490" y="1662" font-size="12" text-anchor="start" fill="#6C786C">the gradient goes round</text>
+<text x="468" y="1682" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">“the cheapest way to lower S is therefore not to predict better but to inflate z and z_pred together”   ·   :606</text>
+<text x="60.0" y="1734" font-size="16.0" text-anchor="start" fill="#14231C" font-weight="bold">num_hist = 3 in 843 of 875 archived configs</text>
+<text x="444.1" y="1734" font-size="15.04" text-anchor="start" fill="#6C786C">the 32 exceptions are round 8's OWN ladder, launched this round</text>
+<text x="60.0" y="1758" font-size="15.5" text-anchor="start" fill="#14231C">frameskip = 5 in 875 of 875 – every arm, every round</text>
+<text x="452.8" y="1758" font-size="15.5" text-anchor="start" fill="#14231C" font-weight="bold">the predictor is ONE operator, broadcast over every token</text>
+<rect x="60" y="1776" width="170" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="145.0" y="1793" font-size="12" text-anchor="middle" fill="#6C786C">num_hist, all 875 configs</text>
+<text x="145.0" y="1812" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">843 at 3</text>
+<rect x="238" y="1776" width="241.5" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="358.728" y="1793" font-size="12" text-anchor="middle" fill="#6C786C">block_causal ever ON</text>
+<text x="358.728" y="1812" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">3 runs · CEM 0.00 , 0.00 , 0.00</text>
+<rect x="487.5" y="1776" width="170" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="572.456" y="1793" font-size="12" text-anchor="middle" fill="#6C786C">predictor at P = 1</text>
+<text x="572.456" y="1812" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">811 840 params</text>
+<rect x="665.5" y="1776" width="170" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="750.456" y="1793" font-size="12" text-anchor="middle" fill="#6C786C">predictor at P = 256</text>
+<text x="750.456" y="1812" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">811 840 params</text>
+</g>
+</svg>

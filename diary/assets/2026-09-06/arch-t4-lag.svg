@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1756" viewBox="0 0 940 1756" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#C88A1E"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#543C84"/></marker>
+  <marker id="e3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e5" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+</defs>
+<rect width="940" height="1756" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="150.5" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(T4)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-lagskip</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;masking and skip on the LAG axis</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[LAUNCHED]</tspan></text>
+<path d="M880,898 L880,142 L300,142 L300,190" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<text x="312" y="166" font-size="15" text-anchor="start" fill="#C88A1E">which past frame each lag slot reads</text>
+<rect x="34" y="898" width="872" height="898" rx="10" fill="#F7E8C8" fill-opacity="0.45" stroke="#C88A1E" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#C88A1E" font-weight="bold">module:  lag slot k reads z<tspan font-size="12" dy="5.0">t−d</tspan><tspan dy="-5.0"></tspan><tspan font-size="10" dy="4.2">k</tspan><tspan dy="-4.2"></tspan>  –  and every d<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> must lie in [ 0 , num_frames )</text>
+<path d="M52,942 L888,942" stroke="#C88A1E" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="60" y="950" width="816" height="268" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="468.0" y="976" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">the 3 lag slots, and the offsets each configuration gives them</text>
+<text x="468.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">n_lags == num_frames == num_hist == 3 , and the predictor is fed z_src = z_emb[:, :num_hist]</text>
+<text x="355" y="1024" font-size="11.5" text-anchor="middle" fill="#6C786C" font-weight="bold">offset 0</text>
+<text x="473" y="1024" font-size="11.5" text-anchor="middle" fill="#6C786C" font-weight="bold">offset 1</text>
+<text x="591" y="1024" font-size="11.5" text-anchor="middle" fill="#6C786C" font-weight="bold">offset 2</text>
+<text x="709" y="1024" font-size="11.5" text-anchor="middle" fill="#A83024" font-weight="bold">offset 3</text>
+<text x="292" y="1058" font-size="12" text-anchor="end" fill="#6C786C">the frames in the graph</text>
+<rect x="300" y="1034" width="110" height="38" rx="5" fill="#D8F0E4" fill-opacity="0.6" stroke="#18483C" stroke-width="1.5"/>
+<text x="349.8" y="1058.0" font-size="14" text-anchor="start" fill="#18483C" font-weight="bold">z<tspan font-size="10" dy="4.2">t</tspan><tspan dy="-4.2"></tspan></text>
+<rect x="418" y="1034" width="110" height="38" rx="5" fill="#D8F0E4" fill-opacity="0.6" stroke="#18483C" stroke-width="1.5"/>
+<text x="462.1" y="1058.0" font-size="14" text-anchor="start" fill="#18483C" font-weight="bold">z<tspan font-size="10" dy="4.2">t−1</tspan><tspan dy="-4.2"></tspan></text>
+<rect x="536" y="1034" width="110" height="38" rx="5" fill="#D8F0E4" fill-opacity="0.6" stroke="#18483C" stroke-width="1.5"/>
+<text x="580.1" y="1058.0" font-size="14" text-anchor="start" fill="#18483C" font-weight="bold">z<tspan font-size="10" dy="4.2">t−2</tspan><tspan dy="-4.2"></tspan></text>
+<rect x="654" y="1034" width="110" height="38" rx="5" fill="#FFFFFF" fill-opacity="1" stroke="#A83024" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="698.1" y="1058.0" font-size="14" text-anchor="start" fill="#A83024" font-weight="bold">z<tspan font-size="10" dy="4.2">t−3</tspan><tspan dy="-4.2"></tspan></text>
+<text x="473" y="1090" font-size="11" text-anchor="middle" fill="#6C786C">T  =  num_hist  =  3</text>
+<text x="709" y="1090" font-size="11" text-anchor="middle" fill="#A83024" font-weight="bold">outside the graph</text>
+<text x="292" y="1122" font-size="12.5" text-anchor="end" fill="#18483C" font-weight="bold">uniform   [ 0 , 1 , 2 ]</text>
+<rect x="300" y="1102" width="110" height="30" rx="5" fill="#D8F0E4" fill-opacity="0.6" stroke="#18483C" stroke-width="1.5"/>
+<text x="355.0" y="1122.0" font-size="14" text-anchor="middle" fill="#18483C" font-weight="bold">k0</text>
+<rect x="418" y="1102" width="110" height="30" rx="5" fill="#D8F0E4" fill-opacity="0.6" stroke="#18483C" stroke-width="1.5"/>
+<text x="473.0" y="1122.0" font-size="14" text-anchor="middle" fill="#18483C" font-weight="bold">k1</text>
+<rect x="536" y="1102" width="110" height="30" rx="5" fill="#D8F0E4" fill-opacity="0.6" stroke="#18483C" stroke-width="1.5"/>
+<text x="591.0" y="1122.0" font-size="14" text-anchor="middle" fill="#18483C" font-weight="bold">k2</text>
+<rect x="654" y="1102" width="110" height="30" rx="5" fill="#FFFFFF" fill-opacity="1" stroke="#18483C" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="709.0" y="1122.0" font-size="14" text-anchor="middle" fill="#18483C" font-weight="bold">–</text>
+<rect x="776" y="1106" width="72.7" height="22" rx="11" fill="#FFFFFF" stroke="#18483C" stroke-width="1.3"/>
+<text x="812.3605" y="1121.5" font-size="11" text-anchor="middle" fill="#18483C" font-weight="bold">AS BUILT</text>
+<text x="292" y="1160" font-size="12.5" text-anchor="end" fill="#C88A1E" font-weight="bold">SKIP   [ 0 , 2 , 2 ]</text>
+<rect x="300" y="1140" width="110" height="30" rx="5" fill="#F7E8C8" fill-opacity="0.6" stroke="#C88A1E" stroke-width="1.5"/>
+<text x="355.0" y="1160.0" font-size="14" text-anchor="middle" fill="#C88A1E" font-weight="bold">k0</text>
+<rect x="418" y="1140" width="110" height="30" rx="5" fill="#FFFFFF" fill-opacity="1" stroke="#C88A1E" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="473.0" y="1160.0" font-size="14" text-anchor="middle" fill="#C88A1E" font-weight="bold">–</text>
+<rect x="536" y="1140" width="110" height="30" rx="5" fill="#F7E8C8" fill-opacity="0.6" stroke="#C88A1E" stroke-width="1.5"/>
+<text x="591.0" y="1160.0" font-size="14" text-anchor="middle" fill="#C88A1E" font-weight="bold">k1 k2</text>
+<rect x="654" y="1140" width="110" height="30" rx="5" fill="#FFFFFF" fill-opacity="1" stroke="#C88A1E" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="709.0" y="1160.0" font-size="14" text-anchor="middle" fill="#C88A1E" font-weight="bold">–</text>
+<rect x="776" y="1144" width="83.7" height="22" rx="11" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="817.855" y="1159.5" font-size="11" text-anchor="middle" fill="#C88A1E" font-weight="bold">LAUNCHED</text>
+<text x="292" y="1198" font-size="12.5" text-anchor="end" fill="#A83024" font-weight="bold">dilation   [ 0 , 2 , 3 ]</text>
+<rect x="300" y="1178" width="110" height="30" rx="5" fill="#F5E2E0" fill-opacity="0.6" stroke="#A83024" stroke-width="1.5"/>
+<text x="355.0" y="1198.0" font-size="14" text-anchor="middle" fill="#A83024" font-weight="bold">k0</text>
+<rect x="418" y="1178" width="110" height="30" rx="5" fill="#FFFFFF" fill-opacity="1" stroke="#A83024" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="473.0" y="1198.0" font-size="14" text-anchor="middle" fill="#A83024" font-weight="bold">–</text>
+<rect x="536" y="1178" width="110" height="30" rx="5" fill="#F5E2E0" fill-opacity="0.6" stroke="#A83024" stroke-width="1.5"/>
+<text x="591.0" y="1198.0" font-size="14" text-anchor="middle" fill="#A83024" font-weight="bold">k1</text>
+<rect x="654" y="1178" width="110" height="30" rx="5" fill="#F5E2E0" fill-opacity="0.6" stroke="#A83024" stroke-width="1.5"/>
+<text x="709.0" y="1198.0" font-size="14" text-anchor="middle" fill="#A83024" font-weight="bold">k2</text>
+<rect x="776" y="1182" width="53.2" height="22" rx="11" fill="#FFFFFF" stroke="#A83024" stroke-width="1.3"/>
+<text x="802.5815" y="1197.5" font-size="11" text-anchor="middle" fill="#A83024" font-weight="bold">DEAD</text>
+<rect x="60" y="1234" width="816" height="214" rx="8" fill="#FFFFFF" stroke="#A83024" stroke-width="1.6"/>
+<text x="468.0" y="1260" font-size="17" text-anchor="middle" fill="#A83024" font-weight="bold">why offset 3 cannot exist –  and what it cost</text>
+<text x="468.0" y="1279" font-size="12" text-anchor="middle" fill="#6C786C">before the guard a single-process CPU test did not raise here: it silently dropped the slot</text>
+<rect x="86" y="1300" width="176" height="52" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="174.0" y="1326.0" font-size="18" text-anchor="middle" fill="#14231C">T  =  3</text>
+<text x="174.0" y="1343.0" font-size="11.5" text-anchor="middle" fill="#6C786C">z_src = z_emb[:, :num_hist]</text>
+<rect x="282" y="1300" width="176" height="52" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="325.9" y="1326.0" font-size="18" text-anchor="start" fill="#14231C">d<tspan font-size="12" dy="5.0">2</tspan><tspan dy="-5.0"></tspan> = 3  ≥  T</text>
+<text x="370.0" y="1343.0" font-size="11.5" text-anchor="middle" fill="#6C786C">the dilated slot</text>
+<path d="M262,1326 L278,1326" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e3)"/>
+<rect x="478" y="1300" width="176" height="52" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="566.0" y="1326.0" font-size="18" text-anchor="middle" fill="#14231C">break</text>
+<text x="566.0" y="1343.0" font-size="11.5" text-anchor="middle" fill="#6C786C">lags[2] never runs</text>
+<path d="M458,1326 L474,1326" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e3)"/>
+<rect x="674" y="1300" width="176" height="52" rx="6" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="762.0" y="1326.0" font-size="18" text-anchor="middle" fill="#14231C">DDP refuses</text>
+<text x="762.0" y="1343.0" font-size="11.5" text-anchor="middle" fill="#6C786C">unused parameter</text>
+<path d="M654,1326 L670,1326" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e3)"/>
+<text x="468" y="1382" font-size="13" text-anchor="middle" fill="#A83024" font-weight="bold">45 jobs died proving it – every one with the same DDP unused-parameter error</text>
+<text x="468" y="1404" font-size="11.5" text-anchor="middle" fill="#6C786C">there is no spare frame to dilate INTO: a dilation here can only SKIP, by repeating an offset</text>
+<text x="468" y="1428" font-size="12.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">now a construction-time assert –  checked at render:  [0,2,3] REJECTED ,   [0,2,2] accepted</text>
+<rect x="60" y="1464" width="816" height="176" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="468.0" y="1490" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">lag MASKING –  independent Bernoulli over the slots k ≥ 1</text>
+<text x="238.8" y="1509" font-size="12" text-anchor="start" fill="#6C786C">lag 0 is never masked: dropping z<tspan font-size="10" dy="4.2">t</tspan><tspan dy="-4.2"></tspan> is an input ablation, not a temporal-redundancy test</text>
+<rect x="96" y="1524" width="116" height="46" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="154.0" y="1547.0" font-size="16" text-anchor="middle" fill="#14231C">k  =  0</text>
+<text x="154.0" y="1564.0" font-size="11.5" text-anchor="middle" fill="#6C786C">never masked</text>
+<rect x="224" y="1524" width="116" height="46" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="282.0" y="1547.0" font-size="16" text-anchor="middle" fill="#14231C">k  =  1</text>
+<text x="282.0" y="1564.0" font-size="11.5" text-anchor="middle" fill="#6C786C">kept w.p. 1 − p</text>
+<rect x="352" y="1524" width="116" height="46" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="410.0" y="1547.0" font-size="16" text-anchor="middle" fill="#14231C">k  =  2</text>
+<text x="410.0" y="1564.0" font-size="11.5" text-anchor="middle" fill="#6C786C">kept w.p. 1 − p</text>
+<path d="M496,1518 L496,1576" stroke="#546060" stroke-width="1.2" stroke-opacity="0.45"/>
+<rect x="524" y="1524" width="156" height="46" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="602.0" y="1547.0" font-size="18" text-anchor="middle" fill="#14231C">p  =  0.25</text>
+<text x="602.0" y="1564.0" font-size="11.5" text-anchor="middle" fill="#6C786C">PiWM-lagmask25</text>
+<rect x="696" y="1524" width="156" height="46" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="774.0" y="1547.0" font-size="18" text-anchor="middle" fill="#14231C">p  =  0.50</text>
+<text x="774.0" y="1564.0" font-size="11.5" text-anchor="middle" fill="#6C786C">PiWM-lagmask50</text>
+<text x="212.6" y="1598" font-size="12" text-anchor="start" fill="#14231C" font-weight="bold">structurally free: _trunk already drops unavailable lags at cold start, and A<tspan font-size="10" dy="4.2">k</tspan><tspan dy="-4.2"></tspan> · 0 = 0 exactly</text>
+<text x="468" y="1620" font-size="11.5" text-anchor="middle" fill="#6C786C">eval is untouched by the self.training guard, so nothing about planning or the rollout changes</text>
+<text x="60.0" y="1684" font-size="16.0" text-anchor="start" fill="#14231C" font-weight="bold">slot k reads z<tspan font-size="12" dy="5.0">t−d</tspan><tspan dy="-5.0"></tspan><tspan font-size="10" dy="4.2">k</tspan><tspan dy="-4.2"></tspan> ,   d<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> ∈ [ 0 , num_frames )</text>
+<text x="512.0" y="1684" font-size="16.0" text-anchor="start" fill="#14231C">masking:  A<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> z<tspan font-size="12" dy="5.0">t−k</tspan><tspan dy="-5.0"></tspan>  →  m<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> A<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> z<tspan font-size="12" dy="5.0">t−k</tspan><tspan dy="-5.0"></tspan> ,   m<tspan font-size="12" dy="5.0">k</tspan><tspan dy="-5.0"></tspan> ~ Bern( 1 − p )</text>
+<text x="60.0" y="1708" font-size="13.0" text-anchor="start" fill="#14231C">the block is static in 48.1% of single steps, so a tight window may spend two thirds of its history on nothing</text>
+<text x="702.5" y="1708" font-size="11.96" text-anchor="start" fill="#6C786C">same parameter count either way</text>
+<rect x="60" y="1726" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="150.0" y="1743" font-size="12" text-anchor="middle" fill="#6C786C">lag slots</text>
+<text x="150.0" y="1762" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">3 = num_hist</text>
+<rect x="248" y="1726" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="338.0" y="1743" font-size="12" text-anchor="middle" fill="#6C786C">dilation [0,2,3]</text>
+<text x="338.0" y="1762" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">45 jobs dead</text>
+<rect x="436" y="1726" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="526.0" y="1743" font-size="12" text-anchor="middle" fill="#6C786C">what IS expressible</text>
+<text x="526.0" y="1762" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">skip [0,2,2]</text>
+<rect x="624" y="1726" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="714.0" y="1743" font-size="12" text-anchor="middle" fill="#6C786C">mask doses</text>
+<text x="714.0" y="1762" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">0.25 , 0.50</text>
+</g>
+</svg>

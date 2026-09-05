@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1610" viewBox="0 0 940 1610" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#C88A1E"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#543C84"/></marker>
+  <marker id="e3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e5" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+</defs>
+<rect width="940" height="1610" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="620" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="195.5" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(T2)&#160;</tspan><tspan fill="#14231C" font-weight="bold">the target regime</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;live, stop-grad, EMA</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[LAUNCHED]</tspan></text>
+<path d="M890,898 L890,560 L872,560" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<text x="712" y="502" font-size="14" text-anchor="end" fill="#C88A1E" font-weight="bold">the TARGET is this encoder's own output</text>
+<rect x="34" y="898" width="872" height="752" rx="10" fill="#F7E8C8" fill-opacity="0.45" stroke="#C88A1E" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#C88A1E" font-weight="bold">module:  target  =  h( Enc( o<tspan font-size="12" dy="5.0">t+1</tspan><tspan dy="-5.0"></tspan> ) )  –  what differs is whether gradient returns to Enc</text>
+<path d="M52,942 L888,942" stroke="#C88A1E" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="60" y="956" width="256" height="290" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="188.0" y="982" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold">LIVE</text>
+<text x="188.0" y="1001" font-size="12" text-anchor="middle" fill="#6C786C">detach_target: False</text>
+<rect x="112" y="1016" width="152" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="170.3" y="1038.0" font-size="16" text-anchor="start" fill="#14231C">Enc <tspan font-size="12" dy="5.0">f</tspan><tspan dy="-5.0"></tspan></text>
+<text x="188.0" y="1055.0" font-size="11.5" text-anchor="middle" fill="#6C786C">the student</text>
+<path d="M188,1060 L188,1084" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e5)"/>
+<rect x="112" y="1088" width="152" height="44" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="188.0" y="1110.0" font-size="16" text-anchor="middle" fill="#14231C">target</text>
+<text x="177.3" y="1127.0" font-size="11.5" text-anchor="start" fill="#6C786C">z<tspan font-size="11" dy="4.6">t+1</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M188,1132 L188,1150" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e5)"/>
+<rect x="152" y="1154" width="72" height="36" rx="18" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="188" y="1178" font-size="16" text-anchor="middle" fill="#14231C">MSE</text>
+<path d="M224,1172 L292,1172 L292,1038 L268,1038" stroke="#A83024" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e3)" stroke-dasharray="5,4"/>
+<text x="188" y="1212" font-size="11.5" text-anchor="middle" fill="#18483C" font-weight="bold">the gradient loops back</text>
+<text x="188" y="1230" font-size="11.5" text-anchor="middle" fill="#6C786C">into the encoder itself</text>
+<rect x="340" y="956" width="256" height="290" rx="8" fill="#FFFFFF" stroke="#543C84" stroke-width="1.6"/>
+<text x="468.0" y="982" font-size="17" text-anchor="middle" fill="#543C84" font-weight="bold">STOP-GRAD</text>
+<text x="468.0" y="1001" font-size="12" text-anchor="middle" fill="#6C786C">detach_target: True</text>
+<rect x="392" y="1016" width="152" height="44" rx="6" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<text x="450.3" y="1038.0" font-size="16" text-anchor="start" fill="#14231C">Enc <tspan font-size="12" dy="5.0">f</tspan><tspan dy="-5.0"></tspan></text>
+<text x="468.0" y="1055.0" font-size="11.5" text-anchor="middle" fill="#6C786C">the student</text>
+<path d="M468,1060 L468,1084" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="392" y="1088" width="152" height="44" rx="6" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<text x="468.0" y="1110.0" font-size="16" text-anchor="middle" fill="#14231C">target</text>
+<text x="457.3" y="1127.0" font-size="11.5" text-anchor="start" fill="#6C786C">z<tspan font-size="11" dy="4.6">t+1</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M468,1132 L468,1150" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e2)"/>
+<rect x="432" y="1154" width="72" height="36" rx="18" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="468" y="1178" font-size="16" text-anchor="middle" fill="#14231C">MSE</text>
+<path d="M504,1172 L572,1172 L572,1038 L548,1038" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e2)" stroke-dasharray="5,4"/>
+<path d="M568,1093 L568,1115 M576,1093 L576,1115" stroke="#543C84" stroke-width="2.4" stroke-linecap="round"/>
+<text x="468" y="1212" font-size="11.5" text-anchor="middle" fill="#543C84" font-weight="bold">the target is a constant</text>
+<text x="468" y="1230" font-size="11.5" text-anchor="middle" fill="#6C786C">the constructor's own default</text>
+<rect x="620" y="956" width="256" height="290" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="748.0" y="982" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">EMA TEACHER</text>
+<text x="748.0" y="1001" font-size="12" text-anchor="middle" fill="#6C786C">ema_m = 0.99  /  0.999</text>
+<rect x="636" y="1016" width="96" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="667.3" y="1038.0" font-size="15" text-anchor="start" fill="#14231C">Enc <tspan font-size="12" dy="5.0">f</tspan><tspan dy="-5.0"></tspan></text>
+<text x="684.0" y="1055.0" font-size="11.5" text-anchor="middle" fill="#6C786C">student</text>
+<rect x="764" y="1016" width="96" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="795.3" y="1038.0" font-size="15" text-anchor="start" fill="#14231C">Enc <tspan font-size="12" dy="5.0">f</tspan><tspan dy="-5.0"></tspan></text>
+<text x="812.0" y="1055.0" font-size="11.5" text-anchor="middle" fill="#6C786C">teacher</text>
+<path d="M732,1038 L760,1038" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="748" y="1078" font-size="11.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">EMA</text>
+<rect x="672" y="1088" width="152" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="748.0" y="1110.0" font-size="16" text-anchor="middle" fill="#14231C">target</text>
+<text x="748.0" y="1127.0" font-size="11.5" text-anchor="middle" fill="#6C786C">from the TEACHER</text>
+<path d="M812,1060 L812,1084" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<path d="M748,1132 L748,1150" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="712" y="1154" width="72" height="36" rx="18" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="748" y="1178" font-size="16" text-anchor="middle" fill="#14231C">MSE</text>
+<text x="748" y="1212" font-size="11.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">a frozen copy of the encoder</text>
+<text x="748" y="1230" font-size="11.5" text-anchor="middle" fill="#6C786C">no path back into the student</text>
+<rect x="60" y="1262" width="816" height="232" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="468.0" y="1288" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">the teacher lives OUTSIDE every optimizer –  and INSIDE the checkpoint</text>
+<text x="468.0" y="1307" font-size="12" text-anchor="middle" fill="#6C786C">requires_grad_(False) and handed to no optimizer, so mup.py's printed LR schema never lists it</text>
+<rect x="84" y="1324" width="300" height="138" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
+<text x="234.0" y="1350" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">the optimizers</text>
+<text x="234.0" y="1369" font-size="12" text-anchor="middle" fill="#6C786C">built from named sub-modules</text>
+<rect x="100" y="1382" width="124" height="32" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="162.0" y="1404.0" font-size="13" text-anchor="middle" fill="#14231C">encoder</text>
+<rect x="236" y="1382" width="124" height="32" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="298.0" y="1404.0" font-size="13" text-anchor="middle" fill="#14231C">predictor</text>
+<rect x="100" y="1420" width="124" height="32" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="162.0" y="1442.0" font-size="13" text-anchor="middle" fill="#14231C">action_encoder</text>
+<rect x="236" y="1420" width="124" height="32" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="298.0" y="1442.0" font-size="13" text-anchor="middle" fill="#14231C">decoder</text>
+<path d="M384,1398 L500,1398" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="442" y="1388" font-size="11.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">the EMA update</text>
+<text x="442" y="1416" font-size="11" text-anchor="middle" fill="#6C786C">after the step</text>
+<rect x="504" y="1372" width="190" height="56" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="599.0" y="1400.0" font-size="17" text-anchor="middle" fill="#14231C">encoder_ema</text>
+<text x="599.0" y="1417.0" font-size="11.5" text-anchor="middle" fill="#6C786C">a frozen deepcopy</text>
+<path d="M526.0,1405.0 L526.0,1383.0" stroke="#C88A1E" stroke-width="2.0" stroke-linecap="round"/>
+<path d="M526.0,1383.0 L523.0,1386.5" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M526.0,1383.0 L529.0,1386.5" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M526.0,1405.0 L529.0,1401.5" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M526.0,1405.0 L523.0,1401.5" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M516.5,1399.5 L535.5,1388.5" stroke="#C88A1E" stroke-width="2.0" stroke-linecap="round"/>
+<path d="M535.5,1388.5 L531.0,1387.7" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M535.5,1388.5 L533.9,1392.8" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M516.5,1399.5 L521.0,1400.3" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M516.5,1399.5 L518.1,1395.2" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M535.5,1399.5 L516.5,1388.5" stroke="#C88A1E" stroke-width="2.0" stroke-linecap="round"/>
+<path d="M516.5,1388.5 L518.1,1392.8" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M516.5,1388.5 L521.0,1387.7" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M535.5,1399.5 L533.9,1395.2" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M535.5,1399.5 L531.0,1400.3" stroke="#C88A1E" stroke-width="1.60" stroke-linecap="round"/>
+<path d="M694,1400 L762,1400" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<rect x="766" y="1380" width="104" height="40" rx="20" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="818" y="1406" font-size="16" text-anchor="middle" fill="#14231C">checkpoint</text>
+<text x="818" y="1440" font-size="11.5" text-anchor="middle" fill="#6C786C">_keys_to_save</text>
+<text x="468" y="1478" font-size="12.5" text-anchor="middle" fill="#A83024" font-weight="bold">without that entry the teacher RESETS to the student at every 4 h window boundary</text>
+<text x="60.0" y="1538" font-size="16.0" text-anchor="start" fill="#14231C" font-weight="bold">θ<tspan font-size="12" dy="5.0">ema</tspan><tspan dy="-5.0"></tspan>  →  m θ<tspan font-size="12" dy="5.0">ema</tspan><tspan dy="-5.0"></tspan>  +  ( 1 − m ) θ ,   after the optimizer step</text>
+<text x="545.7" y="1538" font-size="16.0" text-anchor="start" fill="#14231C">target  =  h( Enc<tspan font-size="12" dy="5.0">ema</tspan><tspan dy="-5.0"></tspan>( o<tspan font-size="12" dy="5.0">t+1</tspan><tspan dy="-5.0"></tspan> ) ) ,   always detached</text>
+<text x="60.0" y="1562" font-size="13.5" text-anchor="start" fill="#14231C">the constructor default is already True; both training configs are what turn it off</text>
+<text x="546.6" y="1562" font-size="12.42" text-anchor="start" fill="#6C786C">an EMA copy has no graph, so it is detached by construction</text>
+<rect x="60" y="1580" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="150.0" y="1597" font-size="12" text-anchor="middle" fill="#6C786C">the archive it ranges over</text>
+<text x="150.0" y="1616" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">116 arms, 831 evals</text>
+<rect x="248" y="1580" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="338.0" y="1597" font-size="12" text-anchor="middle" fill="#6C786C">every training config</text>
+<text x="338.0" y="1616" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">detach_target: False</text>
+<rect x="436" y="1580" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="526.0" y="1597" font-size="12" text-anchor="middle" fill="#6C786C">the ctor default</text>
+<text x="526.0" y="1616" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">True</text>
+<rect x="624" y="1580" width="180" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="714.0" y="1597" font-size="12" text-anchor="middle" fill="#6C786C">EMA momenta</text>
+<text x="714.0" y="1616" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">0.99 , 0.999</text>
+</g>
+</svg>
