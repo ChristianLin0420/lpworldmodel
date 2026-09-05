@@ -42,6 +42,7 @@ class VWorldModel(nn.Module):
         # historical z_emb.detach(), under which 0/144 encoder params receive any
         # gradient from decoder_recon_loss (measured; see diary 2026-09-03 s13.4).
         decode_grad=False,
+        decode_pred_w=0.0,
         var_space="u",
         var_gamma=1.0,   # VICReg hinge target: penalise per-dim std below this
         use_pose=False,  # bind the allocentric location signal to the action (TBT reference frame)
@@ -122,6 +123,7 @@ class VWorldModel(nn.Module):
         self.lamb_var = lamb_var
         self.lamb_cov = lamb_cov
         self.lamb_decode = lamb_decode
+        self.decode_pred_w = float(decode_pred_w)
         self.decode_grad = bool(decode_grad)
         self.var_space = var_space
         self.var_gamma = var_gamma
@@ -1633,6 +1635,39 @@ class VWorldModel(nn.Module):
             decoder_loss = self.decoder_criterion(visual_reconstructed, obs["visual"])
             loss = loss + self.lamb_decode * decoder_loss
             loss_components["decoder_recon_loss"] = decoder_loss
+
+        # ROUND 8 / S1. Decode z_PRED -- the predictor's code for a frame the model has NOT
+        # seen -- onto that frame's real pixels.
+        #
+        # The existing decoder term above decodes z_emb, the encoder's code for a frame it HAS
+        # seen, so the pixel gradient reaches the encoder and stops. _forward_adaln is the path
+        # every campaign run takes (:1649 dispatches here), and the only other code in this file
+        # that decodes z_pred is unreachable AND detached -- so in ~120 contrasts no pixel
+        # gradient has ever reached the PREDICTOR.
+        #
+        # Alignment: z_pred is (b, num_hist, p, d) and z_pred[:, i] predicts obs frame
+        # num_pred + i (see z_tgt = z_emb[:, num_pred:] above), so obs["visual"][:, num_pred:]
+        # is the exact pixel target, frame for frame.
+        #
+        # The target is the DATASET, so unlike a latent-space term it cannot be gamed by
+        # degrading the thing being matched -- the failure that killed R6/support_w (S is
+        # invariant to a common rescaling, so it was lowered by inflating the code) and
+        # R2/consist (+0.010 against its own data control: the loss term did the damage, not
+        # the distribution it was built to exploit).
+        if self.decode_pred_w > 0 and self.decoder is not None and self.train_decoder:
+            # z_pred is (b, K, p, d) under overshoot and (J, b, ...) with union heads; either
+            # would broadcast silently against a (b, num_hist, ...) pixel target.
+            assert not self.overshoot and self.n_heads == 1, (
+                "decode_pred_w requires overshoot=False and n_heads=1: z_pred is not "
+                f"(b, num_hist, p, d) otherwise (overshoot={self.overshoot}, "
+                f"n_heads={self.n_heads})")
+            dec_pred, _ = self.decode_obs({"visual": z_pred, "proprio": None})
+            tgt_px = obs["visual"][:, self.num_pred:]
+            n_t = min(dec_pred["visual"].shape[1], tgt_px.shape[1])
+            pred_decoder_loss = self.decoder_criterion(
+                dec_pred["visual"][:, :n_t], tgt_px[:, :n_t])
+            loss = loss + self.decode_pred_w * pred_decoder_loss
+            loss_components["decode_pred_loss"] = pred_decoder_loss
 
         loss_components["loss"] = loss
         return z_pred, None, visual_reconstructed, loss, loss_components

@@ -97,6 +97,14 @@ declare -A ARM_LINK
 # or the 2x2 cannot be launched (and read) as one object. Unset => the global FEATURE,
 # so every existing wave composes exactly as before.
 declare -A ARM_FEAT
+# arm -> num_hist. NUM_HIST is train.sh's THIRD POSITIONAL, not an env var, so it cannot ride
+# in the ARMS extra field like the others -- it needs its own map, exactly as ARM_FEAT does.
+#
+# This is the predictor's temporal ORDER, not a dataset knob: conf/predictor/ltv.yaml:9 and
+# linear_var.yaml:3 both state "H = num_frames = num_hist", and infojepa_modules.py sets
+# n_lags = num_frames, so z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k} + B a_t has exactly H taps.
+# It has been 3 in all 400 sampled run configs across seven rounds.
+declare -A ARM_HIST
 
 sparse_arms() {
     : "${KWTA_MATCHED:?set KWTA_MATCHED=<k> from the measured rho of the probe (k = round(rho*D))}"
@@ -645,6 +653,56 @@ wave26_arms() {
     #       control at n=8. Its control needs the same seeds or the pairing does not widen.
 }
 
+wave29_arms() {
+    # ROUND 8, STAGE A -- the two temporal knobs that need NO new code.
+    #
+    # T5, the num_hist ladder. n_lags = num_hist, so this is the FIR ORDER of the dynamics:
+    # z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k} + B a_t. Fixed at 3 in all 400 sampled configs
+    # across seven rounds -- the campaign varied objective, planner, predictor family, link,
+    # representation and width, and never varied how much past the model integrates.
+    #
+    # hist1 is BOTH an arm and a plumbing test: conf/predictor/ltv.yaml and the
+    # LinearDynamicsPredictor docstring both state "H=1 reduces exactly to additive", so if
+    # hist1 does not behave like a single-lag model the knob is not threaded correctly.
+    #
+    # DISTINCT from T6/jump{K}, which changed the TARGET horizon (num_pred) and failed at every
+    # K measured (-0.035, -0.220, -0.195, -0.413 on shared seeds). This changes the INPUT
+    # CONTEXT and leaves the target at one step -- the only axis that survives arm-demeaning.
+    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003}"
+    ARMS[PiWM-hist1]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist1]=1
+    ARMS[PiWM-hist2]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist2]=2
+    ARMS[PiWM-hist5]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist5]=5
+    ARMS[PiWM-hist8]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist8]=8
+    # T2 rung 1. One flag, zero new code, never once contrasted. The ctor default is already
+    # True (visual_world_model.py:36); conf/train_rdmreg.yaml:95 is what turns it off.
+    ARMS[PiWM-detach]="ltv 1.0 5e-4 DETACH_TARGET=true"
+    # Control for every cell above is LpWM-ltv itself, already evaluated on seeds 3-15, so
+    # every contrast here is seed-matched and free.
+
+    # ROUND 8 / S1. DECODE_PRED_W sends the PIXEL gradient through the PREDICTOR: decode
+    # z_pred -- the predictor's code for a frame the model has NOT seen -- onto that frame's
+    # real pixels. Verified on a synthetic batch: decode_pred_loss alone reaches 11 of 17
+    # predictor parameters including lags.0/1/2, the dynamics themselves.
+    #
+    # The existing decoder term decodes z_emb (a frame already seen), so its gradient reaches
+    # the ENCODER and stops. models/visual_world_model.py:1649 dispatches every campaign run
+    # to _forward_adaln, and the only other code decoding z_pred is unreachable AND detached,
+    # so no pixel gradient has ever reached the predictor in ~120 contrasts.
+    #
+    # PROJ_D stays 384: the control PiWM-patchdecode is already evaluated on seeds 3-10, so
+    # the contrast is single-factor and free. Both arms build the identical PatchHead (a bare
+    # nn.Linear, zero extra RNG draws), so they are bit-identical up to this one loss term.
+    # 1536 would add a width confound, 256x1536 memory risk, and a 4x slower muP LR on the
+    # very head that carries the gain.
+    #
+    # Two cells, because six of nine round-3/4/5 proposals were single-shot on their own
+    # strength parameter and could not tell "wrong weight" from "wrong idea".
+    ARMS[PiWM-pdpred]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=true LAMB_DECODE=0.1 DECODE_PRED_W=0.1"
+    ARM_FEAT[PiWM-pdpred]="patch"
+    ARMS[PiWM-pdpred-w003]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=true LAMB_DECODE=0.1 DECODE_PRED_W=0.03"
+    ARM_FEAT[PiWM-pdpred-w003]="patch"
+}
+
 wave25_arms() {
     ORDER[wave25]="${WAVE25_ARMS:-PiWM-support-w0p03 PiWM-support-w0p1 PiWM-support-w0p3 PiWM-consist-w0p03 PiWM-consist-w0p1 PiWM-consist-w0p3 PiWM-consist-w0p1-data PiWM-sam-r0p01 PiWM-sam-r0p03 PiWM-sam-r0p1 PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip10 PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8}"
     # R6. The '0p03' spelling of 0.03 follows PiWM-sigreg-w0p5: a '.' in a run dir is
@@ -713,6 +771,7 @@ submit_arm() {  # $1 = arm name, $2 = seed
     # per-arm encoder feature, defaulting to the invocation-wide one. ftag reproduces
     # FEAT_TAG exactly when ARM_FEAT is unset, so no existing run name moves.
     local feat="${ARM_FEAT[$arm]:-${FEATURE}}"
+    local nh="${ARM_HIST[$arm]:-3}"
     local ftag=""; [ "${feat}" != "cls" ] && ftag="_${feat}"
     # precision is in the run name so a mixed-precision comparison is visible
     # rather than silent if PRECISION is ever changed mid-campaign
@@ -765,11 +824,11 @@ submit_arm() {  # $1 = arm name, $2 = seed
     [ "${DRYRUN:-0}" = "1" ] && { DRYRUN=1 env RUN_NAME="${run}" PREDICTOR="${pred}" \
         PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" REG_WEIGHT="${rw}" MU=0 SEED="${seed}" \
         REGULARIZER=rdmreg WINDOWS="${WINDOWS}" ${extra} \
-        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
+        scripts/submit_until_done.sh pusht 5 "${nh}" "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
     env RUN_NAME="${run}" PREDICTOR="${pred}" PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" \
         REG_WEIGHT="${rw}" MU=0 SEED="${seed}" REGULARIZER=rdmreg WINDOWS="${WINDOWS}" \
         ${extra} \
-        scripts/submit_until_done.sh pusht 5 3 "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
+        scripts/submit_until_done.sh pusht 5 "${nh}" "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
 }
 
 [ $# -gt 0 ] || { sed -n '2,25p' "$0"; exit 1; }
@@ -797,6 +856,7 @@ for gate in "$@"; do
         wave26)       wave26_arms; gate=wave26 ;;
         wave27)       wave27_arms; gate=wave27 ;;
         wave28)       wave28_arms; gate=wave28 ;;
+        wave29)       wave29_arms; gate=wave29 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;

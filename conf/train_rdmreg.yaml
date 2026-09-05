@@ -296,6 +296,9 @@ block_causal: false        # encode the clip jointly, causal across frames
 aux_decoder: false
 decode_grad: false         # T1: reconstruction gradient reaches the encoder (drops the detach)
 lamb_decode: 0.1           # weight on the pixel MSE; O(1e-1) vs z_loss O(2e-3), see specs
+# ROUND 8 / S1. Pixel loss on the PREDICTOR's output for the NEXT, unseen frame.
+# 0.0 => the term is not built and the path is bit-identical to upstream.
+decode_pred_w: 0.0
 
 # T3: weight each transition by the visual change proprio does NOT explain. Images and
 # proprio only -- states.pth never enters the loss. 0.0 => uniform (upstream, inert).

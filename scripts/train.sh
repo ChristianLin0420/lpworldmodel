@@ -74,6 +74,8 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${AUX_DECODER:-}" ]  && { add "aux_decoder=${AUX_DECODER} model.train_decoder=${AUX_DECODER} decoder=${DECODER:-transposed_conv}"; TAG="${TAG}_dec${DECODER:-transposed_conv}"; }
 [ -n "${DECODE_GRAD:-}" ]  && { add "decode_grad=${DECODE_GRAD}"; TAG="${TAG}_dg${DECODE_GRAD}"; }
 [ -n "${LAMB_DECODE:-}" ]  && { add "lamb_decode=${LAMB_DECODE}"; TAG="${TAG}_ld${LAMB_DECODE}"; }
+# round 8 (S1). Pixel gradient through the PREDICTOR, not just the encoder.
+[ -n "${DECODE_PRED_W:-}" ] && { add "decode_pred_w=${DECODE_PRED_W}"; TAG="${TAG}_dpw${DECODE_PRED_W}"; }
 # round 5 (T3 contact weighting). CONTACT_GAMMA=0 is the uniform upstream objective.
 [ -n "${CONTACT_GAMMA:-}" ] && { add "contact_gamma=${CONTACT_GAMMA}"; TAG="${TAG}_cg${CONTACT_GAMMA}"; }
 [ -n "${CONTACT_SHUF:-}" ]  && { add "contact_shuffle=${CONTACT_SHUF}"; TAG="${TAG}_cshuf"; }
@@ -100,6 +102,12 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${SAM_RHO:-}" ]      && { add "sam_rho=${SAM_RHO}"; TAG="${TAG}_sam${SAM_RHO}"; }
 [ -n "${INCR_EPS:-}" ]     && { add "incr_eps=${INCR_EPS}"; TAG="${TAG}_ie${INCR_EPS}"; }
 [ -n "${INCR_CLIP:-}" ]    && { add "incr_clip=${INCR_CLIP}"; TAG="${TAG}_ic${INCR_CLIP}"; }
+# round 8 (T2 rung 1). conf/train_rdmreg.yaml:95 sets detach_target: False, so the encoder
+# receives gradient THROUGH its own prediction target (visual_world_model.py:1129, :1456) and
+# the objective is a two-player game rather than a regression -- the hazard the code documents
+# at :581. A JEPA needs a stop-gradient. The ctor default is already True; only the config
+# overrides it, and no arm in ~160 runs has ever contrasted the two.
+[ -n "${DETACH_TARGET:-}" ] && { add "detach_target=${DETACH_TARGET}"; TAG="${TAG}_dt${DETACH_TARGET}"; }
 [ -n "${PREDICTOR:-}" ]  && { add "predictor=${PREDICTOR}"; TAG="${TAG}_${PREDICTOR}"; }
 [ -n "${MU:-}" ]         && { add "mu=${MU}"; TAG="${TAG}_mu${MU}"; }
 [ "${MUP:-0}" = "1" ]    && { add "mup=true"; TAG="${TAG}_mup"; }

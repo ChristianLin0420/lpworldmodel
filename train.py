@@ -962,6 +962,8 @@ class Trainer:
             # z_emb.detach() exactly, so this is inert unless the arm asks for it.
             decode_grad=bool(self.cfg.get("decode_grad", False)),
             lamb_decode=float(self.cfg.get("lamb_decode", 1.0)),
+            # ROUND 8 / S1. 0.0 => the term is not built; the path stays bit-identical.
+            decode_pred_w=float(self.cfg.get("decode_pred_w", 0.0)),
             # T3. Geometry from the DATASET's own normalisation constants
             # (datasets/pusht_dset.py:83-84) plus the env's window size (512,
             # env/pusht/pusht_env.py:381) and agent radius (15, :709). Passed as plain
