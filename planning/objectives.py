@@ -121,10 +121,25 @@ def create_vote_objective_fn(
     M = int(n_members)
 
     def per_member_loss(z_obs_pred, z_obs_tgt):
-        pv = z_obs_pred["visual"][:, -1:]          # (B, 1, M, D)
-        tv = z_obs_tgt["visual"]                   # (B, 1, M, D)
-        assert pv.shape[-2] == M, f"expected {M} stacked members, got {pv.shape[-2]}"
-        return ((pv - tv) ** 2).mean(dim=(1, 3))   # (B, M)
+        """(B, 1, M*P, D) -> (B, M), reducing each member over ITS OWN patches.
+
+        The ensemble stacks members along the patch axis, so with cls members (P == 1)
+        that axis is exactly the member axis and this is a plain mean over D. With PATCH
+        members each contributes P slots, so the axis is M contiguous blocks of P and the
+        reduction has to happen over (P, D) per member -- otherwise the objective would
+        see M*P "members" and the vote would be over patches, not models.
+
+        At P == 1 the reshape is a no-op and the result is bit-identical to the previous
+        `.mean(dim=(1, 3))`; tests/test_vote_patch_members.py pins that.
+        """
+        pv = z_obs_pred["visual"][:, -1:]          # (B, 1, M*P, D)
+        tv = z_obs_tgt["visual"]                   # (B, 1, M*P, D)
+        n = pv.shape[-2]
+        assert n % M == 0, f"stacked axis {n} is not divisible by {M} members"
+        P = n // M
+        B, T, _, D = pv.shape
+        d2 = ((pv - tv) ** 2).reshape(B, T, M, P, D)
+        return d2.mean(dim=(1, 3, 4))              # (B, M)
 
     def objective_fn_vote(z_obs_pred, z_obs_tgt):
         per = per_member_loss(z_obs_pred, z_obs_tgt)      # (B, M)

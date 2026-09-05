@@ -42,10 +42,16 @@ members_for() {   # same block->family rule the cls committees used
 
 for b in 3 4 5 6 7 8 9 10 11 12; do
     label="PiWM-${TAG}-${RULE}_pd384_bf16_s${b}"
-    if compgen -G "plan_outputs/*_${label}_gH5" >/dev/null 2>&1; then
+    # "an output dir exists" is NOT "it was evaluated". A FAILED eval leaves a dir with no
+    # terminal marker, and skipping on the dir alone strands it forever -- the exact bug
+    # that had to be fixed in both autopilots (commit 0aeede8). Skip only on the terminal
+    # marker, or while a dir is still FRESH enough to be the one running.
+    if grep -lq "final_eval/success_rate" plan_outputs/*_${label}_gH5/logs.json 2>/dev/null; then
         echo "  already evaluated, skipping: ${label}"; continue
     fi
-    if squeue -u "${USER}" -h -o "%j" 2>/dev/null | grep -qx "eval_${label}"; then
+    newest=$(ls -dt plan_outputs/*_${label}_gH5 2>/dev/null | head -1)
+    if [ -n "${newest}" ] && [ $(( $(date +%s) - $(stat -c %Y "${newest}") )) -lt 14400 ] \
+       && squeue -u "${USER}" -h -o "%j" 2>/dev/null | grep -qx "eval_${label}"; then
         echo "  in flight already: ${label}"; continue
     fi
     mem=$(members_for "$b")

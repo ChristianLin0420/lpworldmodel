@@ -18,7 +18,9 @@ So: M complete models roll out independently, each in its own space, and their
 per-candidate opinions are combined by `planning.objectives.create_vote_objective_fn`.
 There is no degenerate optimum to admit, because there is no optimisation here at all.
 
-Member latents are stacked on the PATCH axis (CLS => p == 1 per member), which keeps
+Member latents are stacked on the PATCH axis. With CLS members p == 1, so that axis IS
+the member axis; with PATCH members each contributes P slots and the objective recovers
+members as M contiguous blocks of P. Either way this keeps
 every downstream consumer (`planning/cem.py`, `planning/evaluator.py`) tensor-shaped
 and untouched. Members with different code widths D are right-zero-padded to max D;
 that is a per-member monotone rescale of the MSE, so it leaves rank-based votes exactly
@@ -45,7 +47,14 @@ class EnsembleWorldModel(nn.Module):
         self.n_members = len(members)
         for m in self.members:
             assert m.action_conditioning == "adaln", "ensemble supports the adaln/JEPA path only"
-            assert m.encoder.num_patches == 1, "ensemble stacks members on the patch axis (CLS only)"
+        # Members are stacked ALONG the patch axis, so with cls members (p == 1) that axis
+        # is the member axis. Patch members are allowed, but then every member must expose
+        # the SAME p: the objective recovers members as M contiguous blocks of P
+        # (planning/objectives.create_vote_objective_fn.per_member_loss) and ragged blocks
+        # would silently mis-assign patches to members.
+        ps = {int(m.encoder.num_patches) for m in self.members}
+        assert len(ps) == 1, f"ensemble members must share num_patches, got {sorted(ps)}"
+        self.patches_per_member = ps.pop()
         self.dims = [int(m.encoder.emb_dim) for m in self.members]
         self.d_max = max(self.dims)
         self.decoder = None  # evaluator gates its rollout plots on this
@@ -64,7 +73,9 @@ class EnsembleWorldModel(nn.Module):
         """Undo the stacking for member m (only used by n_heads>1 members)."""
         if z_goal is None:
             return None
-        g = z_goal[..., m : m + 1, : self.dims[m]] if z_goal.dim() >= 3 else None
+        # slice member m's OWN block of P patches out of the stacked (…, M*P, D)
+        P = self.patches_per_member
+        g = z_goal[..., m * P : (m + 1) * P, : self.dims[m]] if z_goal.dim() >= 3 else None
         return g
 
     def encode_obs_linked(self, obs):
