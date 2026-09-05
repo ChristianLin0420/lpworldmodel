@@ -775,11 +775,11 @@ margin bar it sets, are at the end of this section.
 
 | source | share of variance | sd |
 |---|---|---|
-| **checkpoint (training seed)** | **82 %** | 0.128 |
-| episode block | 5 % | 0.030 |
+| **checkpoint (training seed)** | **81.5 %** | 0.128 |
+| episode block | **16.0 %** | 0.030 |
 | residual | 13 % | — |
 
-A single unchanged model spans only **0.08–0.24 across blocks**. The **0.165–0.585** span in that
+A single unchanged model spans only **0.04–0.24 across blocks**. The **0.165–0.585** span in that
 matrix is across **ten different checkpoints of one config** — so any reading that charges that
 span to episode blocks is charging it to the 5 % term ([2026-09-05 §8.2](2026-09-05.md)).
 
