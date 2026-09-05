@@ -668,7 +668,7 @@ wave29_arms() {
     # DISTINCT from T6/jump{K}, which changed the TARGET horizon (num_pred) and failed at every
     # K measured (-0.035, -0.220, -0.195, -0.413 on shared seeds). This changes the INPUT
     # CONTEXT and leaves the target at one step -- the only axis that survives arm-demeaning.
-    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003 PiWM-ssm PiWM-mlpvar PiWM-lagmask25 PiWM-lagmask50 PiWM-lagskip PiWM-st-ssm PiWM-st-pdpred}"
+    ORDER[wave29]="${WAVE29_ARMS:-PiWM-hist1 PiWM-hist2 PiWM-hist5 PiWM-hist8 PiWM-detach PiWM-pdpred PiWM-pdpred-w003 PiWM-ssm PiWM-mlpvar PiWM-lagmask25 PiWM-lagmask50 PiWM-lagskip PiWM-st-ssm PiWM-st-pdpred PiWM-ema99 PiWM-ema999}"
     ARMS[PiWM-hist1]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist1]=1
     ARMS[PiWM-hist2]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist2]=2
     ARMS[PiWM-hist5]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist5]=5
@@ -764,6 +764,25 @@ wave29_arms() {
     # gradient), both of which are running, so either half can be charged for the result.
     ARMS[PiWM-st-pdpred]="ltv 1.0 5e-4 AUX_DECODER=true DECODER=patch_head DECODE_GRAD=true LAMB_DECODE=0.1 DECODE_PRED_W=0.1 LAG_DILATION=0,2,2"
     ARM_FEAT[PiWM-st-pdpred]="patch"
+
+    # ROUND 8 / T2 rung 2. The EMA teacher -- the stronger form of the stop-gradient that
+    # PiWM-detach tests. conf/train_rdmreg.yaml:95 sets detach_target: False, so every arm in
+    # ~160 runs trained with a LIVE target: the encoder received gradient through its own
+    # prediction target, which visual_world_model.py:581 names outright ("the cheapest way to
+    # lower S is therefore not to predict"). detach gives a target that does not move;
+    # ema gives one that moves SLOWLY, which is what a JEPA actually prescribes.
+    #
+    # The teacher is a frozen deepcopy updated after the optimizer step, used only for the
+    # target, excluded from every optimizer (so it never appears in mup.py's LR schema), and
+    # registered in _keys_to_save -- without that last part it would silently RESET to the
+    # student at each 4h window boundary and a 3-4 window run would not test the claim.
+    #
+    # Two momenta, because a single unhedged value cannot separate "wrong constant" from
+    # "wrong idea" -- the failure that made six of nine round-3/4/5 proposals single-shot.
+    # Controls: PiWM-detach (stop-grad, no averaging) and LpWM-ltv (live target), both
+    # already running or already evaluated on the same seeds, so both contrasts are free.
+    ARMS[PiWM-ema99]="ltv 1.0 5e-4 EMA_M=0.99"
+    ARMS[PiWM-ema999]="ltv 1.0 5e-4 EMA_M=0.999"
 }
 
 wave25_arms() {
