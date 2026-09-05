@@ -606,7 +606,10 @@ wave26_arms() {
     #   the best CONSTANT prediction (14.51 deg -- PushT's T settles into a canonical pose):
     #       LpWM-ltv        cls              15.72 deg   WORSE than the constant bound
     #       LpWM-ltv-d2048  cls, 5x width    14.64 deg   at the bound -- width is not it
-    #       PiWM-columns    patch             9.58 deg   the only arm that beats it
+    #       PiWM-columns    patch             9.58 deg   7th of NINE arms that beat it;
+    #                                                    five 384-dim CLS arms decode BETTER
+    #                                                    (linvar 3.52, lie-sim 4.91, multact 4.97,
+    #                                                    ctrb 5.13, lie 5.64) -- 2026-09-05 s7.3
     #       PiWM-drop95     patch, 95% drop  16.01 deg   back at the bound
     #
     # The baseline latent cannot see the variable PushT is about. No loss defined on it can
