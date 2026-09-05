@@ -552,6 +552,54 @@ wave24_arms() {
 # Controls: LpWM-ltv (n=16, trained) is the matched zero-strength control for R6, R3 and
 # R4, and is deliberately NOT retrained here. R2's control is in-wave (-data); R1's are
 # in-wave (the three overshoot cells) plus the existing K=5 pair.
+wave26_arms() {
+    # ROUND 7 -- the representation, not the objective.
+    #
+    # Six rounds and ~120 contrasts changed the LOSS on a fixed representation:
+    # `feature=cls`, a SINGLE 384-d token for the whole image. They produced exactly one
+    # positive, and that one (plan-time consensus) is not a world-model result at all.
+    # diary/2026-09-04 §7.4 says why, from a probe that needs no dynamics and no contrast:
+    #
+    #   ridge-decode the block pose from ONE FROZEN FRAME, median angular error, against
+    #   the best CONSTANT prediction (14.51 deg -- PushT's T settles into a canonical pose):
+    #       LpWM-ltv        cls              15.72 deg   WORSE than the constant bound
+    #       LpWM-ltv-d2048  cls, 5x width    14.64 deg   at the bound -- width is not it
+    #       PiWM-columns    patch             9.58 deg   the only arm that beats it
+    #       PiWM-drop95     patch, 95% drop  16.01 deg   back at the bound
+    #
+    # The baseline latent cannot see the variable PushT is about. No loss defined on it can
+    # recover information it does not contain, which is the null result 120 contrasts kept
+    # producing. And drop95 shows it is the TOKENS, not the word "patch".
+    #
+    # S1 is therefore a DOSE-RESPONSE INSIDE THE PATCH FAMILY, which is the cleanest causal
+    # design available here: it never compares patch against cls, so it cannot be confounded
+    # by the feature. If angular error and CEM both degrade monotonically as tokens are
+    # removed, tokens -> orientation -> planning is causal rather than correlational. The
+    # endpoints already exist (TOKEN_DROP 0.0 = PiWM-columns, 0.95 = PiWM-drop95), so this
+    # buys the four interior points of a six-point curve.
+    #
+    # Every arm here is feature=patch. NOTHING in this wave changes the objective.
+    ORDER[wave26]="${WAVE26_ARMS:-PiWM-tok25 PiWM-tok50 PiWM-tok75 PiWM-tok90}"
+    ARMS[PiWM-tok25]="ltv 1.0 5e-4 TOKEN_DROP=0.25";  ARM_FEAT[PiWM-tok25]="patch"
+    ARMS[PiWM-tok50]="ltv 1.0 5e-4 TOKEN_DROP=0.50";  ARM_FEAT[PiWM-tok50]="patch"
+    ARMS[PiWM-tok75]="ltv 1.0 5e-4 TOKEN_DROP=0.75";  ARM_FEAT[PiWM-tok75]="patch"
+    ARMS[PiWM-tok90]="ltv 1.0 5e-4 TOKEN_DROP=0.90";  ARM_FEAT[PiWM-tok90]="patch"
+    # S2 and S4 are NOT new arms and must not be. Renaming PiWM-columns or PiWM-patchdecode
+    # would create a fresh key in collect_evals and the extra seeds would not pool with the
+    # existing ones -- which is the entire point of running them. They are launched as MORE
+    # SEEDS OF THE EXISTING ARMS, from their own waves:
+    #
+    #   S2  SEEDS="0 1 2"        WAVE22_ARMS="PiWM-columns"     run_campaign.sh wave22
+    #       The single-factor patch-vs-cls contrast is +0.072 [-0.064, +0.207] at n=12, a
+    #       positive-leaning NULL and the largest n of any treated arm. columns holds seeds
+    #       3-15 and the baseline holds 0-15, so 0-2 are the cheapest points that widen it.
+    #
+    #   S4  SEEDS="11 12 13 14"  WAVE23_ARMS="PiWM-patchdecode PiWM-patchdecode-detach" wave23
+    #       patchdecode carries the campaign's highest non-consensus arm MEAN (0.520 against
+    #       the baseline's 0.357) and is +0.140 [-0.047, +0.327] against its own detach
+    #       control at n=8. Its control needs the same seeds or the pairing does not widen.
+}
+
 wave25_arms() {
     ORDER[wave25]="${WAVE25_ARMS:-PiWM-support-w0p03 PiWM-support-w0p1 PiWM-support-w0p3 PiWM-consist-w0p03 PiWM-consist-w0p1 PiWM-consist-w0p3 PiWM-consist-w0p1-data PiWM-sam-r0p01 PiWM-sam-r0p03 PiWM-sam-r0p1 PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip10 PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8}"
     # R6. The '0p03' spelling of 0.03 follows PiWM-sigreg-w0p5: a '.' in a run dir is
@@ -694,11 +742,12 @@ for gate in "$@"; do
         wave23)       wave23_arms; gate=wave23 ;;
         wave24)       wave24_arms; gate=wave24 ;;
         wave25)       wave25_arms; gate=wave25 ;;
+        wave26)       wave26_arms; gate=wave26 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;
         wave17)       wave17_arms; gate=wave17 ;;
-        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave25)" >&2; exit 1 ;;
+        *) echo "unknown gate '${gate}' (expected sparse|gate|union|wave2..wave7|wave12..wave17|wave20..wave26)" >&2; exit 1 ;;
     esac
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do
