@@ -552,6 +552,62 @@ of an effect; it is evidence that three numbers happened to agree.**
 
 ---
 
+### A mean difference is not the whole contrast (added 2026-09-05)
+
+Every verdict in rounds 1–6 was a **single number plus a gate**: the paired Δ in mean success
+rate, and "does the 95 % interval exclude zero at n ≥ 8". That gate is sound, but reporting only
+its output dichotomises away most of what the experiment measured, and it hid a real distinction.
+
+**Success rate is not unimodal.** Over 700 evaluations, **24.0 % are exactly 0.000** and 31.9 %
+are ≤ 0.02; the rest form a broad mode from about 0.2 to 0.65. And the split is mostly *between*
+arms, not within them: **76 % of the SR variance is between-arm**, 33 of 69 arms have no
+zero-scoring seed at all, and only 15 arms contain both a zero and a seed above 0.2.
+
+So two arms with the same Δ mean can be doing different things, and the campaign contains both:
+
+| | Δ mean SR | seeds with SR > 0, treated / control | McNemar p |
+|---|---|---|---|
+| **consensus** | **+0.228** | **10 / 10** | 1.000 |
+| SAM ρ = 0.1 | −0.130 | 8 / 8 | 1.000 |
+| `PiWM-gd` | −0.077 | 8 / 8 | 1.000 |
+| **`support` w = 0.1** | **−0.260** | **7 / 8** | 1.000 |
+| **`support` w = 0.3** | −0.390 | **1 / 8** | **0.016** |
+| **`consist` w = 0.3** | −0.388 | **2 / 8** | **0.031** |
+| **`incr` ε = 1e-3** | −0.385 | **2 / 8** | **0.031** |
+
+The top group moves the mean while still returning a non-zero success rate on **every** seed. The
+bottom group returns one on **one or two of eight**, and McNemar on the discordant pairs says so
+at p ≈ 0.02–0.03 without any modelling. Those are different phenomena and the verdict column
+rendered them identically.
+
+**So report both.** `Δ mean` and `Δ P(SR > 0)` with a McNemar test. Both are order-free and
+neither requires a model.
+
+#### What must NOT be written down, and why
+
+The obvious next step is to *decompose* the mean into the two channels — mean = P(SR>0) ×
+mean(SR | SR>0), then attribute part of Δ to each. **That decomposition is not identified, and an
+attempt to use it was retracted the same day it was made.** Δ(pq) can be written
+`Δp·q_C + p_T·Δq` or `Δp·q_T + p_C·Δq`; the two differ by exactly the interaction `Δp·Δq`, and on
+this data that term is **48–84 % of the effect** — for `support` w = 0.3 it is **larger than
+either named channel**. Every contrast that looked "death-dominated" under one ordering flips to
+"quality-dominated" under the reverse, under a Shapley split, and under the log form.
+
+There is therefore **no defensible statement of the form "X % of this effect is training failure
+and Y % is worse planning."** Report the two facts side by side and let them stand.
+
+#### Two further cautions on P(SR > 0)
+
+* **It is not "the model died".** A 50-episode success rate of exactly 0 is an ordinary binomial
+  draw for a model whose true rate is small but non-zero — at p = 0.02, P(all 50 fail) = 0.36. So
+  P(SR > 0) is *the rate of returning a non-zero score*, which is a measurable and testable
+  quantity, and not evidence of a distinct failure state.
+* **`mean(SR | SR > 0)` conditions on a post-treatment variable**, which is a selection bias, so
+  it is descriptive only and never a causal contrast. Its one reassuring property here is that
+  the bias does not run the dangerous way: Spearman(P(SR>0), mean SR | SR>0) = **+0.814**, i.e.
+  arms that lose seeds also score badly on the seeds they keep, rather than being flattered by
+  selection.
+
 ## 8. The standing trap: nearly every metric here is a collapse detector
 
 This is the single most useful thing to carry into the entries.
