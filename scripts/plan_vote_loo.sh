@@ -38,11 +38,16 @@ done | sort -n)
 if [ "${#SEEDS[@]}" -lt 3 ]; then
     echo "  need >=3 finished seeds of ${ARM}; found ${#SEEDS[@]}"; exit 1
 fi
-# M is data-determined, but it must also be MATCHED across the arms being compared, or the
-# committee contrast confounds the feature with the committee size -- the same class of error
-# as comparing a 98304-dim patch latent against a 384-dim cls one. M_CAP is therefore set to
-# min(n_seeds) over the arms in the comparison, NOT chosen: with LpWM-ltv at 16 seeds and
-# PiWM-columns at 12, both run at M = 11.
+# M must be MATCHED across the arms compared, or the committee contrast confounds the feature
+# with committee size -- the same class of error as comparing a 98304-dim patch latent against a
+# 384-dim cls one. Ideally M = n-1 (data-determined); in practice it is capped by MEMORY.
+#
+# planning/ensemble.py stacks members along the PATCH axis, so a patch member costs
+# num_patches slots where a cls member costs 1: at M = 11 that is 11 x 256 = 2816 stacked slots
+# against 11, and every patch committee died with CUDA OOM in planning/evaluator.py while every
+# cls committee ran. M = 5 (1280 slots) is the largest that fits, so BOTH sides run at M = 5 --
+# the cls side is capped down to match rather than allowed to keep its feasible 11, because an
+# unmatched M is precisely the confound this script exists to remove.
 M=$(( ${#SEEDS[@]} - 1 ))
 if [ -n "${M_CAP:-}" ] && [ "${M_CAP}" -lt "$M" ]; then M=${M_CAP}; fi
 echo "  ${ARM}: ${#SEEDS[@]} finished seeds -> leave-one-out committees of M=${M}"
