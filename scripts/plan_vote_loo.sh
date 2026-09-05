@@ -69,6 +69,19 @@ for b in "${SEEDS[@]}"; do
     if [ "${DRYRUN:-0}" = "1" ]; then
         echo "  [dry] ${label}  M=${M}  (first ${M} of all but s${b})"; continue
     fi
+    # Pick the walltime from the PREDICTED cost, not from M alone. Measured single-model eval,
+    # this campaign (sacct, COMPLETED only): cls 40 min, patch 64 min. A committee costs
+    # base + (M-1) x increment, the increment scaling like the base (cls 32.5 min, so patch
+    # ~= 32.5 x 64/40 = 52). Checks out: cls M=5 predicts 172, measured 169.
+    #
+    # vote_slurm.sbatch is capped at 03:55 = 235 min by the 4h GPU partitions. Routing on
+    # "M >= 6", as plan_mcurve.sh does, is a CLS rule and silently mis-routes patch: patch M=5
+    # predicts 272 min, went to the 3:55 script, and all 10 jobs TIMED OUT at 03:55:23 having
+    # produced nothing. Routing on the prediction gets both features right.
+    if [ "${FEAT:-cls}" = "patch" ]; then base=64; incr=52; else base=40; incr=33; fi
+    pred=$(( base + (M - 1) * incr ))
+    if [ "${pred}" -gt 200 ]; then sb=scripts/vote_long_slurm.sbatch; else sb=scripts/vote_slurm.sbatch; fi
+    echo "    ${label}  M=${M} feat=${FEAT:-cls} pred=${pred}min -> ${sb##*/}"
     MEMBERS="${mem}" LABEL="${label}" RULE=median SEED="${b}" NEVALS=50 MAXITER=10 \
-        sbatch --job-name="eval_${label}" scripts/vote_slurm.sbatch | sed 's/^/    /'
+        sbatch --job-name="eval_${label}" "${sb}" | sed 's/^/    /'
 done
