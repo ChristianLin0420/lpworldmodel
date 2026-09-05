@@ -587,6 +587,36 @@ though it cannot be settled here because only 2 baseline runs have traces on dis
 The ordering is largely preserved (Spearman(official, block-only) ≈ 0.96 across arms), so past
 *rankings* stand. What does not stand is any statement of the form "this arm cannot plan at all".
 
+> ### ⚠ RETRACTED the same day — the "metric floor" was an artefact of dropping the term that
+> ### detects divergence
+>
+> Block-only re-scoring drops `agent_pos_diff` from the success test. That term is the only one
+> catching a **diverging simulation**, and the floor arms are diverging:
+>
+> | arm | median agent error | > 1000 px | block-only SR | **block-only AND agent < 100 px** |
+> |---|---|---|---|---|
+> | `LpWM-ltv` | 17.1 px | 11 % | 0.580 | **0.560** |
+> | `PiWM-vote5-borda` | 13.3 px | 6 % | 0.665 | **0.645** |
+> | `PiWM-patchdecode` | 16.7 px | 7 % | 0.615 | **0.603** |
+> | `PiWM-consist-w0p3` | **2689.6 px** | **88 %** | 0.255 | **0.025** |
+> | `PiWM-support-w0p3` | **1019.3 px** | 51 % | 0.260 | **0.003** |
+> | `PiWM-contact-shuf` | **1290.9 px** | 63 % | 0.287 | **0.060** |
+>
+> Requiring the gripper merely to be *somewhere sane* — within 100 px, five times the success
+> radius — collapses the floor arms from 0.22–0.29 back to **0.003–0.06**, while barely touching
+> the healthy arms. A block that lands in tolerance while the end effector is 2700 px away is a
+> diverged rollout, not a solved task.
+>
+> **So the floor arms genuinely fail, the original verdicts were right, and the parking tax is
+> ≈ 0.02 for healthy arms rather than 0.22.** I verified the re-scored numbers but not what they
+> meant, which is the same error in a new place.
+>
+> **What survives, and it is worth keeping:** the campaign has no divergence detector, and
+> `median agent_pos_diff` is a good one — 13–28 px for every healthy arm against 1000–2700 px for
+> every failing one, with no overlap. It is free, it comes from traces already on disk, and
+> unlike `rel_mse` it cannot be fooled by a constant-output model.
+
+
 #### 2. The instrument is coarser than the effects it was applied to
 
 | contrast type | n | median sd of the paired difference | **MDE at n = 8, 80 % power** |
