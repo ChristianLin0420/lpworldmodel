@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1628" viewBox="0 0 940 1628" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#C88A1E"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#2E7D6F"/></marker>
+</defs>
+<rect width="940" height="1628" fill="#FFFFFF"/>
+<g transform="translate(0,-80)">
+<circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<circle cx="812" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="797.5" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M120,706 L120,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,706 L812,646" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M64,644 L64,576.0 A56.0,56.0 0 0 1 176,576.0 L176,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="96.1" y="614" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<text x="120.0" y="634" font-size="13" text-anchor="middle" fill="#6C786C">feature = patch</text>
+<path d="M756,644 L756,576.0 A56.0,56.0 0 0 1 868,576.0 L868,644 Z" fill="#D8F0E4" stroke="#18483C" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="788.1" y="614" font-size="21" text-anchor="start" fill="#14231C">Enc <tspan font-style='italic'>f</tspan></text>
+<text x="812.0" y="634" font-size="13" text-anchor="middle" fill="#6C786C">feature = patch</text>
+<path d="M120,520 L120,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,520 L812,470" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="78" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="120.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<rect x="770" y="420" width="84" height="44" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.3"/>
+<text x="812.0" y="448.0" font-size="16" text-anchor="middle" fill="#14231C">ReLU</text>
+<path d="M120,420 L120,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M812,420 L812,352" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="109" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="265" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="109" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="113.4" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="801" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="240" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="290" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="801" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="798.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<rect x="701" y="190" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="215" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="240" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="265" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="290" width="22" height="22" fill="#546060" stroke="#546060" stroke-width="1.1"/>
+<rect x="701" y="315" width="22" height="22" fill="#FFFFFF" stroke="#546060" stroke-width="1.1"/>
+<text x="698.0" y="177" font-size="19" text-anchor="start" fill="#14231C">z<tspan font-size="13" dy="5.5">t+1</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M697.5,164 L702.0,158.5 L706.5,164" stroke="#14231C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M737,262 L795,262" stroke="#A83024" stroke-width="1.8" stroke-linecap="round" marker-end="url(#ar)" marker-start="url(#am)"/>
+<text x="762" y="240" font-size="14" text-anchor="middle" fill="#A83024">MSE (min)</text>
+<path d="M232,196 L356.0,196 A66.0,66.0 0 0 1 356.0,328 L232,328 Z" fill="#DED6EA" stroke="#543C84" stroke-width="1.8" stroke-linejoin="round"/>
+<text x="302.0" y="262.0" font-size="21" text-anchor="middle" fill="#14231C">Pred</text>
+<text x="302.0" y="284.0" font-size="13" text-anchor="middle" fill="#6C786C">g</text>
+<circle cx="318" cy="430" r="38" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
+<text x="310.9" y="436.65" font-size="19" text-anchor="start" fill="#14231C">a<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
+<path d="M318,392 L318,332" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M146,262 L226,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="180.6" y="248" font-size="15" text-anchor="start" fill="#6C786C">z<tspan font-size="12" dy="5.0">t</tspan><tspan dy="-5.0"></tspan></text>
+<path d="M424,262 L697,262" stroke="#546060" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e0)"/>
+<rect x="430" y="556" width="160" height="52" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.5"/>
+<text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
+<path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="109.4" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(S3)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-patchvote5</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;a plan-time committee of PATCH models</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[PLANNED]</tspan></text>
+<path d="M712,341 L712,490 L718.0,490 A8,8 0 0 1 734.0,490 L804.0,490 A8,8 0 0 1 820.0,490 L880,490 L880,898" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)" stroke-dasharray="6,4"/>
+<text x="700" y="404" font-size="14" text-anchor="end" fill="#2E7D6F" font-weight="bold">eval only – no term in the loss</text>
+<rect x="34" y="898" width="872" height="770" rx="10" fill="#DCEFE9" fill-opacity="0.45" stroke="#2E7D6F" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#2E7D6F" font-weight="bold">module:  M = 5 PiWM-columns checkpoints, per-member rank, MEDIAN → CEM's argsort( loss )</text>
+<path d="M52,942 L888,942" stroke="#2E7D6F" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="64" y="970" width="138" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="133.0" y="992.0" font-size="15" text-anchor="middle" fill="#14231C">member 1</text>
+<text x="133.0" y="1009.0" font-size="11.5" text-anchor="middle" fill="#6C786C">PiWM-columns  s3</text>
+<path d="M202,992 L222,992" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="226" y="970" width="108" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="260.7" y="998.0" font-size="15" text-anchor="start" fill="#14231C">MSE<tspan font-size="11" dy="4.6">1</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M334,992 L356,992" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="360" y="970" width="148" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="434.0" y="992.0" font-size="15" text-anchor="middle" fill="#14231C">rank</text>
+<text x="434.0" y="1009.0" font-size="11.5" text-anchor="middle" fill="#6C786C">within the CEM batch</text>
+<path d="M508,992 L522,992 L522,1003 L546,1003" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="64" y="1022" width="138" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="133.0" y="1044.0" font-size="15" text-anchor="middle" fill="#14231C">member 2</text>
+<text x="133.0" y="1061.0" font-size="11.5" text-anchor="middle" fill="#6C786C">PiWM-columns  s4</text>
+<path d="M202,1044 L222,1044" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="226" y="1022" width="108" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="260.7" y="1050.0" font-size="15" text-anchor="start" fill="#14231C">MSE<tspan font-size="11" dy="4.6">2</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M334,1044 L356,1044" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="360" y="1022" width="148" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="434.0" y="1044.0" font-size="15" text-anchor="middle" fill="#14231C">rank</text>
+<text x="434.0" y="1061.0" font-size="11.5" text-anchor="middle" fill="#6C786C">within the CEM batch</text>
+<path d="M508,1044 L522,1044 L522,1044.0 L546,1044.0" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="64" y="1074" width="138" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="133.0" y="1096.0" font-size="15" text-anchor="middle" fill="#14231C">member 3</text>
+<text x="133.0" y="1113.0" font-size="11.5" text-anchor="middle" fill="#6C786C">PiWM-columns  s5</text>
+<path d="M202,1096 L222,1096" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="226" y="1074" width="108" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="260.7" y="1102.0" font-size="15" text-anchor="start" fill="#14231C">MSE<tspan font-size="11" dy="4.6">3</tspan><tspan dy="-4.6"></tspan></text>
+<path d="M334,1096 L356,1096" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="360" y="1074" width="148" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="434.0" y="1096.0" font-size="15" text-anchor="middle" fill="#14231C">rank</text>
+<text x="434.0" y="1113.0" font-size="11.5" text-anchor="middle" fill="#6C786C">within the CEM batch</text>
+<path d="M508,1096 L522,1096 L522,1085 L546,1085" stroke="#2E7D6F" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<circle cx="133" cy="1132" r="2.6" fill="#546060"/>
+<circle cx="133" cy="1143" r="2.6" fill="#546060"/>
+<circle cx="133" cy="1154" r="2.6" fill="#546060"/>
+<text x="168" y="1166" font-size="13.5" text-anchor="start" fill="#6C786C">M = 5 members –  blocks 3–7 take seeds 3–7, blocks 8–12 take seeds 8–12, exactly as the cls committees did</text>
+<rect x="552" y="973" width="170" height="142" rx="9" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="2.0"/>
+<text x="637.0" y="1007" font-size="19" text-anchor="middle" fill="#2E7D6F" font-weight="bold">MEDIAN</text>
+<text x="637.0" y="1031" font-size="14" text-anchor="middle" fill="#2E7D6F">of the per-member</text>
+<text x="637.0" y="1051" font-size="14" text-anchor="middle" fill="#2E7D6F">ranks</text>
+<text x="637.0" y="1077" font-size="12.5" text-anchor="middle" fill="#6C786C">at PLAN time</text>
+<text x="637.0" y="1097" font-size="12.5" text-anchor="middle" fill="#6C786C">no training at all</text>
+<path d="M722,1044.0 L744,1044.0" stroke="#2E7D6F" stroke-width="2.0" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<rect x="746" y="1022.0" width="92" height="44" rx="22" fill="#DCEFE9" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="792" y="1050.0" font-size="16" text-anchor="middle" fill="#14231C">CEM</text>
+<text x="792" y="1090.0" font-size="12" text-anchor="middle" fill="#6C786C">argsort( loss )[ : topk ]</text>
+<rect x="60" y="1180" width="816" height="128" rx="8" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.6"/>
+<text x="468.0" y="1206" font-size="17" text-anchor="middle" fill="#2E7D6F" font-weight="bold">S3 composes the campaign's only two leads</text>
+<path d="M468,1214 L468,1296" stroke="#2E7D6F" stroke-width="1.2" stroke-opacity="0.45"/>
+<text x="76" y="1234" font-size="13" text-anchor="start" fill="#2E7D6F" font-weight="bold">LEAD 1 · consensus, the one positive</text>
+<text x="76" y="1256" font-size="12" text-anchor="start" fill="#14231C">M = 5 median committee:  0.602   ( n = 10 )</text>
+<text x="76" y="1275" font-size="12" text-anchor="start" fill="#14231C">vs a compute-matched single model:  +0.232 [+0.130, +0.334]</text>
+<text x="76" y="1294" font-size="12" text-anchor="start" fill="#14231C">vs its BEST member, same block:  +0.058 [−0.008, +0.124], a null</text>
+<text x="486" y="1234" font-size="13" text-anchor="start" fill="#C88A1E" font-weight="bold">LEAD 2 · the representation</text>
+<text x="486" y="1256" font-size="12" text-anchor="start" fill="#14231C">PiWM-columns (patch):  9.58°, the only arm below the bound</text>
+<text x="486" y="1275" font-size="12" text-anchor="start" fill="#14231C">LpWM-ltv (cls):  15.72°, worse than the 14.51° bound</text>
+<text x="486" y="1294" font-size="12" text-anchor="start" fill="#14231C">so a patch member SEES the variable a cls member cannot</text>
+<rect x="60" y="1320" width="816" height="210" rx="8" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.6"/>
+<text x="468.0" y="1346" font-size="17" text-anchor="middle" fill="#2E7D6F" font-weight="bold">the prediction, and what refutes it</text>
+<text x="468.0" y="1365" font-size="12" text-anchor="middle" fill="#6C786C">solid = measured;  hollow = not yet run</text>
+<path d="M170,1388 L170,1482 L520,1482" stroke="#546060" stroke-width="1.3" fill="none" stroke-opacity="0.8"/>
+<text x="166" y="1380" font-size="12" text-anchor="start" fill="#6C786C">CEM success</text>
+<path d="M170,1414.4 L520,1414.4" stroke="#2E7D6F" stroke-width="1.3" stroke-dasharray="5,4" stroke-opacity="0.8"/>
+<text x="178" y="1406.4095238095238" font-size="11" text-anchor="start" fill="#2E7D6F" font-weight="bold">the cls committee's 0.602</text>
+<circle cx="210" cy="1469.2428571428572" r="5.5" fill="#546060" stroke="#546060" stroke-width="1.8"/>
+<text x="210" y="1457.2428571428572" font-size="11.5" text-anchor="middle" fill="#14231C" font-weight="bold">0.357</text>
+<text x="210" y="1502" font-size="10.5" text-anchor="middle" fill="#6C786C">LpWM-ltv</text>
+<text x="210" y="1516" font-size="10.5" text-anchor="middle" fill="#6C786C">single, cls</text>
+<circle cx="288" cy="1455.5904761904762" r="5.5" fill="#546060" stroke="#546060" stroke-width="1.8"/>
+<text x="288" y="1443.5904761904762" font-size="11.5" text-anchor="middle" fill="#14231C" font-weight="bold">0.418</text>
+<text x="288" y="1502" font-size="10.5" text-anchor="middle" fill="#6C786C">PiWM-columns</text>
+<text x="288" y="1516" font-size="10.5" text-anchor="middle" fill="#6C786C">single, patch</text>
+<circle cx="366" cy="1414.4095238095238" r="5.5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="1.8"/>
+<text x="366" y="1502" font-size="10.5" text-anchor="middle" fill="#6C786C">vote5-median</text>
+<text x="366" y="1516" font-size="10.5" text-anchor="middle" fill="#6C786C">committee, cls</text>
+<path d="M414,1388 L414,1482" stroke="#6C786C" stroke-width="1.1" stroke-dasharray="4,4" stroke-opacity="0.7"/>
+<rect x="436" y="1390" width="48" height="21.4" rx="3" fill="#2E7D6F" fill-opacity="0.15" stroke="#2E7D6F" stroke-width="1.3" stroke-dasharray="5,4"/>
+<path d="M452.5,1400.4095238095238 L460,1393.4095238095238 L467.5,1400.4095238095238" stroke="#2E7D6F" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="460" cy="1414.4095238095238" r="5.5" fill="#FFFFFF" stroke="#A83024" stroke-width="1.8"/>
+<text x="460" y="1502" font-size="10.5" text-anchor="middle" fill="#6C786C">S3</text>
+<text x="460" y="1516" font-size="10.5" text-anchor="middle" fill="#6C786C">committee, patch</text>
+<text x="548" y="1398" font-size="13" text-anchor="start" fill="#2E7D6F" font-weight="bold">lands ABOVE the cls committee</text>
+<text x="548" y="1417" font-size="12.5" text-anchor="start" fill="#2E7D6F">⇒  the cap IS the best member's quality,</text>
+<text x="548" y="1435" font-size="12.5" text-anchor="start" fill="#2E7D6F">and the representation is the lever</text>
+<text x="548" y="1456" font-size="13" text-anchor="start" fill="#A83024" font-weight="bold">ties at 0.602</text>
+<text x="548" y="1475" font-size="12.5" text-anchor="start" fill="#A83024">⇒  the cap is NOT member quality, and the</text>
+<text x="548" y="1493" font-size="12.5" text-anchor="start" fill="#A83024">measured mechanism for the one positive is wrong</text>
+<text x="60.0" y="1560" font-size="14.25" text-anchor="start" fill="#14231C">Var<tspan font-size="12" dy="5.0">ens</tspan><tspan dy="-5.0"></tspan> / Var<tspan font-size="12" dy="5.0">member</tspan><tspan dy="-5.0"></tspan>  =  </text>
+<text x="203.7" y="1560" font-size="14.25" text-anchor="start" fill="#14231C">ρ</text>
+<path d="M204.1,1546.0 L211.4,1546.0" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<text x="211.9" y="1560" font-size="14.25" text-anchor="start" fill="#14231C">  +  ( 1 − </text>
+<text x="268.9" y="1560" font-size="14.25" text-anchor="start" fill="#14231C">ρ</text>
+<path d="M269.3,1546.0 L276.6,1546.0" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<text x="277.0" y="1560" font-size="14.25" text-anchor="start" fill="#14231C"> ) / M</text>
+<text x="329.3" y="1560" font-size="14.25" text-anchor="start" fill="#14231C">ρ</text>
+<path d="M329.7,1546.0 L337.0,1546.0" stroke="#14231C" stroke-width="1.10" stroke-linecap="round"/>
+<text x="337.4" y="1560" font-size="14.25" text-anchor="start" fill="#14231C">  =  +0.0010 [−0.015, +0.016] at K = 1 ,   −0.0008 at K = 5</text>
+<text x="719.7" y="1560" font-size="13.11" text-anchor="start" fill="#6C786C">so the cap is not correlation</text>
+<text x="60.0" y="1586" font-size="12.75" text-anchor="start" fill="#14231C">the median combines per-member RANKS, not MSEs – scale-free, so members need not share a latent basis</text>
+<text x="697.5" y="1586" font-size="12.11" text-anchor="start" fill="#6C786C">nothing here enters a training loss</text>
+<rect x="60" y="1602" width="173.0" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="146.524" y="1619" font-size="12" text-anchor="middle" fill="#6C786C">cls committee, M = 5 median</text>
+<text x="146.524" y="1638" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">0.602   ( n = 10 )</text>
+<rect x="241.0" y="1602" width="192.1" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="337.11199999999997" y="1619" font-size="12" text-anchor="middle" fill="#6C786C">vs a compute-matched single</text>
+<text x="337.11199999999997" y="1638" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">+0.232 [+0.130, +0.334]</text>
+<rect x="441.2" y="1602" width="229.5" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="555.912" y="1619" font-size="12" text-anchor="middle" fill="#6C786C">vs best member, same block</text>
+<text x="555.912" y="1638" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">+0.058 [−0.008, +0.124]  null</text>
+<rect x="678.6" y="1602" width="173.8" height="44" rx="6" fill="#FFFFFF" stroke="#2E7D6F" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="765.568" y="1619" font-size="12" text-anchor="middle" fill="#6C786C">cost</text>
+<text x="765.568" y="1638" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">10 evals, no training</text>
+</g>
+</svg>
