@@ -21,8 +21,12 @@
 #     (analysis/collect_evals.py:resolve_arm).
 cd /lustre/fs11/portfolios/edgeai/projects/edgeai_tao-ptm_image-foundation-model-clip/users/chrislin/projects/lpworldmodel
 PY=/lustre/fsw/portfolios/edgeai/users/chrislin/envs/lpwm/bin/python
-ARMS="PiWM-tok25 PiWM-tok50 PiWM-tok75 PiWM-tok90 PiWM-columns \
-PiWM-patchdecode PiWM-patchdecode-detach LpWM-ltv-lr9e5 LpWM-ltv-d2048-hilr"
+# Round 7 v2. The TOKEN_DROP ladder and the S2/S4 extra seeds were cancelled (confounded at
+# fixed capacity, and under-powered by 5x respectively -- diary/2026-09-05 §2b, §2c). What
+# replaces them is the DIMENSION-MATCHED grid: each row a cls-vs-patch contrast at equal total
+# latent, each column a capacity ladder at fixed feature.
+ARMS="LpWM-ltv-p1 PiWM-cols-p4 PiWM-cols-p16 LpWM-ltv-d1536 LpWM-ltv-d6144 \
+LpWM-ltv-lr9e5 LpWM-ltv-d2048-hilr PiWM-columns PiWM-patchdecode PiWM-patchdecode-detach"
 EVALED=""
 LAST=""
 while true; do
@@ -61,15 +65,21 @@ def R(n):
 # S1's ladder is read against ITS OWN family endpoint (PiWM-columns, TOKEN_DROP=0), never
 # against the cls baseline -- comparing a patch arm to a cls arm is the confound S1 exists
 # to avoid. S2/S4/S5 are read against the control each one's spec names.
-P = [("S1 tok25 vs columns","PiWM-tok25","PiWM-columns"),
-     ("S1 tok50 vs columns","PiWM-tok50","PiWM-columns"),
-     ("S1 tok75 vs columns","PiWM-tok75","PiWM-columns"),
-     ("S1 tok90 vs columns","PiWM-tok90","PiWM-columns"),
-     ("S2 columns vs base","PiWM-columns","LpWM-ltv"),
-     ("S4 patchdec vs detach","PiWM-patchdecode","PiWM-patchdecode-detach"),
-     ("S5 d384-lowlr vs base","LpWM-ltv-lr9e5","LpWM-ltv"),
-     ("S5 d2048-hilr vs base","LpWM-ltv-d2048-hilr","LpWM-ltv"),
-     ("S3 patchvote vs clsvote","PiWM-patchvote5-median","PiWM-vote5-median")]
+# Rows of the aligned grid: cls vs patch at EQUAL total latent dimension. Comparing across
+# rows would confound the feature with capacity, which is the fault this grid exists to fix.
+P = [("dims  384: patch vs cls","LpWM-ltv-p1","LpWM-ltv"),
+     ("dims 1536: patch vs cls","PiWM-cols-p4","LpWM-ltv-d1536"),
+     ("dims 6144: patch vs cls","PiWM-cols-p16","LpWM-ltv-d6144"),
+     # Columns of the same grid: capacity at fixed feature.
+     ("cls  384 -> 1536","LpWM-ltv-d1536","LpWM-ltv"),
+     ("cls  384 -> 6144","LpWM-ltv-d6144","LpWM-ltv"),
+     ("patch  1 -> 4 tokens","PiWM-cols-p4","LpWM-ltv-p1"),
+     ("patch  4 -> 16 tokens","PiWM-cols-p16","PiWM-cols-p4"),
+     # S5: the width x LR 2x2 the campaign designed and never ran.
+     ("S5 d384 @ low lr","LpWM-ltv-lr9e5","LpWM-ltv"),
+     ("S5 d2048 @ base lr","LpWM-ltv-d2048-hilr","LpWM-ltv"),
+     # Leave-one-out committees, M matched at 11 across both arms.
+     ("LOO committee: patch vs cls","PiWM-loo11-columns","PiWM-loo11-ltv")]
 out, ready = [], 0
 for nm, x, y in P:
     rx, ry = R(x), R(y)
