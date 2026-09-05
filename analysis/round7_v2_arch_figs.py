@@ -489,11 +489,13 @@ def g2_loo_consensus():
     s += pill(722, 1310, "CEM", K, rx=44, ry=21)
     s += txt(722, 1352, "argsort( loss )[ : topk ]", 11.5, fill=MUTED)
     s += txt(574, 1274, "no rule knob", 12, fill=ACCENT[K], weight="bold")
-    s += txt(468, 1378, "filled = a member of this block's committee     " + DOT
+    # "filled = a member" would be a lie at M = 5: the row draws n - 1 = 15 slots and only
+    # the first M of them are actually taken. The row is the ELIGIBLE pool, so it says so.
+    s += txt(468, 1378, "filled = eligible for this block's committee     " + DOT
              + "     crossed = the one seed left out, a different one every block",
              11.5, fill=MUTED)
-    s += txt(468, 1398, "the first M members are taken in order, and M is capped to the "
-             "value below", 11.5, fill=MUTED)
+    s += txt(468, 1398, "the committee is the first M of the filled slots, in order "
+             "" + DOT + " M is the capped value below, not the 15 drawn", 11.5, fill=MUTED)
 
     # -- row C: the cap, and why an uncapped M would repeat G1's mistake
     s += frame(60, 1428, 816, 176, "M is CAPPED " + NDASH + " first by the smaller arm, then by memory", K,

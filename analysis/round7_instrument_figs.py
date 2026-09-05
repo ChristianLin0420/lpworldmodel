@@ -133,6 +133,8 @@ BRIEF_SEED_SD, BRIEF_BINOM_SD = 0.144, 0.043
 #: 2026-09-04 §7 retraction box: arm-level medians over pooled episodes.
 BRIEF_HEALTHY_PX, BRIEF_FAILING_PX = (13.0, 28.0), (1000.0, 2700.0)
 #: 2026-09-05 §2b / §S4. columns' 69 is reproduced below; patchdecode's 36 is not.
+#: What the notes recorded. columns reproduces exactly; patchdecode's 36 does not and has
+#: since been corrected to the computed 20 (diary/2026-09-05 §7.1), which is what is drawn.
 BRIEF_N_REQ = {"columns": 69, "patchdecode": 36}
 #: run_health.py's own constants, restated so the panel cannot drift from the detector.
 DIVERGENCE_PX, SR_OK = 100.0, 0.1
@@ -237,13 +239,20 @@ def panel_resolution(ax, E, pop):
             ha="right", va="bottom", fontsize=9.2, fontweight="bold", color=C["crimson"],
             path_effects=HALO)
 
-    # where each contrast type finally gets under that spread
+    # where each contrast type finally gets under that spread. The crossing itself is at a
+    # FRACTIONAL n (6.03 and 18.34); seeds are integers, so the mark goes on the first
+    # integer n that actually clears the rule. Marking the fractional crossing put "n = 7"
+    # directly above a guide that landed on the "6" tick, which reads as a contradiction.
     for label, sd, mde8, k, key in CONTRAST_TYPES:
-        nx = n_for_mde(mde8, pop["corr"])
-        ax.scatter([nx], [pop["corr"]], s=96, facecolor="white", edgecolor=C[key],
+        nx = int(np.ceil(n_for_mde(mde8, pop["corr"])))
+        ny = float(mde_at(mde8, nx))
+        ax.scatter([nx], [ny], s=96, facecolor="white", edgecolor=C[key],
                    linewidth=2.0, zorder=6)
-        ax.plot([nx, nx], [0, pop["corr"]], color=C[key], lw=0.9, ls=(0, (2, 2)), zorder=2)
-        ax.text(nx, pop["corr"] - 0.008, f"n = {int(np.ceil(nx))}", ha="center",
+        # The guide is BROKEN around its own label and stops above panel A's footer line:
+        # a halo hides a 0.9 pt dash inside a glyph but not in the spaces between words.
+        for y0, y1 in ((0.022, ny - 0.020), (ny - 0.006, ny)):
+            ax.plot([nx, nx], [y0, y1], color=C[key], lw=0.9, ls=(0, (2, 2)), zorder=2)
+        ax.text(nx, ny - 0.008, f"n = {nx}", ha="center",
                 va="top", fontsize=9.4, fontweight="bold", color=C[key],
                 path_effects=HALO)
 
@@ -270,29 +279,44 @@ def panel_resolution(ax, E, pop):
             path_effects=HALO)
 
     # the effects at stake
-    place = {"columns": (-1, "left", "needs n = %d"),
-             "patchdecode": (-1, "left", "needs n = %d"),
-             "consensus": (+1, "right", None)}
+    # (label side, label end, required-n template). patchdecode's label sits on the RIGHT:
+    # on the left the planner/eval MDE curve passes through y = 0.140 at n = 3.0-3.4 and
+    # struck the label out.
+    #
+    # The marker goes at the COMPUTED required n, not at the one the notes recorded. columns
+    # agrees to a rounding (69.4 vs 69); patchdecode does not (20.0 vs 36), and the 36 has since
+    # been withdrawn -- it was the number S4 was cancelled over, and S4 is now restored at 20.
+    place = {"columns": (-1, "left", "needs n = {calc:.0f}", +1),
+             # below its rule (-1): at n = 20 the label sits where "MDE 0.150" is drawn, and
+             # the correction narrative is in the footer rather than crammed onto the mark.
+             "patchdecode": (-1, "right", "needs n = {calc:.0f}", -1),
+             "consensus": (+1, "right", None, 0)}
     for name, e in E.items():
         y, key = e["mean"], e["key"]
-        side, at, tmpl = place[name]
+        side, at, tmpl, tside = place[name]
         ax.plot([xlo, xhi], [y, y], color=C[key], lw=1.2, ls=(0, (1.6, 2.0)), zorder=3)
         ax.text(xlo * 1.03 if at == "left" else xhi * 0.97, y + side * 0.0075, e["label"],
                 ha=at, va="bottom" if side > 0 else "top", fontsize=9.2,
                 fontweight="bold", color=C[key], path_effects=HALO)
         if tmpl:
-            nx = BRIEF_N_REQ[name]
+            nx = int(round(e["n_req"]))
             ax.scatter([nx], [y], s=96, facecolor="white", edgecolor=C[key], linewidth=2.0,
                        zorder=6)
-            ax.text(nx, y + 0.0075, tmpl % nx, ha="center", va="bottom", fontsize=9.2,
+            ax.text(nx, y + tside * 0.0075, tmpl.format(brief=nx, calc=e["n_req"]),
+                    ha="center", va="bottom" if tside > 0 else "top", fontsize=9.2,
                     fontweight="bold", color=C[key], path_effects=HALO)
         else:
             ax.scatter([e["n"]], [y], s=110, color=C[key], marker="D", edgecolor="white",
                        linewidth=1.0, zorder=6)
-            ax.text(e["n"] * 1.16, y, f"resolved at n = {e['n']}", ha="left", va="center",
-                    fontsize=9.2, fontweight="bold", color=C[key], path_effects=HALO)
+            # ABOVE the rule, not on it: a halo masks glyphs but not the spaces between
+            # words, so the dotted rule printed through the label as a strikethrough.
+            ax.text(e["n"] * 1.10, y + 0.0075, f"resolved at n = {e['n']}", ha="left",
+                    va="bottom", fontsize=9.2, fontweight="bold", color=C[key],
+                    path_effects=HALO)
 
-    callout(ax, 13.6, 0.200,
+    # 0.2135, not 0.200: the required-n label at the n = 36 mark is two clauses wide and
+    # the callout's ROUNDED BOX -- which is fatter than its text -- came down onto it.
+    callout(ax, 13.6, 0.2135,
             "A RETRAINED CONTRAST AT n = 8 CANNOT RESOLVE\n"
             f"ANYTHING SMALLER THAN {CONTRAST_TYPES[0][2] / pop['corr']:.2f}× THE ENTIRE\n"
             "SPREAD OF THE POPULATION IT SAMPLES",
@@ -532,18 +556,23 @@ def panel_detectors(ax, H):
             f"{n_gate_pts} of the {len(pts)} plotted runs",
             ha="right", va="center", fontsize=9.2, fontweight="bold", color=C["purple"],
             linespacing=1.35, path_effects=HALO)
-    # x 30-110 above effective_dim 29 is the one gap in the cloud wide enough for the key.
-    for yy, lab, key in ((40.5, f"SR > {SR_OK:g}   plans", "green"),
-                         (35.8, f"SR ≤ {SR_OK:g}   does not", "crimson")):
-        ax.scatter([58.0], [yy], s=34, color=C[key], edgecolor="white", linewidth=0.5,
+    # x 30-110 above effective_dim 29 is the one gap in the cloud wide enough for the key,
+    # but it is not free: DETECTOR 2's own threshold rule stands at x = 100 and the callout
+    # box reaches x = 33 / y = 37.4. The key therefore runs 38 -> 74, and its rows dodge the
+    # y = 40 gridline, so no rule of any weight crosses a word.
+    for yy, lab, key in ((42.6, f"SR > {SR_OK:g}   plans", "green"),
+                         (37.2, f"SR ≤ {SR_OK:g}   does not", "crimson")):
+        ax.scatter([38.0], [yy], s=34, color=C[key], edgecolor="white", linewidth=0.5,
                    zorder=5)
-        ax.text(67.0, yy, lab, ha="left", va="center", fontsize=9.6,
+        ax.text(43.0, yy, lab, ha="left", va="center", fontsize=9.6,
                 fontweight="bold", color=C[key], path_effects=HALO)
 
     n_dead = int((y <= 0).sum())
     worst = max(r["sr"] for r in pts if r["effective_dim"] <= 0)
     ax.annotate(f"{n_dead} runs at effective_dim == 0\nbest of them scores SR = {worst:.2f}",
-                xy=(float(np.median(x[y <= 0])), 0.0), xytext=(430.0, -1.0),
+                # the runs it names span x = 158-212; the text starts at 278 so no marker
+                # can touch it and the leader stays the only thing that reaches them.
+                xy=(float(np.median(x[y <= 0])), 0.0), xytext=(520.0, -1.0),
                 fontsize=9.2, fontweight="bold", color=C["amber"], ha="center", va="top",
                 linespacing=1.35,
                 arrowprops=dict(arrowstyle="-", color=C["amber"], lw=1.0,
@@ -589,6 +618,13 @@ def text_boxes(fig):
         if t is None or not t.get_visible() or not str(t.get_text()).strip():
             return
         bb = t.get_window_extent(renderer=r)
+        # A callout's ink is its ROUNDED BOX, which is fatter than its text by the pad.
+        # Measuring the text alone passed a label that sat under the box's border.
+        patch = t.get_bbox_patch()
+        if patch is not None:
+            pb = patch.get_window_extent(renderer=r)
+            if pb.width > 0 and pb.height > 0:
+                bb = Bbox.union([bb, pb])
         items.append((owner, str(t.get_text()).split("\n")[0][:48],
                       Bbox.from_extents(bb.x0 - 2, bb.y0 - 2, bb.x1 + 2, bb.y1 + 2), bb))
 
@@ -724,11 +760,14 @@ def fig_instrument(out, check=True):
         f"Required n is priced at each contrast's OWN paired sd, which is why columns costs "
         f"n = 69 and not the ~35 the median-sd curve suggests: "
         f"n = ((z.975 + z.80)·sd/delta)^2 gives "
-        f"{n_required(E['columns']['mean'], E['columns']['sd']):.0f} for columns, the notes' "
-        f"69. The same formula gives "
-        f"{n_required(E['patchdecode']['mean'], E['patchdecode']['sd']):.0f} for "
-        f"patchdecode, not the 36 the notes record and this figure draws; that discrepancy "
-        f"is unresolved and is marked rather than smoothed over.")),
+        f"{n_required(E['columns']['mean'], E['columns']['sd']):.0f} for columns, matching the "
+        f"notes' 69. The same formula gives "
+        f"{n_required(E['patchdecode']['mean'], E['patchdecode']['sd']):.0f} for patchdecode, "
+        f"NOT the 36 the notes recorded. That discrepancy is now resolved: no patchdecode "
+        f"pairing prices at 36 (the alternatives give 15 and 3938, and 36 would need a paired "
+        f"sd of 0.300, which none has), so the 36 is withdrawn and this figure draws the "
+        f"computed 20. S4 had been cancelled as under-powered on the strength of the 36; it is "
+        f"restored and launched to n = 20.")),
         fontsize=8.2, color=MUTED, ha="left", va="bottom", linespacing=1.5)
 
     if check:
