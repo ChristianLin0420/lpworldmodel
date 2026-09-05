@@ -185,7 +185,11 @@ def fig_grid(out):
     if lvals:
         m, lo, hi, n = _mean_ci(lvals.values())
         txt += f"\nmean {m:.3f}, n = {n}: the contrast this grid replaces"
-    ax.text((len(dims) - 1) / 2.0, -0.62, txt, ha="center", va="center", fontsize=9,
+    # LEFT-anchored at the axis start, not centred. Centred it landed directly over the
+    # "1,536" column, and in a figure whose entire claim is which column a thing sits in,
+    # that reads as an annotation ON that column -- when the whole point is that columns is
+    # at 98,304 and therefore off this axis altogether.
+    ax.text(-0.46, -0.62, txt, ha="left", va="center", fontsize=9,
             color=MUTED, style="italic", zorder=3)
 
     suptitle(fig, "Round 7 — the dimension-matched grid",
