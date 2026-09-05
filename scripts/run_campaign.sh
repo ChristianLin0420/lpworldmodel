@@ -673,6 +673,13 @@ wave25_arms() {
     ARMS[PiWM-overshoot2]="ltv 1.0 5e-4 NUM_PRED=2 OVERSHOOT=true"
     ARMS[PiWM-jump3]="ltv 1.0 5e-4 NUM_PRED=3"
     ARMS[PiWM-overshoot3]="ltv 1.0 5e-4 NUM_PRED=3 OVERSHOOT=true"
+    # K=8 NEEDS MORE THAN THE DEFAULT 4 WINDOWS. Measured over this campaign, one training
+    # window COMPLETES (rather than hitting the 3h55m cap and handing over) on 39/78 K=5
+    # windows but only 10/64 K=8 ones -- NUM_PRED=8 is ~1.6x the rollout cost of K=5, and K=5
+    # is exactly the arm that fits in four. Four seeds per arm finished; the other eight
+    # exhausted their chain at Epoch 1 and stranded with a w4 TIMEOUT and no DONE.
+    # Relaunch these two arms with WINDOWS=6. Over-provisioning is nearly free: a window
+    # no-ops immediately once DONE exists (scripts/submit_until_done.sh).
     ARMS[PiWM-jump8]="ltv 1.0 5e-4 NUM_PRED=8"
     ARMS[PiWM-overshoot8]="ltv 1.0 5e-4 NUM_PRED=8 OVERSHOOT=true"
 }
