@@ -8,6 +8,13 @@
 # training completes, and 'afterany' means a preempted or failed window still
 # lets the next one pick up from checkpoints/model_latest.pth.
 #
+# CONSEQUENCE FOR MONITORING: a TIMEOUT on window w1..w(N-1) is the NORMAL path, not a
+# failure. Measured over this archive: 517 w1 TIMEOUTs against 542 w3 COMPLETEDs -- the
+# usual life of a run is "w1 times out, w2 times out, w3 completes". Any watcher that
+# greps sacct for TIMEOUT will therefore fire on almost every healthy run and bury the
+# real failures. Flag TIMEOUT only on the LAST window, or on a non-windowed job such as
+# eval_* (which is how the patch committees hitting the 03:55 cap were caught).
+#
 # Usage:
 #   RUN_NAME=probe_mlp_var_pd384_s0 PREDICTOR=mlp_var PROJ_DIM=384 MUP=1 \
 #   MUP_LR=5e-4 REG_WEIGHT=0.1 MU=0 SEED=0 WINDOWS=4 \
