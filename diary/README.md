@@ -596,17 +596,42 @@ either named channel**. Every contrast that looked "death-dominated" under one o
 There is therefore **no defensible statement of the form "X % of this effect is training failure
 and Y % is worse planning."** Report the two facts side by side and let them stand.
 
-#### Two further cautions on P(SR > 0)
+#### P(SR > 0) does NOT mean "the model trained" — checked, and it can mean the opposite
 
-* **It is not "the model died".** A 50-episode success rate of exactly 0 is an ordinary binomial
-  draw for a model whose true rate is small but non-zero — at p = 0.02, P(all 50 fail) = 0.36. So
-  P(SR > 0) is *the rate of returning a non-zero score*, which is a measurable and testable
-  quantity, and not evidence of a distinct failure state.
-* **`mean(SR | SR > 0)` conditions on a post-treatment variable**, which is a selection bias, so
-  it is descriptive only and never a causal contrast. Its one reassuring property here is that
-  the bias does not run the dangerous way: Spearman(P(SR>0), mean SR | SR>0) = **+0.814**, i.e.
-  arms that lose seeds also score badly on the seeds they keep, rather than being flattered by
-  selection.
+This is the correction that matters, and it reverses the first version of this section.
+
+**Read the optimisation diagnostics of the zero-scoring seeds** (`err/rel_mse`,
+`sparsity/effective_dim`, from `wandb/latest-run`, never `glob()[0]`). Control `LpWM-ltv`
+spans `rel_mse` 0.0082–0.0281 and `effective_dim` 15.5–27.7.
+
+* **`PiWM-consist-w0p3`** — all **8** seeds sit at `rel_mse` 0.0096–0.0179 and `effective_dim`
+  18.9–20.6, i.e. **every one inside the control's range on every optimisation diagnostic**,
+  while six of them score exactly 0.000. These models trained *as well as the baseline* and
+  cannot plan. That is a **planning** result, and the first version of this section called it a
+  training-stability result. Exactly backwards.
+* **`PiWM-drop95`** — the two seeds that "work" (s3, s7, SR = 0.02) both have
+  **`effective_dim` = 0.0**: constant-output models. The three seeds that retain any
+  representation at all (3.4, 4.8, 6.1) score **0.00**.
+* **`PiWM-incr-eps0p001`** — same inversion. The two "working" seeds have `effective_dim` 0.0;
+  the two healthiest models in the arm (43.5 and 40.2) both score **0.00**.
+
+So in those arms **P(SR > 0) is anti-correlated with model health**: a collapsed constant-output
+model is counted as "working" because it drew one success in fifty episodes. The statistic is a
+fact about the score distribution and nothing more. Use it as a *description* — "this arm returns
+a non-zero score on 2 of 8 seeds" — and never as evidence about optimisation. If you want to know
+whether an arm trained, **read the training diagnostics**, which is one command.
+
+#### Two arguments that do not work, recorded so they are not made again
+
+* **`mean(SR | SR > 0)` conditions on a post-treatment variable.** The first version defended it
+  by noting Spearman(P(SR>0), mean SR | SR>0) = +0.814, arguing selection would have produced a
+  negative sign. **That argument has no power.** Simulating 69 arms at the observed sample sizes:
+  a single continuous latent censored at zero with *no death mechanism at all* gives ρ = **+0.842**;
+  two mechanisms with a common damage factor give **+0.848**; only two *independent* mechanisms
+  give **+0.001**. The observed +0.812 excludes only the last, which nobody proposed. And in the
+  censoring model, selection **is** inflating the conditional mean (by +0.053) while ρ = +0.839 —
+  so the sign of a between-arm correlation says nothing about within-arm selection.
+* **The product decomposition is not identified**, as above.
 
 ## 8. The standing trap: nearly every metric here is a collapse detector
 
