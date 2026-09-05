@@ -4,7 +4,7 @@
 rounds 1–7; the failure is named beside each rule so the rule can be argued with rather than
 obeyed. Numbers recomputed from the archive on 2026-09-05.
 
-The short version: **one metric decides, three gates guard it, six popular metrics are disqualified
+The short version: **one metric decides, three gates guard it, five popular metrics are disqualified
 as targets, and nothing becomes a target without passing a four-stage screen that includes an
 intervention.**
 
@@ -56,7 +56,7 @@ pre-registered gate catches neither failure the campaign actually met.
 
 | gate | threshold | notes |
 |---|---|---|
-| **collapse** | `sparsity/effective_dim == 0` | the only perfect predictor of SR ≈ 0. A constant-output model has `rel_mse ≈ 0` and scores *healthy* on the pre-registered gate. |
+| **collapse** | `sparsity/effective_dim < 10` | `== 0` is **too strict and was the wrong threshold**: 48 runs sit at `0 < effective_dim < 10` and pass every gate. `LpWM-ltv-d1536` seed 5 is at **1.04** — effectively rank-1 — with `rel_mse` 0.061, and it passed all three. Benchmark against the **task**, not D: PushT's own participation ratio is **4.31**, so anything under ~10 is at or below the task's own dimensionality. |
 | **divergence** | median `agent_pos_diff > 100 px` | **94.5 % accurate (273/289 runs)** — a **flag, not a gate**. 14 healthy runs sit above the line, so gating on it discards ~a tenth of the healthy population. |
 | fit | `rel_mse ≥ 0.5` | the pre-registered death condition. Kept, but it catches **neither** of the above: 139 flagged runs pass it. |
 
@@ -78,8 +78,8 @@ inverts. None may be used as an optimisation target or a design justification.
 | `causal/d_action` | ρ = +0.624, n = 45 | **+0.316, p = 0.142** (n = 23) | **interventionally**: `jump2` reaches **1.8×** baseline action sensitivity and gains **nothing** (−0.035) |
 | `h8/h1` rollout growth | ρ = +0.558 | **−0.001** demeaned within arm | closes any rollout-stability objective without a horizon sweep |
 | probe decodability (position, angle) | ρ = −0.573 over 35 arms | **+0.45 / +0.51 — inverted** among the 16 arms that encode anything | the five best orientation decoders are five of the worst planners (−0.297 … −0.372) |
-| `sparsity/*` (all measures) | weak | dead at every threshold | per-seed values are bimodal; arm means are mixtures of a draw |
-| `effective_dim` | ρ = +0.560 | death detector with an interior optimum | `== 0` is diagnostic; "more" is not a direction |
+| `sparsity/l0_frac`, `dead_unit_frac` | weak | dead at every threshold | per-seed values are bimodal; arm means are mixtures of a draw |
+
 | `log10 cond(W_c)` / controllability | ρ = +0.473 | 31 of 56 arms broken | never separated from collapse |
 
 **The standing trap.** 31 of 56 trained arms in this archive are broken. Any metric computed over
@@ -99,6 +99,23 @@ error at h1, −14 % on `mse_t1`) with `h8/h1` unchanged.
 **Stated as a limitation, not a result:** that it *predicts* success within arm does not establish
 that *optimising* it improves success. That is exactly the inference that failed for `d_action`,
 and it has not yet been tested here. Any proposal resting on it must include the intervention.
+
+### 4.1 A second, weaker survivor — `effective_dim`
+
+Demeaned within arm over 358 runs in 49 non-diverged arms, `sparsity/effective_dim` gives
+**ρ = +0.342, p = 3.1e-11**. It is *not* dead, and an earlier draft of this protocol and of
+`2026-09-05 §8.5` wrongly listed it among the disqualified. It is about half the strength of the
+one-step axis (−0.680) and it is still not licensed as a target, for a reason the archive states
+directly:
+
+**Four arms already reached the manipulation, at fixed width, and it was worth nothing.**
+`PiWM-lie` 27.09, `PiWM-lie-sim` 27.79, `PiWM-multact` 27.20, `LpWM-linvar` 27.19 — all
++3.5 over the baseline's ~23.7, achieved without adding capacity. They planned at **0.022, 0.020,
+0.055, 0.080**, four of the worst numbers in the campaign.
+
+So `effective_dim` passes stages 2 and 3 of the screen and **fails stage 4 on evidence already in
+hand**. Any proposal to raise it must explain why it differs from those four arms, and must clear a
+manipulation strictly larger than any that has ever coexisted with a working planner.
 
 ---
 
