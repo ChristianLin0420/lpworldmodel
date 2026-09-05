@@ -242,15 +242,180 @@
   "diverged": false
  },
  {
-  "run": "LpWM-ltv-d1536_pd1536_bf16_s0",
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s10",
   "arm": "LpWM-ltv-d1536",
-  "seed": 0,
-  "effective_dim": 24.147350311279297,
-  "rel_mse": 0.009658603928983212,
+  "seed": 10,
+  "effective_dim": 30.54865074157715,
+  "rel_mse": 0.008629076182842255,
+  "collapsed": false,
+  "agent_med": 11.274638175964355,
+  "agent_frac_diverged": 0.04,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s3",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 3,
+  "effective_dim": 29.47721290588379,
+  "rel_mse": 0.008290921337902546,
+  "collapsed": false,
+  "agent_med": 23.351516723632812,
+  "agent_frac_diverged": 0.26,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s4",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 4,
+  "effective_dim": 31.447092056274414,
+  "rel_mse": 0.007922534830868244,
   "collapsed": false,
   "agent_med": null,
   "agent_frac_diverged": null,
   "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s5",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 5,
+  "effective_dim": 1.0351078510284424,
+  "rel_mse": 0.06058283522725105,
+  "collapsed": false,
+  "agent_med": null,
+  "agent_frac_diverged": null,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s6",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 6,
+  "effective_dim": 25.7210693359375,
+  "rel_mse": 0.00966489128768444,
+  "collapsed": false,
+  "agent_med": 11.12332534790039,
+  "agent_frac_diverged": 0.02,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s7",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 7,
+  "effective_dim": 27.13496208190918,
+  "rel_mse": 0.007958551868796349,
+  "collapsed": false,
+  "agent_med": 36.316158294677734,
+  "agent_frac_diverged": 0.14,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s8",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 8,
+  "effective_dim": 29.85028076171875,
+  "rel_mse": 0.007286590989679098,
+  "collapsed": false,
+  "agent_med": 10.198156356811523,
+  "agent_frac_diverged": 0.02,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d1536_pd1536_bf16_s9",
+  "arm": "LpWM-ltv-d1536",
+  "seed": 9,
+  "effective_dim": 30.585140228271484,
+  "rel_mse": 0.006704762112349272,
+  "collapsed": false,
+  "agent_med": 13.869789123535156,
+  "agent_frac_diverged": 0.08,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s10",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 10,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 190.90582275390625,
+  "agent_frac_diverged": 0.82,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s3",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 3,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 180.94830322265625,
+  "agent_frac_diverged": 0.78,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s4",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 4,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 192.03411865234375,
+  "agent_frac_diverged": 0.84,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s5",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 5,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 162.33184814453125,
+  "agent_frac_diverged": 0.78,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s6",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 6,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 198.99105834960938,
+  "agent_frac_diverged": 0.8,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s7",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 7,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 162.59661865234375,
+  "agent_frac_diverged": 0.8,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s8",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 8,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": null,
+  "agent_frac_diverged": null,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d2048-hilr_pd2048_bf16_s9",
+  "arm": "LpWM-ltv-d2048-hilr",
+  "seed": 9,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 217.9423065185547,
+  "agent_frac_diverged": 0.84,
+  "diverged": true
  },
  {
   "run": "LpWM-ltv-d2048_pd2048_bf16_s0",
@@ -316,6 +481,61 @@
   "collapsed": false,
   "agent_med": null,
   "agent_frac_diverged": null,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d6144_pd6144_bf16_s10",
+  "arm": "LpWM-ltv-d6144",
+  "seed": 10,
+  "effective_dim": 30.37409210205078,
+  "rel_mse": 0.0062593212351202965,
+  "collapsed": false,
+  "agent_med": 10.342504501342773,
+  "agent_frac_diverged": 0.06,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d6144_pd6144_bf16_s3",
+  "arm": "LpWM-ltv-d6144",
+  "seed": 3,
+  "effective_dim": 30.089763641357422,
+  "rel_mse": 0.010476822964847088,
+  "collapsed": false,
+  "agent_med": 13.134835243225098,
+  "agent_frac_diverged": 0.02,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-d6144_pd6144_bf16_s4",
+  "arm": "LpWM-ltv-d6144",
+  "seed": 4,
+  "effective_dim": 19.590463638305664,
+  "rel_mse": 0.0186216551810503,
+  "collapsed": false,
+  "agent_med": 756.2885131835938,
+  "agent_frac_diverged": 0.76,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d6144_pd6144_bf16_s8",
+  "arm": "LpWM-ltv-d6144",
+  "seed": 8,
+  "effective_dim": 13.839587211608887,
+  "rel_mse": 0.045755740255117416,
+  "collapsed": false,
+  "agent_med": 1147.451171875,
+  "agent_frac_diverged": 0.96,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-d6144_pd6144_bf16_s9",
+  "arm": "LpWM-ltv-d6144",
+  "seed": 9,
+  "effective_dim": 30.001296997070312,
+  "rel_mse": 0.007463917601853609,
+  "collapsed": false,
+  "agent_med": 16.316730499267578,
+  "agent_frac_diverged": 0.08,
   "diverged": false
  },
  {
@@ -416,6 +636,94 @@
   "agent_med": null,
   "agent_frac_diverged": null,
   "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s10",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 10,
+  "effective_dim": 22.210615158081055,
+  "rel_mse": 0.009208807721734047,
+  "collapsed": false,
+  "agent_med": 1170.67578125,
+  "agent_frac_diverged": 0.74,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s3",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 3,
+  "effective_dim": 24.644412994384766,
+  "rel_mse": 0.009743932634592056,
+  "collapsed": false,
+  "agent_med": 84.15122985839844,
+  "agent_frac_diverged": 0.46,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s4",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 4,
+  "effective_dim": 22.727014541625977,
+  "rel_mse": 0.007956068031489849,
+  "collapsed": false,
+  "agent_med": 87.94438171386719,
+  "agent_frac_diverged": 0.46,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s5",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 5,
+  "effective_dim": 20.754228591918945,
+  "rel_mse": 0.008733637630939484,
+  "collapsed": false,
+  "agent_med": 222.38885498046875,
+  "agent_frac_diverged": 0.62,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s6",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 6,
+  "effective_dim": 21.784244537353516,
+  "rel_mse": 0.012156661599874496,
+  "collapsed": false,
+  "agent_med": null,
+  "agent_frac_diverged": null,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s7",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 7,
+  "effective_dim": 20.779361724853516,
+  "rel_mse": 0.008931336924433708,
+  "collapsed": false,
+  "agent_med": 68.23297119140625,
+  "agent_frac_diverged": 0.38,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s8",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 8,
+  "effective_dim": 23.649465560913086,
+  "rel_mse": 0.00950340274721384,
+  "collapsed": false,
+  "agent_med": 16.74010467529297,
+  "agent_frac_diverged": 0.1,
+  "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-lr9e5_pd384_bf16_s9",
+  "arm": "LpWM-ltv-lr9e5",
+  "seed": 9,
+  "effective_dim": 21.940187454223633,
+  "rel_mse": 0.011212311685085297,
+  "collapsed": false,
+  "agent_med": 1676.26708984375,
+  "agent_frac_diverged": 0.78,
+  "diverged": true
  },
  {
   "run": "LpWM-ltv-mupfix_pd384_bf16_s10",
@@ -559,6 +867,83 @@
   "agent_med": null,
   "agent_frac_diverged": null,
   "diverged": false
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s10",
+  "arm": "LpWM-ltv-p1",
+  "seed": 10,
+  "effective_dim": 13.385327339172363,
+  "rel_mse": 0.026100195944309235,
+  "collapsed": false,
+  "agent_med": 1429.2408447265625,
+  "agent_frac_diverged": 1.0,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s3",
+  "arm": "LpWM-ltv-p1",
+  "seed": 3,
+  "effective_dim": 12.938028335571289,
+  "rel_mse": 0.02781193144619465,
+  "collapsed": false,
+  "agent_med": 1490.97314453125,
+  "agent_frac_diverged": 1.0,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s4",
+  "arm": "LpWM-ltv-p1",
+  "seed": 4,
+  "effective_dim": 16.559743881225586,
+  "rel_mse": 0.02468213066458702,
+  "collapsed": false,
+  "agent_med": 1304.115966796875,
+  "agent_frac_diverged": 1.0,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s5",
+  "arm": "LpWM-ltv-p1",
+  "seed": 5,
+  "effective_dim": 15.21978759765625,
+  "rel_mse": 0.02497907355427742,
+  "collapsed": false,
+  "agent_med": 1413.774169921875,
+  "agent_frac_diverged": 1.0,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s6",
+  "arm": "LpWM-ltv-p1",
+  "seed": 6,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 186.63189697265625,
+  "agent_frac_diverged": 0.76,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s7",
+  "arm": "LpWM-ltv-p1",
+  "seed": 7,
+  "effective_dim": 13.33810043334961,
+  "rel_mse": 0.02452230639755726,
+  "collapsed": false,
+  "agent_med": 1204.97119140625,
+  "agent_frac_diverged": 0.9,
+  "diverged": true
+ },
+ {
+  "run": "LpWM-ltv-p1_pd384_patch_bf16_s9",
+  "arm": "LpWM-ltv-p1",
+  "seed": 9,
+  "effective_dim": 15.620796203613281,
+  "rel_mse": 0.02758849412202835,
+  "collapsed": false,
+  "agent_med": 1666.8248291015625,
+  "agent_frac_diverged": 0.96,
+  "diverged": true
  },
  {
   "run": "LpWM-ltv-relu-p2_pd384_bf16_s10",
@@ -1450,6 +1835,138 @@
   "agent_med": null,
   "agent_frac_diverged": null,
   "diverged": false
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s10",
+  "arm": "PiWM-cols-p16",
+  "seed": 10,
+  "effective_dim": 25.642805099487305,
+  "rel_mse": 0.01341075450181961,
+  "collapsed": false,
+  "agent_med": null,
+  "agent_frac_diverged": null,
+  "diverged": false
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s3",
+  "arm": "PiWM-cols-p16",
+  "seed": 3,
+  "effective_dim": 25.995525360107422,
+  "rel_mse": 0.015418502502143383,
+  "collapsed": false,
+  "agent_med": 1566.27392578125,
+  "agent_frac_diverged": 0.92,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s5",
+  "arm": "PiWM-cols-p16",
+  "seed": 5,
+  "effective_dim": 21.56005859375,
+  "rel_mse": 0.017993703484535217,
+  "collapsed": false,
+  "agent_med": 1697.8231201171875,
+  "agent_frac_diverged": 1.0,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s6",
+  "arm": "PiWM-cols-p16",
+  "seed": 6,
+  "effective_dim": 21.711633682250977,
+  "rel_mse": 0.016735220327973366,
+  "collapsed": false,
+  "agent_med": 1558.6153564453125,
+  "agent_frac_diverged": 0.98,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s7",
+  "arm": "PiWM-cols-p16",
+  "seed": 7,
+  "effective_dim": 22.77700424194336,
+  "rel_mse": 0.013672467321157455,
+  "collapsed": false,
+  "agent_med": 1534.84619140625,
+  "agent_frac_diverged": 0.78,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s8",
+  "arm": "PiWM-cols-p16",
+  "seed": 8,
+  "effective_dim": 22.543516159057617,
+  "rel_mse": 0.017046891152858734,
+  "collapsed": false,
+  "agent_med": 1956.139404296875,
+  "agent_frac_diverged": 0.98,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p16_pd384_patch_bf16_s9",
+  "arm": "PiWM-cols-p16",
+  "seed": 9,
+  "effective_dim": 24.343379974365234,
+  "rel_mse": 0.01389189064502716,
+  "collapsed": false,
+  "agent_med": 2127.61669921875,
+  "agent_frac_diverged": 0.98,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p4_pd384_patch_bf16_s10",
+  "arm": "PiWM-cols-p4",
+  "seed": 10,
+  "effective_dim": 20.602787017822266,
+  "rel_mse": 0.013318310491740704,
+  "collapsed": false,
+  "agent_med": 714.8585815429688,
+  "agent_frac_diverged": 0.66,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p4_pd384_patch_bf16_s3",
+  "arm": "PiWM-cols-p4",
+  "seed": 3,
+  "effective_dim": 0.0,
+  "rel_mse": 0.0,
+  "collapsed": true,
+  "agent_med": 165.83859252929688,
+  "agent_frac_diverged": 0.8,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p4_pd384_patch_bf16_s5",
+  "arm": "PiWM-cols-p4",
+  "seed": 5,
+  "effective_dim": 20.274730682373047,
+  "rel_mse": 0.014361892826855183,
+  "collapsed": false,
+  "agent_med": null,
+  "agent_frac_diverged": null,
+  "diverged": false
+ },
+ {
+  "run": "PiWM-cols-p4_pd384_patch_bf16_s7",
+  "arm": "PiWM-cols-p4",
+  "seed": 7,
+  "effective_dim": 17.042734146118164,
+  "rel_mse": 0.01592935621738434,
+  "collapsed": false,
+  "agent_med": 276.20489501953125,
+  "agent_frac_diverged": 0.56,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-cols-p4_pd384_patch_bf16_s8",
+  "arm": "PiWM-cols-p4",
+  "seed": 8,
+  "effective_dim": 20.75712776184082,
+  "rel_mse": 0.019220540300011635,
+  "collapsed": false,
+  "agent_med": 437.30096435546875,
+  "agent_frac_diverged": 0.56,
+  "diverged": true
  },
  {
   "run": "PiWM-columns_pd384_patch_bf16_s10",
@@ -3850,14 +4367,25 @@
   "diverged": false
  },
  {
+  "run": "PiWM-jump3_pd384_bf16_s6",
+  "arm": "PiWM-jump3",
+  "seed": 6,
+  "effective_dim": 14.493029594421387,
+  "rel_mse": 0.015360627323389053,
+  "collapsed": false,
+  "agent_med": 21.968589782714844,
+  "agent_frac_diverged": 0.2,
+  "diverged": false
+ },
+ {
   "run": "PiWM-jump3_pd384_bf16_s7",
   "arm": "PiWM-jump3",
   "seed": 7,
   "effective_dim": 15.723855972290039,
   "rel_mse": 0.015008686110377312,
   "collapsed": false,
-  "agent_med": null,
-  "agent_frac_diverged": null,
+  "agent_med": 25.035640716552734,
+  "agent_frac_diverged": 0.0,
   "diverged": false
  },
  {
@@ -3971,6 +4499,17 @@
   "diverged": false
  },
  {
+  "run": "PiWM-jump8_pd384_bf16_s3",
+  "arm": "PiWM-jump8",
+  "seed": 3,
+  "effective_dim": 9.15572452545166,
+  "rel_mse": 0.5854747891426086,
+  "collapsed": false,
+  "agent_med": 158.00820922851562,
+  "agent_frac_diverged": 0.74,
+  "diverged": true
+ },
+ {
   "run": "PiWM-jump8_pd384_bf16_s5",
   "arm": "PiWM-jump8",
   "seed": 5,
@@ -3982,6 +4521,17 @@
   "diverged": true
  },
  {
+  "run": "PiWM-jump8_pd384_bf16_s6",
+  "arm": "PiWM-jump8",
+  "seed": 6,
+  "effective_dim": 6.691442489624023,
+  "rel_mse": 0.19071710109710693,
+  "collapsed": false,
+  "agent_med": 193.5999755859375,
+  "agent_frac_diverged": 0.74,
+  "diverged": true
+ },
+ {
   "run": "PiWM-jump8_pd384_bf16_s7",
   "arm": "PiWM-jump8",
   "seed": 7,
@@ -3990,6 +4540,17 @@
   "collapsed": false,
   "agent_med": 167.8828582763672,
   "agent_frac_diverged": 0.76,
+  "diverged": true
+ },
+ {
+  "run": "PiWM-jump8_pd384_bf16_s8",
+  "arm": "PiWM-jump8",
+  "seed": 8,
+  "effective_dim": 3.51810622215271,
+  "rel_mse": 0.8323870301246643,
+  "collapsed": false,
+  "agent_med": 208.3694610595703,
+  "agent_frac_diverged": 0.8,
   "diverged": true
  },
  {
@@ -4466,6 +5027,17 @@
   "diverged": true
  },
  {
+  "run": "PiWM-overshoot3_pd384_bf16_s7",
+  "arm": "PiWM-overshoot3",
+  "seed": 7,
+  "effective_dim": 16.11100196838379,
+  "rel_mse": 0.019809789955615997,
+  "collapsed": false,
+  "agent_med": 12.613956451416016,
+  "agent_frac_diverged": 0.06,
+  "diverged": false
+ },
+ {
   "run": "PiWM-overshoot3_pd384_bf16_s9",
   "arm": "PiWM-overshoot3",
   "seed": 9,
@@ -4563,6 +5135,28 @@
   "agent_med": 1207.93017578125,
   "agent_frac_diverged": 0.98,
   "diverged": true
+ },
+ {
+  "run": "PiWM-overshoot8_pd384_bf16_s10",
+  "arm": "PiWM-overshoot8",
+  "seed": 10,
+  "effective_dim": 13.549877166748047,
+  "rel_mse": 0.0199262835085392,
+  "collapsed": false,
+  "agent_med": 10.754560470581055,
+  "agent_frac_diverged": 0.08,
+  "diverged": false
+ },
+ {
+  "run": "PiWM-overshoot8_pd384_bf16_s6",
+  "arm": "PiWM-overshoot8",
+  "seed": 6,
+  "effective_dim": 10.94892406463623,
+  "rel_mse": 0.024017654359340668,
+  "collapsed": false,
+  "agent_med": 10.536359786987305,
+  "agent_frac_diverged": 0.04,
+  "diverged": false
  },
  {
   "run": "PiWM-overshoot8_pd384_bf16_s7",
@@ -6312,5 +6906,16 @@
   "agent_med": 143.0420684814453,
   "agent_frac_diverged": 0.56,
   "diverged": true
+ },
+ {
+  "run": "QUARANTINE-1epoch-LpWM-ltv-d1536_pd1536_bf16_s0",
+  "arm": "QUARANTINE-1epoch-LpWM-ltv-d1536",
+  "seed": 0,
+  "effective_dim": 24.147350311279297,
+  "rel_mse": 0.009658603928983212,
+  "collapsed": false,
+  "agent_med": null,
+  "agent_frac_diverged": null,
+  "diverged": false
  }
 ]
