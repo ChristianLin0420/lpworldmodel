@@ -24,7 +24,16 @@
 # never overwrites the unwhitened one it is compared against.
 set -euo pipefail
 
-REPO=$(cd "$(dirname "$0")/.." && pwd)
+# The repo has to come from SLURM_SUBMIT_DIR, falling back to $0 only OUTSIDE Slurm: under
+# sbatch, $0 is the SPOOLED COPY of this script, so dirname "$0"/.. resolves into Slurm's
+# spool directory -- which is not writable, and the first run of this file died on exactly
+# that with `mkdir: cannot create directory 'assets': Permission denied`.
+# train_slurm.sbatch:46 and plan_slurm.sbatch:33 already carry this idiom; this did not.
+if [ -n "${SLURM_SUBMIT_DIR:-}" ]; then
+    REPO=${SLURM_SUBMIT_DIR}
+else
+    REPO=$(cd "$(dirname "$0")/.." && pwd)
+fi
 cd "${REPO}"
 if [ -f "${REPO}/.env" ]; then set -a; . "${REPO}/.env"; set +a; fi
 
