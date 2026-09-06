@@ -153,6 +153,8 @@ def build(cfg, device="cpu"):
         tube_grid=int(cfg.get("tube_grid", 4)),
         tube_frames=int(cfg.get("tube_frames", 2)),
         tube_iid=bool(cfg.get("tube_iid", False)),
+        metric_w=float(cfg.get("metric_w", 0.0)),
+        metric_eps=float(cfg.get("metric_eps", 1e-3)),
         lamb_decode=float(cfg.get("lamb_decode", 1.0)),
         # T3: mirrors train.py _contact_geom() with the dataset's literal constants
         # (datasets/pusht_dset.py PROPRIO_MEAN / PROPRIO_STD), so no dataset is needed.

@@ -25,4 +25,5 @@ export SDL_VIDEODRIVER=${SDL_VIDEODRIVER:-dummy}   # headless pygame rendering (
 cd "${REPO}"
 python plan.py --config-name "${CONFIG}" \
     ckpt_base_path="${CKPT_BASE}" model_name="${MODEL_NAME}" model_epoch="${EPOCH}" \
-    n_evals="${NEVALS}" planner.max_iter="${MAXITER}" ${SEED:+seed=$SEED} ${GOAL_H:+goal_H=$GOAL_H}
+    n_evals="${NEVALS}" planner.max_iter="${MAXITER}" ${SEED:+seed=$SEED} ${GOAL_H:+goal_H=$GOAL_H} \
+    ${PLAN_EXTRA:-}

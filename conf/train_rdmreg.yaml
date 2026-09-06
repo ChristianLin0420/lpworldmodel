@@ -325,6 +325,13 @@ tube_grid: 4               # tube side in PATCHES (4 -> 4x4 of the 16x16 grid)
 tube_frames: 2             # consecutive frames the tube spans
 tube_iid: false            # control: same masked fraction, resampled per frame
 
+# ROUND 8 / ST4. Direction-normalised prediction residual: the SPATIAL half of the
+# (direction x horizon) weight, computed ONLINE from the batch's own per-dim variance
+# because a trained checkpoint's covariance does not exist yet at training time.
+# 0.0 => not built, path bit-identical to upstream.
+metric_w: 0.0
+metric_eps: 1.0e-3
+
 # T3: weight each transition by the visual change proprio does NOT explain. Images and
 # proprio only -- states.pth never enters the loss. 0.0 => uniform (upstream, inert).
 contact_gamma: 0.0

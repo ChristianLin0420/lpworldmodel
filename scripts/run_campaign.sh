@@ -841,6 +841,27 @@ wave30_arms() {
     ORDER[wave30]="${WAVE30_ARMS:-PiWM-tjepa PiWM-tjepa-w1 PiWM-st-tube PiWM-st-tube-w5 PiWM-st-tube-iid PiWM-white-zt PiWM-white-dz PiWM-white-shuf}"
 }
 
+wave31_arms() {
+    # ROUND 8, the last group: ST4, plus the top rung of T5 that never finished.
+    #
+    # ST4 (st-metric). The SPATIAL half of the (direction x horizon) weight, on the TRAINING
+    # residual. Computed ONLINE from the batch's own per-dimension variance, because S2's
+    # W = (C + eps I)^(-1/2) is measured from a TRAINED checkpoint and using it during
+    # training would be circular. Diagonal rather than the full matrix: a (384, 384) inverse
+    # square root per step is unstable when D > N, which is the regime here. DETACHED, so the
+    # model cannot lower the loss by inflating the variance of the directions it is scored on
+    # -- the exact failure that killed R6/support_w.
+    # metric_loss is 0.231 at init against z_loss 0.235, so 0.5 is a half-weight cell.
+    ARMS[PiWM-st-metric]="ltv 1.0 5e-4 METRIC_W=0.5"
+    ARMS[PiWM-st-metric-w1]="ltv 1.0 5e-4 METRIC_W=1.0"
+    #
+    # T5's top rung stalled at 2 of 8 seeds, which makes the num_hist ladder unreadable at its
+    # most interesting end -- H=8 is the only rung that integrates more past than the
+    # frameskip spans. Re-listed so the ladder can be read at all.
+    ARMS[PiWM-hist8]="ltv 1.0 5e-4";  ARM_HIST[PiWM-hist8]=8
+    ORDER[wave31]="${WAVE31_ARMS:-PiWM-st-metric PiWM-st-metric-w1 PiWM-hist8}"
+}
+
 wave25_arms() {
     ORDER[wave25]="${WAVE25_ARMS:-PiWM-support-w0p03 PiWM-support-w0p1 PiWM-support-w0p3 PiWM-consist-w0p03 PiWM-consist-w0p1 PiWM-consist-w0p3 PiWM-consist-w0p1-data PiWM-sam-r0p01 PiWM-sam-r0p03 PiWM-sam-r0p1 PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip10 PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8}"
     # R6. The '0p03' spelling of 0.03 follows PiWM-sigreg-w0p5: a '.' in a run dir is
@@ -1007,6 +1028,7 @@ for gate in "$@"; do
         wave28)       wave28_arms; gate=wave28 ;;
         wave29)       wave29_arms; gate=wave29 ;;
         wave30)       wave30_arms; gate=wave30 ;;
+        wave31)       wave31_arms; gate=wave31 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;

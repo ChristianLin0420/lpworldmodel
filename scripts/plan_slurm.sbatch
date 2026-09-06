@@ -70,6 +70,17 @@ echo "=== eval job ${SLURM_JOB_ID} on $(hostname) | $(date -Is) ==="
 echo "=== run=${RUN_NAME} seed=${SEED:-0} n_evals=${NEVALS:-50} max_iter=${MAXITER:-10} ==="
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
-SEED="${SEED:-0}" scripts/plan.sh plan_lewm.yaml "${RUN_NAME}" latest \
+# ROUND 8 / S2+ST4+ST5. PLAN_EXTRA carries hydra overrides for the OBJECTIVE (the
+# whitening matrix, the pooled goal). Empty by default => the command is unchanged.
+#
+# LABEL exists because a PLAN-TIME variant re-plans an EXISTING checkpoint: model_name is
+# both the label for the output dir AND the path the checkpoint is loaded from, so without
+# this the variant would overwrite -- and be collected as -- the very arm it is compared
+# against. Setting hydra.run.dir gives the variant its own arm name in collect_evals while
+# model_name still points at the real run dir.
+if [ -n "${LABEL:-}" ]; then
+    PLAN_EXTRA="${PLAN_EXTRA:-} hydra.run.dir=plan_outputs/$(date +%Y%m%d%H%M%S)_${LABEL}_gH${GOAL_H:-5}"
+fi
+SEED="${SEED:-0}" PLAN_EXTRA="${PLAN_EXTRA:-}" scripts/plan.sh plan_lewm.yaml "${RUN_NAME}" latest \
     "${NEVALS:-50}" "${MAXITER:-10}"
 echo "=== eval complete: ${RUN_NAME} | $(date -Is) ==="

@@ -45,6 +45,8 @@ class VWorldModel(nn.Module):
         tube_grid=4,       # ST1: tube side in PATCHES (4 -> 4x4 of the 16x16 grid)
         tube_frames=2,     # ST1: consecutive frames the tube spans
         tube_iid=False,    # ST1 control: same masked FRACTION, resampled per frame
+        metric_w=0.0,      # ST4: weight on the direction-normalised prediction residual
+        metric_eps=1e-3,   # ST4: ridge, as a fraction of mean variance
         lamb_decode=1.0,
         # T1: let the reconstruction gradient reach the ENCODER. False keeps the
         # historical z_emb.detach(), under which 0/144 encoder params receive any
@@ -139,6 +141,8 @@ class VWorldModel(nn.Module):
         self.tube_grid = int(tube_grid)
         self.tube_frames = int(tube_frames)
         self.tube_iid = bool(tube_iid)
+        self.metric_w = float(metric_w)
+        self.metric_eps = float(metric_eps)
         self.lamb_decode = lamb_decode
         self.decode_pred_w = float(decode_pred_w)
         # ROUND 8 / T2 rung 2. EMA teacher. 0.0 => not built at all, so the model is
@@ -1860,6 +1864,34 @@ class VWorldModel(nn.Module):
                 tube_loss = torch.stack(_terms).mean()
                 loss = loss + self.tube_w * tube_loss
                 loss_components["tube_loss"] = tube_loss
+
+        # ROUND 8 / ST4. The SPATIAL half of the (direction x horizon) weight, applied to the
+        # TRAINING residual -- the same anisotropy S2 applies to the CEM cost.
+        #
+        # WHY IT IS COMPUTED ONLINE. S2's W = (C + eps I)^(-1/2) is measured from a TRAINED
+        # checkpoint's codes. At training time that checkpoint does not exist yet, so using it
+        # here would be circular. The batch's own per-dimension variance is the non-circular
+        # form of the same quantity: a direction the encoder barely uses this batch gets a
+        # small weight, exactly as a small eigenvalue does at plan time.
+        #
+        # Diagonal, not the full matrix, and deliberately: a full (D, D) inverse square root
+        # per step is both expensive and unstable at batch sizes where D > N, which is the
+        # regime here (D = 384, N = b*t*p). The diagonal is the part that survives that.
+        #
+        # DETACHED. The weight is a measurement of the code, not a thing to optimise; leaving
+        # it in the graph would let the model lower this loss by inflating the variance of the
+        # directions it is scored on, which is the exact failure that killed R6/support_w.
+        if self.metric_w > 0 and self.n_heads == 1 and not self.overshoot:
+            n_t = min(z_pred.shape[1], target.shape[1])
+            r = z_pred[:, :n_t] - target[:, :n_t]
+            with torch.no_grad():
+                flat = rearrange(z_emb, "b t p d -> (b t p) d").float()
+                v = flat.var(dim=0, unbiased=False)
+                w = 1.0 / (v + self.metric_eps * v.mean()).sqrt()
+                w = (w / w.mean()).to(r.dtype)            # O(1), so the weight sets shape only
+            metric_loss = ((r * w) ** 2).mean()
+            loss = loss + self.metric_w * metric_loss
+            loss_components["metric_loss"] = metric_loss
 
         visual_reconstructed = None
         if self.decoder is not None and self.train_decoder:

@@ -978,6 +978,9 @@ class Trainer:
             tube_grid=int(self.cfg.get("tube_grid", 4)),
             tube_frames=int(self.cfg.get("tube_frames", 2)),
             tube_iid=bool(self.cfg.get("tube_iid", False)),
+            # ROUND 8 / ST4. 0.0 => the weighted residual is not built.
+            metric_w=float(self.cfg.get("metric_w", 0.0)),
+            metric_eps=float(self.cfg.get("metric_eps", 1e-3)),
             # T3. Geometry from the DATASET's own normalisation constants
             # (datasets/pusht_dset.py:83-84) plus the env's window size (512,
             # env/pusht/pusht_env.py:381) and agent radius (15, :709). Passed as plain

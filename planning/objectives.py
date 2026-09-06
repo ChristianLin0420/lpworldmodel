@@ -101,12 +101,51 @@ def create_objective_fn(alpha, base, mode="last", wmat_path=None):
             loss = loss + alpha * loss_proprio
         return loss
 
+    def objective_fn_pooled(z_obs_pred, z_obs_tgt):
+        """ROUND 8 / ST5. Pool the GOAL over space, and score the TRAJECTORY over time.
+
+        `objective_fn_last` scores one frame (`[:, -1:]`) token by token, so a trajectory that
+        passes THROUGH the goal and leaves scores identically to one that never approaches it,
+        and a single badly-placed token can dominate a candidate's rank.
+
+        Two changes, one per axis, and both are reductions of the SAME residual the default
+        path builds -- no new tensor enters the objective:
+
+          space  mean over every axis after (B, T) BEFORE squaring, so the comparison is
+                 between pooled summaries rather than between token sets;
+          time   uniformly over all T predicted steps rather than the terminal one, so
+                 approaching the goal early is credited.
+
+        Verified untouched before this was written: over 874 archived plan runs
+        `objective.mode` and `objective.base` have 0 occurrences -- the only objective
+        override ever used in this campaign is the vote family.
+        """
+        pv, tv = z_obs_pred["visual"], z_obs_tgt["visual"]
+        if tv.shape[1] == 1 and pv.shape[1] > 1:
+            tv = tv.expand(-1, pv.shape[1], *([-1] * (tv.ndim - 2)))
+        n_t = min(pv.shape[1], tv.shape[1])
+        pv, tv = pv[:, :n_t], tv[:, :n_t]
+        red = tuple(range(2, pv.ndim))                    # every axis after (B, T)
+        d = pv.mean(dim=red) - tv.mean(dim=red)           # (B, T) pooled difference
+        loss = (d ** 2).mean(dim=1)
+        if "proprio" in z_obs_pred and "proprio" in z_obs_tgt:
+            pp, tp = z_obs_pred["proprio"], z_obs_tgt["proprio"]
+            if tp.shape[1] == 1 and pp.shape[1] > 1:
+                tp = tp.expand(-1, pp.shape[1], *([-1] * (tp.ndim - 2)))
+            m = min(pp.shape[1], tp.shape[1])
+            rp = tuple(range(2, pp.ndim))
+            dp = pp[:, :m].mean(dim=rp) - tp[:, :m].mean(dim=rp)
+            loss = loss + alpha * (dp ** 2).mean(dim=1)
+        return loss
+
     if mode == "last":
         return objective_fn_last
     elif mode == "all":
         return objective_fn_all
+    elif mode == "pooled":
+        return objective_fn_pooled
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"objective mode {mode!r} (last | all | pooled)")
 
 
 def create_vote_objective_fn(
