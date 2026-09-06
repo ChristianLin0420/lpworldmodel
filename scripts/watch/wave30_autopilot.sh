@@ -76,6 +76,16 @@ while true; do
       grep -qx "epochs=2" "$d/DONE" 2>/dev/null && continue
       # any window still queued => the chain is alive; topping it up is what makes duplicates
       [ "$(squeue -u "$USER" -h -o '%j' | grep -c "^${r}_w")" -gt 0 ] && continue
+      # SECOND guard, and the squeue one is not enough on its own. squeue goes to zero for a
+      # run whose windows are all COMPLETING/draining, so a re-extension fired there lands a
+      # whole new chain on top of one that is still finishing -- PiWM-hist8 s6 reached SEVEN
+      # queued windows exactly this way. A live job checkpoints every save_every_x_min (20),
+      # so a model_latest.pth touched inside 30 minutes means something is still writing.
+      ck="$d/checkpoints/model_latest.pth"
+      if [ -f "$ck" ]; then
+        age=$(( $(date +%s) - $(stat -c %Y "$ck" 2>/dev/null || echo 0) ))
+        [ "$age" -lt 1800 ] && continue
+      fi
       w=$(windows_for "$r"); g=$(gate_for "$a"); seed=${r##*_s}
       echo "W30 CHAIN EXHAUSTED, re-extending $r via $g to WINDOWS=$w"
       if [ "$g" = "wave30" ]; then
