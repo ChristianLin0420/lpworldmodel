@@ -7,8 +7,8 @@
     -> arch-t5-hist.svg     the num_hist ladder, against jump{K}'s target horizon
 
 Seven rounds moved the objective, the planner, the predictor FAMILY, the link, the
-representation and the width, and never once moved the temporal axis: `num_hist` is 3 in all
-400 sampled run configs, every predictor mode is FIR, `detach_target: False` everywhere, and
+representation and the width, and never once moved the temporal axis: `num_hist` is 3 in 843 of
+875 archived run configs, every predictor mode is FIR, `detach_target: False` everywhere, and
 no state-space predictor existed at all.  These four figures are the four temporal mechanisms
 round 8 adds, drawn the way every other architecture figure in this project is drawn.
 
@@ -80,6 +80,8 @@ figure body; the module measures it and the figure draws what the measurement sa
       and the whole num_hist ladder 480 032 ... 1 641 360   H = num_hist, num_patches = 1
     var(H=1) == additive to the last bit on matched weights, and 295 296 params each
     the T4 guard: lag_dilation [0,2,3] rejected at construction, [0,2,2] accepted
+  scanned from every archived config at render time (`_cfg_counts`, via round8_gap_figs)
+    num_hist = 3 in 843 of 875 configs           the 32 exceptions are round 8's own ladder
   read from the config / the ctor at render time (`_conf_scalar`, `_ctor_default`)
     num_hist = 3 and detach_target = False        conf/train_rdmreg.yaml
     the detach_target ctor default = True         models/visual_world_model.py
@@ -91,7 +93,7 @@ figure body; the module measures it and the figure draws what the measurement sa
   names its source so a reader can check it:
     45 jobs lost to the DDP unused-parameter error   scripts/run_campaign.sh wave29_arms,
                                                      diary/2026-09-06.md section 3
-    "400 sampled run configs", "~160 runs"           diary/2026-09-06.md sections 0 and 2
+    "~160 runs"                                      diary/2026-09-06.md sections 0 and 2
     the two EMA momenta 0.99 / 0.999                 scripts/run_campaign.sh wave29_arms
     the two mask doses 0.25 / 0.50                   scripts/run_campaign.sh wave29_arms
     the block is static in 48.1% of single steps     2026-09-04 / round6 R1's own strip
@@ -222,6 +224,19 @@ def _conf_scalar(key, conf="train_rdmreg.yaml"):
 
 def _num_hist():
     return int(_conf_scalar("num_hist"))
+
+
+def _cfg_counts():
+    """(configs at num_hist=3, total archived configs), read at render time.
+
+    "400 sampled configs" was TYPED into three labels in this file and was stale by more
+    than a factor of two: the archive holds 875 configs, 843 of them at num_hist=3, the
+    32 exceptions being round 8's own ladder.  round8_gap_figs already scans for exactly
+    this, so this reuses its scanner rather than adding a second count that can drift
+    again -- which is the failure this helper exists to end, not merely to correct once.
+    """
+    from analysis.round8_gap_figs import cfg_scan, n_configs
+    return len(cfg_scan("num_hist").get("3", ())), n_configs()
 
 
 TRAIN_CONFS = ("train_rdmreg.yaml", "train_lewm.yaml")
@@ -401,9 +416,10 @@ def t1_ssm():
 
     # -- row A, left: the window every other mode has.  The picture is of the FRAMES,
     # because the cutoff is a property of what the predictor is fed, not of the taps.
+    _n3, _ncfg = _cfg_counts()
     s += frame(60, 950, 404, 254, "FIR  " + NDASH + "  a hard H-tap window", C,
                note="H = num_frames = num_hist = " + str(H)
-                    + " , in all 400 sampled configs")
+                    + " , in " + str(_n3) + " of " + str(_ncfg) + " configs")
     s += txt(258, 1020, "the cutoff", 12, anchor="end", fill=ACCENT["crit"], weight="bold")
     s += txt(337, 1020, "the " + str(H) + " taps", 12, fill=ACCENT[C], weight="bold")
     s += framerow(115, 1034, 6, H, C,
@@ -741,8 +757,8 @@ def t5_hist():
     # too -- a reader who is not shown that will read the ladder as a pure context sweep.
     s += frame(60, 950, 816, 302, "the ladder " + NDASH + "  H taps of past, with the "
                "TARGET held at one step", K,
-               note="H has been " + str(H0) + " in all 400 sampled run configs across "
-                    "seven rounds")
+               note="H has been " + str(H0) + " in " + str(_cfg_counts()[0]) + " of "
+                    + str(_cfg_counts()[1]) + " archived run configs across seven rounds")
     s += txt(400, 1014, "H", 11.5, anchor="end", fill=MUTED, weight="bold")
     s += txt(548, 1014, "the frames its taps read", 11.5, fill=MUTED)
     s += txt(690, 1014, "predictor params", 11, anchor="start", fill=MUTED)
@@ -826,7 +842,8 @@ def t5_hist():
          INK, "normal"),
         ("H = 1 doubles as the plumbing test for the knob itself", MUTED, "normal", 0.92)])
     s += strip(PIN, 1578, [
-        ("H, in all 400 sampled configs", str(H0), True),
+        ("H, in " + str(_cfg_counts()[0]) + " of " + str(_cfg_counts()[1]) + " configs",
+         str(H0), True),
         ("the new rungs", " , ".join(str(h) for h in LADDER if h != H0), False),
         ("H = 1", "= additive", False),
         ("jump{K}, best to worst", _signed(max(e[1] for e in eff)) + " to "

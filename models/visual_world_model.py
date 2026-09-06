@@ -37,6 +37,14 @@ class VWorldModel(nn.Module):
         link=None,
         lamb_var=0.0,
         lamb_cov=0.0,
+        pr_w=0.0,          # S3: weight on -log PR(code) -- raises the USED rank of the code
+        pr_space="z",      # S3: "z" | "dz" | "both" -- the code, its time-difference, or both
+        pr_shuffle=False,  # S3 control: permute each dim's samples before the covariance
+        tjepa_w=0.0,       # T3: weight on the WINDOW-SUMMARY loss (needs NUM_PRED=K > 1)
+        tube_w=0.0,        # ST1: weight on the masked SPACE x TIME tube loss
+        tube_grid=4,       # ST1: tube side in PATCHES (4 -> 4x4 of the 16x16 grid)
+        tube_frames=2,     # ST1: consecutive frames the tube spans
+        tube_iid=False,    # ST1 control: same masked FRACTION, resampled per frame
         lamb_decode=1.0,
         # T1: let the reconstruction gradient reach the ENCODER. False keeps the
         # historical z_emb.detach(), under which 0/144 encoder params receive any
@@ -123,6 +131,14 @@ class VWorldModel(nn.Module):
         self.burst_tau = burst_tau
         self.lamb_var = lamb_var
         self.lamb_cov = lamb_cov
+        self.pr_w = float(pr_w)
+        self.pr_space = pr_space
+        self.pr_shuffle = bool(pr_shuffle)
+        self.tjepa_w = float(tjepa_w)
+        self.tube_w = float(tube_w)
+        self.tube_grid = int(tube_grid)
+        self.tube_frames = int(tube_frames)
+        self.tube_iid = bool(tube_iid)
         self.lamb_decode = lamb_decode
         self.decode_pred_w = float(decode_pred_w)
         # ROUND 8 / T2 rung 2. EMA teacher. 0.0 => not built at all, so the model is
@@ -1407,6 +1423,85 @@ class VWorldModel(nn.Module):
         off = cov - torch.diag(torch.diag(cov))
         return (off ** 2).sum() / (d * (d - 1))           # mean of squared off-diagonal covariances
 
+    def _pr_loss(self, x):
+        """ROUND 8 / S3.  -log PR(x), the negative log participation ratio of x's covariance.
+
+        PR = tr(C)^2 / ||C||_F^2 is EXACTLY train.py:participation_ratio, the quantity logged
+        as `sparsity/effective_dim`.  So the quantity this term optimises IS the one the
+        archive measures -- not a proxy that happens to correlate with it.
+
+        WHY NOT lamb_cov.  The existing covariance term (`_covariance_loss`, wired at the
+        lamb_cov block and NEVER ONCE SET in ~875 configs) is unusable as a rank objective on
+        two counts: it is minimised by shrinking z, and it scores a rank-1 AXIS-ALIGNED code as
+        perfect because such a code has no off-diagonal mass.  -log PR = log||C||_F^2 -
+        2 log tr(C) is invariant to both a common rescaling and a rotation, so neither
+        degeneracy exists.
+
+        THE STANDING OBJECTION, ON THE RECORD.  Four arms already reached effective_dim 27-28
+        at fixed width -- PiWM-lie 27.09, lie-sim 27.79, multact 27.20, LpWM-linvar 27.19 --
+        and planned at 0.022 / 0.020 / 0.055 / 0.080, four of the worst numbers in the
+        campaign.  docs/measurement-protocol.md 4.1 therefore records effective_dim as passing
+        stages 2-3 of the screen and FAILING stage 4 on evidence already in hand.  This arm is
+        the intervention that stage 4 demands; it is expected to fail, and it is worth running
+        only because it is the one manipulation nobody has done deliberately.
+        """
+        xf = rearrange(x, "b t p d -> (b t p) d").to(torch.float32)
+        if self.pr_shuffle:
+            # The control: permute each dimension's samples INDEPENDENTLY. Preserves every
+            # per-dim magnitude, the op count, the gradient path and the RNG draw, and
+            # destroys only the cross-dimension alignment the covariance is computed from.
+            idx = torch.argsort(torch.rand_like(xf), dim=0)
+            xf = torch.gather(xf, 0, idx)
+        xf = xf - xf.mean(dim=0, keepdim=True)
+        c = (xf.T @ xf) / max(xf.shape[0] - 1, 1)
+        tr = torch.diagonal(c).sum()
+        return (torch.log((c * c).sum().clamp_min(1e-20))
+                - 2.0 * torch.log(tr.clamp_min(1e-20)))
+
+    def _tube(self, visual, patch_size):
+        """ROUND 8 / ST1.  Mask a contiguous SPACE x TIME tube, in pixels.
+
+        Returns (masked_visual, patch_index_LongTensor, t0, dt).  The tube is chosen in PATCH
+        coordinates and then blanked in PIXEL coordinates, so the masked patch indices are
+        exactly the block's -- no approximate pixel->token mapping, which is what makes the
+        loss below able to score precisely the tokens that were hidden.
+
+        WHY THIS IS NOT `token_drop`.  TOKEN_DROP removes tokens spatially, INDEPENDENTLY per
+        frame, and nothing predicts them: it is a regulariser.  A tube is contiguous in space
+        AND time and is PREDICTED, which is the content demand `PiWM-blockcausal` never had --
+        that arm turned on cross-frame attention with no objective requiring it be used, and
+        scored 0.00 three times.
+
+        `tube_iid=True` is the control: the same masked FRACTION, resampled independently per
+        frame, so magnitude and op count match and only the spatio-temporal STRUCTURE differs.
+        """
+        b, t = visual.shape[0], visual.shape[1]
+        hpix, wpix = visual.shape[-2], visual.shape[-1]
+        gh, gw = hpix // patch_size, wpix // patch_size
+        side = max(1, min(self.tube_grid, gh, gw))
+        dt = max(1, min(self.tube_frames, t))
+        v = visual.clone()
+        r0 = int(torch.randint(0, gh - side + 1, (1,)).item())
+        c0 = int(torch.randint(0, gw - side + 1, (1,)).item())
+        t0 = int(torch.randint(0, t - dt + 1, (1,)).item())
+        if self.tube_iid:
+            # Control: same count of masked patches per frame, drawn independently.
+            idx_all = []
+            for ti in range(t0, t0 + dt):
+                sel = torch.randperm(gh * gw, device=visual.device)[: side * side]
+                for p in sel.tolist():
+                    rr, cc = p // gw, p % gw
+                    v[:, ti, :, rr * patch_size:(rr + 1) * patch_size,
+                      cc * patch_size:(cc + 1) * patch_size] = 0.0
+                idx_all.append(sel.sort().values)
+            return v, torch.stack(idx_all), t0, dt
+        v[:, t0:t0 + dt, :, r0 * patch_size:(r0 + side) * patch_size,
+          c0 * patch_size:(c0 + side) * patch_size] = 0.0
+        rows = torch.arange(r0, r0 + side, device=visual.device)
+        cols = torch.arange(c0, c0 + side, device=visual.device)
+        idx = (rows.unsqueeze(1) * gw + cols.unsqueeze(0)).reshape(-1)
+        return v, idx.unsqueeze(0).expand(dt, -1), t0, dt
+
     @property
     def _pred(self):
         """The predictor with any parallel wrapper stripped off.
@@ -1686,6 +1781,85 @@ class VWorldModel(nn.Module):
             cov_loss = self._covariance_loss(z_emb)
             loss = loss + self.lamb_cov * cov_loss
             loss_components["cov_loss"] = cov_loss
+
+        # ROUND 8 / S3. Raise the USED rank of the code, measured as the participation ratio
+        # train.py already logs. "z" scores the code itself; "dz" scores its time-difference,
+        # which is the axis a world model actually has to move along -- a code can be
+        # high-rank across the dataset while every step of a trajectory lies in one direction.
+        if self.pr_w > 0:
+            if self.pr_space == "z":
+                pr_loss = self._pr_loss(z_emb)
+            elif self.pr_space == "dz":
+                pr_loss = self._pr_loss(z_emb[:, 1:] - z_emb[:, :-1])
+            elif self.pr_space == "both":
+                pr_loss = 0.5 * (self._pr_loss(z_emb)
+                                 + self._pr_loss(z_emb[:, 1:] - z_emb[:, :-1]))
+            else:
+                raise ValueError(f"pr_space must be z|dz|both, got {self.pr_space!r}")
+            loss = loss + self.pr_w * pr_loss
+            loss_components["pr_loss"] = pr_loss
+
+        # ROUND 8 / T3. Supervise the WINDOW SUMMARY, not each frame separately.
+        #
+        # T6/jump{K} predicted a single distant FRAME and lost at every K (-0.035, -0.220,
+        # -0.195, -0.413). A window summary is a different target: the campaign's own
+        # pre-launch measurement puts block displacement over a 5-step window at 293x the
+        # single-step signal, so the summary carries signal the individual frames do not.
+        #
+        # This ADDS a term rather than replacing the per-frame one, which is why it is
+        # bit-identical at tjepa_w=0 and why the arm is honestly "one-step + summary", not a
+        # pure summary objective. Both tensors are (b, num_hist, p, d) and are pooled over the
+        # TIME axis; the target is already EMA/detached upstream, so no gradient path changes.
+        if self.tjepa_w > 0 and self.n_heads == 1 and not self.overshoot:
+            n_t = min(z_pred.shape[1], target.shape[1])
+            s_pred = z_pred[:, :n_t].mean(dim=1)
+            s_fut = target[:, :n_t].mean(dim=1).detach()
+            tjepa_loss = F.mse_loss(s_pred, s_fut)
+            loss = loss + self.tjepa_w * tjepa_loss
+            loss_components["tjepa_loss"] = tjepa_loss
+
+        # ROUND 8 / ST1. Masked spatio-temporal TUBE: hide a contiguous patch region across
+        # contiguous frames and require the code at those hidden positions to be recovered.
+        # One mechanism, both axes -- the mask is 3-D, so space and time are the SAME
+        # operation rather than two terms bolted together.
+        #
+        # The target is the EMA teacher's code for the UNMASKED clip when a teacher exists
+        # (T2 rung 2), and the detached student's otherwise. Either way it is a fixed target:
+        # nothing here can be minimised by degrading the thing being matched, which is the
+        # failure that killed R6/support_w and R2/consist.
+        #
+        # Requires patch features: at feature="cls" num_patches is 1 and there is no spatial
+        # axis to cut a tube out of, so the assert is the honest failure rather than a silent
+        # broadcast over a single token.
+        if self.tube_w > 0:
+            _enc0 = getattr(self.encoder, "module", self.encoder)
+            assert z_emb.shape[2] > 1, (
+                "tube_w requires FEATURE=patch: num_patches is "
+                f"{z_emb.shape[2]}, so there is no spatial extent to mask a tube from")
+            _ps = int(getattr(_enc0, "patch_size", 14))
+            _bv, _tv = obs["visual"].shape[0], obs["visual"].shape[1]
+            v_mask, t_idx, _t0, _dt = self._tube(obs["visual"], _ps)
+            _fm = self.encoder_transform(rearrange(v_mask, "b t ... -> (b t) ..."))
+            z_mask = self._link(self._encode_visual(self.encoder, _fm, _bv, _tv))
+            if self.encoder_ema is not None:
+                with torch.no_grad():
+                    _fu = self.encoder_transform(
+                        rearrange(obs["visual"], "b t ... -> (b t) ..."))
+                    z_full = self._link(
+                        self._encode_visual(self.encoder_ema, _fu, _bv, _tv))
+            else:
+                z_full = z_emb.detach()
+            _terms = []
+            for _i in range(t_idx.shape[0]):
+                _ti = _t0 + _i
+                if _ti >= z_mask.shape[1]:
+                    break
+                _sel = t_idx[_i].to(z_mask.device)
+                _terms.append(F.mse_loss(z_mask[:, _ti, _sel], z_full[:, _ti, _sel]))
+            if _terms:
+                tube_loss = torch.stack(_terms).mean()
+                loss = loss + self.tube_w * tube_loss
+                loss_components["tube_loss"] = tube_loss
 
         visual_reconstructed = None
         if self.decoder is not None and self.train_decoder:

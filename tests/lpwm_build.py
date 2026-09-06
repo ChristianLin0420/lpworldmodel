@@ -142,6 +142,17 @@ def build(cfg, device="cpu"):
         decode_grad=bool(cfg.get("decode_grad", False)),
         decode_pred_w=float(cfg.get("decode_pred_w", 0.0)),
         ema_m=float(cfg.get("ema_m", 0.0)),
+        # ROUND 8 / S3 + T3(tjepa). Mirrored here because the NEW HEAD CHECKLIST requires
+        # every new ctor kwarg to exist in the test builder too -- path_int had none of this
+        # and was silently untested.
+        pr_w=float(cfg.get("pr_w", 0.0)),
+        pr_space=str(cfg.get("pr_space", "z")),
+        pr_shuffle=bool(cfg.get("pr_shuffle", False)),
+        tjepa_w=float(cfg.get("tjepa_w", 0.0)),
+        tube_w=float(cfg.get("tube_w", 0.0)),
+        tube_grid=int(cfg.get("tube_grid", 4)),
+        tube_frames=int(cfg.get("tube_frames", 2)),
+        tube_iid=bool(cfg.get("tube_iid", False)),
         lamb_decode=float(cfg.get("lamb_decode", 1.0)),
         # T3: mirrors train.py _contact_geom() with the dataset's literal constants
         # (datasets/pusht_dset.py PROPRIO_MEAN / PROPRIO_STD), so no dataset is needed.

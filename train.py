@@ -967,6 +967,17 @@ class Trainer:
             decode_pred_w=float(self.cfg.get("decode_pred_w", 0.0)),
             # ROUND 8 / T2 rung 2. 0.0 => no teacher is built at all.
             ema_m=float(self.cfg.get("ema_m", 0.0)),
+            # ROUND 8 / S3. 0.0 => the rank term is not built; path stays bit-identical.
+            pr_w=float(self.cfg.get("pr_w", 0.0)),
+            pr_space=str(self.cfg.get("pr_space", "z")),
+            pr_shuffle=bool(self.cfg.get("pr_shuffle", False)),
+            # ROUND 8 / T3 (tjepa). 0.0 => the window-summary term is not built.
+            tjepa_w=float(self.cfg.get("tjepa_w", 0.0)),
+            # ROUND 8 / ST1. 0.0 => the tube is not built; path stays bit-identical.
+            tube_w=float(self.cfg.get("tube_w", 0.0)),
+            tube_grid=int(self.cfg.get("tube_grid", 4)),
+            tube_frames=int(self.cfg.get("tube_frames", 2)),
+            tube_iid=bool(self.cfg.get("tube_iid", False)),
             # T3. Geometry from the DATASET's own normalisation constants
             # (datasets/pusht_dset.py:83-84) plus the env's window size (512,
             # env/pusht/pusht_env.py:381) and agent radius (15, :709). Passed as plain

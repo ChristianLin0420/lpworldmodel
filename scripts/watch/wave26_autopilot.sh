@@ -73,8 +73,8 @@ P = [("dims  384: patch vs cls","LpWM-ltv-p1","LpWM-ltv"),
      # Columns of the same grid: capacity at fixed feature.
      ("cls  384 -> 1536","LpWM-ltv-d1536","LpWM-ltv"),
      ("cls  384 -> 6144","LpWM-ltv-d6144","LpWM-ltv"),
-     ("patch  1 -> 4 tokens","PiWM-cols-p4","LpWM-ltv-p1"),
-     ("patch  4 -> 16 tokens","PiWM-cols-p16","PiWM-cols-p4"),
+     ("patch 224->112px [CONFOUND: granularity, both diverged]","PiWM-cols-p4","LpWM-ltv-p1"),
+     ("patch 112->56px [CONFOUND: granularity, both diverged]","PiWM-cols-p16","PiWM-cols-p4"),
      # S5: the width x LR 2x2 the campaign designed and never ran.
      ("S5 d384 @ low lr","LpWM-ltv-lr9e5","LpWM-ltv"),
      ("S5 d2048 @ base lr","LpWM-ltv-d2048-hilr","LpWM-ltv"),

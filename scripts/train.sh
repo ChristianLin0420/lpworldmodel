@@ -78,6 +78,17 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${DECODE_PRED_W:-}" ] && { add "decode_pred_w=${DECODE_PRED_W}"; TAG="${TAG}_dpw${DECODE_PRED_W}"; }
 # round 8 (T2 rung 2). EMA teacher momentum; unset => no teacher, upstream exactly.
 [ -n "${EMA_M:-}" ]        && { add "ema_m=${EMA_M}"; TAG="${TAG}_ema${EMA_M}"; }
+# round 8 (S3). -log participation ratio on the code; unset => the term is not built.
+[ -n "${PR_W:-}" ]         && { add "pr_w=${PR_W}"; TAG="${TAG}_pr${PR_W}"; }
+[ -n "${PR_SPACE:-}" ]     && { add "pr_space=${PR_SPACE}"; TAG="${TAG}_${PR_SPACE}"; }
+[ -n "${PR_SHUFFLE:-}" ]   && { add "pr_shuffle=${PR_SHUFFLE}"; TAG="${TAG}_prshuf"; }
+# round 8 (T3 tjepa). Pooled window-summary target; needs NUM_PRED=K>1 for a window.
+[ -n "${TJEPA_W:-}" ]      && { add "tjepa_w=${TJEPA_W}"; TAG="${TAG}_tj${TJEPA_W}"; }
+# round 8 (ST1). Masked space x time tube; unset => the tube is not built.
+[ -n "${TUBE_W:-}" ]       && { add "tube_w=${TUBE_W}"; TAG="${TAG}_tube${TUBE_W}"; }
+[ -n "${TUBE_GRID:-}" ]    && { add "tube_grid=${TUBE_GRID}"; TAG="${TAG}_g${TUBE_GRID}"; }
+[ -n "${TUBE_FRAMES:-}" ]  && { add "tube_frames=${TUBE_FRAMES}"; TAG="${TAG}_f${TUBE_FRAMES}"; }
+[ -n "${TUBE_IID:-}" ]     && { add "tube_iid=${TUBE_IID}"; TAG="${TAG}_iid"; }
 # round 5 (T3 contact weighting). CONTACT_GAMMA=0 is the uniform upstream objective.
 [ -n "${CONTACT_GAMMA:-}" ] && { add "contact_gamma=${CONTACT_GAMMA}"; TAG="${TAG}_cg${CONTACT_GAMMA}"; }
 [ -n "${CONTACT_SHUF:-}" ]  && { add "contact_shuffle=${CONTACT_SHUF}"; TAG="${TAG}_cshuf"; }

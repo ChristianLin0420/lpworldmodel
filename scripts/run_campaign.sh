@@ -785,6 +785,62 @@ wave29_arms() {
     ARMS[PiWM-ema999]="ltv 1.0 5e-4 EMA_M=0.999"
 }
 
+wave30_arms() {
+    # ROUND 8, the three proposals wave29 could not carry: T3, ST1 and S3. Each needed new
+    # code, and two of them needed the EMA teacher that only existed once T2 rung 2 was built.
+    #
+    # WEIGHTS ARE MEASURED, NOT CHOSEN. Every weight below comes from one calibration run on
+    # an UNTRAINED model (tests/lpwm_build.loss_trace), reading each term against z_loss:
+    #     z_loss 0.235 | pr_loss -1.81 | tjepa_loss 0.213 | tube_loss 0.0153
+    # These are VALUE parities at init, not gradient parities, and an untrained model is not
+    # a trained one -- so they are a starting scale, and each arm carries a dose cell rather
+    # than resting on a single number.
+    #
+    # T3 (tjepa). Supervise the pooled WINDOW SUMMARY as well as each frame. NUM_PRED=5 is
+    # what creates a window at all: at K=1 the "summary" is one frame and the term is a
+    # duplicate of z_loss. Its control is PiWM-jump5, ALREADY RUN at -0.195, which is the
+    # honest comparison -- jump5 predicts the distant FRAME, tjepa predicts the WINDOW, and
+    # both see identical data. tjepa_loss is O(z_loss), so 0.5 is a half-weight cell.
+    ARMS[PiWM-tjepa]="ltv 1.0 5e-4 NUM_PRED=5 TJEPA_W=0.5"
+    ARMS[PiWM-tjepa-w1]="ltv 1.0 5e-4 NUM_PRED=5 TJEPA_W=1.0"
+    #
+    # ST1 (st-tube). The flagship: a mask contiguous in space AND time, so the two axes are
+    # one operation rather than two terms. BLOCK_CAUSAL=true is required, not decorative --
+    # without cross-frame attention the masked frames cannot be filled from neighbouring
+    # ones and the tube degenerates to per-frame inpainting. EMA_M=0.99 supplies the target;
+    # PiWM-blockcausal scored 0.00 three times precisely because it had attention and NO
+    # objective demanding its use, and this is that missing demand.
+    # tube_loss is 0.0153 at init, ~15x below z_loss, hence the larger weight.
+    ARMS[PiWM-st-tube]="ltv 1.0 5e-4 TUBE_W=1.0 BLOCK_CAUSAL=true EMA_M=0.99"
+    ARM_FEAT[PiWM-st-tube]="patch"
+    ARMS[PiWM-st-tube-w5]="ltv 1.0 5e-4 TUBE_W=5.0 BLOCK_CAUSAL=true EMA_M=0.99"
+    ARM_FEAT[PiWM-st-tube-w5]="patch"
+    # THE CONTROL, and it is the whole reason this arm is interpretable: identical masked
+    # FRACTION, identical op count, identical RNG draw, resampled INDEPENDENTLY per frame.
+    # It differs from the treatment in spatio-temporal STRUCTURE and nothing else, so a win
+    # for st-tube over st-tube-iid cannot be "masking helps" -- only "a TUBE helps".
+    ARMS[PiWM-st-tube-iid]="ltv 1.0 5e-4 TUBE_W=1.0 TUBE_IID=true BLOCK_CAUSAL=true EMA_M=0.99"
+    ARM_FEAT[PiWM-st-tube-iid]="patch"
+    #
+    # S3 (white-zt). -log participation ratio: raise the rank the code USES. |pr_loss| = 1.81
+    # at init, so 0.05 contributes ~0.09, about 40% of z_loss.
+    #
+    # ON THE RECORD, BEFORE THE RESULT: this arm is EXPECTED TO FAIL. Four arms already
+    # reached effective_dim 27-28 at fixed width (lie 27.09, lie-sim 27.79, multact 27.20,
+    # linvar 27.19) and planned at 0.022 / 0.020 / 0.055 / 0.080 -- four of the worst numbers
+    # in the campaign. docs/measurement-protocol.md 4.1 records effective_dim as passing
+    # stages 2-3 of the screen and FAILING stage 4 on evidence already in hand. It is run
+    # anyway because it is the one manipulation nobody has done deliberately, and because a
+    # MANIPULATION CHECK (does effective_dim actually move?) must be read BEFORE the outcome:
+    # a term that cannot move its own target is reported INERT, not null.
+    ARMS[PiWM-white-zt]="ltv 1.0 5e-4 PR_W=0.05"
+    ARMS[PiWM-white-dz]="ltv 1.0 5e-4 PR_W=0.05 PR_SPACE=dz"
+    # Control: permutes each dimension's samples before the covariance. Same magnitude, same
+    # op count, same gradient path, same RNG draw; destroys ONLY cross-dimension alignment.
+    ARMS[PiWM-white-shuf]="ltv 1.0 5e-4 PR_W=0.05 PR_SHUFFLE=true"
+    ORDER[wave30]="${WAVE30_ARMS:-PiWM-tjepa PiWM-tjepa-w1 PiWM-st-tube PiWM-st-tube-w5 PiWM-st-tube-iid PiWM-white-zt PiWM-white-dz PiWM-white-shuf}"
+}
+
 wave25_arms() {
     ORDER[wave25]="${WAVE25_ARMS:-PiWM-support-w0p03 PiWM-support-w0p1 PiWM-support-w0p3 PiWM-consist-w0p03 PiWM-consist-w0p1 PiWM-consist-w0p3 PiWM-consist-w0p1-data PiWM-sam-r0p01 PiWM-sam-r0p03 PiWM-sam-r0p1 PiWM-incr-eps0p001 PiWM-incr-eps0p01 PiWM-incr-eps0p041 PiWM-incr-eps0p041-clip10 PiWM-jump2 PiWM-overshoot2 PiWM-jump3 PiWM-overshoot3 PiWM-jump8 PiWM-overshoot8}"
     # R6. The '0p03' spelling of 0.03 follows PiWM-sigreg-w0p5: a '.' in a run dir is
@@ -950,6 +1006,7 @@ for gate in "$@"; do
         wave27)       wave27_arms; gate=wave27 ;;
         wave28)       wave28_arms; gate=wave28 ;;
         wave29)       wave29_arms; gate=wave29 ;;
+        wave30)       wave30_arms; gate=wave30 ;;
         wave14)       wave14_arms; gate=wave14 ;;
         wave15)       wave15_arms; gate=wave15 ;;
         wave16)       wave16_arms; gate=wave16 ;;

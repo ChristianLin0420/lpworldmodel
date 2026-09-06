@@ -303,6 +303,28 @@ decode_pred_w: 0.0
 # target path is bit-identical to upstream.
 ema_m: 0.0
 
+# ROUND 8 / S3. -log participation ratio on the code: raise the rank the code actually
+# USES. The quantity optimised is exactly train.py:participation_ratio, i.e. the logged
+# sparsity/effective_dim. 0.0 => the term is not built and the path is bit-identical.
+# NB `lamb_cov` above is NOT a substitute: it is minimised by shrinking z and scores a
+# rank-1 axis-aligned code as perfect. It has never once been set in 875 configs.
+pr_w: 0.0
+pr_space: z                # z | dz | both -- the code, its time-difference, or the mean
+pr_shuffle: false          # control: permute each dim's samples before the covariance
+
+# ROUND 8 / T3 (tjepa -- NOT the older contact_gamma "T3" below). Supervise the pooled
+# WINDOW SUMMARY as well as each frame. Needs num_pred = K > 1 to have a window at all.
+# 0.0 => the term is not built and the path is bit-identical to upstream.
+tjepa_w: 0.0
+
+# ROUND 8 / ST1. Masked SPACE x TIME tube: hide a contiguous patch block across
+# consecutive frames and predict the code there. Needs FEATURE=patch (at cls there is
+# one token and no spatial extent). 0.0 => not built, path bit-identical to upstream.
+tube_w: 0.0
+tube_grid: 4               # tube side in PATCHES (4 -> 4x4 of the 16x16 grid)
+tube_frames: 2             # consecutive frames the tube spans
+tube_iid: false            # control: same masked fraction, resampled per frame
+
 # T3: weight each transition by the visual change proprio does NOT explain. Images and
 # proprio only -- states.pth never enters the loss. 0.0 => uniform (upstream, inert).
 contact_gamma: 0.0

@@ -634,7 +634,7 @@
 <text x="346.0" y="1537.0" font-size="15" text-anchor="middle" fill="#14231C">ssm 1.0 5e-4</text>
 <text x="346.0" y="1554.0" font-size="11.5" text-anchor="middle" fill="#6C786C">ARMS[PiWM-ssm] , verbatim</text>
 <text x="84" y="1586" font-size="12" text-anchor="start" fill="#543C84" font-weight="bold">the SAME spec as ST2's – only ARM_FEAT differs</text>
-<text x="84" y="1606" font-size="11.5" text-anchor="start" fill="#6C786C">n = 0 on the fixed instrument  ·  in flight</text>
+<text x="84" y="1606" font-size="11.5" text-anchor="start" fill="#6C786C">n = 8 on the fixed instrument</text>
 <rect x="476" y="1444" width="400" height="196" rx="8" fill="#FFFFFF" stroke="#543C84" stroke-width="1.6"/>
 <text x="676.0" y="1470" font-size="17" text-anchor="middle" fill="#543C84" font-weight="bold">ABLATION  –  the same tokens, no state</text>
 <text x="676.0" y="1489" font-size="12" text-anchor="middle" fill="#6C786C">PiWM-columns  ·  256 patch tokens  ·  a 3-tap FIR</text>

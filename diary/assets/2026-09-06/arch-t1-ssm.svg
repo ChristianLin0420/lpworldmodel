@@ -75,7 +75,7 @@
 <path d="M52,942 L888,942" stroke="#C88A1E" stroke-width="1.2" stroke-opacity="0.5"/>
 <rect x="60" y="950" width="404" height="254" rx="8" fill="#FFFFFF" stroke="#543C84" stroke-width="1.6"/>
 <text x="262.0" y="976" font-size="17" text-anchor="middle" fill="#543C84" font-weight="bold">FIR  –  a hard H-tap window</text>
-<text x="262.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">H = num_frames = num_hist = 3 , in all 400 sampled configs</text>
+<text x="262.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">H = num_frames = num_hist = 3 , in 843 of 875 configs</text>
 <text x="258" y="1020" font-size="12" text-anchor="end" fill="#A83024" font-weight="bold">the cutoff</text>
 <text x="337" y="1020" font-size="12" text-anchor="middle" fill="#543C84" font-weight="bold">the 3 taps</text>
 <rect x="115" y="1034" width="44" height="40" rx="4" fill="#FFFFFF" fill-opacity="1" stroke="#AAB4AF" stroke-width="1.1" stroke-dasharray="4,3"/>
