@@ -45,6 +45,7 @@ class VWorldModel(nn.Module):
         tube_grid=4,       # ST1: tube side in PATCHES (4 -> 4x4 of the 16x16 grid)
         tube_frames=2,     # ST1: consecutive frames the tube spans
         tube_iid=False,    # ST1 control: same masked FRACTION, resampled per frame
+        tube_sub=0,        # ST1: batch elements used for the tube term (0 = all)
         metric_w=0.0,      # ST4: weight on the direction-normalised prediction residual
         metric_eps=1e-3,   # ST4: ridge, as a fraction of mean variance
         lamb_decode=1.0,
@@ -141,6 +142,7 @@ class VWorldModel(nn.Module):
         self.tube_grid = int(tube_grid)
         self.tube_frames = int(tube_frames)
         self.tube_iid = bool(tube_iid)
+        self.tube_sub = int(tube_sub)
         self.metric_w = float(metric_w)
         self.metric_eps = float(metric_eps)
         self.lamb_decode = lamb_decode
@@ -1616,7 +1618,11 @@ class VWorldModel(nn.Module):
                 _b, _t = _v.shape[0], _v.shape[1]
                 _flat = self.encoder_transform(rearrange(_v, "b t ... -> (b t) ..."))
                 _u_ema = self._encode_visual(self.encoder_ema, _flat, _b, _t)
-                target = self._link(_u_ema)[:, self.num_pred:]
+                # keep the UNSLICED linked teacher code: ST1's tube needs the same tensor,
+                # and running the teacher twice per step is what OOMed the st-tube canaries
+                # (4 encoder forwards at 256 patch tokens x 3 frames x batch 64).
+                _z_ema_full = self._link(_u_ema)
+                target = _z_ema_full[:, self.num_pred:]
         else:
             target = z_tgt.detach() if self.detach_target else z_tgt
 
@@ -1842,24 +1848,29 @@ class VWorldModel(nn.Module):
                 f"{z_emb.shape[2]}, so there is no spatial extent to mask a tube from")
             _ps = int(getattr(_enc0, "patch_size", 14))
             _bv, _tv = obs["visual"].shape[0], obs["visual"].shape[1]
-            v_mask, t_idx, _t0, _dt = self._tube(obs["visual"], _ps)
+            # SUBSAMPLE the tube term's batch. The masked forward is a SECOND student pass
+            # that stores activations for backprop, which is what OOMed the canaries at 256
+            # patch tokens x 3 frames x batch 64. Shrinking the GLOBAL batch would confound
+            # st-tube against every other patch arm; shrinking only this term leaves z_loss
+            # and reg_loss identical to them and merely makes the tube estimate noisier --
+            # and its control (tube_iid) draws the same slice, so the contrast is unaffected.
+            _nb = _bv if self.tube_sub <= 0 else min(self.tube_sub, _bv)
+            _vis = obs["visual"][:_nb]
+            v_mask, t_idx, _t0, _dt = self._tube(_vis, _ps)
             _fm = self.encoder_transform(rearrange(v_mask, "b t ... -> (b t) ..."))
-            z_mask = self._link(self._encode_visual(self.encoder, _fm, _bv, _tv))
-            if self.encoder_ema is not None:
-                with torch.no_grad():
-                    _fu = self.encoder_transform(
-                        rearrange(obs["visual"], "b t ... -> (b t) ..."))
-                    z_full = self._link(
-                        self._encode_visual(self.encoder_ema, _fu, _bv, _tv))
-            else:
-                z_full = z_emb.detach()
+            z_mask = self._link(self._encode_visual(self.encoder, _fm, _nb, _tv))
+            # The teacher's code for the UNMASKED clip is already computed above for the
+            # target; reusing it removes a whole encoder forward per step. Falls back to the
+            # detached student when no teacher was built.
+            z_full = _z_ema_full if self.encoder_ema is not None else z_emb.detach()
             _terms = []
             for _i in range(t_idx.shape[0]):
                 _ti = _t0 + _i
                 if _ti >= z_mask.shape[1]:
                     break
                 _sel = t_idx[_i].to(z_mask.device)
-                _terms.append(F.mse_loss(z_mask[:, _ti, _sel], z_full[:, _ti, _sel]))
+                _terms.append(F.mse_loss(z_mask[:, _ti, _sel],
+                                         z_full[:_nb, _ti, _sel]))
             if _terms:
                 tube_loss = torch.stack(_terms).mean()
                 loss = loss + self.tube_w * tube_loss

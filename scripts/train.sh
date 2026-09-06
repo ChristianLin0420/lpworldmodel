@@ -89,6 +89,7 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${TUBE_GRID:-}" ]    && { add "tube_grid=${TUBE_GRID}"; TAG="${TAG}_g${TUBE_GRID}"; }
 [ -n "${TUBE_FRAMES:-}" ]  && { add "tube_frames=${TUBE_FRAMES}"; TAG="${TAG}_f${TUBE_FRAMES}"; }
 [ -n "${TUBE_IID:-}" ]     && { add "tube_iid=${TUBE_IID}"; TAG="${TAG}_iid"; }
+[ -n "${TUBE_SUB:-}" ]     && { add "tube_sub=${TUBE_SUB}"; TAG="${TAG}_sub${TUBE_SUB}"; }
 # round 8 (ST4). Direction-normalised residual; unset => not built.
 [ -n "${METRIC_W:-}" ]     && { add "metric_w=${METRIC_W}"; TAG="${TAG}_mw${METRIC_W}"; }
 # round 5 (T3 contact weighting). CONTACT_GAMMA=0 is the uniform upstream objective.

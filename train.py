@@ -978,6 +978,7 @@ class Trainer:
             tube_grid=int(self.cfg.get("tube_grid", 4)),
             tube_frames=int(self.cfg.get("tube_frames", 2)),
             tube_iid=bool(self.cfg.get("tube_iid", False)),
+            tube_sub=int(self.cfg.get("tube_sub", 0)),
             # ROUND 8 / ST4. 0.0 => the weighted residual is not built.
             metric_w=float(self.cfg.get("metric_w", 0.0)),
             metric_eps=float(self.cfg.get("metric_eps", 1e-3)),

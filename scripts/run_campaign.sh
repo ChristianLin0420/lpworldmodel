@@ -811,15 +811,20 @@ wave30_arms() {
     # PiWM-blockcausal scored 0.00 three times precisely because it had attention and NO
     # objective demanding its use, and this is that missing demand.
     # tube_loss is 0.0153 at init, ~15x below z_loss, hence the larger weight.
-    ARMS[PiWM-st-tube]="ltv 1.0 5e-4 TUBE_W=1.0 BLOCK_CAUSAL=true EMA_M=0.99"
+    # TUBE_SUB=16 of the 64-sample batch. The masked forward is a SECOND student pass that
+    # stores activations; at 256 patch tokens x 3 frames x batch 64 the first canary OOMed
+    # after 10 minutes (tube_loss 0.166 had already logged, so the mechanism was fine and
+    # only the footprint was not). Subsampling THIS TERM leaves z_loss and reg_loss identical
+    # to every other patch arm, and the control draws the same slice.
+    ARMS[PiWM-st-tube]="ltv 1.0 5e-4 TUBE_W=1.0 TUBE_SUB=16 BLOCK_CAUSAL=true EMA_M=0.99"
     ARM_FEAT[PiWM-st-tube]="patch"
-    ARMS[PiWM-st-tube-w5]="ltv 1.0 5e-4 TUBE_W=5.0 BLOCK_CAUSAL=true EMA_M=0.99"
+    ARMS[PiWM-st-tube-w5]="ltv 1.0 5e-4 TUBE_W=5.0 TUBE_SUB=16 BLOCK_CAUSAL=true EMA_M=0.99"
     ARM_FEAT[PiWM-st-tube-w5]="patch"
     # THE CONTROL, and it is the whole reason this arm is interpretable: identical masked
     # FRACTION, identical op count, identical RNG draw, resampled INDEPENDENTLY per frame.
     # It differs from the treatment in spatio-temporal STRUCTURE and nothing else, so a win
     # for st-tube over st-tube-iid cannot be "masking helps" -- only "a TUBE helps".
-    ARMS[PiWM-st-tube-iid]="ltv 1.0 5e-4 TUBE_W=1.0 TUBE_IID=true BLOCK_CAUSAL=true EMA_M=0.99"
+    ARMS[PiWM-st-tube-iid]="ltv 1.0 5e-4 TUBE_W=1.0 TUBE_SUB=16 TUBE_IID=true BLOCK_CAUSAL=true EMA_M=0.99"
     ARM_FEAT[PiWM-st-tube-iid]="patch"
     #
     # S3 (white-zt). -log participation ratio: raise the rank the code USES. |pr_loss| = 1.81

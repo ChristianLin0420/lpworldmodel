@@ -66,7 +66,7 @@ if [ "${WHAT}" = "s2" ] || [ "${WHAT}" = "all" ]; then
         CMD+=(scripts/plan_slurm.sbatch)
         RUN_NAME="${run}" SEED="${s}" NEVALS="${NEVALS}" MAXITER="${MAXITER}" \
             LABEL="${label}" \
-            PLAN_EXTRA="+objective.wmat_path=assets/wscore/${run}.pt" \
+            PLAN_EXTRA="+objective.wmat_path=${REPO}/assets/wscore/${run}.pt" \
             "${CMD[@]}" >/dev/null && { echo "  S2  SUBMITTED ${label}"; submitted=$((submitted+1)); }
     done
 fi

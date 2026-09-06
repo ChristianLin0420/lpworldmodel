@@ -36,6 +36,8 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from omegaconf import OmegaConf  # noqa: E402
+
 from plan import load_model  # noqa: E402
 
 PROBE = "/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs/probe_cache.pt"
@@ -52,7 +54,11 @@ def code_covariance(model, frames, batch=64, device="cuda"):
     """Covariance of the LINKED code over `frames`, as (D, D) plus the sample count."""
     outs = []
     for i in range(0, len(frames), batch):
-        v = frames[i : i + batch].to(device)
+        # runs/probe_cache.pt stores frames as fp16 to halve its size; the restored model
+        # keeps fp32 weights (bf16 was an autocast setting at train time, not the stored
+        # dtype), so handing the cache straight to the patch_embed raises
+        # "Input type (c10::Half) and bias type (float) should be the same".
+        v = frames[i : i + batch].to(device).float()
         z = model.encode_obs_linked({"visual": v.unsqueeze(1), "proprio": None})["visual"]
         outs.append(z.reshape(-1, z.shape[-1]).float().cpu())
     Z = torch.cat(outs, 0)
@@ -94,13 +100,23 @@ def main():
         ap.error("give --runs, or --arm with --seeds")
 
     os.makedirs(a.out, exist_ok=True)
+    written = 0
     cache = torch.load(PROBE, map_location="cpu")
     frames = cache["visual"][: a.n_frames]
     print(f"  probe frames: {len(frames)}")
 
+    R = "/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs/outputs"
     for run in runs:
+        # load_model(ckpt_path, cfg, num_action_repeat, device) -- the same call
+        # analysis/d_action_probe.py:93 makes. The first version of this file passed
+        # (run_name, "latest"), which raises TypeError; the broad except below then reported
+        # it as SKIP and the job exited 0 having written NOTHING, so afterok let eight evals
+        # through to fail on the missing matrices. Hence the hard check after the loop.
+        ck = os.path.join(R, run, "checkpoints", "model_latest.pth")
+        cfgf = os.path.join(R, run, "hydra.yaml")
         try:
-            model = load_model(run, "latest", device=a.device)
+            cfg = OmegaConf.load(cfgf)
+            model = load_model(ck, cfg, cfg.num_action_repeat, device=a.device)
         except Exception as e:  # a missing or half-written checkpoint must not kill the sweep
             print(f"  {run:<44} SKIP ({type(e).__name__}: {str(e)[:60]})")
             continue
@@ -112,7 +128,20 @@ def main():
         path = os.path.join(a.out, f"{run}.pt")
         torch.save({"W": W, "pr": pr_before, "n": n, "run": run}, path)
         print(f"  {run:<44} PR {pr_before:6.2f} -> {pr_after:6.2f}  n={n}  -> {path}")
+        written += 1
+
+
+    # EXIT NON-ZERO IF NOTHING WAS WRITTEN. Everything downstream is chained with
+    # --dependency=afterok precisely so a missing matrix stops the evals rather than letting
+    # them fall back to the unwhitened objective and produce an arm that duplicates its own
+    # control. A run that skips every checkpoint and exits 0 defeats that guard entirely,
+    # which is exactly what happened on the first attempt.
+    if written == 0:
+        print(f"ERROR: no matrices written for {len(runs)} run(s); refusing to exit 0")
+        return 1
+    print(f"  wrote {written} matrices")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

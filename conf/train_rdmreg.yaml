@@ -324,6 +324,7 @@ tube_w: 0.0
 tube_grid: 4               # tube side in PATCHES (4 -> 4x4 of the 16x16 grid)
 tube_frames: 2             # consecutive frames the tube spans
 tube_iid: false            # control: same masked fraction, resampled per frame
+tube_sub: 0                # batch elements used for the tube term (0 = the whole batch)
 
 # ROUND 8 / ST4. Direction-normalised prediction residual: the SPATIAL half of the
 # (direction x horizon) weight, computed ONLINE from the batch's own per-dim variance
