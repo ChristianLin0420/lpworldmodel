@@ -13,10 +13,11 @@ These six needed new code -- two of them needed the EMA teacher that only existe
 rung 2 was built -- so they are drawn here, with the same primitives and the same audit.
 No existing figure module is edited: other agents work in this repo concurrently.
 
-STATUS IS PART OF EACH FIGURE, and it is not decoration.  Three of these are implemented and
-have a canary QUEUED but not yet run (T3, ST1, S3) -- verified on CPU for bit-identity when
-off and for activity when on, NOT yet verified on the GPU path; three are GATED on M2 and
-deliberately unbuilt (S2, ST4, ST5),
+STATUS IS PART OF EACH FIGURE, and it is not decoration.  ALL SIX are now implemented and
+launched at 8 seeds.  T3, ST1 and S3 passed a GPU canary; S2 and ST5 are plan-time and run
+against existing checkpoints; ST4 trains.  The M2 gate that once held S2/ST4/ST5 back was
+overridden deliberately -- the campaign wanted every method measured rather than three of
+them argued about,
 because M2 decides whether ~500 GPU-h of metric-shaped proposals are worth spending at all.
 A figure that did not say so would read as a claim that all six are running.
 
@@ -168,7 +169,7 @@ def _check_title(title, corridor_x, size=20, cx=470, clear=8):
 
 
 # ======================================================= T3: the window summary
-T3_TITLE = "(T3) PiWM-tjepa -- predict the WINDOW, not the frame   [CANARY QUEUED]"
+T3_TITLE = "(T3) PiWM-tjepa -- predict the WINDOW, not the frame   [LAUNCHED]"
 
 
 def t3_tjepa():
@@ -233,7 +234,7 @@ def t3_tjepa():
 
 
 # ======================================================= ST1: the tube
-ST1_TITLE = "(ST1) PiWM-st-tube -- one mask, contiguous in SPACE and TIME   [CANARY QUEUED]"
+ST1_TITLE = "(ST1) PiWM-st-tube -- one mask, contiguous in SPACE and TIME   [LAUNCHED]"
 
 
 def st1_tube():
@@ -303,7 +304,7 @@ def st1_tube():
 
 
 # ======================================================= S3: the used rank
-S3_TITLE = "(S3) PiWM-white-zt -- raise the rank the code USES   [CANARY QUEUED]"
+S3_TITLE = "(S3) PiWM-white-zt -- raise the rank the code USES   [LAUNCHED]"
 
 
 def s3_white():
@@ -373,7 +374,7 @@ def s3_white():
 
 
 # ======================================================= S2: the plan-time metric
-S2_TITLE = "(S2) PiWM-wscore -- CEM ranks in an ANISOTROPIC space   [GATED ON M2]"
+S2_TITLE = "(S2) PiWM-wscore -- CEM ranks in an ANISOTROPIC space   [LAUNCHED]"
 
 
 def s2_wscore():
@@ -432,7 +433,7 @@ def s2_wscore():
 
 
 # ======================================================= ST4: direction x horizon
-ST4_TITLE = "(ST4) PiWM-st-metric -- one weight over DIRECTION and HORIZON   [GATED ON M2]"
+ST4_TITLE = "(ST4) PiWM-st-metric -- one weight over DIRECTION and HORIZON   [LAUNCHED]"
 
 
 def st4_metric():
@@ -488,7 +489,7 @@ def st4_metric():
 
 
 # ======================================================= ST5: the pooled goal
-ST5_TITLE = "(ST5) PiWM-st-goal -- a goal pooled over SPACE, scored over TIME   [GATED ON M2]"
+ST5_TITLE = "(ST5) PiWM-st-goal -- a goal pooled over SPACE, scored over TIME   [LAUNCHED]"
 
 
 def st5_goal():
