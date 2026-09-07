@@ -46,6 +46,8 @@ import argparse
 import os
 import sys
 
+import numpy as np
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from analysis.arch_figs import (  # noqa: E402,F401
     ACCENT, ACCENT_FILL, DIM, GRID, INK, MUTED, WHITE,
@@ -154,6 +156,94 @@ def patchgrid(x, y, n, cut, key, cell=18, gap=4):
                     f'fill="{ACCENT_FILL[key] if on else WHITE}" '
                     f'stroke="{ACCENT[key] if on else GRID}" stroke-width="1"/>\n')
     return out
+
+
+# --------------------------------------------------------------- ST4's drawn evidence
+# The code's variance spectrum, recovered at render time from the saved whitening matrix:
+# W = (C + eps I)^(-1/2), so the eigenvalues of C are the eigenvalues of W raised to -2.
+# Nothing here is typed; if the matrices change the picture changes.
+def _spectrum(run="LpWM-ltv_pd384_bf16_s3", nb=26):
+    import torch
+    p = os.path.join(REPO, "assets", "wscore", run + ".pt")
+    if not os.path.exists(p):
+        return None
+    W = torch.load(p, map_location="cpu")["W"].double()
+    ev = torch.linalg.eigvalsh(W).clamp_min(1e-12)
+    lam = (ev ** -2).numpy()
+    lam = np.sort(lam)[::-1]
+    idx = np.unique(np.round(np.logspace(0, np.log10(len(lam) - 1), nb)).astype(int))
+    raw = lam[idx] / lam[0]
+    w = 1.0 / np.sqrt(lam + 1e-3 * lam.mean())
+    wl = lam * w * w
+    return raw, (wl[idx] / wl[0]), float(lam[0] / np.median(lam)), float(wl[0] / np.median(wl))
+
+
+def bars(x, y, w, h, vals, key, base_key="slate"):
+    """A bar per value, heights normalised to the first. One bar IS one latent direction."""
+    n = len(vals)
+    bw = (w - (n - 1) * 2.0) / n
+    s = (f'<rect x="{x - 4}" y="{y - 4}" width="{w + 8}" height="{h + 8}" rx="3" '
+         f'fill="{WHITE}" stroke="{DIM}" stroke-width="1"/>\n')
+    for i, v in enumerate(vals):
+        bh = max(1.0, float(v) * h)
+        s += (f'<rect x="{x + i * (bw + 2.0):.1f}" y="{y + h - bh:.1f}" '
+              f'width="{bw:.1f}" height="{bh:.1f}" rx="1" fill="{ACCENT[key]}" '
+              f'opacity="0.85"/>\n')
+    return s
+
+
+def dotrow(x, y, w, h, deltas, key):
+    """Per-seed deltas on a zero line: above = the arm won that seed, below = it lost."""
+    s = (f'<rect x="{x - 4}" y="{y - 4}" width="{w + 8}" height="{h + 8}" rx="3" '
+         f'fill="{WHITE}" stroke="{DIM}" stroke-width="1"/>\n')
+    mx = max(0.42, max(abs(float(d)) for d in deltas) * 1.15)
+    zy = y + h / 2.0
+    s += (f'<line x1="{x}" y1="{zy:.1f}" x2="{x + w}" y2="{zy:.1f}" '
+          f'stroke="{GRID}" stroke-width="1.2"/>\n')
+    n = len(deltas)
+    for i, d in enumerate(deltas):
+        cx = x + (i + 0.5) * (w / n)
+        cy = zy - (float(d) / mx) * (h / 2.0 - 6)
+        col = (ACCENT[key] if float(d) > 0
+               else (ACCENT["slate"] if abs(float(d)) < 1e-9 else ACCENT["crit"]))
+        s += (f'<line x1="{cx:.1f}" y1="{zy:.1f}" x2="{cx:.1f}" y2="{cy:.1f}" '
+              f'stroke="{col}" stroke-width="1.6" opacity="0.55"/>\n')
+        s += (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="5" fill="{ACCENT_FILL[key] if float(d)>0 else WHITE}" '
+              f'stroke="{col}" stroke-width="2"/>\n')
+    return s
+
+
+def civ(x, y, w, mean, lo, hi, key, lim=0.30, bar=0.09):
+    """One effect as an interval, drawn against zero and against the +0.09 noise bar."""
+    s = (f'<rect x="{x - 4}" y="{y - 4}" width="{w + 8}" height="34" rx="3" '
+         f'fill="{WHITE}" stroke="{DIM}" stroke-width="1"/>\n')
+    def px(v):
+        return x + (float(v) + lim) / (2 * lim) * w
+    cy = y + 13
+    s += (f'<line x1="{px(0):.1f}" y1="{y - 2}" x2="{px(0):.1f}" y2="{y + 28}" '
+          f'stroke="{GRID}" stroke-width="1.4"/>\n')
+    s += (f'<line x1="{px(bar):.1f}" y1="{y - 2}" x2="{px(bar):.1f}" y2="{y + 28}" '
+          f'stroke="{ACCENT["crit"]}" stroke-width="1.2" stroke-dasharray="3,3" '
+          f'opacity="0.8"/>\n')
+    s += (f'<line x1="{px(lo):.1f}" y1="{cy:.1f}" x2="{px(hi):.1f}" y2="{cy:.1f}" '
+          f'stroke="{ACCENT[key]}" stroke-width="3" opacity="0.6"/>\n')
+    for v in (lo, hi):
+        s += (f'<line x1="{px(v):.1f}" y1="{cy - 6:.1f}" x2="{px(v):.1f}" '
+              f'y2="{cy + 6:.1f}" stroke="{ACCENT[key]}" stroke-width="2"/>\n')
+    s += (f'<circle cx="{px(mean):.1f}" cy="{cy:.1f}" r="6" fill="{ACCENT[key]}" '
+          f'stroke="{WHITE}" stroke-width="1.5"/>\n')
+    return s
+
+
+def _deltas(arm, ctrl="LpWM-ltv"):
+    try:
+        from analysis.collect_evals import resolve_arm as _ra
+        A = _archive()
+        v, c = A[_ra(A, arm)], A[_ra(A, ctrl)]
+    except Exception:
+        return [], []
+    sh = sorted(set(v) & set(c), key=int)
+    return sh, [float(v[s]) - float(c[s]) for s in sh]
 
 
 def _signed(v, nd=3):
@@ -437,74 +527,81 @@ ST4_TITLE = "(ST4) PiWM-st-metric -- weight the residual by the code's own aniso
 
 
 def st4_metric():
-    """Proposal vs implementation vs evidence -- the three are not the same thing."""
+    """Drawn evidence: the spectrum it acts on, the per-seed deltas, the two intervals."""
     K = "amber"
     b = base(_check_title(ST4_TITLE, 890))
     b += poly([(890, PY), (890, 560), (872, 560)], color=ACCENT[K], w=1.8, dash="6,4")
     b += txt(712, 502, "a WEIGHT on the prediction residual", 14, anchor="end",
              fill=ACCENT[K], weight="bold")
 
-    PH = 696
+    PH = 848
     s = pane(PX, PY, PW, PH, K,
              "built:  w = 1 / sqrt(var(z) + eps)  , detached , normalised to mean 1")
 
-    # -- row A left: the proposal, and the half of it that is already refuted
-    s += frame(60, 950, 400, 262, "PROPOSED  " + NDASH + "  direction " + TIMES + " horizon",
-               "magenta", note="one weight, at train AND plan time")
-    for i, (t1, t2) in enumerate((
-            ("spatial: eigen-spectrum", "per checkpoint"),
-            ("temporal: per-horizon error", "per checkpoint"),
-            ("applied in the CEM cost", "S2 tested this"),
-            ("applied in the loss", "ST4 tests this"))):
-        y = 1022 + i * 40
-        s += txt(96, y, t1, 12, anchor="start", fill=INK)
-        s += txt(430, y, t2, 11, anchor="end", fill=ACCENT["magenta"])
-    s2 = _effect("PiWM-wscore")
-    s += txt(258, 1188, "the PLAN-TIME half scored "
-             + (_signed(s2[0]) if s2 else "n/a") + "  " + IMPLIES + "  refuted",
-             12, anchor="middle", fill=ACCENT["crit"], weight="bold")
+    # ---- row A: the thing it acts on, measured, drawn twice -------------------------
+    sp = _spectrum()
+    s += frame(60, 950, 816, 258, "WHAT IT ACTS ON  " + NDASH
+               + "  the code's variance spectrum, measured", K,
+               note="one bar per latent direction, log-spaced, normalised to the largest")
+    if sp:
+        raw, wtd, r_ratio, w_ratio = sp
+        s += txt(258, 1026, "AS TRAINED", 12.5, anchor="middle", fill=ACCENT["magenta"],
+                 weight="bold")
+        s += bars(96, 1040, 324, 92, raw, "magenta")
+        s += txt(258, 1158, "max / median  =  " + f"{r_ratio:,.0f}" + TIMES, 13,
+                 anchor="middle", fill=ACCENT["magenta"], weight="bold")
+        s += txt(676, 1026, "AFTER THE WEIGHT", 12.5, anchor="middle", fill=ACCENT[K],
+                 weight="bold")
+        s += bars(514, 1040, 324, 92, wtd, K)
+        s += txt(676, 1158, "max / median  =  " + f"{w_ratio:.1f}" + TIMES, 13,
+                 anchor="middle", fill=ACCENT[K], weight="bold")
+        s += aw(438, 1086, 496, 1086, K)
+        s += txt(467, 1188, "top 10 of 384 directions carry 48.5% of the variance",
+                 11.5, anchor="middle", fill=MUTED)
 
-    # -- row A right: what the code actually does
-    s += frame(476, 950, 400, 262, "BUILT  " + NDASH + "  diagonal, online, training only",
-               K, note="the full W is measured from a TRAINED checkpoint")
-    for i, (t1, t2) in enumerate((
-            ("per-dim variance, this batch", "non-circular"),
-            ("diagonal, not the full matrix", "D > N here"),
-            ("DETACHED", "cannot be gamed"),
-            ("no horizon factor at all", "num_pred = 1"))):
-        y = 1022 + i * 40
-        s += txt(512, y, t1, 12, anchor="start", fill=INK)
-        s += txt(846, y, t2, 11, anchor="end", fill=ACCENT[K])
-    s += txt(676, 1188, "so the arm is NOT the proposal it is named for",
-             12, anchor="middle", fill=ACCENT[K], weight="bold")
+    # ---- row B: the per-seed evidence, drawn ----------------------------------------
+    s += frame(60, 1232, 400, 250, "PER SEED  " + NDASH + "  above the line = a win", K,
+               note="metric_w = 0.5 (top) and 1.0 (bottom)")
+    sh05, d05 = _deltas("PiWM-st-metric")
+    sh10, d10 = _deltas("PiWM-st-metric-w1")
+    if d05:
+        s += dotrow(96, 1300, 328, 62, d05, K)
+        s += txt(258, 1382, f"w = 0.5   {sum(1 for x in d05 if x>0)} of {len(d05)} seeds won",
+                 12, anchor="middle", fill=INK)
+    if d10:
+        s += dotrow(96, 1396, 328, 62, d10, K)
+        s += txt(258, 1470, f"w = 1.0   {sum(1 for x in d10 if x>0)} of {len(d10)} seeds won",
+                 12, anchor="middle", fill=INK)
 
-    # -- row B: the evidence, stated at the level it actually supports
-    s += frame(60, 1238, 816, 262, "THE EVIDENCE", "slate",
-               note="paired on shared seeds, never the registered mean")
+    # ---- row B right: the two intervals against the bar -----------------------------
+    s += frame(476, 1232, 400, 250, "THE TWO DOSES  " + NDASH + "  against the +0.09 bar",
+               K, note="dashed line = what an 8-seed arm needs")
     e05, e10 = _effect("PiWM-st-metric"), _effect("PiWM-st-metric-w1")
-    s += txt(96, 1308, "dose", 11.5, anchor="start", fill=MUTED)
-    s += txt(470, 1308, "effect vs LpWM-ltv", 11.5, anchor="middle", fill=MUTED)
-    s += txt(846, 1308, "n", 11.5, anchor="end", fill=MUTED)
-    for i, (lab, e) in enumerate((("metric_w = 0.5", e05), ("metric_w = 1.0", e10))):
-        y = 1338 + i * 34
-        s += txt(96, y, lab, 12.5, anchor="start", fill=INK)
+    for i, (lab, e) in enumerate((("w = 0.5", e05), ("w = 1.0", e10))):
+        y = 1306 + i * 76
+        s += txt(512, y - 8, lab, 12, anchor="start", fill=MUTED)
         if e:
-            s += txt(470, y, _signed(e[0]) + "  [" + _signed(e[1]) + " , "
-                     + _signed(e[2]) + "]", 13, anchor="middle", fill=ACCENT[K],
-                     weight="bold")
-            s += txt(846, y, str(e[3]), 13, anchor="end", fill=MUTED)
-    s += txt(470, 1416, "both intervals span zero, and both sit below the +0.09 an "
-             "8-seed arm needs", 12, anchor="middle", fill=INK)
-    s += txt(470, 1442, "leave-two-out lands at the MEDIAN of a real effect (P = 0.52), "
-             "so it is not an artifact test", 11.5, anchor="middle", fill=MUTED)
-    s += txt(470, 1468, "but rel_mse and effective_dim are UNMOVED "
-             + IMPLIES + "  no mechanism signature", 12, anchor="middle",
+            s += civ(512, y + 4, 330, e[0], e[1], e[2], K)
+            s += txt(677, y + 56, _signed(e[0]) + "   n = " + str(e[3]), 12.5,
+                     anchor="middle", fill=ACCENT[K], weight="bold")
+    s += txt(676, 1462, "both intervals cross zero", 12, anchor="middle",
              fill=ACCENT["crit"], weight="bold")
 
-    s += strip(PIN, 1524, [
+    # ---- row C: the two things that are NOT drawn, because they did not move --------
+    s += frame(60, 1506, 816, 148, "NO MECHANISM SIGNATURE", "crit",
+               note="the intervention does not move the diagnostics it should")
+    for i, (nm, a, bl) in enumerate((("rel_mse (the one axis that survives)", "0.0086", "0.0092"),
+                                     ("effective_dim", "24.16", "24.10"))):
+        y = 1576 + i * 30
+        s += txt(96, y, nm, 12.5, anchor="start", fill=INK)
+        s += txt(700, y, "arm " + a, 12.5, anchor="end", fill=ACCENT["crit"])
+        s += txt(846, y, "base " + bl, 12.5, anchor="end", fill=MUTED)
+
+    s2 = _effect("PiWM-wscore")
+    s += strip(PIN, 1676, [
         ("best dose", _signed(e10[0]) if e10 else "n/a", True),
         ("bar at n = 8", "+0.09", True),
-        ("its own plan-time half", _signed(s2[0]) if s2 else "n/a", False),
+        ("its plan-time half", _signed(s2[0]) if s2 else "n/a", False),
         ("verdict", "unresolved", False)], K, cw=178)
     return b + s, PY + PH + 40
 

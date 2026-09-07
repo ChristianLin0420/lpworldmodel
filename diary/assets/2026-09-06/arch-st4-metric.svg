@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1554" viewBox="0 0 940 1554" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1706" viewBox="0 0 940 1706" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
 <defs>
   <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
   <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
@@ -9,7 +9,7 @@
   <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
   <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
 </defs>
-<rect width="940" height="1554" fill="#FFFFFF"/>
+<rect width="940" height="1706" fill="#FFFFFF"/>
 <g transform="translate(0,-80)">
 <circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
 <text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
@@ -69,59 +69,149 @@
 <text x="143.5" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(ST4)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-st-metric</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;weight the residual by the code's own anisotropy</tspan></text>
 <path d="M890,898 L890,560 L872,560" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
 <text x="712" y="502" font-size="14" text-anchor="end" fill="#C88A1E" font-weight="bold">a WEIGHT on the prediction residual</text>
-<rect x="34" y="898" width="872" height="696" rx="10" fill="#F7E8C8" fill-opacity="0.45" stroke="#C88A1E" stroke-width="2.0"/>
+<rect x="34" y="898" width="872" height="848" rx="10" fill="#F7E8C8" fill-opacity="0.45" stroke="#C88A1E" stroke-width="2.0"/>
 <text x="54" y="930" font-size="18" text-anchor="start" fill="#C88A1E" font-weight="bold">built:  w = 1 / sqrt(var(z) + eps)  , detached , normalised to mean 1</text>
 <path d="M52,942 L888,942" stroke="#C88A1E" stroke-width="1.2" stroke-opacity="0.5"/>
-<rect x="60" y="950" width="400" height="262" rx="8" fill="#FFFFFF" stroke="#543C84" stroke-width="1.6"/>
-<text x="260.0" y="976" font-size="17" text-anchor="middle" fill="#543C84" font-weight="bold">PROPOSED  –  direction × horizon</text>
-<text x="260.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">one weight, at train AND plan time</text>
-<text x="96" y="1022" font-size="12" text-anchor="start" fill="#14231C">spatial: eigen-spectrum</text>
-<text x="430" y="1022" font-size="11" text-anchor="end" fill="#543C84">per checkpoint</text>
-<text x="96" y="1062" font-size="12" text-anchor="start" fill="#14231C">temporal: per-horizon error</text>
-<text x="430" y="1062" font-size="11" text-anchor="end" fill="#543C84">per checkpoint</text>
-<text x="96" y="1102" font-size="12" text-anchor="start" fill="#14231C">applied in the CEM cost</text>
-<text x="430" y="1102" font-size="11" text-anchor="end" fill="#543C84">S2 tested this</text>
-<text x="96" y="1142" font-size="12" text-anchor="start" fill="#14231C">applied in the loss</text>
-<text x="430" y="1142" font-size="11" text-anchor="end" fill="#543C84">ST4 tests this</text>
-<text x="258" y="1188" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">the PLAN-TIME half scored −0.055  ⇒  refuted</text>
-<rect x="476" y="950" width="400" height="262" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
-<text x="676.0" y="976" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">BUILT  –  diagonal, online, training only</text>
-<text x="676.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">the full W is measured from a TRAINED checkpoint</text>
-<text x="512" y="1022" font-size="12" text-anchor="start" fill="#14231C">per-dim variance, this batch</text>
-<text x="846" y="1022" font-size="11" text-anchor="end" fill="#C88A1E">non-circular</text>
-<text x="512" y="1062" font-size="12" text-anchor="start" fill="#14231C">diagonal, not the full matrix</text>
-<text x="846" y="1062" font-size="11" text-anchor="end" fill="#C88A1E">D > N here</text>
-<text x="512" y="1102" font-size="12" text-anchor="start" fill="#14231C">DETACHED</text>
-<text x="846" y="1102" font-size="11" text-anchor="end" fill="#C88A1E">cannot be gamed</text>
-<text x="512" y="1142" font-size="12" text-anchor="start" fill="#14231C">no horizon factor at all</text>
-<text x="846" y="1142" font-size="11" text-anchor="end" fill="#C88A1E">num_pred = 1</text>
-<text x="676" y="1188" font-size="12" text-anchor="middle" fill="#C88A1E" font-weight="bold">so the arm is NOT the proposal it is named for</text>
-<rect x="60" y="1238" width="816" height="262" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
-<text x="468.0" y="1264" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">THE EVIDENCE</text>
-<text x="468.0" y="1283" font-size="12" text-anchor="middle" fill="#6C786C">paired on shared seeds, never the registered mean</text>
-<text x="96" y="1308" font-size="11.5" text-anchor="start" fill="#6C786C">dose</text>
-<text x="470" y="1308" font-size="11.5" text-anchor="middle" fill="#6C786C">effect vs LpWM-ltv</text>
-<text x="846" y="1308" font-size="11.5" text-anchor="end" fill="#6C786C">n</text>
-<text x="96" y="1338" font-size="12.5" text-anchor="start" fill="#14231C">metric_w = 0.5</text>
-<text x="470" y="1338" font-size="13" text-anchor="middle" fill="#C88A1E" font-weight="bold">+0.045  [−0.053 , +0.143]</text>
-<text x="846" y="1338" font-size="13" text-anchor="end" fill="#6C786C">8</text>
-<text x="96" y="1372" font-size="12.5" text-anchor="start" fill="#14231C">metric_w = 1.0</text>
-<text x="470" y="1372" font-size="13" text-anchor="middle" fill="#C88A1E" font-weight="bold">+0.070  [−0.090 , +0.230]</text>
-<text x="846" y="1372" font-size="13" text-anchor="end" fill="#6C786C">8</text>
-<text x="470" y="1416" font-size="12" text-anchor="middle" fill="#14231C">both intervals span zero, and both sit below the +0.09 an 8-seed arm needs</text>
-<text x="470" y="1442" font-size="11.5" text-anchor="middle" fill="#6C786C">leave-two-out lands at the MEDIAN of a real effect (P = 0.52), so it is not an artifact test</text>
-<text x="470" y="1468" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">but rel_mse and effective_dim are UNMOVED ⇒  no mechanism signature</text>
-<rect x="60" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="149.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">best dose</text>
-<text x="149.0" y="1560" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.070</text>
-<rect x="246" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="335.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">bar at n = 8</text>
-<text x="335.0" y="1560" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.09</text>
-<rect x="432" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="521.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">its own plan-time half</text>
-<text x="521.0" y="1560" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">−0.055</text>
-<rect x="618" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="707.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">verdict</text>
-<text x="707.0" y="1560" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">unresolved</text>
+<rect x="60" y="950" width="816" height="258" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="468.0" y="976" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">WHAT IT ACTS ON  –  the code's variance spectrum, measured</text>
+<text x="468.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">one bar per latent direction, log-spaced, normalised to the largest</text>
+<text x="258" y="1026" font-size="12.5" text-anchor="middle" fill="#543C84" font-weight="bold">AS TRAINED</text>
+<rect x="92" y="1036" width="332" height="100" rx="3" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<rect x="96.0" y="1059.9" width="12.2" height="72.1" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="110.2" y="1065.6" width="12.2" height="66.4" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="124.3" y="1068.0" width="12.2" height="64.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="138.5" y="1068.4" width="12.2" height="63.6" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="152.7" y="1072.3" width="12.2" height="59.7" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="166.9" y="1083.2" width="12.2" height="48.8" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="181.0" y="1088.3" width="12.2" height="43.7" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="195.2" y="1094.6" width="12.2" height="37.4" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="209.4" y="1102.4" width="12.2" height="29.6" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="223.6" y="1107.8" width="12.2" height="24.2" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="237.7" y="1114.6" width="12.2" height="17.4" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="251.9" y="1120.2" width="12.2" height="11.8" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="266.1" y="1124.2" width="12.2" height="7.8" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="280.3" y="1127.6" width="12.2" height="4.4" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="294.4" y="1129.9" width="12.2" height="2.1" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="308.6" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="322.8" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="337.0" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="351.1" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="365.3" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="379.5" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="393.7" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<rect x="407.8" y="1131.0" width="12.2" height="1.0" rx="1" fill="#543C84" opacity="0.85"/>
+<text x="258" y="1158" font-size="13" text-anchor="middle" fill="#543C84" font-weight="bold">max / median  =  2,334×</text>
+<text x="676" y="1026" font-size="12.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">AFTER THE WEIGHT</text>
+<rect x="510" y="1036" width="332" height="100" rx="3" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<rect x="514.0" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="528.2" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="542.3" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="556.5" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="570.7" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="584.9" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="599.0" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="613.2" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="627.4" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="641.6" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="655.7" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="669.9" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="684.1" y="1040.0" width="12.2" height="92.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="698.3" y="1040.1" width="12.2" height="91.9" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="712.4" y="1040.1" width="12.2" height="91.9" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="726.6" y="1040.3" width="12.2" height="91.7" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="740.8" y="1040.7" width="12.2" height="91.3" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="755.0" y="1041.5" width="12.2" height="90.5" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="769.1" y="1043.2" width="12.2" height="88.8" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="783.3" y="1046.4" width="12.2" height="85.6" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="797.5" y="1061.1" width="12.2" height="70.9" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="811.7" y="1082.6" width="12.2" height="49.4" rx="1" fill="#C88A1E" opacity="0.85"/>
+<rect x="825.8" y="1086.0" width="12.2" height="46.0" rx="1" fill="#C88A1E" opacity="0.85"/>
+<text x="676" y="1158" font-size="13" text-anchor="middle" fill="#C88A1E" font-weight="bold">max / median  =  1.1×</text>
+<path d="M438,1086 L496,1086" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e1)"/>
+<text x="467" y="1188" font-size="11.5" text-anchor="middle" fill="#6C786C">top 10 of 384 directions carry 48.5% of the variance</text>
+<rect x="60" y="1232" width="400" height="250" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="260.0" y="1258" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">PER SEED  –  above the line = a win</text>
+<text x="260.0" y="1277" font-size="12" text-anchor="middle" fill="#6C786C">metric_w = 0.5 (top) and 1.0 (bottom)</text>
+<rect x="92" y="1296" width="336" height="70" rx="3" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<line x1="96" y1="1331.0" x2="424" y2="1331.0" stroke="#E4E4E4" stroke-width="1.2"/>
+<line x1="116.5" y1="1331.0" x2="116.5" y2="1316.7" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="116.5" cy="1316.7" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="157.5" y1="1331.0" x2="157.5" y2="1331.0" stroke="#546060" stroke-width="1.6" opacity="0.55"/>
+<circle cx="157.5" cy="1331.0" r="5" fill="#FFFFFF" stroke="#546060" stroke-width="2"/>
+<line x1="198.5" y1="1331.0" x2="198.5" y2="1341.7" stroke="#A83024" stroke-width="1.6" opacity="0.55"/>
+<circle cx="198.5" cy="1341.7" r="5" fill="#FFFFFF" stroke="#A83024" stroke-width="2"/>
+<line x1="239.5" y1="1331.0" x2="239.5" y2="1325.0" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="239.5" cy="1325.0" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="280.5" y1="1331.0" x2="280.5" y2="1326.2" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="280.5" cy="1326.2" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="321.5" y1="1331.0" x2="321.5" y2="1329.8" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="321.5" cy="1329.8" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="362.5" y1="1331.0" x2="362.5" y2="1328.6" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="362.5" cy="1328.6" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="403.5" y1="1331.0" x2="403.5" y2="1327.4" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="403.5" cy="1327.4" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<text x="258" y="1382" font-size="12" text-anchor="middle" fill="#14231C">w = 0.5   6 of 8 seeds won</text>
+<rect x="92" y="1392" width="336" height="70" rx="3" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<line x1="96" y1="1427.0" x2="424" y2="1427.0" stroke="#E4E4E4" stroke-width="1.2"/>
+<line x1="116.5" y1="1427.0" x2="116.5" y2="1405.6" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="116.5" cy="1405.6" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="157.5" y1="1427.0" x2="157.5" y2="1425.8" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="157.5" cy="1425.8" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="198.5" y1="1427.0" x2="198.5" y2="1443.7" stroke="#A83024" stroke-width="1.6" opacity="0.55"/>
+<circle cx="198.5" cy="1443.7" r="5" fill="#FFFFFF" stroke="#A83024" stroke-width="2"/>
+<line x1="239.5" y1="1427.0" x2="239.5" y2="1415.1" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="239.5" cy="1415.1" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="280.5" y1="1427.0" x2="280.5" y2="1416.3" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="280.5" cy="1416.3" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="321.5" y1="1427.0" x2="321.5" y2="1419.9" stroke="#C88A1E" stroke-width="1.6" opacity="0.55"/>
+<circle cx="321.5" cy="1419.9" r="5" fill="#F7E8C8" stroke="#C88A1E" stroke-width="2"/>
+<line x1="362.5" y1="1427.0" x2="362.5" y2="1429.4" stroke="#A83024" stroke-width="1.6" opacity="0.55"/>
+<circle cx="362.5" cy="1429.4" r="5" fill="#FFFFFF" stroke="#A83024" stroke-width="2"/>
+<line x1="403.5" y1="1427.0" x2="403.5" y2="1427.0" stroke="#546060" stroke-width="1.6" opacity="0.55"/>
+<circle cx="403.5" cy="1427.0" r="5" fill="#FFFFFF" stroke="#546060" stroke-width="2"/>
+<text x="258" y="1470" font-size="12" text-anchor="middle" fill="#14231C">w = 1.0   5 of 8 seeds won</text>
+<rect x="476" y="1232" width="400" height="250" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="676.0" y="1258" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">THE TWO DOSES  –  against the +0.09 bar</text>
+<text x="676.0" y="1277" font-size="12" text-anchor="middle" fill="#6C786C">dashed line = what an 8-seed arm needs</text>
+<text x="512" y="1298" font-size="12" text-anchor="start" fill="#6C786C">w = 0.5</text>
+<rect x="508" y="1306" width="338" height="34" rx="3" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<line x1="677.0" y1="1308" x2="677.0" y2="1338" stroke="#E4E4E4" stroke-width="1.4"/>
+<line x1="726.5" y1="1308" x2="726.5" y2="1338" stroke="#A83024" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.8"/>
+<line x1="647.9" y1="1323.0" x2="755.6" y2="1323.0" stroke="#C88A1E" stroke-width="3" opacity="0.6"/>
+<line x1="647.9" y1="1317.0" x2="647.9" y2="1329.0" stroke="#C88A1E" stroke-width="2"/>
+<line x1="755.6" y1="1317.0" x2="755.6" y2="1329.0" stroke="#C88A1E" stroke-width="2"/>
+<circle cx="701.8" cy="1323.0" r="6" fill="#C88A1E" stroke="#FFFFFF" stroke-width="1.5"/>
+<text x="677" y="1362" font-size="12.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">+0.045   n = 8</text>
+<text x="512" y="1374" font-size="12" text-anchor="start" fill="#6C786C">w = 1.0</text>
+<rect x="508" y="1382" width="338" height="34" rx="3" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<line x1="677.0" y1="1384" x2="677.0" y2="1414" stroke="#E4E4E4" stroke-width="1.4"/>
+<line x1="726.5" y1="1384" x2="726.5" y2="1414" stroke="#A83024" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.8"/>
+<line x1="627.3" y1="1399.0" x2="803.7" y2="1399.0" stroke="#C88A1E" stroke-width="3" opacity="0.6"/>
+<line x1="627.3" y1="1393.0" x2="627.3" y2="1405.0" stroke="#C88A1E" stroke-width="2"/>
+<line x1="803.7" y1="1393.0" x2="803.7" y2="1405.0" stroke="#C88A1E" stroke-width="2"/>
+<circle cx="715.5" cy="1399.0" r="6" fill="#C88A1E" stroke="#FFFFFF" stroke-width="1.5"/>
+<text x="677" y="1438" font-size="12.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">+0.070   n = 8</text>
+<text x="676" y="1462" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">both intervals cross zero</text>
+<rect x="60" y="1506" width="816" height="148" rx="8" fill="#FFFFFF" stroke="#A83024" stroke-width="1.6"/>
+<text x="468.0" y="1532" font-size="17" text-anchor="middle" fill="#A83024" font-weight="bold">NO MECHANISM SIGNATURE</text>
+<text x="468.0" y="1551" font-size="12" text-anchor="middle" fill="#6C786C">the intervention does not move the diagnostics it should</text>
+<text x="96" y="1576" font-size="12.5" text-anchor="start" fill="#14231C">rel_mse (the one axis that survives)</text>
+<text x="700" y="1576" font-size="12.5" text-anchor="end" fill="#A83024">arm 0.0086</text>
+<text x="846" y="1576" font-size="12.5" text-anchor="end" fill="#6C786C">base 0.0092</text>
+<text x="96" y="1606" font-size="12.5" text-anchor="start" fill="#14231C">effective_dim</text>
+<text x="700" y="1606" font-size="12.5" text-anchor="end" fill="#A83024">arm 24.16</text>
+<text x="846" y="1606" font-size="12.5" text-anchor="end" fill="#6C786C">base 24.10</text>
+<rect x="60" y="1676" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="149.0" y="1693" font-size="12" text-anchor="middle" fill="#6C786C">best dose</text>
+<text x="149.0" y="1712" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.070</text>
+<rect x="246" y="1676" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="335.0" y="1693" font-size="12" text-anchor="middle" fill="#6C786C">bar at n = 8</text>
+<text x="335.0" y="1712" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.09</text>
+<rect x="432" y="1676" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="521.0" y="1693" font-size="12" text-anchor="middle" fill="#6C786C">its plan-time half</text>
+<text x="521.0" y="1712" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">−0.055</text>
+<rect x="618" y="1676" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="707.0" y="1693" font-size="12" text-anchor="middle" fill="#6C786C">verdict</text>
+<text x="707.0" y="1712" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">unresolved</text>
 </g>
 </svg>
