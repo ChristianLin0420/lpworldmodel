@@ -116,16 +116,21 @@ ARMS = {
 }
 
 
-# Each entry pins a D=384 model AND a full set of .grad buffers, roughly 2x the parameter
-# memory. This process runs under a 24 GB cgroup limit (/sys/fs/cgroup/memory.max), and once
-# round 9 added 13 arms the unbounded version SIGKILLed the suite partway through -- which
-# reads as a hang or a flaky runner, not as a memory bug.
+# BOUNDED, and both halves of the bound are load-bearing.
 #
-# The fix keeps every entry (evicting instead made the suite several times slower, because
-# the named tests rebuild a ViT on every miss) and drops the GRADS of all but the newest.
-# That is safe and checked: no test calls _step for one arm and then reads .grad from an
-# earlier one -- every caller reads the entry it just requested.
+# Each entry pins a D=384 model plus a full set of .grad buffers, roughly 2x the parameter
+# memory. This process runs under a 24 GB cgroup limit (/sys/fs/cgroup/memory.max). At 70
+# arms the unbounded cache SIGKILLs the file even when it is run on its own -- which reads
+# as a hang or a flaky runner, not as a memory bug, and is why this comment is long.
+#
+# Eviction is transparent: dropping a dict entry leaves any reference a caller kept valid, so
+# the only cost of a miss is rebuild time. The cap is sized to stay well inside the limit
+# while still serving the second parametrized sweep from the first for most arms.
+#
+# Do NOT "optimise" this by also releasing the .grad buffers of older entries -- a caller
+# still holds the model it was handed, so that reaches into a live object.
 _CACHE = {}
+_CACHE_MAX = 24
 
 
 def _step(overrides, seed=0):
@@ -146,8 +151,8 @@ def _step(overrides, seed=0):
     loss.backward()
     for o in opts:
         o.step()
-    for _c, _m, _, _ in _CACHE.values():        # keep params, release the grad buffers
-        _m.zero_grad(set_to_none=True)
+    while len(_CACHE) >= _CACHE_MAX:
+        _CACHE.pop(next(iter(_CACHE)))          # dicts are insertion-ordered: drop oldest
     _CACHE[key] = (cfg, model, loss, comps)
     return _CACHE[key]
 
@@ -1316,7 +1321,7 @@ def test_r4_arms_differ_from_their_control():
 
 # --- Round 9: the state-space encoder ------------------------------------------------
 
-def _fresh(overrides, seed=0):
+def _r9_build(overrides, seed=0):
     """Build WITHOUT stepping. The init assertions below are about what survives
     CONSTRUCTION, and _step() runs a full optimizer step first -- which moves C off zero by
     exactly one lr and would make the assertion test the optimizer, not the init."""
@@ -1334,7 +1339,7 @@ def test_r9_state_init_survives_mup_init_not_merely_the_ctor():
     ctor is silently destroyed unless mup_init_ re-applies it. Both failures are quiet:
     the run trains, converges and reports a success rate.
     """
-    model = _fresh(ARMS["r9/p1_ssm"])
+    model = _r9_build(ARMS["r9/p1_ssm"])
     st = _enc(model).state
     assert st.C.weight.abs().max() == 0.0, "C must be exactly zero after mup_init_"
     assert torch.equal(st.Bz.weight, torch.eye(st.Bz.weight.shape[0])), "Bz must be I"
@@ -1343,7 +1348,7 @@ def test_r9_state_init_survives_mup_init_not_merely_the_ctor():
 
 def test_r9_frozen_control_has_A_exactly_zero_and_no_grad():
     """The control's single factor is whether information can cross a frame boundary."""
-    model = _fresh(ARMS["r9/p1_ssm_frozen"])
+    model = _r9_build(ARMS["r9/p1_ssm_frozen"])
     st = _enc(model).state
     assert st.A.weight.abs().max() == 0.0
     assert not st.A.weight.requires_grad
@@ -1352,7 +1357,7 @@ def test_r9_frozen_control_has_A_exactly_zero_and_no_grad():
 def test_r9_single_frame_limit_equals_forward():
     """forward_state(x, 1) IS forward(x): the planner encodes both obs_0 and obs_g with a
     time axis of exactly one (plan.py:230-232), so this is the object CEM compares."""
-    model = _fresh(ARMS["r9/p1_ssm"])
+    model = _r9_build(ARMS["r9/p1_ssm"])
     enc = _enc(model)
     x = torch.randn(4, 3, enc_img(model), enc_img(model))
     with torch.no_grad():
@@ -1420,13 +1425,26 @@ def enc_img(model):
 def test_r9_only_C_takes_gradient_at_step_zero():
     """A consequence of the zero-init worth stating rather than discovering later.
 
-    out = x + C s, and C = 0 at init, so dL/ds = C^T dL/dout = 0: at step 0 ONLY C
-    receives gradient, and A and Bz start moving only once C has left zero. That is the
-    AdaLN-zero behaviour this repo already relies on, and it is also why the state cannot
-    perturb the encoder before the loss has asked it to.
+    out = x + C s, and C = 0 at init, so dL/ds = C^T dL/dout = 0: at step 0 only C receives
+    a non-zero GRADIENT, and A and Bz start learning once C has left zero. That is the
+    AdaLN-zero behaviour this repo already relies on, and it is why the state cannot perturb
+    the encoder before the loss has asked it to.
+
+    Asserted on the GRADIENTS, not on the weights: AdamW's decoupled weight decay moves a
+    parameter whose grad is an all-zero tensor, so "Bz is still the identity after one step"
+    is false even though "Bz learned nothing" is true.
     """
-    _, model, _, _ = _step(ARMS["r9/p1_ssm"])       # one full optimizer step
+    cfg = load_cfg(ARMS["r9/p1_ssm"])
+    seed_all(0)
+    model, _ = build(cfg)
+    model.train()
+    obs, act = synthetic_batch(cfg, 2, torch.Generator().manual_seed(1234))
+    _, _, _, loss, _ = model(obs, act)
+    loss.backward()
     st = _enc(model).state
-    assert st.C.weight.abs().max() > 0, "C must receive gradient -- the path_int leg"
-    assert torch.equal(st.Bz.weight, torch.eye(st.Bz.weight.shape[0])), \
-        "Bz sits behind C=0 and cannot move at step 0"
+    assert st.C.weight.grad is not None and st.C.weight.grad.abs().max() > 0, \
+        "C must receive gradient -- the path_int leg"
+    for name in ("A", "Bz"):
+        g = getattr(st, name).weight.grad
+        assert g is None or g.abs().max() == 0, \
+            f"{name} sits behind C = 0 and cannot receive gradient at step 0"
