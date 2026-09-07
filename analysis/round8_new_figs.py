@@ -433,58 +433,79 @@ def s2_wscore():
 
 
 # ======================================================= ST4: direction x horizon
-ST4_TITLE = "(ST4) PiWM-st-metric -- one weight over DIRECTION and HORIZON   [LAUNCHED]"
+ST4_TITLE = "(ST4) PiWM-st-metric -- weight the residual by the code's own anisotropy"
 
 
 def st4_metric():
-    """The same anisotropy, applied at train AND plan time."""
-    K = "slate"
+    """Proposal vs implementation vs evidence -- the three are not the same thing."""
+    K = "amber"
     b = base(_check_title(ST4_TITLE, 890))
     b += poly([(890, PY), (890, 560), (872, 560)], color=ACCENT[K], w=1.8, dash="6,4")
-    b += txt(712, 502, "the SAME weight in both places", 14, anchor="end",
+    b += txt(712, 502, "a WEIGHT on the prediction residual", 14, anchor="end",
              fill=ACCENT[K], weight="bold")
 
-    PH = 592
+    PH = 696
     s = pane(PX, PY, PW, PH, K,
-             "module:  W" + sub("", "j,h", 12) + "  =  [ λ" + sub("", "j", 12)
-             + " / (λ" + sub("", "j", 12) + " + λ" + sub("", "pr", 12)
-             + ") ]  " + TIMES + "  [ 1 / (Σ" + sub("", "h", 12) + " + median Σ) ]")
+             "built:  w = 1 / sqrt(var(z) + eps)  , detached , normalised to mean 1")
 
-    s += frame(60, 950, 400, 254, "SPATIAL half  " + NDASH + "  the eigen-spectrum", K,
-               note="the encoder's own covariance")
-    s += txt(258, 1034, "a direction the encoder barely uses", 12.5, anchor="middle",
-             fill=INK)
-    s += txt(258, 1062, "gets a small weight", 13.5, anchor="middle", fill=ACCENT[K],
-             weight="bold")
-    s += txt(258, 1114, "measured, not chosen", 12, anchor="middle", fill=MUTED)
-    s += txt(258, 1152, "no new hyperparameter", 12, anchor="middle", fill=ACCENT[K])
+    # -- row A left: the proposal, and the half of it that is already refuted
+    s += frame(60, 950, 400, 262, "PROPOSED  " + NDASH + "  direction " + TIMES + " horizon",
+               "magenta", note="one weight, at train AND plan time")
+    for i, (t1, t2) in enumerate((
+            ("spatial: eigen-spectrum", "per checkpoint"),
+            ("temporal: per-horizon error", "per checkpoint"),
+            ("applied in the CEM cost", "S2 tested this"),
+            ("applied in the loss", "ST4 tests this"))):
+        y = 1022 + i * 40
+        s += txt(96, y, t1, 12, anchor="start", fill=INK)
+        s += txt(430, y, t2, 11, anchor="end", fill=ACCENT["magenta"])
+    s2 = _effect("PiWM-wscore")
+    s += txt(258, 1188, "the PLAN-TIME half scored "
+             + (_signed(s2[0]) if s2 else "n/a") + "  " + IMPLIES + "  refuted",
+             12, anchor="middle", fill=ACCENT["crit"], weight="bold")
 
-    s += frame(476, 950, 400, 254, "TEMPORAL half  " + NDASH + "  per-horizon error", K,
-               note="measured rollout error per h")
-    s += txt(676, 1034, "a horizon the model predicts badly", 12.5, anchor="middle",
-             fill=INK)
-    s += txt(676, 1062, "stops dominating the cost", 13.5, anchor="middle", fill=ACCENT[K],
-             weight="bold")
-    s += txt(676, 1114, "and the objective stops scoring", 12, anchor="middle", fill=MUTED)
-    s += txt(676, 1136, "the terminal step ALONE", 12, anchor="middle", fill=MUTED)
-    s += txt(676, 1174, "both factors measured per checkpoint", 11.5, anchor="middle",
-             fill=ACCENT[K])
+    # -- row A right: what the code actually does
+    s += frame(476, 950, 400, 262, "BUILT  " + NDASH + "  diagonal, online, training only",
+               K, note="the full W is measured from a TRAINED checkpoint")
+    for i, (t1, t2) in enumerate((
+            ("per-dim variance, this batch", "non-circular"),
+            ("diagonal, not the full matrix", "D > N here"),
+            ("DETACHED", "cannot be gamed"),
+            ("no horizon factor at all", "num_pred = 1"))):
+        y = 1022 + i * 40
+        s += txt(512, y, t1, 12, anchor="start", fill=INK)
+        s += txt(846, y, t2, 11, anchor="end", fill=ACCENT[K])
+    s += txt(676, 1188, "so the arm is NOT the proposal it is named for",
+             12, anchor="middle", fill=ACCENT[K], weight="bold")
 
-    s += frame(60, 1230, 816, 168,
-               "WHY IT IS THE ONLY MECHANISM THAT TOUCHES BOTH SIDES", "amber",
-               note="one metric, both places")
-    s += txt(470, 1300, "one intervention moves both,",
-             13.5, anchor="middle", fill=INK)
-    s += txt(470, 1326, "the only causal diagnostic-to-CEM link",
-             13.5, anchor="middle", fill=INK, weight="bold")
-    s += txt(470, 1360, "ablated by S2, which is plan-time only", 12, anchor="middle",
-             fill=MUTED)
+    # -- row B: the evidence, stated at the level it actually supports
+    s += frame(60, 1238, 816, 262, "THE EVIDENCE", "slate",
+               note="paired on shared seeds, never the registered mean")
+    e05, e10 = _effect("PiWM-st-metric"), _effect("PiWM-st-metric-w1")
+    s += txt(96, 1308, "dose", 11.5, anchor="start", fill=MUTED)
+    s += txt(470, 1308, "effect vs LpWM-ltv", 11.5, anchor="middle", fill=MUTED)
+    s += txt(846, 1308, "n", 11.5, anchor="end", fill=MUTED)
+    for i, (lab, e) in enumerate((("metric_w = 0.5", e05), ("metric_w = 1.0", e10))):
+        y = 1338 + i * 34
+        s += txt(96, y, lab, 12.5, anchor="start", fill=INK)
+        if e:
+            s += txt(470, y, _signed(e[0]) + "  [" + _signed(e[1]) + " , "
+                     + _signed(e[2]) + "]", 13, anchor="middle", fill=ACCENT[K],
+                     weight="bold")
+            s += txt(846, y, str(e[3]), 13, anchor="end", fill=MUTED)
+    s += txt(470, 1416, "both intervals span zero, and both sit below the +0.09 an "
+             "8-seed arm needs", 12, anchor="middle", fill=INK)
+    s += txt(470, 1442, "leave-two-out lands at the MEDIAN of a real effect (P = 0.52), "
+             "so it is not an artifact test", 11.5, anchor="middle", fill=MUTED)
+    s += txt(470, 1468, "but rel_mse and effective_dim are UNMOVED "
+             + IMPLIES + "  no mechanism signature", 12, anchor="middle",
+             fill=ACCENT["crit"], weight="bold")
 
-    s += strip(PIN, 1420, [
-        ("ablated by", "S2 (plan-time only)", True),
-        ("new hyperparameters", "none", True),
-        ("gated on", "M2 >= +0.05", False),
-        ("cost if opened", "~175 GPU-h", False)], K, cw=178)
+    s += strip(PIN, 1524, [
+        ("best dose", _signed(e10[0]) if e10 else "n/a", True),
+        ("bar at n = 8", "+0.09", True),
+        ("its own plan-time half", _signed(s2[0]) if s2 else "n/a", False),
+        ("verdict", "unresolved", False)], K, cw=178)
     return b + s, PY + PH + 40
 
 

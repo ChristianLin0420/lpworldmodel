@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1450" viewBox="0 0 940 1450" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="1554" viewBox="0 0 940 1554" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
 <defs>
   <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
   <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
@@ -9,7 +9,7 @@
   <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
   <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
 </defs>
-<rect width="940" height="1450" fill="#FFFFFF"/>
+<rect width="940" height="1554" fill="#FFFFFF"/>
 <g transform="translate(0,-80)">
 <circle cx="120" cy="742" r="34" fill="#DFE4E4" stroke="#546060" stroke-width="1.5"/>
 <text x="112.9" y="748.65" font-size="19" text-anchor="start" fill="#14231C">o<tspan font-size="13" dy="5.5">t</tspan><tspan dy="-5.5"></tspan></text>
@@ -66,44 +66,62 @@
 <text x="510.0" y="588.0" font-size="17" text-anchor="middle" fill="#14231C">RDMReg</text>
 <path d="M162,442 L206,442 L206,582 L426,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
 <path d="M770,442 L726,442 L726,582 L594,582" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
-<text x="90.5" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(ST4)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-st-metric</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;one weight over DIRECTION and HORIZON</tspan><tspan fill="#546060" font-weight="bold">&#160;&#160;&#160;[LAUNCHED]</tspan></text>
-<path d="M890,898 L890,560 L872,560" stroke="#546060" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)" stroke-dasharray="6,4"/>
-<text x="712" y="502" font-size="14" text-anchor="end" fill="#546060" font-weight="bold">the SAME weight in both places</text>
-<rect x="34" y="898" width="872" height="592" rx="10" fill="#DFE4E4" fill-opacity="0.45" stroke="#546060" stroke-width="2.0"/>
-<text x="54" y="930" font-size="18" text-anchor="start" fill="#546060" font-weight="bold">module:  W<tspan font-size="12" dy="5.0">j,h</tspan><tspan dy="-5.0"></tspan>  =  [ λ<tspan font-size="12" dy="5.0">j</tspan><tspan dy="-5.0"></tspan> / (λ<tspan font-size="12" dy="5.0">j</tspan><tspan dy="-5.0"></tspan> + λ<tspan font-size="12" dy="5.0">pr</tspan><tspan dy="-5.0"></tspan>) ]  ×  [ 1 / (Σ<tspan font-size="12" dy="5.0">h</tspan><tspan dy="-5.0"></tspan> + median Σ) ]</text>
-<path d="M52,942 L888,942" stroke="#546060" stroke-width="1.2" stroke-opacity="0.5"/>
-<rect x="60" y="950" width="400" height="254" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
-<text x="260.0" y="976" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">SPATIAL half  –  the eigen-spectrum</text>
-<text x="260.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">the encoder's own covariance</text>
-<text x="258" y="1034" font-size="12.5" text-anchor="middle" fill="#14231C">a direction the encoder barely uses</text>
-<text x="258" y="1062" font-size="13.5" text-anchor="middle" fill="#546060" font-weight="bold">gets a small weight</text>
-<text x="258" y="1114" font-size="12" text-anchor="middle" fill="#6C786C">measured, not chosen</text>
-<text x="258" y="1152" font-size="12" text-anchor="middle" fill="#546060">no new hyperparameter</text>
-<rect x="476" y="950" width="400" height="254" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
-<text x="676.0" y="976" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">TEMPORAL half  –  per-horizon error</text>
-<text x="676.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">measured rollout error per h</text>
-<text x="676" y="1034" font-size="12.5" text-anchor="middle" fill="#14231C">a horizon the model predicts badly</text>
-<text x="676" y="1062" font-size="13.5" text-anchor="middle" fill="#546060" font-weight="bold">stops dominating the cost</text>
-<text x="676" y="1114" font-size="12" text-anchor="middle" fill="#6C786C">and the objective stops scoring</text>
-<text x="676" y="1136" font-size="12" text-anchor="middle" fill="#6C786C">the terminal step ALONE</text>
-<text x="676" y="1174" font-size="11.5" text-anchor="middle" fill="#546060">both factors measured per checkpoint</text>
-<rect x="60" y="1230" width="816" height="168" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
-<text x="468.0" y="1256" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">WHY IT IS THE ONLY MECHANISM THAT TOUCHES BOTH SIDES</text>
-<text x="468.0" y="1275" font-size="12" text-anchor="middle" fill="#6C786C">one metric, both places</text>
-<text x="470" y="1300" font-size="13.5" text-anchor="middle" fill="#14231C">one intervention moves both,</text>
-<text x="470" y="1326" font-size="13.5" text-anchor="middle" fill="#14231C" font-weight="bold">the only causal diagnostic-to-CEM link</text>
-<text x="470" y="1360" font-size="12" text-anchor="middle" fill="#6C786C">ablated by S2, which is plan-time only</text>
-<rect x="60" y="1420" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="149.0" y="1437" font-size="12" text-anchor="middle" fill="#6C786C">ablated by</text>
-<text x="149.0" y="1456" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">S2 (plan-time only)</text>
-<rect x="246" y="1420" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="335.0" y="1437" font-size="12" text-anchor="middle" fill="#6C786C">new hyperparameters</text>
-<text x="335.0" y="1456" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">none</text>
-<rect x="432" y="1420" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="521.0" y="1437" font-size="12" text-anchor="middle" fill="#6C786C">gated on</text>
-<text x="521.0" y="1456" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">M2 >= +0.05</text>
-<rect x="618" y="1420" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.3" stroke-opacity="0.75"/>
-<text x="707.0" y="1437" font-size="12" text-anchor="middle" fill="#6C786C">cost if opened</text>
-<text x="707.0" y="1456" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">~175 GPU-h</text>
+<text x="143.5" y="872" font-size="20" text-anchor="start"><tspan fill="#18483C" font-weight="bold">(ST4)&#160;</tspan><tspan fill="#14231C" font-weight="bold">PiWM-st-metric</tspan><tspan fill="#6C786C" font-weight="normal">&#160;&#8211;&#160;weight the residual by the code's own anisotropy</tspan></text>
+<path d="M890,898 L890,560 L872,560" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e1)" stroke-dasharray="6,4"/>
+<text x="712" y="502" font-size="14" text-anchor="end" fill="#C88A1E" font-weight="bold">a WEIGHT on the prediction residual</text>
+<rect x="34" y="898" width="872" height="696" rx="10" fill="#F7E8C8" fill-opacity="0.45" stroke="#C88A1E" stroke-width="2.0"/>
+<text x="54" y="930" font-size="18" text-anchor="start" fill="#C88A1E" font-weight="bold">built:  w = 1 / sqrt(var(z) + eps)  , detached , normalised to mean 1</text>
+<path d="M52,942 L888,942" stroke="#C88A1E" stroke-width="1.2" stroke-opacity="0.5"/>
+<rect x="60" y="950" width="400" height="262" rx="8" fill="#FFFFFF" stroke="#543C84" stroke-width="1.6"/>
+<text x="260.0" y="976" font-size="17" text-anchor="middle" fill="#543C84" font-weight="bold">PROPOSED  –  direction × horizon</text>
+<text x="260.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">one weight, at train AND plan time</text>
+<text x="96" y="1022" font-size="12" text-anchor="start" fill="#14231C">spatial: eigen-spectrum</text>
+<text x="430" y="1022" font-size="11" text-anchor="end" fill="#543C84">per checkpoint</text>
+<text x="96" y="1062" font-size="12" text-anchor="start" fill="#14231C">temporal: per-horizon error</text>
+<text x="430" y="1062" font-size="11" text-anchor="end" fill="#543C84">per checkpoint</text>
+<text x="96" y="1102" font-size="12" text-anchor="start" fill="#14231C">applied in the CEM cost</text>
+<text x="430" y="1102" font-size="11" text-anchor="end" fill="#543C84">S2 tested this</text>
+<text x="96" y="1142" font-size="12" text-anchor="start" fill="#14231C">applied in the loss</text>
+<text x="430" y="1142" font-size="11" text-anchor="end" fill="#543C84">ST4 tests this</text>
+<text x="258" y="1188" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">the PLAN-TIME half scored −0.055  ⇒  refuted</text>
+<rect x="476" y="950" width="400" height="262" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="676.0" y="976" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">BUILT  –  diagonal, online, training only</text>
+<text x="676.0" y="995" font-size="12" text-anchor="middle" fill="#6C786C">the full W is measured from a TRAINED checkpoint</text>
+<text x="512" y="1022" font-size="12" text-anchor="start" fill="#14231C">per-dim variance, this batch</text>
+<text x="846" y="1022" font-size="11" text-anchor="end" fill="#C88A1E">non-circular</text>
+<text x="512" y="1062" font-size="12" text-anchor="start" fill="#14231C">diagonal, not the full matrix</text>
+<text x="846" y="1062" font-size="11" text-anchor="end" fill="#C88A1E">D > N here</text>
+<text x="512" y="1102" font-size="12" text-anchor="start" fill="#14231C">DETACHED</text>
+<text x="846" y="1102" font-size="11" text-anchor="end" fill="#C88A1E">cannot be gamed</text>
+<text x="512" y="1142" font-size="12" text-anchor="start" fill="#14231C">no horizon factor at all</text>
+<text x="846" y="1142" font-size="11" text-anchor="end" fill="#C88A1E">num_pred = 1</text>
+<text x="676" y="1188" font-size="12" text-anchor="middle" fill="#C88A1E" font-weight="bold">so the arm is NOT the proposal it is named for</text>
+<rect x="60" y="1238" width="816" height="262" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
+<text x="468.0" y="1264" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">THE EVIDENCE</text>
+<text x="468.0" y="1283" font-size="12" text-anchor="middle" fill="#6C786C">paired on shared seeds, never the registered mean</text>
+<text x="96" y="1308" font-size="11.5" text-anchor="start" fill="#6C786C">dose</text>
+<text x="470" y="1308" font-size="11.5" text-anchor="middle" fill="#6C786C">effect vs LpWM-ltv</text>
+<text x="846" y="1308" font-size="11.5" text-anchor="end" fill="#6C786C">n</text>
+<text x="96" y="1338" font-size="12.5" text-anchor="start" fill="#14231C">metric_w = 0.5</text>
+<text x="470" y="1338" font-size="13" text-anchor="middle" fill="#C88A1E" font-weight="bold">+0.045  [−0.053 , +0.143]</text>
+<text x="846" y="1338" font-size="13" text-anchor="end" fill="#6C786C">8</text>
+<text x="96" y="1372" font-size="12.5" text-anchor="start" fill="#14231C">metric_w = 1.0</text>
+<text x="470" y="1372" font-size="13" text-anchor="middle" fill="#C88A1E" font-weight="bold">+0.070  [−0.090 , +0.230]</text>
+<text x="846" y="1372" font-size="13" text-anchor="end" fill="#6C786C">8</text>
+<text x="470" y="1416" font-size="12" text-anchor="middle" fill="#14231C">both intervals span zero, and both sit below the +0.09 an 8-seed arm needs</text>
+<text x="470" y="1442" font-size="11.5" text-anchor="middle" fill="#6C786C">leave-two-out lands at the MEDIAN of a real effect (P = 0.52), so it is not an artifact test</text>
+<text x="470" y="1468" font-size="12" text-anchor="middle" fill="#A83024" font-weight="bold">but rel_mse and effective_dim are UNMOVED ⇒  no mechanism signature</text>
+<rect x="60" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="149.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">best dose</text>
+<text x="149.0" y="1560" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.070</text>
+<rect x="246" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="335.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">bar at n = 8</text>
+<text x="335.0" y="1560" font-size="16" text-anchor="middle" fill="#A83024" font-weight="bold">+0.09</text>
+<rect x="432" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="521.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">its own plan-time half</text>
+<text x="521.0" y="1560" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">−0.055</text>
+<rect x="618" y="1524" width="178" height="44" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.3" stroke-opacity="0.75"/>
+<text x="707.0" y="1541" font-size="12" text-anchor="middle" fill="#6C786C">verdict</text>
+<text x="707.0" y="1560" font-size="16" text-anchor="middle" fill="#14231C" font-weight="bold">unresolved</text>
 </g>
 </svg>
