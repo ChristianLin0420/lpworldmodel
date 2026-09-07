@@ -75,6 +75,50 @@ def ssm_inline(cx, y, key, label, w=84, h=36):
                size=14)
 
 
+def pgrid(x, y, n=4, cell=26, gap=3, key="blue", cut=(), nums=False, size=10):
+    """An n x n patch grid -- the image as the encoder actually sees it.
+
+    Abstract circles do not tell a reader that the "token axis" is a raster scan of image
+    patches, which is the whole reason a spatial scan needs to be BIDIRECTIONAL.
+    """
+    g = ""
+    for r in range(n):
+        for c in range(n):
+            on = (r, c) in cut
+            g += (f'<rect x="{x + c * (cell + gap)}" y="{y + r * (cell + gap)}" '
+                  f'width="{cell}" height="{cell}" rx="2" '
+                  f'fill="{ACCENT_FILL[key] if on else WHITE}" '
+                  f'stroke="{ACCENT[key] if on else GRID}" stroke-width="1.1"/>\n')
+            if nums:
+                g += txt(x + c * (cell + gap) + cell / 2,
+                         y + r * (cell + gap) + cell / 2 + size * 0.35,
+                         str(r * n + c + 1), size, anchor="middle", fill=MUTED)
+    return g
+
+
+def recur(x0, y, key, in_lab, out_lab, a_lab="A", back=False):
+    """x -> B -> (+) -> s -> C -> out, with s fed back one step through A."""
+    g = txt(x0, y + 6, in_lab, 13, anchor="middle", fill=INK)
+    g += arrow(x0 + 14, y, x0 + 38, y)
+    g += box(x0 + 38, y - 17, 40, 34, "B", size=14)
+    g += arrow(x0 + 78, y, x0 + 100, y)
+    g += opnode(x0 + 115, y, "plus", key, r=14)
+    g += arrow(x0 + 130, y, x0 + 152, y)
+    g += box(x0 + 152, y - 17, 48, 34, "s", fill=ACCENT_FILL[key], stroke=ACCENT[key],
+             size=14)
+    g += arrow(x0 + 200, y, x0 + 222, y)
+    g += box(x0 + 222, y - 17, 40, 34, "C", size=14)
+    g += arrow(x0 + 262, y, x0 + 286, y)
+    g += txt(x0 + 302, y + 6, out_lab, 13, anchor="middle", fill=ACCENT[key])
+    g += box(x0 + 95, y + 54, 40, 34, a_lab, fill=WHITE, stroke=ACCENT[key], size=14)
+    g += apoly([(x0 + 176, y + 17), (x0 + 176, y + 100), (x0 + 115, y + 100),
+                (x0 + 115, y + 88)], key)
+    g += apoly([(x0 + 115, y + 54), (x0 + 115, y + 14)], key)
+    if not back:
+        g += txt(x0 + 196, y + 96, "one token delay", 10, anchor="start", fill=MUTED)
+    return g
+
+
 def p1():
     """P1 -- a temporal state between the link and the code, on both encoder paths."""
     _FRAMES.clear()
@@ -247,56 +291,70 @@ def p3():
              + "  no path crosses between the two encoders", 12.5,
              anchor="middle", fill=MUTED)
 
-    PH = 578
+    PH = 760
     s = pane(PX, PY, PW, PH, K, "inside one encoder block")
 
-    # -- attention against scan, drawn
-    s += frame(60, 950, 400, 300, "ATTENTION", "blue", note="every token sees every token")
-    axs = [120, 186, 252, 318, 384]
+    # -- what "the token axis" actually is ------------------------------------------
+    s += frame(60, 950, 400, 300, "THE TOKEN AXIS", "slate",
+               note="the image is 16 x 16 patches, flattened in raster order")
+    s += pgrid(146, 1022, n=4, cell=28, gap=4, nums=True)
+    s += txt(376, 1060, "16 " + TIMES + " 16", 12, anchor="middle", fill=MUTED)
+    s += txt(376, 1080, "patches", 12, anchor="middle", fill=MUTED)
+    s += arrow(212, 1160, 212, 1186)
+    for k in range(9):
+        s += (f'<rect x="{104 + k * 28}" y="1192" width="22" height="22" rx="2" '
+              f'fill="{WHITE}" stroke="{GRID}" stroke-width="1.1"/>\n')
+    s += txt(372, 1208, "... 257", 11.5, anchor="start", fill=MUTED)
+    s += txt(258, 1238, "one sequence, no natural order", 11.5, anchor="middle",
+             fill=ACCENT[K])
+
+    # -- what ONE token receives, under each operator --------------------------------
+    s += frame(488, 950, 388, 300, "WHAT ONE TOKEN RECEIVES", K,
+               note="the highlighted token is the one being updated")
+    axs = [536, 584, 632, 680, 728, 776, 824]
+    tgt = axs[3]
+    s += txt(682, 1024, "attention", 12, anchor="middle", fill=ACCENT["blue"],
+             weight="bold")
     for cx in axs:
-        s += circle(cx, 1060, 14, "", fill=WHITE, stroke=ACCENT["blue"])
-    for i in range(len(axs)):
-        for j in range(i + 1, len(axs)):
-            s += (f'<line x1="{axs[i]}" y1="{1076}" x2="{axs[j]}" y2="{1076}" '
-                  f'stroke="{ACCENT["blue"]}" stroke-width="0.8" opacity="0.35"/>\n')
-    s += txt(258, 1140, "L = 257 tokens", 12.5, anchor="middle", fill=INK)
-    s += txt(258, 1180, "one step, all pairs", 12, anchor="middle", fill=ACCENT["blue"])
-    s += txt(258, 1218, "inner width 192, three heads", 11, anchor="middle", fill=MUTED)
+        s += circle(cx, 1064, 13, "", fill=ACCENT_FILL["blue"] if cx == tgt else WHITE,
+                    stroke=ACCENT["blue"])
+    for k, cx in enumerate(axs):
+        if cx == tgt:
+            continue
+        apex = 1044 - abs(cx - tgt) / 8.0          # farther source, higher arc
+        s += apoly([(cx, 1051), ((cx + tgt) / 2, apex), (tgt, 1049)], "blue")
+    s += txt(682, 1104, "every token, one step", 11, anchor="middle", fill=MUTED)
 
-    s += frame(488, 950, 388, 300, "SCAN", K, note="two sweeps, no pairwise term")
-    sxs = [534, 600, 666, 732, 798]
-    for cx in sxs:
-        s += circle(cx, 1040, 13, "", fill=WHITE, stroke=ACCENT[K])
-    for i in range(len(sxs) - 1):
-        s += apoly([(sxs[i] + 13, 1040), (sxs[i + 1] - 13, 1040)], K)
-    for cx in sxs:
-        s += circle(cx, 1114, 13, "", fill=WHITE, stroke=ACCENT["magenta"])
-    for i in range(len(sxs) - 1, 0, -1):
-        s += apoly([(sxs[i] - 13, 1114), (sxs[i - 1] + 13, 1114)], "magenta")
-    s += txt(666, 1076, "forward", 11, anchor="middle", fill=ACCENT[K])
-    s += txt(666, 1150, "backward", 11, anchor="middle", fill=ACCENT["magenta"])
-    s += box(600, 1176, 132, 36, "merge", size=13, fill=ACCENT_FILL[K],
+    s += txt(682, 1146, "scan", 12, anchor="middle", fill=ACCENT[K], weight="bold")
+    for cx in axs:
+        s += circle(cx, 1186, 13, "", fill=ACCENT_FILL[K] if cx == tgt else WHITE,
+                    stroke=ACCENT[K])
+    for i2 in range(len(axs) - 1):
+        s += apoly([(axs[i2] + 13, 1186), (axs[i2 + 1] - 13, 1186)], K)
+    for i2 in range(len(axs) - 1, 0, -1):
+        s += apoly([(axs[i2] - 13, 1210), (axs[i2 - 1] + 13, 1210)], "magenta")
+    s += txt(682, 1238, "its neighbours, through a state", 11, anchor="middle", fill=MUTED)
+
+    # -- the scan itself -------------------------------------------------------------
+    s += frame(60, 1280, 816, 352, "THE SCAN, EXPANDED", K,
+               note="the same recurrence twice, in opposite directions, then merged")
+    s += txt(96, 1362, "forward", 12, anchor="start", fill=ACCENT[K], weight="bold")
+    s += recur(212, 1372, K, "x" + sub("", "i", 10), "f" + sub("", "i", 10))
+    s += txt(96, 1478, "backward", 12, anchor="start", fill=ACCENT["magenta"],
+             weight="bold")
+    s += recur(212, 1488, "magenta", "x" + sub("", "i", 10), "b" + sub("", "i", 10),
+               back=True)
+    s += apoly([(530, 1372), (596, 1372), (596, 1420)], K)
+    s += apoly([(530, 1488), (596, 1488), (596, 1440)], "magenta")
+    s += box(560, 1412, 72, 36, "concat", size=12.5, fill=WHITE)
+    s += arrow(632, 1430, 656, 1430)
+    s += box(656, 1412, 80, 36, "Linear", size=12.5, fill=ACCENT_FILL[K],
              stroke=ACCENT[K])
-    s += txt(666, 1236, "bidirectional: tokens have no causal order", 11,
-             anchor="middle", fill=MUTED)
-
-    # -- where it sits in the pre-norm block
-    s += frame(60, 1274, 816, 176, "WHERE IT SITS IN THE BLOCK", "slate",
-               note="a drop-in for Attention; the residual structure is unchanged")
-    xs = [(120, "x", "slate"), (250, "LayerNorm", "slate"), (400, "SCAN", K),
-          (540, "+", "slate"), (664, "MLP", "slate"), (790, "+", "slate")]
-    for i, (cx, lab, key) in enumerate(xs):
-        if lab == "+":
-            s += opnode(cx, 1370, "plus", "slate", r=15)
-        else:
-            s += box(cx - 54, 1352, 108, 36, lab, size=12.5,
-                     fill=ACCENT_FILL[key] if key == K else WHITE,
-                     stroke=ACCENT[key] if key == K else None)
-        if i < len(xs) - 1:
-            x1 = cx + (15 if lab == "+" else 54)
-            x2 = xs[i + 1][0] - (15 if xs[i + 1][1] == "+" else 54)
-            s += arrow(x1, 1370, x2, 1370)
-    s += apoly([(120, 1352), (120, 1318), (540, 1318), (540, 1355)], "slate")
+    s += arrow(736, 1430, 760, 1430)
+    s += txt(792, 1436, "out" + sub("", "i", 10), 13, anchor="middle", fill=ACCENT[K])
+    s += txt(468, 1612, "bidirectional because a raster order is arbitrary "
+             + NDASH + "  token i+1 is not \"later\" than token i",
+             11.5, anchor="middle", fill=MUTED)
     return b + s, PY + PH + 40
 
 
@@ -321,34 +379,45 @@ def p4():
     b += txt(466, 700, "spatial scan, within each frame", 12.5, anchor="middle",
              fill=ACCENT[K], weight="bold")
 
-    PH = 588
+    PH = 672
     s = pane(PX, PY, PW, PH, K, "the two axes")
 
-    s += frame(60, 950, 816, 268, "ONE OPERATOR FAMILY, TWO AXES", K,
-               note="a scan inside each frame; a state between them")
+    # -- the two operators, on the object they actually act on ------------------------
+    s += frame(60, 950, 816, 350, "ONE OPERATOR FAMILY, TWO AXES", K,
+               note="the scan runs over patches inside a frame; the state runs between frames")
     for t in range(3):
-        x0 = 128 + t * 258
-        s += frame(x0, 1016, 190, 116, "", "blue")
-        toks = [x0 + 40, x0 + 80, x0 + 120, x0 + 160]
-        for cx in toks:
-            s += circle(cx, 1064, 12, "", fill=WHITE, stroke=ACCENT["blue"])
-        for i in range(len(toks) - 1):
-            s += apoly([(toks[i] + 12, 1064), (toks[i + 1] - 12, 1064)], "blue")
-        s += box(x0 + 55, 1150, 80, 38, "s" + sub("", "t" + ("" if t == 0 else f"+{t}"), 10),
+        x0 = 132 + t * 262
+        s += txt(x0 + 62, 1022, "frame t" + ("" if t == 0 else f"+{t}"), 12,
+                 anchor="middle", fill=MUTED)
+        # the patch grid, with the raster path drawn THROUGH it -- that path IS the scan
+        s += pgrid(x0, 1036, n=4, cell=26, gap=3, key="blue")
+        pts = []
+        for r in range(4):
+            cols = range(4) if r % 2 == 0 else range(3, -1, -1)
+            for c in cols:
+                pts.append((x0 + c * 29 + 13, 1036 + r * 29 + 13))
+        s += apoly(pts, "blue")
+        s += txt(x0 + 62, 1188, "scan over patches", 11, anchor="middle",
+                 fill=ACCENT["blue"])
+        s += arrow(x0 + 62, 1200, x0 + 62, 1224)
+        s += box(x0 + 22, 1224, 80, 38, "s" + sub("", "t" + ("" if t == 0 else f"+{t}"), 10),
                  fill=ACCENT_FILL[K], stroke=ACCENT[K], size=13)
-        s += arrow(x0 + 95, 1132, x0 + 95, 1150)
         if t:
-            s += apoly([(x0 - 108, 1169), (x0 + 55, 1169)], K)
-    s += txt(112, 1068, "scan", 11, anchor="end", fill=ACCENT["blue"])
-    s += txt(112, 1174, "state", 11, anchor="end", fill=ACCENT[K])
+            s += apoly([(x0 - 138, 1243), (x0 + 22, 1243)], K)
+            s += txt(x0 - 58, 1235, "A", 12, anchor="middle", fill=ACCENT[K],
+                     weight="bold")
+    s += txt(468, 1284, "the scan has no memory across frames  " + DOT
+             + "  the state has no memory across patches", 11.5,
+             anchor="middle", fill=MUTED)
 
-    s += frame(60, 1246, 816, 214, "THE ABLATION MAP", "slate",
+    # -- the ablation map --------------------------------------------------------------
+    s += frame(60, 1330, 816, 214, "THE ABLATION MAP", "slate",
                note="every cell exists, or is an arm in this round")
-    s += txt(316, 1318, "no scan", 12, anchor="middle", fill=MUTED)
-    s += txt(646, 1318, "spatial scan", 12, anchor="middle", fill=MUTED)
-    for r, (rl, c1, c2, k2) in enumerate((("no state", "baseline", "P3", "blue"),
-                                          ("temporal state", "P1", "P4", K))):
-        y = 1346 + r * 58
+    s += txt(316, 1402, "no scan", 12, anchor="middle", fill=MUTED)
+    s += txt(646, 1402, "spatial scan", 12, anchor="middle", fill=MUTED)
+    for r, (rl, c1, c2) in enumerate((("no state", "baseline", "P3"),
+                                      ("temporal state", "P1", "P4"))):
+        y = 1430 + r * 58
         s += txt(160, y + 24, rl, 12, anchor="middle", fill=MUTED)
         s += box(240, y, 152, 42, c1, size=13.5, fill=WHITE,
                  stroke=ACCENT["blue"] if c1 == "baseline" else None)
