@@ -29,6 +29,7 @@ W32_ARMS="${W32_ARMS:-PiWM-enc-ssm PiWM-enc-ssm-frozen PiWM-enc-deep PiWM-enc-de
 W33_ARMS="${W33_ARMS:-LpWM-ltv $W32_ARMS}"
 SEEDS="${SEEDS:-3 4 5}"
 EVALED=""
+SR_LAST=""
 
 windows_for() {
   case "$1" in
@@ -88,7 +89,10 @@ while true; do
   done
 
   # ---- 3. SUCCESS RATE ONLY ----------------------------------------------------------
-  $PY - <<'EOF' 2>/dev/null
+  # Printed only when it CHANGES. An arm that has finished reports the same contrast every
+  # cycle forever, so an unconditional print buries each new result under repeats of the
+  # old ones -- and a watcher whose output is mostly noise stops being read.
+  SR_NOW=$($PY - <<'EOF' 2>/dev/null
 import numpy as np
 from analysis.collect_evals import collect
 A = collect(scheme="fixed")[0]
@@ -126,5 +130,10 @@ for env, tag, base in (("pusht", "", "LpWM-ltv"), ("wall", "_wall", "LpWM-ltv_wa
     if out:
         print(f"W32 SR [{env}] || " + " || ".join(out))
 EOF
+)
+  if [ "$SR_NOW" != "$SR_LAST" ]; then
+    [ -n "$SR_NOW" ] && echo "$SR_NOW"
+    SR_LAST="$SR_NOW"
+  fi
   sleep 600
 done
