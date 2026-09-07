@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="840" viewBox="0 0 940 840" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#C88A1E"/></marker>
+  <marker id="e5" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#543C84"/></marker>
+</defs>
+<rect width="940" height="840" fill="#FFFFFF"/>
+<text x="470.0" y="46" font-size="20" text-anchor="middle" fill="#14231C" font-weight="bold">(P4)  PiWM-enc-st-scan –  spatial scan and temporal state composed</text>
+<text x="470.0" y="72" font-size="13" text-anchor="middle" fill="#6C786C">ablated by P1 (temporal only) and P3 (spatial only) -- both of which run</text>
+<rect x="48" y="104" width="844" height="400" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="470.0" y="130" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">THE TWO AXES, IN ONE ARM</text>
+<text x="470.0" y="149" font-size="12" text-anchor="middle" fill="#6C786C">within a frame the scan runs over tokens; across frames the state carries</text>
+<text x="220" y="168" font-size="12.5" text-anchor="middle" fill="#6C786C">frame t</text>
+<rect x="132" y="184" width="176" height="130" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="220.0" y="210" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold"></text>
+<circle cx="164" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="204" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="244" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="284" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<path d="M177,250 L191,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M217,250 L231,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M257,250 L271,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="220" y="300" font-size="10.5" text-anchor="middle" fill="#18483C">scan over tokens</text>
+<rect x="184" y="344" width="72" height="40" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="215.1" y="370.0" font-size="14" text-anchor="start" fill="#14231C">s<tspan font-size="10" dy="4.2">t</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M220,314 L220,344" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<text x="484" y="168" font-size="12.5" text-anchor="middle" fill="#6C786C">frame t+1</text>
+<rect x="396" y="184" width="176" height="130" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="484.0" y="210" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold"></text>
+<circle cx="428" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="468" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="508" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="548" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<path d="M441,250 L455,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M481,250 L495,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M521,250 L535,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="484" y="300" font-size="10.5" text-anchor="middle" fill="#18483C">scan over tokens</text>
+<rect x="448" y="344" width="72" height="40" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="473.4" y="370.0" font-size="14" text-anchor="start" fill="#14231C">s<tspan font-size="10" dy="4.2">t+1</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M484,314 L484,344" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<path d="M308,364 L448,364" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<text x="378" y="356" font-size="12" text-anchor="middle" fill="#C88A1E" font-weight="bold">A</text>
+<text x="748" y="168" font-size="12.5" text-anchor="middle" fill="#6C786C">frame t+2</text>
+<rect x="660" y="184" width="176" height="130" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="748.0" y="210" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold"></text>
+<circle cx="692" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="732" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="772" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="812" cy="250" r="13" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<path d="M705,250 L719,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M745,250 L759,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<path d="M785,250 L799,250" stroke="#18483C" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e0)"/>
+<text x="748" y="300" font-size="10.5" text-anchor="middle" fill="#18483C">scan over tokens</text>
+<rect x="712" y="344" width="72" height="40" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="737.4" y="370.0" font-size="14" text-anchor="start" fill="#14231C">s<tspan font-size="10" dy="4.2">t+2</tspan><tspan dy="-4.2"></tspan></text>
+<path d="M748,314 L748,344" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linecap="round" marker-end="url(#e4)"/>
+<path d="M572,364 L712,364" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<text x="642" y="356" font-size="12" text-anchor="middle" fill="#C88A1E" font-weight="bold">A</text>
+<text x="470" y="434" font-size="12.5" text-anchor="middle" fill="#C88A1E" font-weight="bold">spatial within · temporal across  ⇒  one operator family on both axes</text>
+<text x="470" y="464" font-size="11.5" text-anchor="middle" fill="#6C786C">a win is attributable because P1 and P3 isolate each half</text>
+<rect x="48" y="530" width="844" height="70" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.2" opacity="0.55"/>
+<text x="184.9" y="563" font-size="15.5" text-anchor="start" fill="#14231C" font-weight="bold">within a frame:  s<tspan font-size="11" dy="4.6">i</tspan><tspan dy="-4.6"></tspan> = A<tspan font-size="11" dy="4.6">s</tspan><tspan dy="-4.6"></tspan> s<tspan font-size="11" dy="4.6">i-1</tspan><tspan dy="-4.6"></tspan> + B<tspan font-size="11" dy="4.6">s</tspan><tspan dy="-4.6"></tspan> x<tspan font-size="11" dy="4.6">i</tspan><tspan dy="-4.6"></tspan>          |          across frames:  s<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan> = A<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan> s<tspan font-size="11" dy="4.6">t-1</tspan><tspan dy="-4.6"></tspan> + B<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan> z<tspan font-size="11" dy="4.6">t</tspan><tspan dy="-4.6"></tspan></text>
+<text x="470.0" y="587" font-size="11.5" text-anchor="middle" fill="#6C786C">both reduce to identity when their A is zero, so the arm nests both controls</text>
+<rect x="48" y="624" width="844" height="178" rx="8" fill="#FFFFFF" stroke="#546060" stroke-width="1.6"/>
+<text x="470.0" y="650" font-size="17" text-anchor="middle" fill="#546060" font-weight="bold">THE ABLATION MAP</text>
+<text x="470.0" y="669" font-size="12" text-anchor="middle" fill="#6C786C">every cell already exists or is in this round</text>
+<text x="200" y="686" font-size="11.5" text-anchor="middle" fill="#6C786C"></text>
+<text x="420" y="686" font-size="11.5" text-anchor="middle" fill="#6C786C">no spatial</text>
+<text x="700" y="686" font-size="11.5" text-anchor="middle" fill="#6C786C">spatial scan</text>
+<text x="200" y="726" font-size="12" text-anchor="middle" fill="#6C786C">no temporal</text>
+<rect x="354" y="704" width="132" height="40" rx="6" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<text x="420.0" y="730.0" font-size="13.5" text-anchor="middle" fill="#14231C">baseline</text>
+<rect x="634" y="704" width="132" height="40" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="700.0" y="730.0" font-size="13.5" text-anchor="middle" fill="#14231C">P3</text>
+<text x="200" y="772" font-size="12" text-anchor="middle" fill="#6C786C">temporal state</text>
+<rect x="354" y="750" width="132" height="40" rx="6" fill="#FFFFFF" stroke="#546060" stroke-width="1.8"/>
+<text x="420.0" y="776.0" font-size="13.5" text-anchor="middle" fill="#14231C">P1</text>
+<rect x="634" y="750" width="132" height="40" rx="6" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<text x="700.0" y="776.0" font-size="13.5" text-anchor="middle" fill="#14231C">P4</text>
+</svg>

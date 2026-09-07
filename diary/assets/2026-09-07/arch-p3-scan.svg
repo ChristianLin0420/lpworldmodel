@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="832" viewBox="0 0 940 832" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#18483C"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="e2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="s3" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e4" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#C88A1E"/></marker>
+  <marker id="e5" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#543C84"/></marker>
+</defs>
+<rect width="940" height="832" fill="#FFFFFF"/>
+<text x="470.0" y="46" font-size="20" text-anchor="middle" fill="#14231C" font-weight="bold">(P3)  PiWM-enc-scan –  a bidirectional scan replacing attention over tokens</text>
+<text x="470.0" y="72" font-size="13" text-anchor="middle" fill="#6C786C">the SPATIAL axis; orthogonal to the temporal question P1 and P2 ask</text>
+<rect x="48" y="104" width="420" height="330" rx="8" fill="#FFFFFF" stroke="#18483C" stroke-width="1.6"/>
+<text x="258.0" y="130" font-size="17" text-anchor="middle" fill="#18483C" font-weight="bold">ATTENTION  –  all pairs, O(LΣ)</text>
+<text x="258.0" y="149" font-size="12" text-anchor="middle" fill="#6C786C">every token sees every token, in one step</text>
+<circle cx="128" cy="220" r="15" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="196" cy="220" r="15" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="264" cy="220" r="15" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="332" cy="220" r="15" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<circle cx="400" cy="220" r="15" fill="#FFFFFF" stroke="#18483C" stroke-width="1.8"/>
+<line x1="128" y1="235" x2="196" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="128" y1="235" x2="264" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="128" y1="235" x2="332" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="128" y1="235" x2="400" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="196" y1="235" x2="264" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="196" y1="235" x2="332" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="196" y1="235" x2="400" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="264" y1="235" x2="332" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="264" y1="235" x2="400" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<line x1="332" y1="235" x2="400" y2="235" stroke="#18483C" stroke-width="0.8" opacity="0.35"/>
+<text x="258" y="300" font-size="12" text-anchor="middle" fill="#6C786C">L = 257 tokens  (256 patches + CLS)</text>
+<text x="258" y="336" font-size="11.5" text-anchor="middle" fill="#18483C">F.scaled_dot_product_attention</text>
+<text x="258" y="396" font-size="11.5" text-anchor="middle" fill="#6C786C">inner_dim = heads × dim_head = 192</text>
+<rect x="488" y="104" width="404" height="330" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="690.0" y="130" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">SCAN  –  two sweeps, O(L)</text>
+<text x="690.0" y="149" font-size="12" text-anchor="middle" fill="#6C786C">forward and backward; patch tokens have no causal order</text>
+<circle cx="560" cy="196" r="15" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<circle cx="628" cy="196" r="15" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<circle cx="696" cy="196" r="15" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<circle cx="764" cy="196" r="15" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<circle cx="832" cy="196" r="15" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.8"/>
+<path d="M575,196 L613,196" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<path d="M643,196 L681,196" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<path d="M711,196 L749,196" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<path d="M779,196 L817,196" stroke="#C88A1E" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e4)"/>
+<circle cx="560" cy="276" r="15" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="628" cy="276" r="15" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="696" cy="276" r="15" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="764" cy="276" r="15" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<circle cx="832" cy="276" r="15" fill="#FFFFFF" stroke="#543C84" stroke-width="1.8"/>
+<path d="M817,276 L779,276" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e5)"/>
+<path d="M749,276 L711,276" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e5)"/>
+<path d="M681,276 L643,276" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e5)"/>
+<path d="M613,276 L575,276" stroke="#543C84" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#e5)"/>
+<text x="690" y="236" font-size="11" text-anchor="middle" fill="#C88A1E">forward sweep</text>
+<text x="690" y="316" font-size="11" text-anchor="middle" fill="#543C84">backward sweep</text>
+<text x="690" y="396" font-size="11.5" text-anchor="middle" fill="#14231C">merge(concat)  ⇒  (B, L, D)</text>
+<rect x="48" y="460" width="844" height="70" rx="6" fill="#F7E8C8" stroke="#C88A1E" stroke-width="1.2" opacity="0.55"/>
+<text x="219.9" y="493" font-size="15.5" text-anchor="start" fill="#14231C" font-weight="bold">s<tspan font-size="11" dy="4.6">i</tspan><tspan dy="-4.6"></tspan> = A s<tspan font-size="11" dy="4.6">i-1</tspan><tspan dy="-4.6"></tspan> + B x<tspan font-size="11" dy="4.6">i</tspan><tspan dy="-4.6"></tspan> ,   out<tspan font-size="11" dy="4.6">i</tspan><tspan dy="-4.6"></tspan> = C s<tspan font-size="11" dy="4.6">i</tspan><tspan dy="-4.6"></tspan>     over the TOKEN axis, both directions</text>
+<text x="470.0" y="517" font-size="11.5" text-anchor="middle" fill="#6C786C">drop-in for Attention: forward(x, attn_mask=None) -> (B, L, D), own LayerNorm, dropout gated on self.training</text>
+<rect x="48" y="554" width="412" height="240" rx="8" fill="#FFFFFF" stroke="#A83024" stroke-width="1.6"/>
+<text x="254.0" y="580" font-size="17" text-anchor="middle" fill="#A83024" font-weight="bold">REQUIRES FEATURE = patch</text>
+<text x="254.0" y="599" font-size="12" text-anchor="middle" fill="#6C786C">at cls there is one token and nothing to scan</text>
+<text x="84" y="626" font-size="12.5" text-anchor="start" fill="#14231C">num_patches = 1 at cls</text>
+<text x="84" y="656" font-size="12.5" text-anchor="start" fill="#14231C">the scan would be a no-op</text>
+<text x="84" y="686" font-size="12.5" text-anchor="start" fill="#A83024">so the arm ASSERTS rather than</text>
+<text x="84" y="716" font-size="12.5" text-anchor="start" fill="#A83024">silently degenerating</text>
+<rect x="488" y="554" width="404" height="240" rx="8" fill="#FFFFFF" stroke="#C88A1E" stroke-width="1.6"/>
+<text x="690.0" y="580" font-size="17" text-anchor="middle" fill="#C88A1E" font-weight="bold">COST, AND THE CONTROL</text>
+<text x="690.0" y="599" font-size="12" text-anchor="middle" fill="#6C786C">257 sequential steps per block, 12 blocks</text>
+<text x="524" y="626" font-size="12.5" text-anchor="start" fill="#14231C">a Python loop, not a fused kernel</text>
+<text x="524" y="656" font-size="12.5" text-anchor="start" fill="#14231C">8 windows budgeted; the canary decides</text>
+<text x="524" y="686" font-size="12.5" text-anchor="start" fill="#C88A1E">control: scan_A frozen at zero</text>
+<text x="524" y="716" font-size="12.5" text-anchor="start" fill="#C88A1E">which degenerates to a per-token MLP</text>
+</svg>

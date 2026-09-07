@@ -1,59 +1,52 @@
-"""Round 9 figures: a state-space encoder, drawn from evidence rather than asserted.
+"""Round 9 architecture figures, paper-style: explicit dataflow, the innovation visible.
 
     python analysis/round9_arch_figs.py --out diary/assets/2026-09-07 [--png]
-    -> arch-blockcausal-postmortem.svg  the dissociation the whole round rests on
-    -> arch-p1-enc-ssm.svg              the temporal head, and its exact single-frame limit
-    -> arch-ladder.svg                  the frame-dropout ladder and what each claim predicts
 
-THE PREMISE IS DRAWN, NOT CLAIMED.  diary/2026-09-07 section 8 says the postmortem must be
-rendered from the archive first, because if the dissociation does not survive being plotted
-then round 9 has no reason to exist.  So this module computes it at render time: 96 arms with
-both a median rel_mse and a mean success rate, and the reader can see for themselves that the
-five best-fitting arms are the five worst planners -- and that four of them are explained by a
-dead code while blockcausal is not.
+    arch-premise.svg      why a stateful encoder needs an exact single-frame limit
+    arch-p1-enc-ssm.svg   P1  temporal state after the per-frame encoder
+    arch-p2-deep.svg      P2  the same state carried between ViT blocks
+    arch-p3-scan.svg      P3  a bidirectional scan replacing attention over tokens
+    arch-p4-st-scan.svg   P4  the two composed
+    arch-ladder.svg       the frame-dropout rungs, and the two claims they separate
 
-Primitives are IMPORTED from analysis/round8_new_figs.py (bars, dotrow, civ, patchgrid) and
-the audit from round8_t_figs.  Nothing here re-implements a mark the house already owns, and
-no existing figure module is edited.
+DELIBERATELY NOT THE ROUND-8 STYLE.  Those figures spend their top 45% on one shared
+encoder/predictor schematic and put the method in a panel underneath.  These are architecture
+diagrams: the clip is unrolled left to right so the temporal state is a visible arrow between
+frames, tensor shapes are annotated on the wires, and every equation sits in its own reserved
+band beneath the block it defines rather than floating over a connector.
 
-Hues by IDENTITY:
-    green    the system as built -- the per-frame encoder, the baseline
-    purple   the contrasting condition -- the frozen-A control, the collapsed arms
-    amber    the intervention under test -- the SSM state
-    crimson  a failure or a retraction -- blockcausal's zero, the goal-frame mismatch
-    slate    neutral -- an axis, a rung not yet run
+NO OVERLAP IS ENFORCED, NOT CLAIMED.  analysis/fig_audit.audit_all checks text x text,
+shape x shape and text x shape, plus off-canvas and frame crossings.  The old text-only audit
+could not see 1,632 rects, 489 paths and 75 circles; every "nothing overlaps" statement in
+rounds 6-8 rested on it.
+
+COLOUR IS ROLE, NEVER RANK
+    amber    the new component under test
+    green    the unchanged baseline path
+    purple   the control arm -- same parameters, state disabled
+    crimson  what breaks without the design property
+    slate    neutral scaffolding: axes, shapes, captions
 """
 import argparse
-import glob
-import json
 import os
-import re
 import sys
 
-import numpy as np
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from analysis.arch_figs import (  # noqa: E402,F401
-    ACCENT, ACCENT_FILL, DIM, GRID, INK, MUTED, WHITE,
-    arrow, base, circle, domeup, poly, sub, text_width, title_line, txt,
+from analysis.arch_figs import (  # noqa: E402
+    ACCENT, ACCENT_FILL, DIM, GRID, INK, MUTED, WHITE, caret, emit, sub,
+    text_width, txt,
 )
-from analysis.arch_figs_causal import (  # noqa: E402,F401
-    ARROWC, DOT, IMPLIES, MINUS, NDASH, SIGMA, TIMES,
-    apoly, aw, badge, dot, fit_size, mbox, opnode, pill, strip,
+from analysis.arch_figs_causal import (  # noqa: E402
+    DOT, IMPLIES, MINUS, NDASH, SIGMA, TIMES, apoly, aw, badge, mbox, opnode, pill,
 )
-from analysis.round5_figs_obj import inset, panel  # noqa: E402
-from analysis.round6_arch_figs import (  # noqa: E402,F401
-    PIN, PW, PX, PY, SHIFT, W, mark, out_emit,
-)
-from analysis.round8_new_figs import bars, civ, dotrow, patchgrid  # noqa: E402,F401
-from analysis.round8_t_figs import audit  # noqa: E402
+from analysis.round5_figs_obj import inset  # noqa: E402
+from analysis.fig_audit import audit_all  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = os.path.join(REPO, "diary", "assets", "2026-09-07")
-RUNS = "/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs/outputs"
+W = 940
 
 _FRAMES = []
-_CACHE = {}
 
 
 def frame(x, y, w, h, title, key, note=""):
@@ -61,283 +54,454 @@ def frame(x, y, w, h, title, key, note=""):
     return inset(x, y, w, h, title, key, note)
 
 
-def pane(x, y, w, h, key, title):
-    _FRAMES.append((x, y, x + w, y + h, "panel"))
-    return panel(x, y, w, h, key, title)
-
-
-def _check_title(title, corridor_x, size=20, cx=470, clear=8):
-    s = size
-    while s > 12 and cx + text_width(title, s) / 2 > corridor_x - clear:
-        s -= 0.5
-    return title
-
-
-def fit_sr():
-    """[(arm, median rel_mse, mean SR, median effective_dim, block_causal, n)] over the archive.
-
-    Every arm that has BOTH a wandb summary and >=3 evals.  This is the round's premise, so it
-    is recomputed here rather than copied from the diary.
-    """
-    if "pts" in _CACHE:
-        return _CACHE["pts"]
-    from analysis.collect_evals import collect
-    A = collect(scheme="fixed")[0]
-    pts = []
-    for arm, ev in A.items():
-        stem = re.sub(r"_(patch|cls)$", "", arm)
-        rm, ed, bc = [], [], set()
-        for d in glob.glob(f"{RUNS}/{stem}_pd*_s*"):
-            if "CANARY" in d:
-                continue
-            fs = sorted(glob.glob(f"{d}/wandb/run-*/files/wandb-summary.json"),
-                        key=os.path.getmtime)
-            if fs:
-                try:
-                    j = json.load(open(fs[-1]))
-                    if "err/rel_mse" in j:
-                        rm.append(float(j["err/rel_mse"]))
-                    if "sparsity/effective_dim" in j:
-                        ed.append(float(j["sparsity/effective_dim"]))
-                except Exception:
-                    pass
-            try:
-                bc.add("block_causal: true" in open(f"{d}/.hydra/config.yaml").read())
-            except Exception:
-                pass
-        v = [float(x) for x in ev.values()]
-        if rm and len(v) >= 3:
-            pts.append((stem, float(np.median(rm)), float(np.mean(v)),
-                        float(np.median(ed)) if ed else -1.0, (True in bc), len(v)))
-    pts.sort(key=lambda p: p[1])
-    _CACHE["pts"] = pts
-    return pts
-
-
-def scatter(x, y, w, h, pts, xlab, ylab, hi=(), key="slate"):
-    """rel_mse (log-ish rank) against success rate. One dot per arm.
-
-    x is plotted on RANK rather than value: rel_mse spans four orders of magnitude and a
-    linear axis would pile 90 arms into one pixel column. Rank keeps every arm visible and
-    the ordering -- which is the whole claim -- exact.
-    """
-    s = (f'<rect x="{x - 4}" y="{y - 4}" width="{w + 8}" height="{h + 8}" rx="3" '
-         f'fill="{WHITE}" stroke="{DIM}" stroke-width="1"/>\n')
-    n = len(pts)
-    for gy in (0.0, 0.25, 0.5):
-        yy = y + h - gy / 0.7 * h
-        s += (f'<line x1="{x}" y1="{yy:.1f}" x2="{x + w}" y2="{yy:.1f}" '
-              f'stroke="{GRID}" stroke-width="0.8" opacity="0.6"/>\n')
-        s += txt(x - 8, yy + 4, f"{gy:.2f}", 9.5, anchor="end", fill=MUTED)
-    for i, (nm, rm, sr, ed, bc, k) in enumerate(pts):
-        cx = x + (i / max(n - 1, 1)) * w
-        cy = y + h - min(sr, 0.7) / 0.7 * h
-        if nm in hi:
-            col, r = (ACCENT["crit"], 7) if bc else (ACCENT["magenta"], 5.5)
-            s += (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{WHITE}" '
-                  f'stroke="{col}" stroke-width="2.5"/>\n')
-        else:
-            s += (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="3" fill="{ACCENT[key]}" '
-                  f'opacity="0.45"/>\n')
-    s += txt(x + w / 2, y + h + 26, xlab, 11.5, anchor="middle", fill=MUTED)
-    s += txt(x, y - 12, ylab, 11.5, anchor="start", fill=MUTED)
+def title(t, sub_=""):
+    s = txt(W / 2, 46, t, 20, anchor="middle", fill=INK, weight="bold")
+    if sub_:
+        s += txt(W / 2, 72, sub_, 13, anchor="middle", fill=MUTED)
     return s
 
 
-# ============================================== the premise
-PM_TITLE = "ROUND 9 PREMISE -- the best-fitting model in the archive plans at ZERO"
+def eqband(x, y, w, eq, key, note=""):
+    """An equation in its own reserved box.
+
+    Equations get a registered frame rather than floating text so the audit can police them:
+    a formula drawn over a connector is the single most common way these figures go wrong,
+    and it is invisible to a text-only check when the connector is a <path>.
+    """
+    h = 52 if not note else 70
+    _FRAMES.append((x, y, x + w, y + h, "eq"))
+    s = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" '
+         f'fill="{ACCENT_FILL[key]}" stroke="{ACCENT[key]}" stroke-width="1.2" '
+         f'opacity="0.55"/>\n')
+    s += txt(x + w / 2, y + 33, eq, 15.5, anchor="middle", fill=INK, weight="bold")
+    if note:
+        s += txt(x + w / 2, y + 57, note, 11.5, anchor="middle", fill=MUTED)
+    return s
 
 
-def blockcausal_postmortem():
+def wire(x1, y1, x2, y2, key, label="", side="right"):
+    """A connector with its tensor shape annotated beside it, never on it."""
+    s = aw(x1, y1, x2, y2, key)
+    if label:
+        if x1 == x2:                                    # vertical
+            s += txt(x1 + (9 if side == "right" else -9), (y1 + y2) / 2 + 4, label, 10,
+                     anchor="start" if side == "right" else "end", fill=MUTED)
+        else:
+            s += txt((x1 + x2) / 2, y1 - 9, label, 10, anchor="middle", fill=MUTED)
+    return s
+
+
+def node(cx, cy, label, key, r=26, size=15):
+    """A circle with a centred label.
+
+    NOT opnode(): its `sym` argument is a glyph NAME ("minus"/"times"/"plus") drawn as a
+    path, and any other string silently yields an empty circle -- which is exactly what the
+    first render of these figures produced for every observation node.
+    """
+    c = ACCENT[key]
+    s = (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{WHITE}" stroke="{c}" '
+         f'stroke-width="1.8"/>\n')
+    return s + txt(cx, cy + size * 0.35, label, size, anchor="middle", fill=INK)
+
+
+def clip_flow(x0, y_obs, cols, key, enc_key="blue", labels=None, obs_pfx="o",
+              z_pfx="z", pitch=150, show_enc=True):
+    """The unrolled clip: one column per frame, obs -> Enc -> code.
+
+    Returns (svg, [column centre x], y of the code row). Shared by every figure so the
+    reader learns the spine once.
+    """
+    s = ""
+    xs = []
+    for t in range(cols):
+        cx = x0 + t * pitch
+        xs.append(cx)
+        lab = labels[t] if labels else f"t{'' if t == 0 else '+' + str(t)}"
+        s += node(cx, y_obs, obs_pfx + sub("", lab, 10), "slate", r=26)
+        if show_enc:
+            s += wire(cx, y_obs + 26, cx, y_obs + 64, enc_key)
+            s += mbox(cx - 46, y_obs + 64, 92, 44, "Enc", enc_key, size=15)
+            s += wire(cx, y_obs + 108, cx, y_obs + 146, enc_key)
+            s += txt(cx, y_obs + 168, z_pfx + sub("", lab, 10), 15, anchor="middle",
+                     fill=ACCENT[enc_key], weight="bold")
+    if show_enc and cols > 1:
+        s += txt(x0 - 62, y_obs + 82, "shared", 10.5, anchor="end", fill=MUTED)
+        s += txt(x0 - 62, y_obs + 96, "weights", 10.5, anchor="end", fill=MUTED)
+    return s, xs, y_obs + 168
+
+
+# ==================================================================== the premise
+def premise():
+    _FRAMES.clear()
     K = "crit"
-    b = base(_check_title(PM_TITLE, 890))
-    b += poly([(890, PY), (890, 560), (872, 560)], color=ACCENT[K], w=1.8, dash="6,4")
-    b += txt(712, 502, "the goal is encoded with NO history", 14, anchor="end",
-             fill=ACCENT[K], weight="bold")
+    s = title("Why a stateful encoder needs an EXACT single-frame limit",
+              "PiWM-blockcausal: best fit in the archive, full-rank code, and success 0.00")
 
-    PH = 742
-    s = pane(PX, PY, PW, PH, K,
-             "every arm with both a fit and a score:  rel_mse (rank)  vs  planning success")
+    # left: what training sees
+    s += frame(48, 104, 420, 400, "TRAINING  " + NDASH + "  the encoder sees T = 3", "blue",
+               note="every frame attends to the earlier ones")
+    f, xs, yz = clip_flow(162, 210, 3, K, enc_key="blue", pitch=104)
+    s += f
+    for i in range(2):
+        s += apoly([(xs[i] + 30, 296), (xs[i + 1] - 30, 296)], "blue")
+    s += txt(258, 452, "z depends on the whole clip", 12, anchor="middle",
+             fill=ACCENT["blue"], weight="bold")
 
-    pts = fit_sr()
-    worst = [p[0] for p in pts[:5]]
-    s += frame(60, 950, 816, 300, "96 arms, ordered by FIT (best on the left)", "slate",
-               note="hollow = the five best-fitting arms; red ring = block_causal")
-    s += scatter(120, 1020, 700, 176, pts, "arms ordered by rel_mse, best fit first",
-                 "success", hi=set(worst))
-    s += txt(470, 1236, "the five best-fitting arms are the five WORST planners",
-             13, anchor="middle", fill=ACCENT[K], weight="bold")
+    # right: what the goal is
+    s += frame(492, 104, 400, 400, "GOAL  " + NDASH + "  the encoder sees T = 1", K,
+               note="planning/cem.py:77 with plan.py:233")
+    f2, xs2, _ = clip_flow(692, 210, 1, K, enc_key=K, labels=["g"], obs_pfx="o", z_pfx="z")
+    s += f2
+    s += txt(692, 412, "nothing to attend to", 12.5, anchor="middle", fill=ACCENT[K],
+             weight="bold")
+    s += txt(692, 436, "z_goal is an object training never produced", 11, anchor="middle",
+             fill=MUTED)
+    s += txt(692, 470, "the planner aims at it anyway", 12, anchor="middle", fill=ACCENT[K])
 
-    # the table that separates collapse from the anomaly
-    s += frame(60, 1276, 816, 268, "FOUR ARE EXPLAINED BY A DEAD CODE. ONE IS NOT.", K,
-               note="a constant code is trivially predictable, so zero error is expected")
-    s += txt(96, 1346, "arm", 11, anchor="start", fill=MUTED)
-    s += txt(486, 1346, "rel_mse", 11, anchor="end", fill=MUTED)
-    s += txt(636, 1346, "eff_dim", 11, anchor="end", fill=MUTED)
-    s += txt(846, 1346, "success", 11, anchor="end", fill=MUTED)
-    rows = [p for p in pts[:5]]
-    base_row = [p for p in pts if p[0] == "LpWM-ltv"]
-    for i, (nm, rm, sr, ed, bc, k) in enumerate(rows + base_row):
-        y = 1368 + i * 24
-        dead = ed >= 0 and ed < 10
-        col = ACCENT[K] if bc else (ACCENT["magenta"] if dead else INK)
-        s += txt(96, y, nm, 12, anchor="start", fill=col,
-                 weight="bold" if bc else "normal")
-        s += txt(486, y, f"{rm:.5f}", 12, anchor="end", fill=MUTED)
-        s += txt(636, y, f"{ed:.2f}" if ed >= 0 else "-", 12, anchor="end",
-                 fill=ACCENT["magenta"] if dead else INK,
-                 weight="bold" if (bc or dead) else "normal")
-        s += txt(846, y, f"{sr:.3f}", 12, anchor="end", fill=col,
-                 weight="bold" if bc else "normal")
-    s += txt(470, 1522, "blockcausal: near-perfect fit, FULL-RANK code, and exactly zero",
+    s += eqband(48, 528, 844, "attention over a length-1 sequence is a DIFFERENT function; "
+                "an SSM with s" + sub("", "0", 11) + " = 0 is the same one", K,
+                note="which is why round 9 uses a state-space operator and not attention")
+
+    # the evidence: four collapses and one anomaly
+    s += frame(48, 622, 844, 268, "IT IS NOT SIMPLY \"LOW ERROR IS BAD\"", "slate",
+               note="the five lowest rel_mse in 96 arms -- four have a dead code, one does not")
+    hdr = [("arm", 96, "start"), ("rel_mse", 470, "end"), ("eff_dim", 640, "end"),
+           ("success", 852, "end")]
+    for t, x, a in hdr:
+        s += txt(x, 692, t, 11, anchor=a, fill=MUTED)
+    rows = [("PiWM-drop95", "0.00000", "0.00", "0.006", True),
+            ("LpWM-ltv-d2048-hilr", "0.00000", "0.00", "0.010", True),
+            ("PiWM-white-dz", "0.00082", "14.31", "0.010", True),
+            ("PiWM-white-zt", "0.00110", "12.33", "0.013", True),
+            ("PiWM-blockcausal", "0.00155", "25.04", "0.000", False),
+            ("LpWM-ltv  (baseline)", "0.00919", "24.10", "0.357", None)]
+    for i, (nm, rm, ed, sr, dead) in enumerate(rows):
+        y = 720 + i * 26
+        col = ACCENT["magenta"] if dead else (ACCENT[K] if dead is False else INK)
+        bold = "bold" if dead is False else "normal"
+        s += txt(96, y, nm, 12, anchor="start", fill=col, weight=bold)
+        s += txt(470, y, rm, 12, anchor="end", fill=MUTED)
+        s += txt(640, y, ed, 12, anchor="end", fill=col, weight=bold)
+        s += txt(852, y, sr, 12, anchor="end", fill=col, weight=bold)
+    s += txt(470, 876, "a constant code is trivially predictable "
+             + IMPLIES + "  four of these earned zero error by dying",
+             12, anchor="middle", fill=MUTED)
+    return s, 934
+
+
+# ==================================================================== P1
+def p1():
+    _FRAMES.clear()
+    K = "amber"
+    s = title("(P1)  PiWM-enc-ssm " + NDASH + "  a temporal state after the per-frame encoder",
+              "the ViT is untouched; three matrices are added on top of its output")
+
+    f, xs, yz = clip_flow(200, 128, 3, K, enc_key="blue", pitch=180)
+    s += f
+
+    # the new component: one band spanning the three columns
+    bx0, bx1 = xs[0] - 78, xs[-1] + 78
+    s += frame(bx0, 330, bx1 - bx0, 120, "THE NEW COMPONENT", K,
+               note="one recurrence, shared across frames and across tokens")
+    for i, cx in enumerate(xs):
+        s += wire(cx, yz + 12, cx, 330, K)
+        s += mbox(cx - 34, 384, 68, 42, "s" + sub("", f"t{'' if i == 0 else '+' + str(i)}", 10),
+                  K, size=15)
+        if i:
+            s += apoly([(xs[i - 1] + 34, 405), (cx - 34, 405)], K)
+            s += txt((xs[i - 1] + cx) / 2, 396, "A", 12.5, anchor="middle",
+                     fill=ACCENT[K], weight="bold")
+    for i, cx in enumerate(xs):
+        s += wire(cx, 450, cx, 494, K)
+        s += txt(cx, 516, sub("z\u2032", f"t{'' if i == 0 else '+' + str(i)}", 10), 15,
+                 anchor="middle", fill=ACCENT[K], weight="bold")
+    s += apoly([(xs[-1] + 24, 510), (700, 510)], K)
+    s += mbox(700, 488, 96, 44, "Pred", "magenta", size=15)
+    s += wire(796, 510, 848, 510, "magenta")
+    s += txt(872, 516, sub("z", "t+4", 10), 15, anchor="middle", fill=ACCENT["magenta"],
+             weight="bold")
+    s += caret(867, 500, color=ACCENT["magenta"])
+
+    s += eqband(48, 556, 844,
+                "s" + sub("", "t", 11) + " = A s" + sub("", "t-1", 11) + " + B z"
+                + sub("", "t", 11) + "      " + DOT + "      z′" + sub("", "t", 11)
+                + " = C s" + sub("", "t", 11), K,
+                note="three nn.Linear(D, D, bias=False); D = 384; no change to the ViT")
+
+    s += frame(48, 650, 412, 214, "THE CONTRACT  " + NDASH + "  A = 0 is the baseline", "blue",
+               note="verified by loss_trace bit-identity, not by inspection")
+    for i, t in enumerate(("A = 0, B = C = I at init", "s" + sub("", "0", 10) + " = 0, so A"
+                           + DOT + "0 = 0 exactly",
+                           "z\u2032" + sub("", "t", 10) + " = z" + sub("", "t", 10)
+                           + " for every t, and for T = 1",
+                           "so z_goal is the baseline's z_goal")):
+        s += txt(84, 722 + i * 30, t, 12.5, anchor="start",
+                 fill=ACCENT["blue"] if i == 3 else INK)
+
+    s += frame(488, 650, 404, 214, "THE CONTROL  " + NDASH + "  enc-ssm-frozen", "magenta",
+               note="same parameters, same ops, same RNG draw")
+    for i, t in enumerate(("A allocated and zero-initialised", "A.requires_grad_(False)",
+                           "state cannot flow, capacity identical",
+                           "a win here is STATE, not parameters")):
+        s += txt(524, 722 + i * 30, t, 12.5, anchor="start",
+                 fill=ACCENT["magenta"] if i == 3 else INK)
+    return s, 902
+
+
+# ==================================================================== P2
+def p2():
+    _FRAMES.clear()
+    K = "amber"
+    s = title("(P2)  PiWM-enc-ssm-deep " + NDASH
+              + "  the same state, carried between ViT blocks",
+              "the direct test of the premise: early mixing WITH a single-frame limit")
+
+    s += frame(48, 104, 420, 560, "THE STACK", "blue",
+               note="state inserted after every k-th block, not once at the end")
+    ys = 168
+    items = [("patch embed", "blue", "(b" + DOT + "T, 257, 384)"),
+             ("ViT block  1..k", "blue", ""),
+             ("state scan over T", K, "the insertion"),
+             ("ViT block  k+1..2k", "blue", ""),
+             ("state scan over T", K, "the insertion"),
+             ("ViT block  ...12", "blue", ""),
+             ("projector", "blue", "(b" + DOT + "T, P, 384)")]
+    for i, (lab, key, note) in enumerate(items):
+        y = ys + i * 66
+        s += mbox(148, y, 220, 44, lab, key, size=13.5)
+        if note:
+            s += txt(384, y + 27, note, 10, anchor="start", fill=MUTED)
+        if i < len(items) - 1:
+            s += aw(258, y + 44, 258, y + 66, "blue" if key == "blue" else K)
+
+    s += frame(488, 104, 404, 264, "WHY IT MUST SUBCLASS Block", "crit",
+               note="infojepa_modules.py:220 dispatches on isinstance")
+    s += txt(524, 176, "the Transformer loop is:", 12, anchor="start", fill=MUTED)
+    for i, t in enumerate(("if isinstance(block, Block):",
+                           "    x = block(x, attn_mask=attn_mask)",
+                           "else:",
+                           "    x = block(x, c, attn_mask=attn_mask)")):
+        s += txt(536, 204 + i * 24, t, 11.5, anchor="start",
+                 fill=INK if i < 2 else ACCENT["crit"])
+    s += txt(690, 322, "a non-subclass is called with 3 args", 12, anchor="middle",
+             fill=ACCENT["crit"], weight="bold")
+    s += txt(690, 346, "and crashes on arity", 11.5, anchor="middle", fill=MUTED)
+
+    s += frame(488, 392, 404, 272, "WHAT IT TESTS", K,
+               note="blockcausal had early mixing and NO single-frame limit")
+    for i, t in enumerate(("blockcausal mixed early " + IMPLIES + " SR 0.00",
+                           "P2 mixes early WITH the limit",
+                           "",
+                           "if P2 works  " + IMPLIES + "  the premise is right",
+                           "if P2 is ~0  " + IMPLIES + "  early mixing is",
+                           "        harmful for another reason")):
+        if not t:
+            continue
+        s += txt(524, 462 + i * 30, t, 12.5, anchor="start",
+                 fill=ACCENT[K] if i >= 3 else INK)
+
+    s += eqband(48, 690, 844,
+                "same recurrence as P1, applied to (b, T, L, D) at each insertion depth", K,
+                note="StateBlock(Block) folds (b, T" + DOT + "L, D) -> (b, T, L, D), scans T, "
+                     "folds back; T is num_hist, fixed per run")
+    return s, 800
+
+
+# ==================================================================== P3
+def p3():
+    _FRAMES.clear()
+    K = "amber"
+    s = title("(P3)  PiWM-enc-scan " + NDASH
+              + "  a bidirectional scan replacing attention over tokens",
+              "the SPATIAL axis; orthogonal to the temporal question P1 and P2 ask")
+
+    s += frame(48, 104, 420, 330, "ATTENTION  " + NDASH + "  all pairs, O(L" + SIGMA + ")",
+               "blue", note="every token sees every token, in one step")
+    cxs = [128, 196, 264, 332, 400]
+    for i, cx in enumerate(cxs):
+        s += opnode(cx, 220, "", "blue", r=15)
+    for i in range(len(cxs)):
+        for j in range(i + 1, len(cxs)):
+            s += (f'<line x1="{cxs[i]}" y1="{235}" x2="{cxs[j]}" y2="{235}" '
+                  f'stroke="{ACCENT["blue"]}" stroke-width="0.8" opacity="0.35"/>\n')
+    s += txt(258, 300, "L = 257 tokens  (256 patches + CLS)", 12, anchor="middle", fill=MUTED)
+    s += txt(258, 336, "F.scaled_dot_product_attention", 11.5, anchor="middle",
+             fill=ACCENT["blue"])
+    s += txt(258, 396, "inner_dim = heads " + TIMES + " dim_head = 192", 11.5,
+             anchor="middle", fill=MUTED)
+
+    s += frame(488, 104, 404, 330, "SCAN  " + NDASH + "  two sweeps, O(L)", K,
+               note="forward and backward; patch tokens have no causal order")
+    sxs = [560, 628, 696, 764, 832]
+    for cx in sxs:
+        s += opnode(cx, 196, "", K, r=15)
+    for i in range(len(sxs) - 1):
+        s += apoly([(sxs[i] + 15, 196), (sxs[i + 1] - 15, 196)], K)
+    for cx in sxs:
+        s += opnode(cx, 276, "", "magenta", r=15)
+    for i in range(len(sxs) - 1, 0, -1):
+        s += apoly([(sxs[i] - 15, 276), (sxs[i - 1] + 15, 276)], "magenta")
+    s += txt(690, 236, "forward sweep", 11, anchor="middle", fill=ACCENT[K])
+    s += txt(690, 316, "backward sweep", 11, anchor="middle", fill=ACCENT["magenta"])
+    s += txt(690, 396, "merge(concat)  " + IMPLIES + "  (B, L, D)", 11.5, anchor="middle",
+             fill=INK)
+
+    s += eqband(48, 460, 844,
+                "s" + sub("", "i", 11) + " = A s" + sub("", "i-1", 11) + " + B x"
+                + sub("", "i", 11) + " ,   out" + sub("", "i", 11) + " = C s"
+                + sub("", "i", 11) + "     over the TOKEN axis, both directions", K,
+                note="drop-in for Attention: forward(x, attn_mask=None) -> (B, L, D), "
+                     "own LayerNorm, dropout gated on self.training")
+
+    s += frame(48, 554, 412, 240, "REQUIRES FEATURE = patch", "crit",
+               note="at cls there is one token and nothing to scan")
+    for i, t in enumerate(("num_patches = 1 at cls",
+                           "the scan would be a no-op",
+                           "so the arm ASSERTS rather than",
+                           "silently degenerating")):
+        s += txt(84, 626 + i * 30, t, 12.5, anchor="start",
+                 fill=ACCENT["crit"] if i >= 2 else INK)
+
+    s += frame(488, 554, 404, 240, "COST, AND THE CONTROL", K,
+               note="257 sequential steps per block, 12 blocks")
+    for i, t in enumerate(("a Python loop, not a fused kernel",
+                           "8 windows budgeted; the canary decides",
+                           "control: scan_A frozen at zero",
+                           "which degenerates to a per-token MLP")):
+        s += txt(524, 626 + i * 30, t, 12.5, anchor="start",
+                 fill=ACCENT[K] if i >= 2 else INK)
+    return s, 832
+
+
+# ==================================================================== P4
+def p4():
+    _FRAMES.clear()
+    K = "amber"
+    s = title("(P4)  PiWM-enc-st-scan " + NDASH + "  spatial scan and temporal state composed",
+              "ablated by P1 (temporal only) and P3 (spatial only) -- both of which run")
+
+    s += frame(48, 104, 844, 400, "THE TWO AXES, IN ONE ARM", K,
+               note="within a frame the scan runs over tokens; across frames the state carries")
+    for t in range(3):
+        x0 = 132 + t * 264
+        s += txt(x0 + 88, 168, "frame t" + ("" if t == 0 else "+" + str(t)), 12.5,
+                 anchor="middle", fill=MUTED)
+        s += frame(x0, 184, 176, 130, "", "blue")
+        toks = [x0 + 32, x0 + 72, x0 + 112, x0 + 152]
+        for cx in toks:
+            s += opnode(cx, 250, "", "blue", r=13)
+        for i in range(len(toks) - 1):
+            s += apoly([(toks[i] + 13, 250), (toks[i + 1] - 13, 250)], "blue")
+        s += txt(x0 + 88, 300, "scan over tokens", 10.5, anchor="middle",
+                 fill=ACCENT["blue"])
+        s += mbox(x0 + 52, 344, 72, 40, "s" + sub("", "t" + ("" if t == 0 else "+" + str(t)), 10),
+                  K, size=14)
+        s += aw(x0 + 88, 314, x0 + 88, 344, K)
+        if t:
+            s += apoly([(x0 - 88, 364), (x0 + 52, 364)], K)
+            s += txt(x0 - 18, 356, "A", 12, anchor="middle", fill=ACCENT[K], weight="bold")
+    s += txt(470, 434, "spatial within " + DOT + " temporal across  "
+             + IMPLIES + "  one operator family on both axes",
              12.5, anchor="middle", fill=ACCENT[K], weight="bold")
+    s += txt(470, 464, "a win is attributable because P1 and P3 isolate each half",
+             11.5, anchor="middle", fill=MUTED)
 
-    s += strip(PIN, 1570, [
-        ("arms compared", str(len(pts)), True),
-        ("pooled rho(fit, SR)", MINUS + "0.641", True),
-        ("blockcausal eff_dim", "25.04", False),
-        ("its success", "0.000", False)], K, cw=178)
-    return b + s, PY + PH + 40
+    s += eqband(48, 530, 844,
+                "within a frame:  s" + sub("", "i", 11) + " = A" + sub("", "s", 11)
+                + " s" + sub("", "i-1", 11) + " + B" + sub("", "s", 11) + " x"
+                + sub("", "i", 11) + "          |          across frames:  s"
+                + sub("", "t", 11) + " = A" + sub("", "t", 11) + " s"
+                + sub("", "t-1", 11) + " + B" + sub("", "t", 11) + " z"
+                + sub("", "t", 11), K,
+                note="both reduce to identity when their A is zero, so the arm nests both "
+                     "controls")
 
-
-# ============================================== P1
-P1_TITLE = "(P1) PiWM-enc-ssm -- a temporal state with an EXACT single-frame limit"
-
-
-def p1_enc_ssm():
-    K = "amber"
-    b = base(_check_title(P1_TITLE, 890))
-    b += poly([(890, PY), (890, 560), (872, 560)], color=ACCENT[K], w=1.8, dash="6,4")
-    b += txt(712, 502, "state added AFTER the per-frame encoder", 14, anchor="end",
-             fill=ACCENT[K], weight="bold")
-
-    PH = 744
-    s = pane(PX, PY, PW, PH, K,
-             "s" + sub("", "t", 12) + " = A s" + sub("", "t-1", 12) + " + B z"
-             + sub("", "t", 12) + " ,   z" + sub("", "t", 12) + " = C s" + sub("", "t", 12)
-             + "      A = 0 at init  " + IMPLIES + "  identical to today")
-
-    # -- the contract, drawn: training sees T=3, the goal sees T=1
-    s += frame(60, 950, 816, 286, "THE CONTRACT  " + NDASH
-               + "  training sees T = 3, the goal sees T = 1", K,
-               note="planning/cem.py:77 encodes the goal; plan.py:233 gives it one frame")
-    for i, (lab, T, x0, key) in enumerate((("TRAINING  clip", 3, 110, K),
-                                           ("GOAL  single frame", 1, 560, "blue"))):
-        s += txt(x0 + 110, 1024, lab, 12.5, anchor="middle", fill=ACCENT[key], weight="bold")
-        for t in range(T):
-            cx = x0 + t * 76
-            s += mbox(cx, 1042, 62, 40, "o" + sub("", str(t), 11), key, size=14)
-            s += aw(cx + 31, 1082, cx + 31, 1104, key)
-            s += mbox(cx, 1104, 62, 40, "z" + sub("", str(t), 11), key, size=14)
-            if t:
-                s += aw(cx - 14, 1124, cx - 2, 1124, K)
-        s += txt(x0 + 110, 1176, ("state flows across 3 frames" if T == 3
-                                  else "no history to flow from"),
-                 11.5, anchor="middle", fill=MUTED)
-    s += txt(470, 1210, "an SSM at T = 1 gives z = C B z  " + NDASH
-             + "  a function of THAT frame alone. attention does not.",
-             12, anchor="middle", fill=ACCENT[K], weight="bold")
-
-    # -- why blockcausal broke, side by side with why this cannot
-    s += frame(60, 1262, 400, 214, "blockcausal  " + NDASH + "  no T = 1 limit", "crit",
-               note="z_goal is an object training never produced")
-    for i, t in enumerate(("each frame attends to earlier ones",
-                           "at T = 1 there is nothing to attend to",
-                           "so the goal is off-distribution",
-                           "success 0.00, three times")):
-        s += txt(96, 1334 + i * 30, t, 12, anchor="start",
-                 fill=ACCENT["crit"] if i == 3 else INK)
-
-    s += frame(476, 1262, 400, 214, "enc-ssm  " + NDASH + "  exact at T = 1", K,
-               note="A = 0 reproduces the per-frame encoder bit-for-bit")
-    for i, t in enumerate(("s starts at zero, A" + DOT + "0 = 0 exactly",
-                           "T = 1 gives z = C B z, well defined",
-                           "A = 0 init  " + IMPLIES + "  arm IS the baseline",
-                           "control: A allocated but frozen")):
-        s += txt(512, 1334 + i * 30, t, 12, anchor="start",
-                 fill=ACCENT[K] if i == 3 else INK)
-
-    s += strip(PIN, 1502, [
-        ("new params", "3 " + TIMES + " D" + SIGMA, True),
-        ("A = 0 is", "bit-identical", True),
-        ("control", "A frozen at 0", False),
-        ("seeds", "5", False)], K, cw=178)
-    return b + s, PY + PH + 40
+    s += frame(48, 624, 844, 178, "THE ABLATION MAP", "slate",
+               note="every cell already exists or is in this round")
+    cols = [("", 200), ("no spatial", 420), ("spatial scan", 700)]
+    for lab, x in cols:
+        s += txt(x, 686, lab, 11.5, anchor="middle", fill=MUTED)
+    grid = [("no temporal", "baseline", "P3"), ("temporal state", "P1", "P4")]
+    for r, (rl, c1, c2) in enumerate(grid):
+        y = 720 + r * 46
+        s += txt(200, y + 6, rl, 12, anchor="middle", fill=MUTED)
+        for c, cell in enumerate((c1, c2)):
+            cx = 420 + c * 280
+            key = K if cell == "P4" else ("blue" if cell == "baseline" else "slate")
+            s += mbox(cx - 66, y - 16, 132, 40, cell, key, size=13.5)
+    return s, 840
 
 
-# ============================================== the ladder
-LAD_TITLE = "THE LADDER -- manufactured partial observability, and what each claim predicts"
-
-
+# ==================================================================== ladder
 def ladder():
+    _FRAMES.clear()
     K = "amber"
-    b = base(_check_title(LAD_TITLE, 890))
-    b += poly([(890, PY), (890, 560), (872, 560)], color=ACCENT[K], w=1.8, dash="6,4")
-    b += txt(712, 502, "corruption on the OBSERVATION stream only", 14, anchor="end",
-             fill=ACCENT[K], weight="bold")
+    s = title("THE LADDER " + NDASH + "  manufactured partial observability",
+              "neither PushT nor Wall hides anything; the corruption creates what "
+              "the claim needs")
 
-    PH = 700
-    s = pane(PX, PY, PW, PH, K,
-             "frame dropout p " + SIGMA + " {0.00, 0.15, 0.35}   "
-             + NDASH + "   the anchor frame is never dropped")
-
-    # -- the three rungs, drawn as clips with frames blanked
-    s += frame(60, 950, 816, 244, "THE THREE RUNGS", K,
-               note="one draw per frame per clip; p = 0 is bit-identical to today")
+    s += frame(48, 104, 844, 250, "THREE RUNGS, ON THE OBSERVATION STREAM ONLY", K,
+               note="never actions, never proprio; the anchor frame is never dropped")
     DROP = {0: set(), 1: {2}, 2: {1, 2}}
-    for r, (p, lab) in enumerate(((0.0, "p = 0.00"), (0.15, "p = 0.15"), (0.35, "p = 0.35"))):
-        x0 = 110 + r * 268
-        s += txt(x0 + 100, 1022, lab, 12.5, anchor="middle",
-                 fill=ACCENT[K] if r else ACCENT["blue"], weight="bold")
+    for r, lab in enumerate(("p = 0.00", "p = 0.15", "p = 0.35")):
+        x0 = 132 + r * 268
+        key = "blue" if r == 0 else K
+        s += txt(x0 + 88, 168, lab, 13, anchor="middle", fill=ACCENT[key], weight="bold")
         for t in range(3):
-            cx = x0 + t * 68
+            cx = x0 + t * 62
             gone = t in DROP[r]
-            s += mbox(cx, 1040, 56, 44, "" if gone else "o" + sub("", str(t), 11),
-                      "crit" if gone else ("blue" if r == 0 else K), size=14)
+            s += mbox(cx, 186, 52, 44, "" if gone else "o" + sub("", str(t), 10),
+                      "crit" if gone else key, size=13)
             if gone:
-                s += txt(cx + 28, 1068, TIMES, 17, anchor="middle", fill=ACCENT["crit"],
+                s += txt(cx + 26, 214, TIMES, 17, anchor="middle", fill=ACCENT["crit"],
                          weight="bold")
-        s += txt(x0 + 100, 1114, ("nothing hidden" if r == 0
-                                  else f"{len(DROP[r])} of 3 frames blank"),
-                 11.5, anchor="middle", fill=MUTED)
-        s += txt(x0 + 100, 1146, ("the control" if r == 0 else "state must carry it"),
-                 11.5, anchor="middle", fill=ACCENT["blue"] if r == 0 else ACCENT[K])
+        s += txt(x0 + 88, 262, "the control" if r == 0 else
+                 f"{len(DROP[r])} of 3 blank", 11.5, anchor="middle",
+                 fill=ACCENT["blue"] if r == 0 else MUTED)
+        s += txt(x0 + 88, 288, "bit-identical to today" if r == 0 else
+                 "state must carry it", 11.5, anchor="middle", fill=ACCENT[key])
 
-    # -- the two claims make OPPOSITE predictions, drawn as trend lines
-    s += frame(60, 1220, 816, 268, "TWO CLAIMS, OPPOSITE PREDICTIONS", "slate",
-               note="this is what makes the ladder an experiment and not a sweep")
+    s += eqband(48, 380, 844,
+                "visual[m] = 0  where  m ~ Bernoulli(p) per frame,  m[0] = False", K,
+                note="a dataset transform: no model code, and p = 0 is the whole ladder's "
+                     "control")
+
+    s += frame(48, 474, 844, 300, "THE TWO CLAIMS MAKE OPPOSITE PREDICTIONS", "slate",
+               note="which is what makes this an experiment rather than a sweep")
     for i, (nm, key, pred, note) in enumerate((
             ("CLAIM A  denoising", "blue", (0.5, 0.55, 0.6),
              "a small gain everywhere, including p = 0"),
             ("CLAIM B  belief state", K, (0.03, 0.4, 0.95),
              "~0 at p = 0, rising with corruption"))):
-        x0 = 96 + i * 412
-        s += txt(x0 + 170, 1292, nm, 12.5, anchor="middle", fill=ACCENT[key], weight="bold")
-        gx, gy, gw, gh = x0 + 40, 1310, 260, 96
-        s += (f'<rect x="{gx - 4}" y="{gy - 4}" width="{gw + 8}" height="{gh + 8}" rx="3" '
+        x0 = 96 + i * 424
+        s += txt(x0 + 176, 546, nm, 13, anchor="middle", fill=ACCENT[key], weight="bold")
+        gx, gy, gw, gh = x0 + 46, 566, 262, 112
+        s += (f'<rect x="{gx}" y="{gy}" width="{gw}" height="{gh}" rx="3" '
               f'fill="{WHITE}" stroke="{DIM}" stroke-width="1"/>\n')
         s += (f'<line x1="{gx}" y1="{gy + gh}" x2="{gx + gw}" y2="{gy + gh}" '
               f'stroke="{GRID}" stroke-width="1.2"/>\n')
-        ptsxy = [(gx + j * (gw / 2), gy + gh - v * gh) for j, v in enumerate(pred)]
-        s += apoly(ptsxy, key)
-        for (cx, cy) in ptsxy:
+        pts = [(gx + 8 + j * ((gw - 16) / 2), gy + gh - v * (gh - 10) - 5)
+               for j, v in enumerate(pred)]
+        s += apoly(pts, key)
+        for (cx, cy) in pts:
             s += (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="5" fill="{ACCENT_FILL[key]}" '
                   f'stroke="{ACCENT[key]}" stroke-width="2"/>\n')
-        for j, lab in enumerate(("0", ".15", ".35")):
-            s += txt(gx + j * (gw / 2), gy + gh + 18, lab, 10.5, anchor="middle", fill=MUTED)
-        s += txt(x0 + 170, 1452, note, 11.5, anchor="middle", fill=INK)
-
-    s += strip(PIN, 1512, [
-        ("rungs", "0 / .15 / .35", True),
-        ("p = 0 is", "the control", True),
-        ("read", "the SLOPE", False),
-        ("MDE at n = 5", "~0.21", False)], K, cw=178)
-    return b + s, PY + PH + 40
+        for j, l in enumerate(("0", ".15", ".35")):
+            s += txt(gx + 8 + j * ((gw - 16) / 2), gy + gh + 20, l, 10.5,
+                     anchor="middle", fill=MUTED)
+        s += txt(x0 + 176, 728, note, 11.5, anchor="middle", fill=INK)
+    s += txt(470, 758, "a flat response refutes B  " + DOT
+             + "  a gain only at p = 0 refutes B and supports A  " + DOT
+             + "  neither refutes both", 11.5, anchor="middle", fill=MUTED)
+    return s, 812
 
 
 FIGURES = (
-    ("arch-blockcausal-postmortem.svg", blockcausal_postmortem),
-    ("arch-p1-enc-ssm.svg", p1_enc_ssm),
+    ("arch-premise.svg", premise),
+    ("arch-p1-enc-ssm.svg", p1),
+    ("arch-p2-deep.svg", p2),
+    ("arch-p3-scan.svg", p3),
+    ("arch-p4-st-scan.svg", p4),
     ("arch-ladder.svg", ladder),
 )
 
@@ -350,15 +514,14 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     rc = 0
     for name, fn in FIGURES:
-        _FRAMES.clear()
         body, h = fn()
         frames = tuple(_FRAMES)
-        out_emit(name, body, a.out, h)
+        emit(name, body, a.out, w=W, h=h)
         path = os.path.join(a.out, name)
-        print("  wrote", path)
-        bad = audit(path, W, h + SHIFT, frames)
-        for line in bad:
-            print("    ", line)
+        bad = audit_all(path, W, h, frames)
+        print(f"  {name:<28} {'CLEAN' if not bad else str(len(bad)) + ' finding(s)'}")
+        for line in bad[:8]:
+            print("     ", line[:110])
         rc |= bool(bad)
         if a.png:
             import cairosvg
