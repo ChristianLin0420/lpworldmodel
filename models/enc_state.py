@@ -180,9 +180,12 @@ class ScanMixer(nn.Module):
             ones = u.new_ones(1, d)
             pw = torch.cumprod(torch.cat([ones, a.expand(lc - 1, d)], dim=0), dim=0) \
                 if lc > 1 else ones
-            k = torch.where(diff[:, :, None] >= 0,
-                            pw[diff.clamp_min(0)],
-                            u.new_zeros(1))
+            # A MULTIPLICATIVE mask, not torch.where. where()'s backward goes through
+            # masked_scatter_, which under mixed precision compared a BFloat16 self against
+            # a Float source and raised -- in the BACKWARD pass, so every scan arm trained
+            # for one step and then died. A multiply has no such path and no dtype opinion.
+            mask = (diff >= 0).to(pw.dtype)
+            k = pw[diff.clamp_min(0)] * mask[:, :, None]
             h = torch.einsum("mnd,bnd->bmd", k, uc) + (pw * a)[None] * carry[:, None]
             carry = h[:, -1]
             out.append(h)
@@ -195,10 +198,22 @@ class ScanMixer(nn.Module):
         assert attn_mask is None, "ScanMixer does not take an attention mask"
         h = self.norm(x)
         u = self.scan_in(h)
-        a = torch.tanh(self.scan_a).to(u.dtype)
-        fwd = self._sweep(u, a[0], self.CHUNK)
-        bwd = self._sweep(u.flip(1), a[1], self.CHUNK).flip(1)
-        out = self.scan_out(fwd + bwd)
+        # THE RECURRENCE RUNS IN fp32, with autocast off, whatever the surrounding
+        # precision. Two independent reasons, and the second one cost a whole wave:
+        #   * a scan multiplies decays together, so a low-precision error compounds along
+        #     the sequence rather than staying local;
+        #   * mixing the fp32 `scan_a` with bf16 activations inside the kernel produced a
+        #     dtype error in BACKWARD that no fp32 CPU test could see. Every scan arm
+        #     trained one step on GPU and then died with
+        #     "masked_scatter_: expected self and source to have same dtypes".
+        _dt = u.dtype
+        with torch.autocast(device_type=u.device.type, enabled=False):
+            uf = u.float()
+            a = torch.tanh(self.scan_a.float())
+            fwd = self._sweep(uf, a[0], self.CHUNK)
+            bwd = self._sweep(uf.flip(1), a[1], self.CHUNK).flip(1)
+            mixed = (fwd + bwd).to(_dt)
+        out = self.scan_out(mixed)
         if self.training and self.dropout > 0:
             out = torch.nn.functional.dropout(out, p=self.dropout)
         return out

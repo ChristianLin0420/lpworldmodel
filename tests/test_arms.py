@@ -1448,3 +1448,19 @@ def test_r9_only_C_takes_gradient_at_step_zero():
         g = getattr(st, name).weight.grad
         assert g is None or g.abs().max() == 0, \
             f"{name} sits behind C = 0 and cannot receive gradient at step 0"
+
+
+@pytest.mark.parametrize("arm", [a for a in ARMS if a.startswith("r9/")])
+def test_r9_arm_steps_under_bf16(arm):
+    """Every round-9 arm must survive a step in the precision it actually TRAINS in.
+
+    This test exists because its absence cost a wave. The whole round was verified in fp32
+    on CPU, launched at precision=bf16, and PiWM-enc-scan died on GPU in the BACKWARD pass
+    with "masked_scatter_: expected self and source to have same dtypes but got BFloat16
+    and Float" -- a torch.where inside the scan kernel whose two branches disagreed once an
+    fp32 parameter met bf16 activations. fp32 tests cannot see that.
+    """
+    trace = loss_trace(n_steps=1, batch_size=2, precision="bf16", overrides=ARMS[arm])
+    assert trace, f"{arm} produced no trace under bf16"
+    for k, v in trace[0].items():
+        assert math.isfinite(v), f"{arm}: {k} is not finite under bf16"

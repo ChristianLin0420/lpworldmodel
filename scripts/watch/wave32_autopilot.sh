@@ -32,7 +32,9 @@ EVALED=""
 
 windows_for() {
   case "$1" in
-    *scan*)       echo 8 ;;   # 257-token scan x 12 blocks: the round's most expensive op
+    *scan*)       echo 16 ;;  # measured 4.29x baseline per step -- must match the launch,
+                              # or a re-extension quietly gives the arm a shorter budget
+                              # than the one its window count was chosen for
     *state-sinv*) echo 6 ;;   # a SECOND student encoder pass, with activations
     *) echo 4 ;;
   esac
