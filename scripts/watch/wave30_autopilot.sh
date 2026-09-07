@@ -23,8 +23,11 @@ cd /lustre/fs11/portfolios/edgeai/projects/edgeai_tao-ptm_image-foundation-model
 PY=/lustre/fsw/portfolios/edgeai/users/chrislin/envs/lpwm/bin/python
 R=/lustre/fsw/portfolios/edgeai/users/chrislin/projects/lpworldmodel/runs/outputs
 
-W30_ARMS="PiWM-tjepa PiWM-tjepa-w1 PiWM-st-tube PiWM-st-tube-w5 PiWM-st-tube-iid PiWM-white-zt PiWM-white-dz PiWM-white-shuf"
-W31_ARMS="PiWM-st-metric PiWM-st-metric-w1 PiWM-hist8"
+# Scoped by env var. Round 8 was cancelled down to T3 + ST1 only; an autopilot still
+# naming the cancelled arms would re-extend them on its next cycle, which is the opposite
+# of a cancellation.
+W30_ARMS="${W30_ARMS:-PiWM-tjepa PiWM-tjepa-w1 PiWM-st-tube PiWM-st-tube-w5 PiWM-st-tube-iid}"
+W31_ARMS="${W31_ARMS:-}"
 ARMS="$W30_ARMS $W31_ARMS"
 EVALED=""
 
