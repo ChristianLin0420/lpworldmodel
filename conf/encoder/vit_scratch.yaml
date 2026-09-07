@@ -15,3 +15,11 @@ name: vit_scratch
 # LeVJEPA knobs, both inert at their defaults.
 token_drop: ${oc.select:token_drop,0.0}      # stochastic token dropping (train only)
 block_causal: ${oc.select:block_causal,false} # joint clip encoding, causal across frames
+# ROUND 9 knobs, all inert at their defaults. They live on the ENCODER config because
+# plan.py rebuilds the encoder from this node with a strict load_state_dict, so a
+# top-level-only key would build a stateless encoder at eval and fail on the state dict.
+enc_ssm: ${oc.select:enc_ssm,false}            # P1: temporal state after the per-frame ViT
+enc_ssm_depth: ${oc.select:enc_ssm_depth,null} # P2: instead, insert it after this block
+enc_ssm_freeze: ${oc.select:enc_ssm_freeze,false}  # control: A = 0, frozen
+enc_scan: ${oc.select:enc_scan,false}          # P3: token-axis scan replaces attention
+enc_scan_freeze: ${oc.select:enc_scan_freeze,false}  # control: decay a = 0

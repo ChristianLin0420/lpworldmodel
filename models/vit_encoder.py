@@ -11,12 +11,15 @@ since the cluster image ships transformers==4.21.1 and no timm). A projector MLP
 predicted and regularized.
 """
 
+import functools
 import math
 
 import torch
 import torch.nn as nn
 from einops import rearrange
 
+from models.enc_state import ScanBlock, TemporalState
+from models.infojepa_modules import Block
 from models.infojepa_modules import MLP, Transformer
 
 
@@ -38,6 +41,11 @@ class ViTEncoder(nn.Module):
         name="vit_scratch",
         token_drop=0.0,
         block_causal=False,
+        enc_ssm=False,          # ROUND 9 / P1: a temporal state after the per-frame ViT
+        enc_ssm_depth=None,     # ROUND 9 / P2: instead, insert it AFTER this ViT block
+        enc_ssm_freeze=False,   # ROUND 9 control: A = 0, frozen -> per-frame for every t
+        enc_scan=False,         # ROUND 9 / P3: replace attention with a token-axis scan
+        enc_scan_freeze=False,  # ROUND 9 control: scan decay a = 0 -> a per-token MLP
     ):
         super().__init__()
         assert feature in {"cls", "patch"}, f"feature {feature} not supported"
@@ -77,6 +85,13 @@ class ViTEncoder(nn.Module):
         self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, dim) * 0.02)
         self.dropout = nn.Dropout(emb_dropout)
 
+        # ROUND 9 / P3. ScanBlock replaces attention in EVERY layer, which is what
+        # block_class is for. P2 deliberately does NOT use this route -- see the mid_hook
+        # note in Transformer.forward.
+        self.enc_scan = bool(enc_scan)
+        _blk = Block
+        if self.enc_scan:
+            _blk = functools.partial(ScanBlock, freeze_a=bool(enc_scan_freeze))
         self.transformer = Transformer(
             input_dim=dim,
             hidden_dim=dim,
@@ -87,7 +102,34 @@ class ViTEncoder(nn.Module):
             mlp_dim=mlp_dim,
             dropout=dropout,
             causal=False,
+            block_class=_blk,
         )
+
+        # ROUND 9 / P1-P2-P4. One module, two placements. P1 puts it after the projector
+        # (proj_dim space, so the state is on the code the loss and the planner see); P2
+        # puts it between ViT blocks (dim space, inside the residual stream).
+        #
+        # block_causal and enc_ssm are two answers to the same question and composing them
+        # would confound the round's central contrast, so they are mutually exclusive.
+        assert not (block_causal and enc_ssm), \
+            "block_causal and enc_ssm are two answers to one question; pick one"
+        self.enc_ssm = bool(enc_ssm)
+        self.enc_ssm_depth = None if enc_ssm_depth is None else int(enc_ssm_depth)
+        self.state = None
+        if self.enc_ssm:
+            assert self.enc_ssm_depth is None or 0 <= self.enc_ssm_depth < depth, \
+                f"enc_ssm_depth {self.enc_ssm_depth} outside [0, {depth})"
+            # fork_rng for the same reason visual_world_model.py:304-314 gives: an
+            # unforked init advances the global CPU stream that RDMReg draws its target
+            # from, so the arm would differ from its control by the state AND by every
+            # subsequent random draw -- more than one factor, which is the whole point of
+            # a matched control.
+            with torch.random.fork_rng(devices=[]):
+                torch.manual_seed(20260907)
+                self.state = TemporalState(
+                    dim if self.enc_ssm_depth is not None else proj_dim,
+                    freeze_a=bool(enc_ssm_freeze),
+                )
 
         self.projector = MLP(
             input_dim=dim,
@@ -170,10 +212,36 @@ class ViTEncoder(nn.Module):
         return rearrange(tokens, "(n p) d -> n p d", p=pnum)
 
     def forward(self, x):
+        """x: (N, 3, H, W) -> (N, num_patches, emb_dim). num_patches == 1 for CLS.
+
+        ROUND 9. When a temporal state is present this returns its EXACT SINGLE-FRAME
+        LIMIT, which is what every existing caller wants and what the planner encodes:
+        plan.py:230-232 gives both obs_0 and obs_g a time axis of one. Routing it here
+        means analysis/latent_probe.py, analysis/wscore_weights.py, analysis/probe_cache.py
+        and train_energy.py need no mirror -- they call forward() and get the right thing.
         """
-        x: (N, 3, H, W)
-        returns: (N, num_patches, emb_dim)  (num_patches == 1 for CLS)
+        z = self._forward_frames(x)
+        if self.state is not None and self.enc_ssm_depth is None:
+            z = self.state.solo(z)          # == forward_state(x, T=1); A(0) = 0 exactly
+        return z
+
+    def forward_state(self, x, T, return_state=False):
+        """Encode a CLIP with a temporal state carried across its frames.
+
+        x: (N, 3, H, W) with N == b*T, frames consecutive within each b -- the layout
+        encode_obs produces. Returns (N, num_patches, emb_dim), the same contract as
+        forward() and forward_temporal(), so the caller does not change.
         """
+        assert self.state is not None, "forward_state requires enc_ssm=True"
+        if self.enc_ssm_depth is not None:                       # P2: inside the stack
+            z = self._forward_frames(x, state_T=T)
+            s = self._last_state
+        else:                                                    # P1: after the projector
+            z, s = self.state(self._forward_frames(x), T)
+        return (z, s) if return_state else z
+
+    def _forward_frames(self, x, state_T=None):
+        """Today's per-frame body, verbatim. state_T != None runs P2's mid-stack hook."""
         b = x.shape[0]
         x = self.patch_embed(x)  # (N, dim, h, w)
         h, w = x.shape[-2], x.shape[-1]
@@ -185,7 +253,13 @@ class ViTEncoder(nn.Module):
         x = self.dropout(x)
         x = self._drop_tokens(x)
 
-        x = self.transformer(x)  # (N, 1 + h*w, dim)
+        if state_T is not None:
+            def _hook(h):
+                h, self._last_state = self.state(h, state_T)
+                return h
+            x = self.transformer(x, mid_hook=_hook, mid_at=self.enc_ssm_depth)
+        else:
+            x = self.transformer(x)  # (N, 1 + h*w, dim)
 
         if self.feature == "cls":
             tokens = x[:, :1]  # (N, 1, dim)

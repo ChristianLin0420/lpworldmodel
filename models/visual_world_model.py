@@ -48,6 +48,24 @@ class VWorldModel(nn.Module):
         tube_sub=0,        # ST1: batch elements used for the tube term (0 = all)
         metric_w=0.0,      # ST4: weight on the direction-normalised prediction residual
         metric_eps=1e-3,   # ST4: ridge, as a fraction of mean variance
+        # ---- ROUND 9 / P5-P7: give the encoder's temporal state a JOB -----------------
+        # All three act on z_emb, the LINKED encoder output, not on the raw state s. Under
+        # P1 z_emb[:, t] is a full-rank linear readout of s_t (C = 0 at init, learned
+        # after), so a linear head composed with C is still a linear head and every claim
+        # survives -- while needing no state plumbing through the planner's code path.
+        # NOTE the key is sinv_w, NOT consist_w: consist_w is R2's rollout
+        # self-consistency term (:193 in conf/train_rdmreg.yaml) and reusing it would have
+        # silently added this loss to that one.
+        sinv_w=0.0,        # P5: state INVARIANCE under a frame-dropped view of the clip
+        sinv_p=0.35,       # P5: per-frame drop probability of the corrupted view
+        sinv_shuf=False,   # P5 control: match against a DIFFERENT clip in the batch
+        sinv_sub=16,       # P5: batch subsample for the 2nd student encode (cf. tube_sub)
+        vel_w=0.0,         # P6: weight on decoding the code's own inter-frame difference
+        vel_sum=False,     # P6 control: target z_t + z_{t-1} (available from one frame)
+        nce_w=0.0,         # P7: InfoNCE between the state and its own future code
+        nce_k=1,           # P7: how far ahead the positive sits
+        nce_neg=4,         # P7: in-batch negatives
+        nce_shuf=False,    # P7 control: positive drawn from a WRONG in-clip offset
         lamb_decode=1.0,
         # T1: let the reconstruction gradient reach the ENCODER. False keeps the
         # historical z_emb.detach(), under which 0/144 encoder params receive any
@@ -145,6 +163,18 @@ class VWorldModel(nn.Module):
         self.tube_sub = int(tube_sub)
         self.metric_w = float(metric_w)
         self.metric_eps = float(metric_eps)
+        # ROUND 9 / P5-P7
+        self.sinv_w = float(sinv_w)
+        self.sinv_p = float(sinv_p)
+        self.sinv_shuf = bool(sinv_shuf)
+        self.sinv_sub = int(sinv_sub)
+        self.vel_w = float(vel_w)
+        self.vel_sum = bool(vel_sum)
+        self.nce_w = float(nce_w)
+        self.nce_k = int(nce_k)
+        self.nce_neg = int(nce_neg)
+        self.nce_shuf = bool(nce_shuf)
+        self._sinv_gen = None
         self.lamb_decode = lamb_decode
         self.decode_pred_w = float(decode_pred_w)
         # ROUND 8 / T2 rung 2. EMA teacher. 0.0 => not built at all, so the model is
@@ -330,6 +360,61 @@ class VWorldModel(nn.Module):
         self._head_gen = None
         if self.value_mode not in ("td", "mc", "geom"):
             raise ValueError(f"value_mode must be td|mc|geom, got {self.value_mode!r}")
+        # ---- ROUND 9: does this encoder carry a temporal state? ----------------------
+        # Placed here, not with the other flags: base_encoder is only resolved above.
+        _enc0 = getattr(base_encoder, "module", base_encoder)
+        # Fetched whenever the encoder HAS a state, not only when a term consumes one: the
+        # gap instrument is the round's pre-outcome read and a P1 arm with no loss term
+        # needs it just as much. Returning the state costs nothing -- forward_state computes
+        # it either way. At defaults enc_ssm is False, so this is False, the call into
+        # encode_obs is byte-for-byte the one that shipped, and no key is emitted.
+        self._wants_state = bool(getattr(_enc0, "enc_ssm", False))
+        if self.sinv_w > 0 or self.vel_w > 0 or self.nce_w > 0:
+            # An arm that asks the state to do a job without building a state is its own
+            # control reporting a number, which is the failure the overshoot/consist_k
+            # guards exist for. Fail loudly at construction instead.
+            assert self._wants_state, (
+                "sinv_w / vel_w / nce_w require an encoder with enc_ssm=True; without a "
+                "temporal state there is nothing for these terms to constrain."
+            )
+        if self.sinv_w > 0:
+            assert self.sinv_p > 0, (
+                "sinv_w > 0 with sinv_p = 0 makes the two views IDENTICAL, so the term is "
+                "identically zero and the arm is its own control."
+            )
+
+        # ---- ROUND 9 / P6-P7 heads ---------------------------------------------------
+        # On VWorldModel, NOT on the encoder: plan.py restores the encoder with a strict
+        # load_state_dict from a config it rebuilds itself, so an encoder-resident head
+        # that the plan-time config does not know about is a RuntimeError on every eval.
+        #
+        # fork_rng for the reason spelled out at the value head below: an unforked init
+        # advances the global CPU stream RDMReg draws its target from, so the arm would
+        # differ from its control by the head AND by every later random draw.
+        self.state_heads = None
+        if self.vel_w > 0 or self.nce_w > 0:
+            _Dh = int(base_encoder.emb_dim)
+            with torch.random.fork_rng(devices=[]):
+                torch.manual_seed(20260907)
+                _h = {}
+                if self.vel_w > 0:
+                    _h["vel"] = nn.Linear(_Dh, _Dh)
+                    # ZERO-INIT, the AdaLN-zero / LTV-U=0 convention this repo uses
+                    # everywhere. Two reasons, both load-bearing:
+                    #   * a default-init head maps a LARGE input (z, O(1)) to a SMALL
+                    #     target (dz), so the term starts at ~113 and swamps z_loss = 0.235
+                    #     -- measured on the build fixture before this line existed;
+                    #   * it makes vel_rel EXACTLY 1.0 at init, so the manipulation check
+                    #     reads directly: 1.0 means "no better than predicting zero", i.e.
+                    #     the code carries no motion and the arm is inert.
+                    nn.init.zeros_(_h["vel"].weight)
+                    nn.init.zeros_(_h["vel"].bias)
+                if self.nce_w > 0:
+                    _h["nce_q"] = nn.Linear(_Dh, _Dh)
+                    _h["nce_k"] = nn.Linear(_Dh, _Dh)
+                self.state_heads = nn.ModuleDict(_h)
+            print(f"ROUND 9 state heads: {sorted(_h)} at D={_Dh}")
+
         if self.value_w > 0 or self.policy_w > 0:
             _D = int(base_encoder.emb_dim)
             _H = int(value_hidden) if value_hidden else _D
@@ -483,8 +568,13 @@ class VWorldModel(nn.Module):
         tgt = torch.zeros(logits.shape[0], dtype=torch.long, device=logits.device)
         return F.cross_entropy(logits, tgt)
 
-    def _action_negatives(self, z_src, act_src):
+    def _action_negatives(self, z_src, act_src, k=None):
         """P5: which distribution the InfoNCE negatives are drawn from.
+
+        ROUND 9 / P7 reuses this to draw its own in-batch negatives, so `k` overrides the
+        count. It defaults to None -> self.act_info_k, which keeps V2 bit-identical; the
+        second argument is read only for .shape[0] and .device, so P7 can pass any tensor
+        with the batch on axis 0.
 
         InfoNCE with K negatives from a proposal q bounds mutual information RELATIVE TO q.
         "perm" permutes the batch, i.e. q = p(a), the MARGINAL. PushT demonstrations are
@@ -499,15 +589,16 @@ class VWorldModel(nn.Module):
         Zero extra parameters: one cdist on (b, b).
         """
         b = act_src.shape[0]
-        if self.act_info_neg != "knn" or b <= self.act_info_k + 1:
+        n_neg = self.act_info_k if k is None else int(k)
+        if self.act_info_neg != "knn" or b <= n_neg + 1:
             return [torch.randperm(b, device=act_src.device)
-                    for _ in range(self.act_info_k)]
+                    for _ in range(n_neg)]
         with torch.no_grad():
             zf = z_src.detach().flatten(1)                       # (b, t*p*d)
             d = torch.cdist(zf, zf)
             d.fill_diagonal_(float("inf"))                       # never pick self
-            nn_idx = d.topk(self.act_info_k, dim=1, largest=False).indices   # (b, K)
-        return [nn_idx[:, k] for k in range(self.act_info_k)]
+            nn_idx = d.topk(n_neg, dim=1, largest=False).indices   # (b, K)
+        return [nn_idx[:, i] for i in range(n_neg)]
 
     def _ctrb_loss(self):
         """P4: -logdet of the H-step controllability Gramian of the linearised dynamics.
@@ -1270,7 +1361,7 @@ class VWorldModel(nn.Module):
         return proprio
 
     @staticmethod
-    def _encode_visual(encoder, visual_flat, b, t_frames):
+    def _encode_visual(encoder, visual_flat, b, t_frames, want_state=False):
         """Run ONE encoder over already-flattened, already-transformed frames -> (b,t,p,d).
 
         Factored so the student encoder and the ROUND 8 / T2 EMA teacher cannot drift: the
@@ -1282,15 +1373,46 @@ class VWorldModel(nn.Module):
         """
         _enc = getattr(encoder, "module", encoder)
         if getattr(_enc, "block_causal", False):
+            assert not want_state, "block_causal carries no separable temporal state"
             out = _enc.forward_temporal(visual_flat, t_frames)
+        elif getattr(_enc, "enc_ssm", False):
+            # ROUND 9 / P1-P2. Same unwrap rationale as forward_temporal above.
+            out = _enc.forward_state(visual_flat, t_frames, return_state=want_state)
+            if want_state:
+                out, st = out
+                return (rearrange(out, "(b t) p d -> b t p d", b=b),
+                        rearrange(st, "(b t) p d -> b t p d", b=b))
         else:
+            assert not want_state, "want_state requires an encoder with enc_ssm=True"
             out = encoder.forward(visual_flat)
         return rearrange(out, "(b t) p d -> b t p d", b=b)
 
-    def encode_obs(self, obs):
+    def _encode_variant(self, visual, encoder=None, want_state=False):
+        """(b,t,3,H,W) -> LINKED (b,t,p,d), optionally with the encoder's temporal state.
+
+        The four-line preamble rearrange -> encoder_transform -> _encode_visual -> _link was
+        copy-pasted at the EMA-teacher and tube call sites; ROUND 9 / P5 needs a third, so
+        it lives here once. That is the one-definition-two-consumers rule _encode_visual's
+        own docstring invokes, and the same reasoning that produced _chain_rollout.
+        """
+        b, t = visual.shape[0], visual.shape[1]
+        flat = self.encoder_transform(rearrange(visual, "b t ... -> (b t) ..."))
+        out = self._encode_visual(self.encoder if encoder is None else encoder,
+                                  flat, b, t, want_state=want_state)
+        if want_state:
+            u, st = out
+            return self._link(u), st
+        return self._link(out)
+
+    def encode_obs(self, obs, want_state=False):
         """
         input : obs (dict): "visual", "proprio" (b, t, 3, img_size, img_size)
         output:   z (dict): "visual", "proprio" (b, t, num_patches, encoder_emb_dim)
+
+        want_state additionally returns the encoder's temporal state under key "state"
+        (ROUND 9 / P5-P7). It defaults False, and the default path is the identical call --
+        which matters because planning/cem.py:80 dict-comprehends over encode_obs_linked's
+        keys, so an unconditional extra key would ride into the planner.
         """
         visual = obs['visual']
         b, t_frames = visual.shape[0], visual.shape[1]
@@ -1303,14 +1425,20 @@ class VWorldModel(nn.Module):
         # getattr on the UNWRAPPED module: accelerate's DDP wrapper only proxies
         # forward(), so reaching forward_temporal through it raises AttributeError --
         # the same trap documented for forward_heads on _pred above.
-        visual_embs = self._encode_visual(self.encoder, visual, b, t_frames)
+        _st = None
+        if want_state:
+            visual_embs, _st = self._encode_visual(self.encoder, visual, b, t_frames,
+                                                   want_state=True)
+        else:
+            visual_embs = self._encode_visual(self.encoder, visual, b, t_frames)
 
         if self.action_conditioning == "adaln":
-            return {"visual": visual_embs}
-
-        proprio = obs['proprio']
-        proprio_emb = self.encode_proprio(proprio)
-        return {"visual": visual_embs, "proprio": proprio_emb}
+            out = {"visual": visual_embs}
+        else:
+            out = {"visual": visual_embs, "proprio": self.encode_proprio(obs['proprio'])}
+        if want_state:
+            out["state"] = _st
+        return out
 
     def predict(self, z, act_emb=None):  # in embedding space
         """
@@ -1464,6 +1592,43 @@ class VWorldModel(nn.Module):
         return (torch.log((c * c).sum().clamp_min(1e-20))
                 - 2.0 * torch.log(tr.clamp_min(1e-20)))
 
+    def _sinv_generator(self, device):
+        """P5's PRIVATE RNG, for the same reason R2's is private: RDMReg draws its target
+        from the global stream later in the same forward, so a term sampling from it would
+        move every subsequent draw and the arm would differ from its control by more than
+        the one factor under test."""
+        if self._sinv_gen is None or self._sinv_gen.device != torch.device(device):
+            g = torch.Generator(device=device)
+            g.manual_seed(20260907)
+            self._sinv_gen = g
+        return self._sinv_gen
+
+    def _frame_drop(self, visual, p):
+        """ROUND 9 / P5. Blank whole frames of the OBSERVATION stream. (b,t,3,H,W) -> same.
+
+        Applied ONLY to P5's second view -- never to the clip the main loss encodes -- so
+        the prediction targets are untouched. That matters: at num_hist=3, num_pred=1 the
+        targets are frames 1..3 and the inputs are frames 0..2, so EVERY droppable frame is
+        also a target. A corruption on the main path would be training the model to predict
+        the code of a grey image, and the arm would die for a reason unrelated to the state.
+
+        Frame 0 is never dropped: it is z_src[:, 0] and the planner's obs_0.
+
+        Zeroing follows _tube, including that 0.0 after Normalize([0.5], [0.5]) is MID-GREY
+        rather than black. Train-time only, a guard _tube itself omits -- the deviation is
+        deliberate, because a corrupted val loss is not comparable across the archive.
+        """
+        b, t = visual.shape[0], visual.shape[1]
+        kept = torch.ones(b, t, dtype=torch.bool, device=visual.device)
+        if not self.training or p <= 0.0:
+            return visual, kept                 # no RNG drawn: p = 0 is bit-identical
+        m = torch.rand(b, t, generator=self._sinv_generator(visual.device),
+                       device=visual.device) < p
+        m[:, 0] = False
+        v = visual.clone()
+        v[m] = 0.0
+        return v, ~m
+
     def _tube(self, visual, patch_size):
         """ROUND 8 / ST1.  Mask a contiguous SPACE x TIME tube, in pixels.
 
@@ -1595,7 +1760,12 @@ class VWorldModel(nn.Module):
         on encoder & predictor outputs, no stop-grad (configurable), anti-collapse
         regularizer (SIGReg or RDMReg) + optional rate / variance / L1 loss, no decoder."""
         loss_components = {}
-        u_emb = self.encode_obs(obs)["visual"]  # raw encoder output (b, num_frames, p, d)
+        # ROUND 9. _wants_state is False at defaults, so this is the identical call; the
+        # state is only fetched when a term consumes it.
+        _enc_mod = getattr(self.encoder, "module", self.encoder)
+        _enc_out = self.encode_obs(obs, want_state=self._wants_state)
+        u_emb = _enc_out["visual"]              # raw encoder output (b, num_frames, p, d)
+        _state = _enc_out.get("state")
         z_emb = self._link(u_emb)               # linked
         act_emb = self._act_emb_with_pose(act, obs.get("proprio"))  # (b, num_frames, act_emb_dim)
 
@@ -1614,14 +1784,10 @@ class VWorldModel(nn.Module):
         # Always detached: an EMA copy has no graph to begin with.
         if self.encoder_ema is not None:
             with torch.no_grad():
-                _v = obs["visual"]
-                _b, _t = _v.shape[0], _v.shape[1]
-                _flat = self.encoder_transform(rearrange(_v, "b t ... -> (b t) ..."))
-                _u_ema = self._encode_visual(self.encoder_ema, _flat, _b, _t)
                 # keep the UNSLICED linked teacher code: ST1's tube needs the same tensor,
                 # and running the teacher twice per step is what OOMed the st-tube canaries
                 # (4 encoder forwards at 256 patch tokens x 3 frames x batch 64).
-                _z_ema_full = self._link(_u_ema)
+                _z_ema_full = self._encode_variant(obs["visual"], self.encoder_ema)
                 target = _z_ema_full[:, self.num_pred:]
         else:
             target = z_tgt.detach() if self.detach_target else z_tgt
@@ -1857,8 +2023,7 @@ class VWorldModel(nn.Module):
             _nb = _bv if self.tube_sub <= 0 else min(self.tube_sub, _bv)
             _vis = obs["visual"][:_nb]
             v_mask, t_idx, _t0, _dt = self._tube(_vis, _ps)
-            _fm = self.encoder_transform(rearrange(v_mask, "b t ... -> (b t) ..."))
-            z_mask = self._link(self._encode_visual(self.encoder, _fm, _nb, _tv))
+            z_mask = self._encode_variant(v_mask)
             # The teacher's code for the UNMASKED clip is already computed above for the
             # target; reusing it removes a whole encoder forward per step. Falls back to the
             # detached student when no teacher was built.
@@ -1903,6 +2068,137 @@ class VWorldModel(nn.Module):
             metric_loss = ((r * w) ** 2).mean()
             loss = loss + self.metric_w * metric_loss
             loss_components["metric_loss"] = metric_loss
+
+        # ================= ROUND 9 / P5-P7: give the state a job =======================
+        # All three act on z_emb (the LINKED encoder output), because forward_state returns
+        # x + C s and the model never separately sees s on the planner's path. Under P1
+        # z_emb[:, t] is a full-rank linear readout of s_t, so a linear head composed with C
+        # is still a linear head -- every claim survives and nothing new crosses into
+        # planning/cem.py. Each term is scale-free by construction, so all three sit at
+        # about 1.0 at init and a single dose grid covers them.
+        if _state is not None:
+            # THE PRE-OUTCOME READ. blockcausal is filed as "the goal was an object the
+            # model never produced"; measured on its own checkpoint (2026-09-07) that is
+            # FALSE -- the t=0 code matches the single-frame code to 7e-6, because a
+            # frame-0 token can only attend to frame-0 tokens. What diverged was t >= 1,
+            # by 0.30-0.45 relative: the predictor was trained on history-conditioned
+            # targets while CEM scores it against a history-free goal. So the quantity that
+            # decides a stateful encoder is not the goal, it is how far its own t >= 1
+            # codes drift from their single-frame limit. That is this number.
+            with torch.no_grad():
+                loss_components["enc_state_rms"] = _state.detach().pow(2).mean().sqrt()
+                # P1 only. Under P2 the state lives INSIDE the stack in `dim` space, so its
+                # single-frame limit is not a function of u_emb and recovering it would mean
+                # re-running the blocks above it once per frame. P2 therefore ships with
+                # enc_state_rms alone and its gap is read offline -- stated, not hidden.
+                if _enc_mod.enc_ssm_depth is None:
+                    _solo = self._link(_enc_mod.state.solo(u_emb))
+                    _den = _solo[:, 1:].pow(2).mean().clamp_min(1e-12)
+                    loss_components["enc_state_gap"] = \
+                        (z_emb[:, 1:] - _solo[:, 1:]).pow(2).mean() / _den
+
+        if self.sinv_w > 0:
+            # P5. The state must survive a corrupted view. A per-frame encoder CANNOT
+            # satisfy this -- a dropped frame is grey and there is nothing else to draw on
+            # -- so the term is reducible only by carrying state across frames.
+            _bv = obs["visual"].shape[0]
+            _nb = _bv if self.sinv_sub <= 0 else min(self.sinv_sub, _bv)
+            _vd, _ = self._frame_drop(obs["visual"][:_nb], self.sinv_p)
+            _, s_drop = self._encode_variant(_vd, want_state=True)
+            s_ref = _state[:_nb].detach()
+            if self.sinv_shuf:
+                # THE CONTROL: identical corruption, identical op count; only the pairing is
+                # wrong. A win over this cannot be "the extra forward pass regularises".
+                #
+                # roll, not randperm: a random permutation has fixed points, and every clip
+                # it maps to ITSELF is a treatment pair sitting inside the control. A roll
+                # by one has no fixed points, draws no RNG, and so cannot shift the global
+                # stream either.
+                s_ref = s_ref.roll(1, dims=0)
+            # Frame 0 is never dropped, so its two states agree by construction and would
+            # only dilute the term by 1/T. Scale-free: without the denominator the term is
+            # minimised by shrinking the state, which is a collapse, not an invariance.
+            sinv_loss = ((s_drop[:, 1:] - s_ref[:, 1:]).pow(2).mean()
+                         / s_ref[:, 1:].pow(2).mean().clamp_min(1e-8))
+            loss = loss + self.sinv_w * sinv_loss
+            loss_components["sinv_loss"] = sinv_loss
+            # Read with the outcome: cross-clip matching is minimised by a CONSTANT state,
+            # so the -shuf control carries a collapse pressure the treatment does not. If
+            # its state std collapses relative to the treatment it is not a control.
+            loss_components["sinv_state_std"] = \
+                _state.detach().flatten(0, 1).std(dim=0).mean()
+
+        if self.vel_w > 0:
+            # P6. A single PushT frame shows both poses; the one quantity provably absent
+            # from it is MOTION. So require the code's own inter-frame difference to be
+            # linearly decodable from the state-bearing code.
+            #
+            # The target is DETACHED: an undetached difference is minimised by a constant
+            # code, which is precisely the pathology of the four lowest-rel_mse arms in the
+            # archive (eff_dim 0.00 at SR 0.006).
+            if self.state_heads is not None and \
+                    next(self.state_heads.parameters()).device != z_emb.device:
+                self.state_heads.to(z_emb.device)
+            if self.vel_sum:
+                # THE CONTROL: the SUM is recoverable from either frame alone; the
+                # DIFFERENCE is not. Same head, same shapes, same normalisation.
+                _tgt = (z_emb[:, 1:] + z_emb[:, :-1]).detach()
+            else:
+                _tgt = (z_emb[:, 1:] - z_emb[:, :-1]).detach()   # canonical dz, cf. pr_space
+            _pred = self.state_heads["vel"](z_emb[:, 1:])
+            # Scale-free, and NOT cosmetic: measured on real pushT val windows the sum's
+            # second moment is ~88x the difference's, so at a common vel_w the control
+            # would carry 88x the dose and the contrast would be dose, not content.
+            _vden = _tgt.pow(2).mean().clamp_min(1e-8)
+            vel_loss = (_pred - _tgt).pow(2).mean() / _vden
+            loss = loss + self.vel_w * vel_loss
+            loss_components["vel_loss"] = vel_loss
+            # 1.0 means the head does no better than predicting zero -> the code carries no
+            # motion -> the arm is INERT, whatever its success rate says.
+            loss_components["vel_rel"] = vel_loss.detach()
+
+        if self.nce_w > 0:
+            # P7. Identify the future, do not regress it. This is the only objective in the
+            # round that is structurally collapse-resistant: a regression loss can be
+            # minimised by making the code trivially predictable (drop95 and d2048-hilr
+            # reached zero error at effective_dim 0.00 and planned at 0.006 / 0.010), but a
+            # contrastive one cannot -- if the code collapses the negatives become
+            # indistinguishable from the positive and the loss goes UP.
+            if self.state_heads is not None and \
+                    next(self.state_heads.parameters()).device != z_emb.device:
+                self.state_heads.to(z_emb.device)
+            _kk = max(1, int(self.nce_k))
+            _T = z_emb.shape[1]
+            if _T > _kk:
+                _q = self.state_heads["nce_q"](z_emb[:, :-_kk].mean(dim=2))     # (b, T-k, D)
+                if self.nce_shuf:
+                    # THE CONTROL: preserve the contrastive form, destroy only the temporal
+                    # alignment. Roll by a NON-ZERO offset so the positive is a real code
+                    # from the same clip that is not the true +k one.
+                    _off = 1 + int(torch.randint(
+                        _T - 1, (1,), generator=self._sinv_generator(z_emb.device),
+                        device=z_emb.device).item())
+                    _pos_src = z_emb.roll(-_off, dims=1)[:, :-_kk]
+                else:
+                    _pos_src = z_emb[:, _kk:]
+                _kpos = self.state_heads["nce_k"](_pos_src.mean(dim=2)).detach()
+                _E = [(_q - _kpos).pow(2).mean(-1)]
+                for _perm in self._action_negatives(z_emb, z_emb[:, 0, 0], k=self.nce_neg):
+                    _E.append((_q - _kpos[_perm]).pow(2).mean(-1))
+                _E = torch.stack(_E, dim=-1)
+                # The detached mean energy, exactly as _action_infonce does: without it the
+                # softmax argument is O(MSE), the distribution is uniform and the term
+                # exerts no force at all. That is recorded in its docstring, not guessed.
+                _tau = _E.detach().mean().clamp_min(1e-8)
+                _logits = (-_E / _tau).flatten(0, 1)
+                nce_loss = F.cross_entropy(
+                    _logits, torch.zeros(_logits.shape[0], dtype=torch.long,
+                                         device=_logits.device))
+                loss = loss + self.nce_w * nce_loss
+                loss_components["nce_loss"] = nce_loss
+                # Chance is 1/(nce_neg + 1). At chance the state is not identifying its own
+                # future and the arm is INERT rather than null.
+                loss_components["nce_acc"] = (_logits.argmax(-1) == 0).float().mean()
 
         visual_reconstructed = None
         if self.decoder is not None and self.train_decoder:

@@ -210,17 +210,29 @@ class Transformer(nn.Module):
                 block_class(hidden_dim, heads, dim_head, mlp_dim, dropout, causal=causal)
             )
 
-    def forward(self, x, c=None, attn_mask=None):
+    def forward(self, x, c=None, attn_mask=None, mid_hook=None, mid_at=None):
+        """mid_hook, when given, is applied to the hidden state AFTER layer `mid_at`.
+
+        ROUND 9 / P2 inserts a cross-frame state between ViT blocks. It cannot use
+        `block_class` (:183) to do it: that argument constructs EVERY one of the `depth`
+        layers from the same class, so a stateful block_class makes all twelve stateful --
+        a different, twelve-times-more-expensive method. A hook places exactly one.
+
+        Both arguments default to None, no branch is taken when they are, and no RNG is
+        drawn -- so the path is bit-identical for every existing caller.
+        """
         x = self.input_proj(x)
 
         if c is not None:
             c = self.cond_proj(c)
 
-        for block in self.layers:
+        for i, block in enumerate(self.layers):
             if isinstance(block, Block):
                 x = block(x, attn_mask=attn_mask)
             else:
                 x = block(x, c, attn_mask=attn_mask)
+            if mid_hook is not None and i == mid_at:
+                x = mid_hook(x)
         x = self.norm(x)
 
         x = self.output_proj(x)

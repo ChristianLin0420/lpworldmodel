@@ -81,6 +81,10 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 if [ -n "${LABEL:-}" ]; then
     PLAN_EXTRA="${PLAN_EXTRA:-} hydra.run.dir=plan_outputs/$(date +%Y%m%d%H%M%S)_${LABEL}_gH${GOAL_H:-5}"
 fi
-SEED="${SEED:-0}" PLAN_EXTRA="${PLAN_EXTRA:-}" scripts/plan.sh plan_lewm.yaml "${RUN_NAME}" latest \
+# ROUND 9. PLAN_CFG selects the planner config, because the round is the first to run a
+# second environment and this line hardcoded pushT's. Default unchanged, so every existing
+# caller keeps the exact command it had.
+SEED="${SEED:-0}" PLAN_EXTRA="${PLAN_EXTRA:-}" \
+    scripts/plan.sh "${PLAN_CFG:-plan_lewm.yaml}" "${RUN_NAME}" latest \
     "${NEVALS:-50}" "${MAXITER:-10}"
 echo "=== eval complete: ${RUN_NAME} | $(date -Is) ==="

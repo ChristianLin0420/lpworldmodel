@@ -105,6 +105,78 @@ declare -A ARM_FEAT
 # n_lags = num_frames, so z_{t+1} = sum_{k=0}^{H-1} A_k z_{t-k} + B a_t has exactly H taps.
 # It has been 3 in all 400 sampled run configs across seven rounds.
 declare -A ARM_HIST
+# arm -> environment (pusht | wall). ROUND 9 is the first round to run a second env: 882 of
+# 882 archived configs were pusht, and `pusht` was hardcoded in submit_arm below.
+#
+# The run name carries the env, because collect_evals keys on the arm name and a wall run of
+# LpWM-ltv would otherwise be pooled with its pusht runs into one meaningless mean. pusht
+# gets NO suffix, so not one existing run name moves.
+declare -A ARM_ENV
+
+wave32_arms() {
+    # ================= ROUND 9 =====================================================
+    # Where the state lives (P1-P4) and what it is made to do (P5-P7). Every arm ships
+    # with its own matched control in the SAME submission, because at n = 3 a control is
+    # the only thing separating an effect from seed noise.
+    #
+    # WEIGHTS ARE MEASURED, NOT CHOSEN. Calibrated on 32 REAL pushT frameskip-5 windows
+    # through an untrained model -- not on tests/lpwm_build's synthetic batch, whose iid
+    # noise frames make a TEMPORAL difference meaningless. Measured at init:
+    #     z_loss 0.2231 | sinv_loss 0.1035 | vel_loss 1.0000 | nce_loss 1.6094 (= log 5)
+    # so value parity against z_loss is sinv 2.16, vel 0.223, nce 0.139.
+    #
+    # P6's two arms are dose-matched BY CONSTRUCTION, and that is not cosmetic: measured
+    # on the same windows, E[dz^2] = 1.3e-5 against E[(z_t + z_{t-1})^2] = 0.823, so
+    # without the per-target normalisation the CONTROL would carry 64,914x the treatment's
+    # dose and the contrast would be dose, not motion content.
+    #
+    # THE CONTRACT the whole round rests on: C = 0 at init, so every arm below is
+    # BIT-IDENTICAL to LpWM-ltv at step 0 (measured: loss 0.2784 for baseline, P1, P1
+    # frozen and P2 alike); and A = 0 in the frozen controls, so their encoder is a
+    # per-frame map for EVERY t, not merely at init.
+    #
+    # P1: a temporal state after the per-frame ViT.
+    ARMS[PiWM-enc-ssm]="ltv 1.0 5e-4 ENC_SSM=true"
+    ARMS[PiWM-enc-ssm-frozen]="ltv 1.0 5e-4 ENC_SSM=true ENC_SSM_FREEZE=true"
+    # P2: the same state between ViT blocks. Architecturally closest to blockcausal, which
+    # is why it is here: if it works, the round-9 premise is confirmed.
+    ARMS[PiWM-enc-deep]="ltv 1.0 5e-4 ENC_SSM=true ENC_SSM_DEPTH=6"
+    ARMS[PiWM-enc-deep-frozen]="ltv 1.0 5e-4 ENC_SSM=true ENC_SSM_DEPTH=6 ENC_SSM_FREEZE=true"
+    # P3: a bidirectional scan over the 257 tokens, replacing attention. The frozen control
+    # is decay a = 0, which degenerates to a per-token MLP -- so the contrast is TOKEN
+    # MIXING, not "scan vs attention" (that one is confounded by attention's to_out fan-in
+    # of 192, which draws 2x base_lr under muP).
+    ARMS[PiWM-enc-scan]="ltv 1.0 5e-4 ENC_SCAN=true"
+    ARMS[PiWM-enc-scan-frozen]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SCAN_FREEZE=true"
+    # P4: the two composed. Its control freezes BOTH, so it nests P1's and P3's.
+    ARMS[PiWM-enc-st-scan]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SSM=true"
+    ARMS[PiWM-enc-st-scan-frozen]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SSM=true ENC_SCAN_FREEZE=true ENC_SSM_FREEZE=true"
+    # P5: the state must survive a frame-dropped view. Control pairs against a DIFFERENT
+    # clip -- same corruption, same op count, only the pairing is wrong.
+    ARMS[PiWM-state-sinv]="ltv 1.0 5e-4 ENC_SSM=true SINV_W=2.0 SINV_SUB=16"
+    ARMS[PiWM-state-sinv-shuf]="ltv 1.0 5e-4 ENC_SSM=true SINV_W=2.0 SINV_SUB=16 SINV_SHUF=true"
+    # P6: decode what one frame cannot show. Control targets the SUM, which one frame
+    # already gives, where the DIFFERENCE is not available from either frame alone.
+    ARMS[PiWM-state-vel]="ltv 1.0 5e-4 ENC_SSM=true VEL_W=0.25"
+    ARMS[PiWM-state-sum]="ltv 1.0 5e-4 ENC_SSM=true VEL_W=0.25 VEL_SUM=true"
+    # P7: identify the future rather than regress it -- the only term in the round that a
+    # collapsed code cannot satisfy. Control draws the positive from a wrong in-clip offset.
+    ARMS[PiWM-state-nce]="ltv 1.0 5e-4 ENC_SSM=true NCE_W=0.15"
+    ARMS[PiWM-state-nce-shuf]="ltv 1.0 5e-4 ENC_SSM=true NCE_W=0.15 NCE_SHUF=true"
+    ORDER[wave32]="${WAVE32_ARMS:-PiWM-enc-ssm PiWM-enc-ssm-frozen PiWM-enc-deep PiWM-enc-deep-frozen PiWM-enc-scan PiWM-enc-scan-frozen PiWM-enc-st-scan PiWM-enc-st-scan-frozen PiWM-state-sinv PiWM-state-sinv-shuf PiWM-state-vel PiWM-state-sum PiWM-state-nce PiWM-state-nce-shuf}"
+}
+
+wave33_arms() {
+    # ROUND 9 on WALL. The same fourteen arms plus the baseline, because wall has never
+    # been run: 882 of 882 archived configs were pushT, so there is no wall number to
+    # compare against and a wall arm without a wall baseline is uninterpretable.
+    #
+    # Run names get a _wall tag (submit_arm), so nothing pools with its pushT namesake.
+    wave32_arms
+    ARMS[LpWM-ltv]="ltv 1.0 5e-4"
+    for _a in "${!ARMS[@]}"; do ARM_ENV[$_a]="wall"; done
+    ORDER[wave33]="${WAVE33_ARMS:-LpWM-ltv ${ORDER[wave32]}}"
+}
 
 sparse_arms() {
     : "${KWTA_MATCHED:?set KWTA_MATCHED=<k> from the measured rho of the probe (k = round(rho*D))}"
@@ -937,9 +1009,11 @@ submit_arm() {  # $1 = arm name, $2 = seed
     local feat="${ARM_FEAT[$arm]:-${FEATURE}}"
     local nh="${ARM_HIST[$arm]:-3}"
     local ftag=""; [ "${feat}" != "cls" ] && ftag="_${feat}"
+    local aenv="${ARM_ENV[$arm]:-${CAMPAIGN_ENV:-pusht}}"
+    local etag=""; [ "${aenv}" != "pusht" ] && etag="_${aenv}"
     # precision is in the run name so a mixed-precision comparison is visible
     # rather than silent if PRECISION is ever changed mid-campaign
-    local run="${CANARY_PREFIX:-}${arm}_pd${PROJ_D}${ftag}_${PRECISION}_s${seed}"
+    local run="${CANARY_PREFIX:-}${arm}${etag}_pd${PROJ_D}${ftag}_${PRECISION}_s${seed}"
     local dir="${CKPT_BASE}/outputs/${run}"
 
     if [ "${EVAL:-0}" = "1" ]; then
@@ -965,7 +1039,11 @@ submit_arm() {  # $1 = arm name, $2 = seed
         fi
         echo "  eval ${run}"
         [ "${DRYRUN:-0}" = "1" ] && { echo "    [dry-run] sbatch --job-name=eval_${run} scripts/plan_slurm.sbatch"; return; }
-        RUN_NAME="${run}" SEED="${seed}" NEVALS="${NEVALS}" MAXITER=10 \
+        # The planner config must match the env the checkpoint was trained on, or the
+        # eval builds a pushT env around a wall model and reports a success rate for
+        # something that never existed.
+        local pcfg="plan_lewm.yaml"; [ "${aenv}" = "wall" ] && pcfg="plan_wall.yaml"
+        RUN_NAME="${run}" SEED="${seed}" NEVALS="${NEVALS}" MAXITER=10 PLAN_CFG="${pcfg}" \
             sbatch --job-name="eval_${run}" scripts/plan_slurm.sbatch | sed 's/^/    /'
         return
     fi
@@ -995,15 +1073,22 @@ submit_arm() {  # $1 = arm name, $2 = seed
     fi
     read -r lnk tp <<< "${ARM_LINK[$arm]:-reprelu 1}"
     echo "  submit ${run}  (pred=${pred} rw=${rw} mup_lr=${mlr} link=${lnk} p=${tp} ${extra})"
+    # Set BEFORE the dry-run branch, and passed to BOTH: a dry run whose env differs from
+    # the real one is not a preview. This printed PLAN_CFG=plan_lewm.yaml for every wall arm
+    # while the live path was already correct -- the kind of gap that makes a dry run worse
+    # than useless before an 87-run launch.
+    local pcfg="plan_lewm.yaml"; [ "${aenv}" = "wall" ] && pcfg="plan_wall.yaml"
     # shellcheck disable=SC2086
     [ "${DRYRUN:-0}" = "1" ] && { DRYRUN=1 env RUN_NAME="${run}" PREDICTOR="${pred}" \
         PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" REG_WEIGHT="${rw}" MU=0 SEED="${seed}" \
-        REGULARIZER=rdmreg WINDOWS="${WINDOWS}" ${extra} \
-        scripts/submit_until_done.sh pusht 5 "${nh}" "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
+        REGULARIZER=rdmreg WINDOWS="${WINDOWS}" \
+        SUBMIT_EVAL="${SUBMIT_EVAL:-0}" NEVALS="${NEVALS}" PLAN_CFG="${pcfg}" ${extra} \
+        scripts/submit_until_done.sh "${aenv}" 5 "${nh}" "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'; return; }
     env RUN_NAME="${run}" PREDICTOR="${pred}" PROJ_DIM="${PROJ_D}" MUP=1 MUP_LR="${mlr}" \
         REG_WEIGHT="${rw}" MU=0 SEED="${seed}" REGULARIZER=rdmreg WINDOWS="${WINDOWS}" \
+        SUBMIT_EVAL="${SUBMIT_EVAL:-0}" NEVALS="${NEVALS}" PLAN_CFG="${pcfg}" \
         ${extra} \
-        scripts/submit_until_done.sh pusht 5 "${nh}" "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
+        scripts/submit_until_done.sh "${aenv}" 5 "${nh}" "${EPOCHS:-2}" 64 "${lnk}" "${feat}" "${tp}" b "${WORKERS}" | sed 's/^/    /'
 }
 
 [ $# -gt 0 ] || { sed -n '2,25p' "$0"; exit 1; }
@@ -1032,6 +1117,8 @@ for gate in "$@"; do
         wave27)       wave27_arms; gate=wave27 ;;
         wave28)       wave28_arms; gate=wave28 ;;
         wave29)       wave29_arms; gate=wave29 ;;
+        wave32)       wave32_arms; gate=wave32 ;;
+        wave33)       wave33_arms; gate=wave33 ;;
         wave30)       wave30_arms; gate=wave30 ;;
         wave31)       wave31_arms; gate=wave31 ;;
         wave14)       wave14_arms; gate=wave14 ;;
@@ -1043,11 +1130,15 @@ for gate in "$@"; do
     echo "=== ${gate}: $(echo "${ORDER[$gate]}" | wc -w) arms x $(echo "${SEEDS}" | wc -w) seeds ==="
     for arm in ${ORDER[$gate]}; do
         for seed in ${SEEDS}; do
+            # ROUND 9: the key carries the ENV. Without it the wall run of an arm is
+            # skipped as "already handled" by its pushT namesake, and the whole second
+            # environment silently fails to launch.
+            _skey="${arm}@${ARM_ENV[$arm]:-${CAMPAIGN_ENV:-pusht}}_s${seed}"
             case " ${SUBMITTED} " in
-                *" ${arm}_s${seed} "*) echo "  shared control, already handled: ${arm}_s${seed}"; continue ;;
+                *" ${_skey} "*) echo "  shared control, already handled: ${_skey}"; continue ;;
             esac
             submit_arm "${arm}" "${seed}"
-            SUBMITTED="${SUBMITTED} ${arm}_s${seed}"
+            SUBMITTED="${SUBMITTED} ${_skey}"
         done
     done
     echo

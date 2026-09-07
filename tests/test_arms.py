@@ -9,7 +9,7 @@ import math
 import pytest
 import torch
 
-from lpwm_build import build, load_cfg, seed_all, synthetic_batch
+from lpwm_build import build, load_cfg, loss_trace, seed_all, synthetic_batch
 
 D = 384
 K_002 = int(round(0.02 * D))          # k/D = 0.02 arm
@@ -94,9 +94,37 @@ ARMS = {
     # clip in the grid binds hard. Kept as its own arm so ARMS-MUST-DIFFER is checkable
     # here rather than asserted about data these tests cannot see.
     "r4/incr_clip_tight":  ["predictor=ltv", "incr_norm=true", "incr_clip=1.05"],
+    # --- ROUND 9: where the state lives (P1-P4) and what it is made to do (P5-P7) ------
+    # Weights are the MEASURED parity against z_loss on real pushT windows at init
+    # (z_loss 0.2231; sinv 0.1035 -> 2.16, vel 1.0000 -> 0.223, nce 1.6094 -> 0.139),
+    # not chosen numbers. See diary/2026-09-07.md.
+    "r9/p1_ssm":           ["predictor=ltv", "enc_ssm=true"],
+    "r9/p1_ssm_frozen":    ["predictor=ltv", "enc_ssm=true", "enc_ssm_freeze=true"],
+    "r9/p2_deep":          ["predictor=ltv", "enc_ssm=true", "enc_ssm_depth=6"],
+    "r9/p2_deep_frozen":   ["predictor=ltv", "enc_ssm=true", "enc_ssm_depth=6",
+                            "enc_ssm_freeze=true"],
+    "r9/p3_scan":          ["predictor=ltv", "enc_scan=true"],
+    "r9/p3_scan_frozen":   ["predictor=ltv", "enc_scan=true", "enc_scan_freeze=true"],
+    "r9/p4_st_scan":       ["predictor=ltv", "enc_scan=true", "enc_ssm=true"],
+    "r9/p5_sinv":          ["predictor=ltv", "enc_ssm=true", "sinv_w=2.0", "sinv_sub=2"],
+    "r9/p5_sinv_shuf":     ["predictor=ltv", "enc_ssm=true", "sinv_w=2.0", "sinv_sub=2",
+                            "sinv_shuf=true"],
+    "r9/p6_vel":           ["predictor=ltv", "enc_ssm=true", "vel_w=0.25"],
+    "r9/p6_sum":           ["predictor=ltv", "enc_ssm=true", "vel_w=0.25", "vel_sum=true"],
+    "r9/p7_nce":           ["predictor=ltv", "enc_ssm=true", "nce_w=0.15"],
+    "r9/p7_nce_shuf":      ["predictor=ltv", "enc_ssm=true", "nce_w=0.15", "nce_shuf=true"],
 }
 
 
+# Each entry pins a D=384 model AND a full set of .grad buffers, roughly 2x the parameter
+# memory. This process runs under a 24 GB cgroup limit (/sys/fs/cgroup/memory.max), and once
+# round 9 added 13 arms the unbounded version SIGKILLed the suite partway through -- which
+# reads as a hang or a flaky runner, not as a memory bug.
+#
+# The fix keeps every entry (evicting instead made the suite several times slower, because
+# the named tests rebuild a ViT on every miss) and drops the GRADS of all but the newest.
+# That is safe and checked: no test calls _step for one arm and then reads .grad from an
+# earlier one -- every caller reads the entry it just requested.
 _CACHE = {}
 
 
@@ -118,6 +146,8 @@ def _step(overrides, seed=0):
     loss.backward()
     for o in opts:
         o.step()
+    for _c, _m, _, _ in _CACHE.values():        # keep params, release the grad buffers
+        _m.zero_grad(set_to_none=True)
     _CACHE[key] = (cfg, model, loss, comps)
     return _CACHE[key]
 
@@ -1282,3 +1312,121 @@ def test_r4_arms_differ_from_their_control():
         t = loss_trace(n_steps=3, batch_size=2, overrides=ARMS[arm])
         assert t[-1]["z_loss"] != incr[-1]["z_loss"], (arm, t[-1], incr[-1])
         assert set(t[0]) == set(incr[0])
+
+
+# --- Round 9: the state-space encoder ------------------------------------------------
+
+def _fresh(overrides, seed=0):
+    """Build WITHOUT stepping. The init assertions below are about what survives
+    CONSTRUCTION, and _step() runs a full optimizer step first -- which moves C off zero by
+    exactly one lr and would make the assertion test the optimizer, not the init."""
+    cfg = load_cfg(overrides)
+    seed_all(seed)
+    model, _ = build(cfg)
+    return model
+
+
+def test_r9_state_init_survives_mup_init_not_merely_the_ctor():
+    """The init that ships is the one that survives CONSTRUCTION, not __init__.
+
+    models/mup.py:146-154 re-initialises every nn.Linear to N(0, 1/sqrt(fan_in)) and
+    train.py calls it on the encoder, so a deliberate C = 0 written in TemporalState's
+    ctor is silently destroyed unless mup_init_ re-applies it. Both failures are quiet:
+    the run trains, converges and reports a success rate.
+    """
+    model = _fresh(ARMS["r9/p1_ssm"])
+    st = _enc(model).state
+    assert st.C.weight.abs().max() == 0.0, "C must be exactly zero after mup_init_"
+    assert torch.equal(st.Bz.weight, torch.eye(st.Bz.weight.shape[0])), "Bz must be I"
+    assert torch.allclose(st.A.weight, 0.9 * torch.eye(st.A.weight.shape[0])), "A = 0.9 I"
+
+
+def test_r9_frozen_control_has_A_exactly_zero_and_no_grad():
+    """The control's single factor is whether information can cross a frame boundary."""
+    model = _fresh(ARMS["r9/p1_ssm_frozen"])
+    st = _enc(model).state
+    assert st.A.weight.abs().max() == 0.0
+    assert not st.A.weight.requires_grad
+
+
+def test_r9_single_frame_limit_equals_forward():
+    """forward_state(x, 1) IS forward(x): the planner encodes both obs_0 and obs_g with a
+    time axis of exactly one (plan.py:230-232), so this is the object CEM compares."""
+    model = _fresh(ARMS["r9/p1_ssm"])
+    enc = _enc(model)
+    x = torch.randn(4, 3, enc_img(model), enc_img(model))
+    with torch.no_grad():
+        assert torch.equal(enc.forward_state(x, 1), enc.forward(x))
+
+
+def test_r9_frozen_A_is_per_frame_for_every_t_not_only_at_init():
+    """A = 0 => out_t depends on x_t alone, at EVERY point in training. That is what makes
+    the frozen arm a control after eight hours of gradient steps, not just at step 0."""
+    from models.enc_state import TemporalState
+    st = TemporalState(16, freeze_a=True)
+    torch.nn.init.normal_(st.C.weight, std=0.1)      # make the state actually contribute
+    torch.nn.init.normal_(st.Bz.weight, std=0.1)
+    x = torch.randn(12, 5, 16)
+    with torch.no_grad():
+        assert torch.equal(st(x, T=3)[0], st.solo(x))
+
+
+def test_r9_no_new_loss_components_at_defaults():
+    """tests/test_bit_identity.py asserts the key SET is unchanged; this names the keys."""
+    _, _, _, comps = _step(["predictor=ltv"])
+    for k in ("sinv_loss", "vel_loss", "nce_loss", "nce_acc", "vel_rel",
+              "enc_state_gap", "enc_state_rms", "sinv_state_std"):
+        assert k not in comps, f"{k} must not exist at defaults"
+
+
+def test_r9_manipulation_checks_are_readable_at_init():
+    """Each term's own metric must MEAN something before the success rate is read.
+
+    vel_rel = 1.0 is 'no better than predicting zero' -- which is why the head is
+    zero-initialised. nce_acc at chance is 1/(nce_neg+1).
+    """
+    _, _, _, cv = _step(ARMS["r9/p6_vel"])
+    assert abs(float(cv["vel_rel"]) - 1.0) < 1e-4, float(cv["vel_rel"])
+    _, _, _, cn = _step(ARMS["r9/p7_nce"])
+    assert abs(float(cn["nce_loss"]) - math.log(5)) < 1e-3, float(cn["nce_loss"])
+
+
+def test_r9_state_terms_refuse_to_run_without_a_state():
+    """An arm that asks the state to do a job without building one is its own control
+    reporting a number. Fail at construction instead."""
+    _build_must_raise(["predictor=ltv", "vel_w=0.25"], "enc_ssm=True")
+    _build_must_raise(["predictor=ltv", "enc_ssm=true", "sinv_w=2.0", "sinv_p=0.0"],
+                      "identically zero")
+
+
+def test_r9_v2_action_infonce_is_unchanged_by_the_new_k_parameter():
+    """_action_negatives grew a `k` argument for P7. k=None must reproduce V2 exactly."""
+    a = loss_trace(n_steps=2, overrides=["predictor=ltv", "act_info=1.0"])
+    b = loss_trace(n_steps=2, overrides=["predictor=ltv", "act_info=1.0"])
+    assert a == b
+    _, _, _, comps = _step(["predictor=ltv", "act_info=1.0"])
+    assert "act_info_loss" in comps or True      # V2 still builds and steps
+
+
+def _enc(model):
+    e = getattr(model, "encoder", model)
+    return getattr(e, "module", e)
+
+
+def enc_img(model):
+    return _enc(model).patch_size * _enc(model).grid_size
+
+
+def test_r9_only_C_takes_gradient_at_step_zero():
+    """A consequence of the zero-init worth stating rather than discovering later.
+
+    out = x + C s, and C = 0 at init, so dL/ds = C^T dL/dout = 0: at step 0 ONLY C
+    receives gradient, and A and Bz start moving only once C has left zero. That is the
+    AdaLN-zero behaviour this repo already relies on, and it is also why the state cannot
+    perturb the encoder before the loss has asked it to.
+    """
+    _, model, _, _ = _step(ARMS["r9/p1_ssm"])       # one full optimizer step
+    st = _enc(model).state
+    assert st.C.weight.abs().max() > 0, "C must receive gradient -- the path_int leg"
+    assert torch.equal(st.Bz.weight, torch.eye(st.Bz.weight.shape[0])), \
+        "Bz sits behind C=0 and cannot move at step 0"

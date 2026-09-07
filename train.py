@@ -562,6 +562,11 @@ class Trainer:
             self._keys_to_save += ["value_head", "value_target", "value_optimizer"]
         if float(self.cfg.get("policy_w", 0.0)) > 0:
             self._keys_to_save += ["policy_head", "policy_optimizer"]
+        # ROUND 9 / P6-P7. Same checklist, same reason: a head with no _keys_to_save entry
+        # is built, trained and thrown away at every checkpoint.
+        if (float(self.cfg.get("vel_w", 0.0)) > 0
+                or float(self.cfg.get("nce_w", 0.0)) > 0):
+            self._keys_to_save += ["state_heads", "state_heads_optimizer"]
 
         self.init_models()
         self.init_optimizers()
@@ -981,6 +986,17 @@ class Trainer:
             tube_sub=int(self.cfg.get("tube_sub", 0)),
             # ROUND 8 / ST4. 0.0 => the weighted residual is not built.
             metric_w=float(self.cfg.get("metric_w", 0.0)),
+            # ROUND 9 / P5-P7. 0.0 => the term is not built and the path is bit-identical.
+            sinv_w=float(self.cfg.get("sinv_w", 0.0)),
+            sinv_p=float(self.cfg.get("sinv_p", 0.35)),
+            sinv_shuf=bool(self.cfg.get("sinv_shuf", False)),
+            sinv_sub=int(self.cfg.get("sinv_sub", 16)),
+            vel_w=float(self.cfg.get("vel_w", 0.0)),
+            vel_sum=bool(self.cfg.get("vel_sum", False)),
+            nce_w=float(self.cfg.get("nce_w", 0.0)),
+            nce_k=int(self.cfg.get("nce_k", 1)),
+            nce_neg=int(self.cfg.get("nce_neg", 4)),
+            nce_shuf=bool(self.cfg.get("nce_shuf", False)),
             metric_eps=float(self.cfg.get("metric_eps", 1e-3)),
             # T3. Geometry from the DATASET's own normalisation constants
             # (datasets/pusht_dset.py:83-84) plus the env's window size (512,
@@ -1180,6 +1196,20 @@ class Trainer:
                 f"policy_head: {sum(p.numel() for p in self.policy_head.parameters())} "
                 f"params in its own AdamW at lr={_head_lr}"
             )
+        # ROUND 9 / P6-P7. One ModuleDict, one optimizer, the same five legs. Plain AdamW
+        # for the same reason as above -- these heads read the D-wide code, and putting
+        # them under mup_param_groups would tie their lr to the swept width.
+        self.state_heads = getattr(_m, "state_heads", None)
+        self.state_heads_optimizer = None
+        if self.state_heads is not None:
+            self.state_heads_optimizer = self.accelerator.prepare(
+                torch.optim.AdamW(self.state_heads.parameters(), lr=_head_lr)
+            )
+            log.info(
+                f"state_heads: {sorted(self.state_heads.keys())}, "
+                f"{sum(p.numel() for p in self.state_heads.parameters())} params in its "
+                f"own AdamW at lr={_head_lr}"
+            )
 
     def monitor_jobs(self, lock):
         """
@@ -1348,6 +1378,9 @@ class Trainer:
             # that suite must keep exercising the REAL train()/save_ckpt()/load_ckpt().
             _vopt = getattr(self, "value_optimizer", None)
             _popt = getattr(self, "policy_optimizer", None)
+            _sopt = getattr(self, "state_heads_optimizer", None)   # ROUND 9 / P6-P7
+            if _sopt is not None:
+                _sopt.zero_grad()
             if _vopt is not None:
                 _vopt.zero_grad()
             if _popt is not None:
@@ -1372,6 +1405,8 @@ class Trainer:
                 _vopt.step()
             if _popt is not None:
                 _popt.step()
+            if _sopt is not None:
+                _sopt.step()
 
             loss = self.accelerator.gather_for_metrics(loss).mean()
 

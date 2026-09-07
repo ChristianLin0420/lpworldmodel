@@ -156,6 +156,19 @@ def build(cfg, device="cpu"):
         tube_sub=int(cfg.get("tube_sub", 0)),
         metric_w=float(cfg.get("metric_w", 0.0)),
         metric_eps=float(cfg.get("metric_eps", 1e-3)),
+        # ROUND 9 / P5-P7. Mirrored because the NEW HEAD CHECKLIST requires every new ctor
+        # kwarg to exist in the test builder too -- path_int had none of this and was
+        # silently untested.
+        sinv_w=float(cfg.get("sinv_w", 0.0)),
+        sinv_p=float(cfg.get("sinv_p", 0.35)),
+        sinv_shuf=bool(cfg.get("sinv_shuf", False)),
+        sinv_sub=int(cfg.get("sinv_sub", 16)),
+        vel_w=float(cfg.get("vel_w", 0.0)),
+        vel_sum=bool(cfg.get("vel_sum", False)),
+        nce_w=float(cfg.get("nce_w", 0.0)),
+        nce_k=int(cfg.get("nce_k", 1)),
+        nce_neg=int(cfg.get("nce_neg", 4)),
+        nce_shuf=bool(cfg.get("nce_shuf", False)),
         lamb_decode=float(cfg.get("lamb_decode", 1.0)),
         # T3: mirrors train.py _contact_geom() with the dataset's literal constants
         # (datasets/pusht_dset.py PROPRIO_MEAN / PROPRIO_STD), so no dataset is needed.

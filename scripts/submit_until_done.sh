@@ -61,6 +61,26 @@ for w in $(seq 1 "${WINDOWS}"); do
     DEP=$(echo "${OUT}" | awk '{print $NF}')
 done
 
+# ROUND 9. Submit the CEM eval together with the training chain, gated on the last
+# window, so a wave does not need a polling loop to notice that a run finished.
+#
+# afterany, NOT afterok, and the reason is in the header above: the last window can write
+# the DONE sentinel and then still exit TIMEOUT, and afterok would strand that eval
+# forever. afterany is safe because plan_slurm.sbatch refuses to evaluate a run whose DONE
+# is absent -- it exits 1 rather than producing a success rate for a half-trained model.
+if [ "${SUBMIT_EVAL:-0}" = "1" ] && [ -n "${DEP}" ]; then
+    ECMD=(sbatch --job-name="eval_${RUN_NAME}" --dependency="afterany:${DEP}"
+          scripts/plan_slurm.sbatch)
+    if [ "${DRYRUN:-0}" = "1" ]; then
+        echo "  [dry-run] ${ECMD[*]}  (PLAN_CFG=${PLAN_CFG:-plan_lewm.yaml})"
+    else
+        EOUT=$(RUN_NAME="${RUN_NAME}" SEED="${SEED:-0}" NEVALS="${NEVALS:-50}" \
+               MAXITER="${MAXITER:-10}" PLAN_CFG="${PLAN_CFG:-plan_lewm.yaml}" \
+               "${ECMD[@]}")
+        echo "  eval    : ${EOUT}  (after ${DEP}, cfg=${PLAN_CFG:-plan_lewm.yaml})"
+    fi
+fi
+
 echo
 echo "Monitor:  squeue -u \$USER -n ${RUN_NAME}_w1 -o '%.18i %.30j %.8T %.10M %R'"
 echo "Progress: tail -f ${RUN_DIR}/train.log  (or slurm_logs/${RUN_NAME}_w*.out)"

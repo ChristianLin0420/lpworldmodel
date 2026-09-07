@@ -59,6 +59,22 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${USE_POSE:-}" ]   && { add "use_pose=${USE_POSE}"; TAG="${TAG}_pose"; }
 [ -n "${TOKEN_DROP:-}" ] && { add "token_drop=${TOKEN_DROP}"; TAG="${TAG}_drop${TOKEN_DROP}"; }
 [ -n "${BLOCK_CAUSAL:-}" ] && { add "block_causal=${BLOCK_CAUSAL}"; TAG="${TAG}_bc"; }
+# ---- ROUND 9 ---------------------------------------------------------------------
+[ -n "${ENC_SSM:-}" ]        && { add "enc_ssm=${ENC_SSM}"; TAG="${TAG}_ssm"; }
+[ -n "${ENC_SSM_DEPTH:-}" ]  && { add "enc_ssm_depth=${ENC_SSM_DEPTH}"; TAG="${TAG}_d${ENC_SSM_DEPTH}"; }
+[ -n "${ENC_SSM_FREEZE:-}" ] && { add "enc_ssm_freeze=${ENC_SSM_FREEZE}"; TAG="${TAG}_frzA"; }
+[ -n "${ENC_SCAN:-}" ]       && { add "enc_scan=${ENC_SCAN}"; TAG="${TAG}_scan"; }
+[ -n "${ENC_SCAN_FREEZE:-}" ] && { add "enc_scan_freeze=${ENC_SCAN_FREEZE}"; TAG="${TAG}_frzS"; }
+[ -n "${SINV_W:-}" ]         && { add "sinv_w=${SINV_W}"; TAG="${TAG}_sinv${SINV_W}"; }
+[ -n "${SINV_P:-}" ]         && { add "sinv_p=${SINV_P}"; TAG="${TAG}_p${SINV_P}"; }
+[ -n "${SINV_SHUF:-}" ]      && { add "sinv_shuf=${SINV_SHUF}"; TAG="${TAG}_shuf"; }
+[ -n "${SINV_SUB:-}" ]       && { add "sinv_sub=${SINV_SUB}"; TAG="${TAG}_sub${SINV_SUB}"; }
+[ -n "${VEL_W:-}" ]          && { add "vel_w=${VEL_W}"; TAG="${TAG}_vel${VEL_W}"; }
+[ -n "${VEL_SUM:-}" ]        && { add "vel_sum=${VEL_SUM}"; TAG="${TAG}_sum"; }
+[ -n "${NCE_W:-}" ]          && { add "nce_w=${NCE_W}"; TAG="${TAG}_nce${NCE_W}"; }
+[ -n "${NCE_K:-}" ]          && { add "nce_k=${NCE_K}"; TAG="${TAG}_k${NCE_K}"; }
+[ -n "${NCE_NEG:-}" ]        && { add "nce_neg=${NCE_NEG}"; TAG="${TAG}_n${NCE_NEG}"; }
+[ -n "${NCE_SHUF:-}" ]       && { add "nce_shuf=${NCE_SHUF}"; TAG="${TAG}_nshuf"; }
 [ -n "${INCR_NORM:-}" ]  && { add "incr_norm=${INCR_NORM}"; TAG="${TAG}_incr"; }
 [ -n "${ACT_INFO:-}" ]   && { add "act_info=${ACT_INFO}"; TAG="${TAG}_ai${ACT_INFO}"; }
 [ -n "${PATH_INT:-}" ]   && { add "path_int=${PATH_INT}"; TAG="${TAG}_pi"; }

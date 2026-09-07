@@ -285,6 +285,38 @@ act_info_neg: perm         # P5: perm (V2, q = p(a)) | knn (q ~ p(a|z_t))
 token_drop: 0.0            # fraction of patch tokens dropped per step, train only
 block_causal: false        # encode the clip jointly, causal across frames
 
+# ======================= ROUND 9: a state-space encoder ==============================
+# Where the state lives (P1-P4). These resolve into conf/encoder/*.yaml via oc.select, so
+# plan.py rebuilds the same encoder it trained.
+#
+# THE CONTRACT, and it is two separable claims, not one:
+#   C = 0 at init  ->  out == x BITWISE, so the arm is bit-identical to the baseline at
+#                      step 0 and tests/test_bit_identity.py passes with it switched on.
+#   A = 0 (frozen) ->  out_t is a PER-FRAME function of x_t for EVERY t, at every point in
+#                      training -- which is what makes the frozen-A arm a control after
+#                      eight hours of gradient steps rather than only at step 0.
+enc_ssm: false             # P1: s_t = A s_{t-1} + Bz z_t, out = z_t + C s_t
+enc_ssm_depth: null        # P2: insert the same state after ViT block k instead
+enc_ssm_freeze: false      # P1-P4 control: A = 0 and frozen
+enc_scan: false            # P3: bidirectional token-axis scan replaces attention
+enc_scan_freeze: false     # P3 control: decay a = 0 -> a per-token MLP
+
+# What the state is MADE to do (P5-P7). All three act on z_emb, all are inert at 0, all are
+# images-and-proprio only. Each carries a manipulation check that is read BEFORE the
+# success rate: a term that cannot move its own target is reported inert, not null.
+#
+# NOTE sinv_w, not consist_w: consist_w above is R2's rollout self-consistency term.
+sinv_w: 0.0                # P5: state invariance under a frame-dropped view
+sinv_p: 0.35               # P5: per-frame drop probability of the corrupted view
+sinv_shuf: false           # P5 control: match against a DIFFERENT clip in the batch
+sinv_sub: 16               # P5: batch subsample for the 2nd student encode (cf. tube_sub)
+vel_w: 0.0                 # P6: decode the code's own inter-frame difference
+vel_sum: false             # P6 control: target z_t + z_{t-1}, which one frame already gives
+nce_w: 0.0                 # P7: InfoNCE between the code and its own future
+nce_k: 1                   # P7: how far ahead the positive sits
+nce_neg: 4                 # P7: in-batch negatives
+nce_shuf: false            # P7 control: positive drawn from a WRONG in-clip offset
+
 # --- round-5 knobs (T1/T2). All inert at these defaults. -----------------------------
 # T1/T2: attach a decoder as a TRAINING-TIME auxiliary head. Deliberately NOT has_decoder:
 # plan.py:502-515 rebuilds a decoder for any run whose train_cfg has has_decoder=True and

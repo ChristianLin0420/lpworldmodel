@@ -138,13 +138,31 @@ def mup_init_(model, emb_std=0.02, tag="", verbose=True):
     Order: generic pass (hidden 1/sqrt(fan_in), norms, biases) -> embeddings -> RE-APPLY the
     deliberate structural inits (AdaLN-zero, LTI(1) W=I/B=0, linear_pa zero-last).
     Records + prints the init schema (name | scheme | value) when verbose."""
+    from models.enc_state import TemporalState
     from models.infojepa_modules import ConditionalBlock, LinearDynamicsPredictor
 
     schema = {}
 
+    # ROUND 9. Modules whose init is DELIBERATE and re-applied in pass 3 must not consume
+    # global RNG in the generic pass. mup_init_ draws from the global stream, so three
+    # 384x384 normal draws for A/Bz/C would shift every parameter initialised after them --
+    # and PiWM-enc-ssm would differ from its control by the state AND by the whole tail of
+    # the init, which is more than one factor. Measured: skipping this moved the arm's
+    # step-0 loss from 0.2276 back onto the baseline's 0.2784.
+    #
+    # Only the NEW module type is skipped. ConditionalBlock and LinearDynamicsPredictor
+    # also draw-then-overwrite, but every checkpoint and bit-identity fixture in the
+    # archive was produced that way, so changing them would rewrite history.
+    _deliberate = set()
+    for _, m in model.named_modules():
+        if isinstance(m, TemporalState):
+            _deliberate.update(id(sub) for sub in m.modules())
+
     # 1) generic muP init
     for mname, m in model.named_modules():
         pfx = f"{mname}." if mname else ""
+        if id(m) in _deliberate:
+            continue
         if isinstance(m, _LINEARISH):
             std = 1.0 / math.sqrt(_fan_in(m.weight))
             nn.init.normal_(m.weight, mean=0.0, std=std)
@@ -172,6 +190,19 @@ def mup_init_(model, emb_std=0.02, tag="", verbose=True):
             nn.init.zeros_(m.adaLN_modulation[-1].bias)
             schema[f"{pfx}adaLN_modulation.{len(m.adaLN_modulation)-1}.weight"] = "deliberate  AdaLN-zero (0)"
             schema[f"{pfx}adaLN_modulation.{len(m.adaLN_modulation)-1}.bias"] = "deliberate  AdaLN-zero (0)"
+        if isinstance(m, TemporalState):
+            # ROUND 9 / P1-P2-P4. The generic pass above gives every Linear
+            # N(0, 1/sqrt(fan_in)). Without this re-apply, C starts RANDOM instead of
+            # zero -- so the arm is not bit-identical to the baseline at step 0 -- and A
+            # starts random instead of 0, so the frozen-A "control" is not a control.
+            # Both failures are silent: the run trains, converges and reports a number.
+            # This is the same reason additive/var/ssm/lie/ltv all re-apply below.
+            m.reset_state_init_()
+            _a = "0 (frozen: per-frame for every t)" if m.freeze_a else "0.9*I (contraction)"
+            schema[f"{pfx}A.weight"] = f"deliberate  {_a}"
+            schema[f"{pfx}Bz.weight"] = "deliberate  identity (current frame passes through)"
+            schema[f"{pfx}Bz.bias"] = "deliberate  zeros"
+            schema[f"{pfx}C.weight"] = "deliberate  zeros (state contributes nothing at init)"
         if isinstance(m, LinearDynamicsPredictor):
             if m.mode == "additive":  # LTI(1): z' = W z + B a, W=I, B=0
                 nn.init.eye_(m.W.weight); nn.init.zeros_(m.W.bias); nn.init.zeros_(m.B.weight)
