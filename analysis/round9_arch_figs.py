@@ -119,6 +119,44 @@ def recur(x0, y, key, in_lab, out_lab, a_lab="A", back=False):
     return g
 
 
+def p1_spine(title, K, loss_label):
+    """P1's schematic plus a loss node hanging off the state line.
+
+    P5-P7 all attach to P1, so the architecture is identical in all three and only the
+    objective differs -- drawing them on one spine is what makes that visible. The loss node
+    sits at (466, 460): below the state line at y = 382, clear of the action circle
+    (x 280..356) and above RDMReg (starts y = 556).
+    """
+    b = base(_fit(title, 890), skip=("link",))
+    for cx, x0 in ((120, 78), (812, 770)):
+        b += box(x0, 420, 84, 44, "ReLU", size=16)
+        b += arrow(cx, 420, cx, 404)
+        b += ssm_inline(cx, 364, K, "SSM")
+        b += arrow(cx, 364, cx, 352)
+    b += hpoly([(162, 382), (770, 382)], K, dash="6,4", hops=[(318, 382)])
+    b += txt(250, 372, "s" + sub("", "t", 12), 13, anchor="start", fill=ACCENT[K],
+             weight="bold")
+    b += apoly([(466, 382), (466, 440)], K, dash="5,4")
+    b += pill(466, 462, loss_label, K, rx=86, ry=21, fill=ACCENT_FILL[K])
+    b += txt(466, 502, "the new term", 11, anchor="middle", fill=MUTED)
+    return b
+
+
+def clipstrip(x, y, n=3, drop=(), key="blue", cell=34, gap=8):
+    """n frames in a row, with any in `drop` blanked -- the corrupted view, drawn."""
+    g = ""
+    for t in range(n):
+        cx = x + t * (cell + gap)
+        gone = t in drop
+        g += (f'<rect x="{cx}" y="{y}" width="{cell}" height="{cell}" rx="3" '
+              f'fill="{WHITE if not gone else ACCENT_FILL["crit"]}" '
+              f'stroke="{ACCENT["crit"] if gone else ACCENT[key]}" stroke-width="1.3"/>\n')
+        if gone:
+            g += txt(cx + cell / 2, y + cell / 2 + 6, TIMES, 15, anchor="middle",
+                     fill=ACCENT["crit"], weight="bold")
+    return g
+
+
 def p1():
     """P1 -- a temporal state between the link and the code, on both encoder paths."""
     _FRAMES.clear()
@@ -427,10 +465,176 @@ def p4():
     return b + s, PY + PH + 40
 
 
+# ==================================================================== P5
+def p5():
+    """P5 -- the state must survive a corrupted view of the same clip."""
+    _FRAMES.clear()
+    K = "amber"
+    b = p1_spine("(P5) PiWM-state-consist -- the state must survive a corrupted view",
+                 K, "L consist")
+
+    PH = 596
+    s = pane(PX, PY, PW, PH, K, "two views of one clip")
+
+    s += frame(60, 950, 500, 300, "THE TERM", K,
+               note="the same encoder, the same clip, two levels of corruption")
+    s += txt(96, 1024, "clean", 12, anchor="start", fill=ACCENT["blue"], weight="bold")
+    s += clipstrip(168, 1004, 3)
+    s += arrow(316, 1021, 344, 1021)
+    s += box(344, 1003, 76, 36, "Enc", size=13)
+    s += arrow(420, 1021, 448, 1021)
+    s += box(448, 1003, 62, 36, "s", fill=ACCENT_FILL["blue"], stroke=ACCENT["blue"],
+             size=13)
+    s += txt(96, 1140, "dropped", 12, anchor="start", fill=ACCENT["crit"], weight="bold")
+    s += clipstrip(168, 1120, 3, drop=(1,))
+    s += arrow(316, 1137, 344, 1137)
+    s += box(344, 1119, 76, 36, "Enc", size=13)
+    s += arrow(420, 1137, 448, 1137)
+    s += box(448, 1119, 62, 36, "s′", fill=ACCENT_FILL[K], stroke=ACCENT[K], size=13)
+    s += apoly([(479, 1039), (479, 1064)], "blue")
+    s += apoly([(479, 1119), (479, 1094)], K)
+    s += pill(479, 1079, "MSE", "crit", rx=32, ry=15, fill=WHITE)
+    s += txt(310, 1210, "the clean state is stop-gradient", 11.5, anchor="middle",
+             fill=MUTED)
+
+    s += frame(588, 950, 288, 300, "THE CONTROL", "magenta",
+               note="same corruption, wrong pairing")
+    s += txt(732, 1024, "s′ from clip i", 12, anchor="middle", fill=ACCENT[K])
+    s += txt(732, 1052, "matched against", 11, anchor="middle", fill=MUTED)
+    s += txt(732, 1080, "s from clip j", 12, anchor="middle", fill=ACCENT["magenta"])
+    s += pill(732, 1124, "MSE", "crit", rx=32, ry=15, fill=WHITE)
+    s += txt(732, 1176, "identical magnitude,", 11.5, anchor="middle", fill=MUTED)
+    s += txt(732, 1198, "op count and corruption", 11.5, anchor="middle", fill=MUTED)
+    s += txt(732, 1228, "only the pairing differs", 11.5, anchor="middle",
+             fill=ACCENT["magenta"], weight="bold")
+
+    s += frame(60, 1280, 816, 168, "WHY A PER-FRAME ENCODER CANNOT SATISFY IT", "blue",
+               note="a dropped frame is zeros; there is nothing else to draw on")
+    s += clipstrip(300, 1352, 3, drop=(1,))
+    s += arrow(448, 1369, 476, 1369)
+    s += box(476, 1351, 92, 36, "per-frame", size=12.5)
+    s += arrow(568, 1369, 596, 1369)
+    s += txt(640, 1375, "z" + sub("", "t+1", 10) + " = 0", 13, anchor="middle",
+             fill=ACCENT["crit"], weight="bold")
+    s += txt(468, 1420, "the term is reducible only by carrying state",
+             12, anchor="middle", fill=ACCENT["blue"], weight="bold")
+    return b + s, PY + PH + 40
+
+
+# ==================================================================== P6
+def p6():
+    """P6 -- the state must decode the one quantity a single frame cannot show."""
+    _FRAMES.clear()
+    K = "amber"
+    b = p1_spine("(P6) PiWM-state-vel -- the state must decode MOTION", K, "L vel")
+
+    PH = 566
+    s = pane(PX, PY, PW, PH, K, "the target is the code's own difference")
+
+    s += frame(60, 950, 500, 290, "THE TERM", K,
+               note="one linear head; the target is self-supervised, never states.pth")
+    s += box(96, 1010, 84, 38, "z" + sub("", "t-1", 10), size=13)
+    s += box(96, 1078, 84, 38, "z" + sub("", "t", 10), size=13)
+    s += apoly([(180, 1029), (214, 1029), (214, 1050)], "blue")
+    s += apoly([(180, 1097), (214, 1097), (214, 1076)], "blue")
+    s += opnode(230, 1063, "minus", "blue", r=16)
+    s += arrow(246, 1063, 274, 1063)
+    s += box(274, 1045, 92, 38, "Δz", fill=WHITE, stroke=ACCENT["blue"], size=13)
+    s += txt(320, 1104, "stop-gradient", 10.5, anchor="middle", fill=MUTED)
+    s += box(96, 1160, 84, 38, "s" + sub("", "t", 10), fill=ACCENT_FILL[K],
+             stroke=ACCENT[K], size=13)
+    s += arrow(180, 1179, 208, 1179)
+    s += box(208, 1161, 62, 38, "V", size=13)
+    s += arrow(270, 1179, 298, 1179)
+    s += box(298, 1161, 92, 38, "Δz pred", fill=ACCENT_FILL[K], stroke=ACCENT[K], size=12)
+    s += apoly([(412, 1064), (452, 1064), (452, 1104)], "blue")
+    s += apoly([(412, 1180), (452, 1180), (452, 1140)], K)
+    s += pill(452, 1122, "MSE", "crit", rx=32, ry=15, fill=WHITE)
+
+    s += frame(588, 950, 288, 290, "THE CONTROL", "magenta",
+               note="the SUM, not the difference")
+    s += box(636, 1024, 84, 38, "z" + sub("", "t-1", 10), size=13)
+    s += box(636, 1092, 84, 38, "z" + sub("", "t", 10), size=13)
+    s += apoly([(720, 1043), (754, 1043), (754, 1064)], "magenta")
+    s += apoly([(720, 1111), (754, 1111), (754, 1090)], "magenta")
+    s += opnode(770, 1077, "plus", "magenta", r=16)
+    s += txt(732, 1148, "the SUM is available", 11.5, anchor="middle", fill=INK)
+    s += txt(732, 1170, "from either frame alone", 11.5, anchor="middle", fill=INK)
+    s += txt(732, 1204, "the DIFFERENCE is not", 12, anchor="middle",
+             fill=ACCENT["magenta"], weight="bold")
+
+    s += frame(60, 1270, 816, 148, "WHY MOTION", "blue",
+               note="both poses are visible in one PushT frame; the velocity is not")
+    s += clipstrip(340, 1330, 1)
+    s += arrow(388, 1347, 416, 1347)
+    s += box(416, 1329, 108, 36, "block pose", size=12)
+    s += txt(560, 1353, "visible", 12, anchor="start", fill=ACCENT["blue"])
+    s += box(416, 1372, 108, 36, "velocity", size=12, stroke=ACCENT["crit"])
+    s += txt(560, 1396, "not visible", 12, anchor="start", fill=ACCENT["crit"],
+             weight="bold")
+    return b + s, PY + PH + 40
+
+
+# ==================================================================== P7
+def p7():
+    """P7 -- identify the future rather than regress it."""
+    _FRAMES.clear()
+    K = "amber"
+    b = p1_spine("(P7) PiWM-state-nce -- IDENTIFY the future, do not regress it", K,
+                 "L nce")
+
+    PH = 630
+    s = pane(PX, PY, PW, PH, K, "contrastive over the temporal axis")
+
+    s += frame(60, 950, 460, 300, "QUERY AND KEYS", K,
+               note="the positive is this clip's own future; negatives are the batch")
+    s += box(96, 1016, 84, 38, "s" + sub("", "t", 10), fill=ACCENT_FILL[K],
+             stroke=ACCENT[K], size=13)
+    s += arrow(180, 1035, 208, 1035)
+    s += box(208, 1017, 56, 36, "q", size=13)
+    s += box(96, 1108, 96, 38, "z" + sub("", "t+k", 10), size=13)
+    s += arrow(192, 1127, 220, 1127)
+    s += box(220, 1109, 56, 36, "k+", size=13, stroke=ACCENT["blue"])
+    s += box(96, 1178, 96, 38, "other clips", size=12)
+    s += arrow(192, 1197, 220, 1197)
+    s += box(220, 1179, 56, 36, "k−", size=13, stroke=ACCENT["magenta"])
+    s += apoly([(264, 1035), (330, 1035), (330, 1100)], K)
+    s += apoly([(276, 1127), (330, 1127)], "blue")
+    s += apoly([(276, 1197), (330, 1197), (330, 1150)], "magenta")
+    s += pill(330, 1125, "sim / τ", "slate", rx=44, ry=17, fill=WHITE)
+    s += txt(420, 1131, "softmax", 12, anchor="middle", fill=INK)
+    s += txt(290, 1226, "the diagonal is the positive", 11.5, anchor="middle", fill=MUTED)
+
+    s += frame(548, 950, 328, 300, "THE SIMILARITY MATRIX", "slate",
+               note="one row per clip; the true future on the diagonal")
+    s += pgrid(636, 1020, n=4, cell=30, gap=4, key=K,
+               cut={(0, 0), (1, 1), (2, 2), (3, 3)})
+    s += txt(712, 1180, "collapse makes every cell equal", 11.5, anchor="middle",
+             fill=MUTED)
+    s += txt(712, 1210, "so the loss RISES", 12.5, anchor="middle",
+             fill=ACCENT["crit"], weight="bold")
+
+    s += frame(60, 1280, 816, 200, "WHY NOT A FOURTH REGRESSION", "crit",
+               note="the four lowest rel_mse arms in the archive are four of the worst planners")
+    for i2, (nm, ed, sr) in enumerate((("drop95", "eff_dim 0.00", "SR 0.006"),
+                                       ("d2048-hilr", "eff_dim 0.00", "SR 0.010"))):
+        y = 1352 + i2 * 34
+        s += txt(150, y, nm, 12.5, anchor="start", fill=ACCENT["crit"])
+        s += txt(400, y, ed, 12, anchor="middle", fill=ACCENT["crit"])
+        s += txt(600, y, sr, 12, anchor="middle", fill=ACCENT["crit"])
+    s += txt(468, 1436, "a regression loss can be minimised by making the code "
+             "trivially predictable " + IMPLIES + "  a contrastive one cannot",
+             12, anchor="middle", fill=INK, weight="bold")
+    return b + s, PY + PH + 40
+
+
 FIGURES = (("arch-p1-enc-ssm.svg", p1),
            ("arch-p2-deep.svg", p2),
            ("arch-p3-scan.svg", p3),
-           ("arch-p4-st-scan.svg", p4))
+           ("arch-p4-st-scan.svg", p4),
+           ("arch-p5-state-consist.svg", p5),
+           ("arch-p6-state-vel.svg", p6),
+           ("arch-p7-state-nce.svg", p7))
 
 
 def main():
