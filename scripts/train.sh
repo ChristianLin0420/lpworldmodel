@@ -65,6 +65,8 @@ add(){ EXTRA="${EXTRA} $1"; }
 [ -n "${ENC_SSM_FREEZE:-}" ] && { add "enc_ssm_freeze=${ENC_SSM_FREEZE}"; TAG="${TAG}_frzA"; }
 [ -n "${ENC_SCAN:-}" ]       && { add "enc_scan=${ENC_SCAN}"; TAG="${TAG}_scan"; }
 [ -n "${ENC_SCAN_FREEZE:-}" ] && { add "enc_scan_freeze=${ENC_SCAN_FREEZE}"; TAG="${TAG}_frzS"; }
+[ -n "${ENC_SCAN_A:-}" ]     && { add "enc_scan_a=${ENC_SCAN_A}"; TAG="${TAG}_a${ENC_SCAN_A}"; }
+[ -n "${ENC_SSM_OUT:-}" ]    && { add "enc_ssm_out=${ENC_SSM_OUT}"; TAG="${TAG}_${ENC_SSM_OUT}"; }
 [ -n "${SINV_W:-}" ]         && { add "sinv_w=${SINV_W}"; TAG="${TAG}_sinv${SINV_W}"; }
 [ -n "${SINV_P:-}" ]         && { add "sinv_p=${SINV_P}"; TAG="${TAG}_p${SINV_P}"; }
 [ -n "${SINV_SHUF:-}" ]      && { add "sinv_shuf=${SINV_SHUF}"; TAG="${TAG}_shuf"; }

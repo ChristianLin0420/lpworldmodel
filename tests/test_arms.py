@@ -113,6 +113,22 @@ ARMS = {
     "r9/p6_sum":           ["predictor=ltv", "enc_ssm=true", "vel_w=0.25", "vel_sum=true"],
     "r9/p7_nce":           ["predictor=ltv", "enc_ssm=true", "nce_w=0.15"],
     "r9/p7_nce_shuf":      ["predictor=ltv", "enc_ssm=true", "nce_w=0.15", "nce_shuf=true"],
+    # --- ROUND 9, REPAIRED. Two design errors, both measured (diary 2026-09-07 s10):
+    # (a) the scan started at a=0, i.e. NO token mixing, and its "control" stayed there;
+    # (b) P5-P7 were forced onto a state that carries into the code, which lets the
+    #     predictor drop the action (d_action 0.276-0.393 -> 0.0009-0.128) so treatment and
+    #     control both plan at zero.
+    "r9b/p3_scan":         ["predictor=ltv", "enc_scan=true", "enc_scan_a=0.5"],
+    "r9b/p3_scan_fixed":   ["predictor=ltv", "enc_scan=true", "enc_scan_a=0.5",
+                            "enc_scan_freeze=true"],
+    "r9b/p5_sinv_aux":     ["predictor=ltv", "enc_ssm=true", "enc_ssm_out=aux",
+                            "sinv_w=2.0", "sinv_sub=2"],
+    "r9b/p5_sinv_aux_shuf":["predictor=ltv", "enc_ssm=true", "enc_ssm_out=aux",
+                            "sinv_w=2.0", "sinv_sub=2", "sinv_shuf=true"],
+    "r9b/p6_vel_stock":    ["predictor=ltv", "vel_w=0.25"],
+    "r9b/p6_sum_stock":    ["predictor=ltv", "vel_w=0.25", "vel_sum=true"],
+    "r9b/p7_nce_stock":    ["predictor=ltv", "nce_w=0.15"],
+    "r9b/p7_nce_stock_shuf":["predictor=ltv", "nce_w=0.15", "nce_shuf=true"],
 }
 
 
@@ -1464,3 +1480,51 @@ def test_r9_arm_steps_under_bf16(arm):
     assert trace, f"{arm} produced no trace under bf16"
     for k, v in trace[0].items():
         assert math.isfinite(v), f"{arm}: {k} is not finite under bf16"
+
+
+# --- Round 9, repaired: the two design errors must stay fixed ------------------------
+
+def test_r9b_aux_state_leaves_the_prediction_path_untouched():
+    """THE fix for the action-shortcut. In aux mode the encoder's output is the per-frame
+    code, bitwise, so the predictor sees exactly what the baseline's predictor sees and
+    cannot propagate the state instead of using the action. Unlike the C=0 contract this
+    holds for ALL of training, not just at init, because A/Bz/C never touch the output."""
+    enc = _r9_build(ARMS["r9b/p5_sinv_aux"])
+    e = _enc(enc)
+    base = _enc(_r9_build(["predictor=ltv"]))
+    x = torch.randn(6, 3, enc_img(enc), enc_img(enc))
+    with torch.no_grad():
+        assert torch.equal(e.forward_state(x, 3), base.forward(x))
+        assert torch.equal(e.forward(x), base.forward(x))
+    # and the state is still LIVE, or the objective has nothing to constrain
+    with torch.no_grad():
+        _, st = e.forward_state(x, 3, return_state=True)
+    assert float(st.abs().max()) > 0, "aux readout must not be identically zero"
+
+
+def test_r9b_scan_control_still_mixes_tokens():
+    """The original control set a = 0, which does not weaken the scan -- it DELETES token
+    mixing, leaving twelve blocks of per-patch MLP. A control for a mixing operator has to
+    keep mixing."""
+    from models.enc_state import ScanMixer
+    x = torch.randn(2, 40, 32)
+    for a_init, should_mix in ((0.0, False), (0.5, True)):
+        sm = ScanMixer(32, a_init=a_init)
+        with torch.no_grad():
+            out = sm(x)
+            nomix = sm.scan_out(2 * sm.scan_in(sm.norm(x)))
+        assert (not torch.allclose(out, nomix, atol=1e-6)) == should_mix, a_init
+
+
+def test_r9b_vel_and_nce_no_longer_require_a_state():
+    """P6/P7 constrain z_emb and never read the state; requiring enc_ssm forced them onto an
+    encoder whose only effect on them was to poison z_emb."""
+    for ov in (ARMS["r9b/p6_vel_stock"], ARMS["r9b/p7_nce_stock"]):
+        cfg, model, loss, comps = _step(ov)
+        assert torch.isfinite(loss)
+    _build_must_raise(["predictor=ltv", "sinv_w=2.0"], "sinv_w requires")   # P5 still does
+
+
+def test_r9b_broken_gap_metric_is_gone():
+    _, _, _, comps = _step(ARMS["r9b/p5_sinv_aux"])
+    assert "enc_state_gap" not in comps, "the retracted metric must not be re-emitted"

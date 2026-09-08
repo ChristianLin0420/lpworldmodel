@@ -202,7 +202,9 @@ def mup_init_(model, emb_std=0.02, tag="", verbose=True):
             schema[f"{pfx}A.weight"] = f"deliberate  {_a}"
             schema[f"{pfx}Bz.weight"] = "deliberate  identity (current frame passes through)"
             schema[f"{pfx}Bz.bias"] = "deliberate  zeros"
-            schema[f"{pfx}C.weight"] = "deliberate  zeros (state contributes nothing at init)"
+            schema[f"{pfx}C.weight"] = ("deliberate  zeros (add: state inert at init)"
+                                        if m.c_zero else
+                                        "deliberate  identity (aux: readout live at init)")
         if isinstance(m, LinearDynamicsPredictor):
             if m.mode == "additive":  # LTI(1): z' = W z + B a, W=I, B=0
                 nn.init.eye_(m.W.weight); nn.init.zeros_(m.W.bias); nn.init.zeros_(m.B.weight)

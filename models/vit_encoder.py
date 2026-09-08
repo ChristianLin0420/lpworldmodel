@@ -44,8 +44,13 @@ class ViTEncoder(nn.Module):
         enc_ssm=False,          # ROUND 9 / P1: a temporal state after the per-frame ViT
         enc_ssm_depth=None,     # ROUND 9 / P2: instead, insert it AFTER this ViT block
         enc_ssm_freeze=False,   # ROUND 9 control: A = 0, frozen -> per-frame for every t
+        enc_ssm_out="add",      # ROUND 9 FIX: "add" = x + C s (the code carries the state)
+                                # "aux" = the code is UNCHANGED and the state is exposed
+                                # only to the auxiliary objectives (P5)
         enc_scan=False,         # ROUND 9 / P3: replace attention with a token-axis scan
-        enc_scan_freeze=False,  # ROUND 9 control: scan decay a = 0 -> a per-token MLP
+        enc_scan_freeze=False,  # ROUND 9 control: freeze the decay at enc_scan_a
+        enc_scan_a=0.5,         # ROUND 9 FIX: decay the sweep STARTS from. 0 means no
+                                # token mixing at all -- see ScanMixer's note.
     ):
         super().__init__()
         assert feature in {"cls", "patch"}, f"feature {feature} not supported"
@@ -91,7 +96,8 @@ class ViTEncoder(nn.Module):
         self.enc_scan = bool(enc_scan)
         _blk = Block
         if self.enc_scan:
-            _blk = functools.partial(ScanBlock, freeze_a=bool(enc_scan_freeze))
+            _blk = functools.partial(ScanBlock, freeze_a=bool(enc_scan_freeze),
+                                     a_init=float(enc_scan_a))
         self.transformer = Transformer(
             input_dim=dim,
             hidden_dim=dim,
@@ -114,6 +120,8 @@ class ViTEncoder(nn.Module):
         assert not (block_causal and enc_ssm), \
             "block_causal and enc_ssm are two answers to one question; pick one"
         self.enc_ssm = bool(enc_ssm)
+        self.enc_ssm_out = str(enc_ssm_out)
+        assert self.enc_ssm_out in ("add", "aux"), self.enc_ssm_out
         self.enc_ssm_depth = None if enc_ssm_depth is None else int(enc_ssm_depth)
         self.state = None
         if self.enc_ssm:
@@ -129,7 +137,10 @@ class ViTEncoder(nn.Module):
                 self.state = TemporalState(
                     dim if self.enc_ssm_depth is not None else proj_dim,
                     freeze_a=bool(enc_ssm_freeze),
+                    c_zero=(self.enc_ssm_out == "add"),
                 )
+            assert not (self.enc_ssm_out == "aux" and self.enc_ssm_depth is not None), \
+                "aux state is only defined for the post-projector placement (P1)"
 
         self.projector = MLP(
             input_dim=dim,
@@ -221,7 +232,8 @@ class ViTEncoder(nn.Module):
         and train_energy.py need no mirror -- they call forward() and get the right thing.
         """
         z = self._forward_frames(x)
-        if self.state is not None and self.enc_ssm_depth is None:
+        if (self.state is not None and self.enc_ssm_depth is None
+                and self.enc_ssm_out == "add"):
             z = self.state.solo(z)          # == forward_state(x, T=1); A(0) = 0 exactly
         return z
 
@@ -237,7 +249,24 @@ class ViTEncoder(nn.Module):
             z = self._forward_frames(x, state_T=T)
             s = self._last_state
         else:                                                    # P1: after the projector
-            z, s = self.state(self._forward_frames(x), T)
+            frames = self._forward_frames(x)
+            z, s = self.state(frames, T)
+            if self.enc_ssm_out == "aux":
+                # ROUND 9 FIX. The code handed downstream is the PER-FRAME code, byte for
+                # byte what the baseline encoder produces; the state is returned separately
+                # for the auxiliary objectives to constrain.
+                #
+                # Why: with "add" the code carries C s_t, and s_{t+1} = A s_t + Bz x_{t+1},
+                # so the next frame's code is largely determined by the current one. The
+                # predictor lowers z_loss by propagating that instead of using the action,
+                # and causal/d_action collapses ~100x (0.276-0.393 -> 0.0009-0.128), which
+                # leaves CEM nothing to optimise. In "aux" the prediction path never sees
+                # the state, so no such shortcut exists and d_action is the baseline's by
+                # construction -- while the state still shapes the shared ViT weights
+                # through the auxiliary loss.
+                #
+                # z - frames is exactly C(s), the state's readout, so C still trains.
+                return (frames, z - frames) if return_state else frames
         return (z, s) if return_state else z
 
     def _forward_frames(self, x, state_T=None):

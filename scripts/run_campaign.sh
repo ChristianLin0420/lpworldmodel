@@ -113,6 +113,55 @@ declare -A ARM_HIST
 # gets NO suffix, so not one existing run name moves.
 declare -A ARM_ENV
 
+wave34_arms() {
+    # ================= ROUND 9, REPAIRED =============================================
+    # Round 9 as launched had two design errors, both since measured (diary 2026-09-07 s10):
+    #
+    # (a) P3's scan started at a = tanh(0) = 0, i.e. h_l = u_l, i.e. NO TOKEN MIXING. The
+    #     treatment began as twelve blocks of per-patch MLP and had to climb out; its
+    #     "frozen control" stayed there permanently. Measured d_action 0.0000-0.0009 for
+    #     both, against 0.276-0.393 for anything that mixes -- so the control could not
+    #     encode anything and the contrast could not isolate the scan.
+    #     FIX: ENC_SCAN_A=0.5 so the sweep mixes from step 0, and the control freezes the
+    #     decay at the SAME value, so mixing is preserved and only its learning is removed.
+    #
+    # (b) P5-P7 were forced onto enc_ssm in "add" mode, where the code carries C s_t. Since
+    #     s_{t+1} = A s_t + Bz x_{t+1}, the next code is largely determined by the current
+    #     one, so the predictor lowers z_loss by propagating the state INSTEAD of using the
+    #     action: d_action collapses ~100x and CEM has nothing to optimise. Treatment and
+    #     control both planned at zero -- P6 landed at exactly 0.000 - 0.000 at n=3.
+    #     FIX: P6/P7 never read the state at all (they constrain z_emb), so they run on the
+    #     STOCK encoder. P5 does need a state, so it uses ENC_SSM_OUT=aux, where the code
+    #     handed to the predictor is the per-frame code bit-for-bit and the state is exposed
+    #     only to P5's own loss -- no shortcut can exist.
+    #
+    # P3: learned decay vs fixed decay. Both mix, so this isolates LEARNING the mixing; the
+    # scan-vs-attention question is answered against the baseline, which is the only honest
+    # comparison for it.
+    ARMS[PiWM-scan2]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SCAN_A=0.5"
+    ARMS[PiWM-scan2-fixed]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SCAN_A=0.5 ENC_SCAN_FREEZE=true"
+    # P5 on an auxiliary state: the prediction path is the baseline's, exactly.
+    ARMS[PiWM-sinv2]="ltv 1.0 5e-4 ENC_SSM=true ENC_SSM_OUT=aux SINV_W=2.0 SINV_SUB=16"
+    ARMS[PiWM-sinv2-shuf]="ltv 1.0 5e-4 ENC_SSM=true ENC_SSM_OUT=aux SINV_W=2.0 SINV_SUB=16 SINV_SHUF=true"
+    # P6 and P7 on the stock encoder, where d_action is healthy.
+    ARMS[PiWM-vel2]="ltv 1.0 5e-4 VEL_W=0.25"
+    ARMS[PiWM-sum2]="ltv 1.0 5e-4 VEL_W=0.25 VEL_SUM=true"
+    ARMS[PiWM-nce2]="ltv 1.0 5e-4 NCE_W=0.15"
+    ARMS[PiWM-nce2-shuf]="ltv 1.0 5e-4 NCE_W=0.15 NCE_SHUF=true"
+    # P4, the composition -- but of the two REPAIRED halves: the mixing scan plus a state
+    # that has a job and does not touch the prediction path.
+    ARMS[PiWM-st2]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SCAN_A=0.5 ENC_SSM=true ENC_SSM_OUT=aux SINV_W=2.0 SINV_SUB=16"
+    ARMS[PiWM-st2-fixed]="ltv 1.0 5e-4 ENC_SCAN=true ENC_SCAN_A=0.5 ENC_SCAN_FREEZE=true ENC_SSM=true ENC_SSM_OUT=aux SINV_W=2.0 SINV_SUB=16"
+    ORDER[wave34]="${WAVE34_ARMS:-PiWM-scan2 PiWM-scan2-fixed PiWM-sinv2 PiWM-sinv2-shuf PiWM-vel2 PiWM-sum2 PiWM-nce2 PiWM-nce2-shuf PiWM-st2 PiWM-st2-fixed}"
+}
+
+wave35_arms() {
+    # ROUND 9 REPAIRED, on wall. Same ten arms; the baseline already exists there.
+    wave34_arms
+    for _a in "${!ARMS[@]}"; do ARM_ENV[$_a]="wall"; done
+    ORDER[wave35]="${WAVE35_ARMS:-${ORDER[wave34]}}"
+}
+
 wave32_arms() {
     # ================= ROUND 9 =====================================================
     # Where the state lives (P1-P4) and what it is made to do (P5-P7). Every arm ships
@@ -1117,6 +1166,8 @@ for gate in "$@"; do
         wave27)       wave27_arms; gate=wave27 ;;
         wave28)       wave28_arms; gate=wave28 ;;
         wave29)       wave29_arms; gate=wave29 ;;
+        wave34)       wave34_arms; gate=wave34 ;;
+        wave35)       wave35_arms; gate=wave35 ;;
         wave32)       wave32_arms; gate=wave32 ;;
         wave33)       wave33_arms; gate=wave33 ;;
         wave30)       wave30_arms; gate=wave30 ;;

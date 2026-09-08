@@ -369,13 +369,18 @@ class VWorldModel(nn.Module):
         # it either way. At defaults enc_ssm is False, so this is False, the call into
         # encode_obs is byte-for-byte the one that shipped, and no key is emitted.
         self._wants_state = bool(getattr(_enc0, "enc_ssm", False))
-        if self.sinv_w > 0 or self.vel_w > 0 or self.nce_w > 0:
-            # An arm that asks the state to do a job without building a state is its own
-            # control reporting a number, which is the failure the overshoot/consist_k
-            # guards exist for. Fail loudly at construction instead.
+        # ROUND 9 FIX. Only P5 needs a state. P6 (vel_w) and P7 (nce_w) constrain z_emb --
+        # the encoder's own code -- and never read the state at all, so the original blanket
+        # assertion forced them onto an encoder whose ONLY effect on them was to poison
+        # z_emb: with a live state the predictor stops using the action (d_action falls from
+        # 0.276-0.393 to 0.0009-0.128) and every arm plans at zero, treatment and control
+        # alike. Both objectives were therefore compared between two dead arms and could not
+        # have returned a readable result. They now run on the stock encoder.
+        if self.sinv_w > 0:
             assert self._wants_state, (
-                "sinv_w / vel_w / nce_w require an encoder with enc_ssm=True; without a "
-                "temporal state there is nothing for these terms to constrain."
+                "sinv_w requires an encoder with enc_ssm=True: the term compares the STATE "
+                "under a corrupted view against the state under a clean one, and a "
+                "per-frame encoder has no state to compare."
             )
         if self.sinv_w > 0:
             assert self.sinv_p > 0, (
@@ -2087,15 +2092,15 @@ class VWorldModel(nn.Module):
             # codes drift from their single-frame limit. That is this number.
             with torch.no_grad():
                 loss_components["enc_state_rms"] = _state.detach().pow(2).mean().sqrt()
-                # P1 only. Under P2 the state lives INSIDE the stack in `dim` space, so its
-                # single-frame limit is not a function of u_emb and recovering it would mean
-                # re-running the blocks above it once per frame. P2 therefore ships with
-                # enc_state_rms alone and its gap is read offline -- stated, not hidden.
-                if _enc_mod.enc_ssm_depth is None:
-                    _solo = self._link(_enc_mod.state.solo(u_emb))
-                    _den = _solo[:, 1:].pow(2).mean().clamp_min(1e-12)
-                    loss_components["enc_state_gap"] = \
-                        (z_emb[:, 1:] - _solo[:, 1:]).pow(2).mean() / _den
+                # enc_state_gap USED TO BE EMITTED HERE AND WAS WRONG. It computed
+                # state.solo(u_emb), but u_emb has already been through forward_state and so
+                # already carries x + C s -- the state operator was applied TWICE and the
+                # result compared against z_emb. It never measured the single-frame limit.
+                # Removed rather than re-shipped; the drift it was meant to capture is
+                # measured directly from checkpoints (live 1.16-1.26 at t>=1, frozen 0.0000),
+                # and computing it in-model needs the PRE-state per-frame code, which
+                # encode_obs does not return. In "aux" mode the quantity is identically zero
+                # by construction, because the code IS the per-frame code.
 
         if self.sinv_w > 0:
             # P5. The state must survive a corrupted view. A per-frame encoder CANNOT

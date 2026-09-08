@@ -33,6 +33,8 @@ single-frame codes, which is why `TemporalState.solo()` exists and why the model
 `enc_state_gap` every step. An arm whose gap is large is a blockcausal repeat no matter
 what its success rate says; an arm whose gap is ~0 is its own control.
 """
+import math
+
 import torch
 from einops import rearrange
 from torch import nn
@@ -56,12 +58,17 @@ class TemporalState(nn.Module):
     `_INPUT_WEIGHTS` (:55-64) and `_EMB_KEYS` (:34), both of which match on `in`, not `==`.
     """
 
-    def __init__(self, dim, freeze_a=False):
+    def __init__(self, dim, freeze_a=False, c_zero=True):
         super().__init__()
         self.A = nn.Linear(dim, dim, bias=False)
         self.Bz = nn.Linear(dim, dim, bias=True)
         self.C = nn.Linear(dim, dim, bias=False)
         self.freeze_a = bool(freeze_a)
+        # C = 0 exists ONLY to make the state inert when it is ADDED to the code. In "aux"
+        # mode the state never enters the code, so a zero readout is not inertness -- it is
+        # an identically-zero signal that leaves the auxiliary objective comparing zeros to
+        # zeros with no gradient. There, C starts at the identity.
+        self.c_zero = bool(c_zero)
         self.reset_state_init_()
 
     @torch.no_grad()
@@ -80,7 +87,10 @@ class TemporalState(nn.Module):
         self.A.weight.mul_(0.0 if self.freeze_a else 0.9)
         nn.init.eye_(self.Bz.weight)
         nn.init.zeros_(self.Bz.bias)
-        nn.init.zeros_(self.C.weight)          # state contributes NOTHING at step 0
+        if self.c_zero:
+            nn.init.zeros_(self.C.weight)      # "add" mode: state contributes NOTHING at step 0
+        else:
+            nn.init.eye_(self.C.weight)        # "aux" mode: readout is live from step 0
         if self.freeze_a:
             self.A.weight.requires_grad_(False)
 
@@ -149,7 +159,7 @@ class ScanMixer(nn.Module):
 
     CHUNK = 32
 
-    def __init__(self, dim, dropout=0.0, freeze_a=False):
+    def __init__(self, dim, dropout=0.0, freeze_a=False, a_init=0.5):
         super().__init__()
         self.norm = nn.LayerNorm(dim)
         self.scan_in = nn.Linear(dim, dim, bias=False)
@@ -158,7 +168,19 @@ class ScanMixer(nn.Module):
         # touches _LINEARISH modules and `_EMB_KEYS` names, so this survives construction
         # untouched and needs no re-apply. Same reason `lie`'s phi is a Parameter while its
         # W_theta is a Linear (infojepa_modules.py:592-596).
-        self.scan_a = nn.Parameter(torch.zeros(2, dim))
+        # ROUND 9 FIX. a_init is the decay the sweep STARTS from, and 0 is the wrong choice.
+        # a = tanh(scan_a), so scan_a = atanh(a_init).
+        #
+        # The first version initialised scan_a = 0, i.e. a = 0, i.e. h_l = u_l: NO TOKEN
+        # MIXING AT ALL. The treatment therefore began as twelve blocks of per-patch MLP and
+        # had to climb out of a degenerate encoder, and its "frozen" control STAYED there --
+        # measured d_action 0.0000-0.0009 against 0.276-0.393 for anything that mixes, so the
+        # control could not encode anything and the contrast could not isolate the scan.
+        # Starting at 0.5 gives an exponential window of ~1/(1-a) = 2 tokens at step 0, and a
+        # frozen control that still mixes.
+        _a = float(a_init)
+        assert -0.999 < _a < 0.999, f"a_init {_a} outside (-1, 1)"
+        self.scan_a = nn.Parameter(torch.full((2, dim), math.atanh(_a)))
         self.dropout = dropout
         self.freeze_a = bool(freeze_a)
         if self.freeze_a:
@@ -234,9 +256,9 @@ class ScanBlock(Block):
     """
 
     def __init__(self, dim, heads, dim_head, mlp_dim, dropout=0.0, causal=False,
-                 freeze_a=False):
+                 freeze_a=False, a_init=0.5):
         nn.Module.__init__(self)
-        self.attn = ScanMixer(dim, dropout=dropout, freeze_a=freeze_a)
+        self.attn = ScanMixer(dim, dropout=dropout, freeze_a=freeze_a, a_init=a_init)
         self.mlp = FeedForward(dim, mlp_dim, dropout=dropout)
         self.norm1 = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)
         self.norm2 = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)

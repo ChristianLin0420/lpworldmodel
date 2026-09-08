@@ -299,7 +299,16 @@ enc_ssm: false             # P1: s_t = A s_{t-1} + Bz z_t, out = z_t + C s_t
 enc_ssm_depth: null        # P2: insert the same state after ViT block k instead
 enc_ssm_freeze: false      # P1-P4 control: A = 0 and frozen
 enc_scan: false            # P3: bidirectional token-axis scan replaces attention
-enc_scan_freeze: false     # P3 control: decay a = 0 -> a per-token MLP
+enc_scan_freeze: false     # P3 control: freeze the decay at enc_scan_a (mixing PRESERVED)
+enc_scan_a: 0.5            # P3 FIX: decay the sweep starts from. The first round used 0,
+                           # i.e. h_l = u_l, i.e. NO token mixing -- so the treatment began as
+                           # a per-patch MLP stack and the "control" stayed one. Both measured
+                           # d_action ~0.000 against 0.276-0.393 for anything that mixes.
+enc_ssm_out: add           # add = out_t = x_t + C s_t (the code carries the state, and the
+                           # predictor then propagates it INSTEAD of using the action --
+                           # d_action collapses ~100x and CEM has nothing to optimise)
+                           # aux = the code is the per-frame code, bit-identical to the
+                           # baseline forever, and the state is exposed only to P5.
 
 # What the state is MADE to do (P5-P7). All three act on z_emb, all are inert at 0, all are
 # images-and-proprio only. Each carries a manipulation check that is read BEFORE the
