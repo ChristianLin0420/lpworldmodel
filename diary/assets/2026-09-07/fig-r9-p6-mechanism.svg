@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="800" viewBox="0 0 1180 800" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+</defs>
+<rect width="1180" height="800" fill="#FFFFFF"/>
+<text x="590.0" y="44" font-size="21" text-anchor="middle" fill="#14231C" font-weight="bold">P6 fails because it SUCCEEDS</text>
+<text x="590.0" y="68" font-size="13" text-anchor="middle" fill="#6C786C">vel_rel is the objective's own success measure: 1.0 = the head learned nothing, 0 = it decodes motion perfectly</text>
+<rect x="170" y="130" width="780" height="380" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<line x1="170.0" y1="130" x2="170.0" y2="510" stroke="#EEF1EF" stroke-width="1"/>
+<text x="170.0" y="530" font-size="12" text-anchor="middle" fill="#6C786C">0.0</text>
+<line x1="326.0" y1="130" x2="326.0" y2="510" stroke="#EEF1EF" stroke-width="1"/>
+<text x="326.0" y="530" font-size="12" text-anchor="middle" fill="#6C786C">0.2</text>
+<line x1="482.0" y1="130" x2="482.0" y2="510" stroke="#EEF1EF" stroke-width="1"/>
+<text x="482.0" y="530" font-size="12" text-anchor="middle" fill="#6C786C">0.4</text>
+<line x1="638.0" y1="130" x2="638.0" y2="510" stroke="#EEF1EF" stroke-width="1"/>
+<text x="638.0" y="530" font-size="12" text-anchor="middle" fill="#6C786C">0.6</text>
+<line x1="794.0" y1="130" x2="794.0" y2="510" stroke="#EEF1EF" stroke-width="1"/>
+<text x="794.0" y="530" font-size="12" text-anchor="middle" fill="#6C786C">0.8</text>
+<line x1="950.0" y1="130" x2="950.0" y2="510" stroke="#EEF1EF" stroke-width="1"/>
+<text x="950.0" y="530" font-size="12" text-anchor="middle" fill="#6C786C">1.0</text>
+<line x1="170" y1="510.0" x2="950" y2="510.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="158" y="514.0" font-size="12" text-anchor="end" fill="#6C786C">0.00</text>
+<line x1="170" y1="415.0" x2="950" y2="415.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="158" y="419.0" font-size="12" text-anchor="end" fill="#6C786C">0.20</text>
+<line x1="170" y1="320.0" x2="950" y2="320.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="158" y="324.0" font-size="12" text-anchor="end" fill="#6C786C">0.40</text>
+<line x1="170" y1="225.0" x2="950" y2="225.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="158" y="228.99999999999994" font-size="12" text-anchor="end" fill="#6C786C">0.60</text>
+<line x1="170" y1="130.0" x2="950" y2="130.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="158" y="134.0" font-size="12" text-anchor="end" fill="#6C786C">0.80</text>
+<text x="170" y="576" font-size="13.5" text-anchor="start" fill="#14231C">vel_rel  --  objective SUCCESS increases to the LEFT</text>
+<text x="170" y="118" font-size="13" text-anchor="start" fill="#14231C">action channel  d_action/|z|</text>
+<line x1="470" y1="554" x2="320" y2="554" stroke="#A83024" stroke-width="2.5"/>
+<text x="480" y="558" font-size="12" text-anchor="start" fill="#A83024">objective succeeds this way</text>
+<circle cx="805.4" cy="235.0" r="7.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<text x="805.4162167733716" y="218.03902908018716" font-size="11" text-anchor="middle" fill="#18483C" font-weight="bold">SR 0.24</text>
+<circle cx="775.5" cy="232.8" r="7.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<text x="775.523335955049" y="202.81132207896349" font-size="11" text-anchor="middle" fill="#18483C" font-weight="bold">SR 0.06</text>
+<circle cx="800.3" cy="272.7" r="7.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<text x="800.2908706707766" y="255.7256679124706" font-size="11" text-anchor="middle" fill="#18483C" font-weight="bold">SR 0.18</text>
+<circle cx="637.3" cy="464.6" r="7.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<text x="637.2617305156672" y="502.62889144483967" font-size="11" text-anchor="middle" fill="#A83024" font-weight="bold">SR 0.00</text>
+<circle cx="182.0" cy="498.0" r="7.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<text x="204" y="523" font-size="11" text-anchor="middle" fill="#A83024" font-weight="bold">SR 0.00</text>
+<circle cx="645.4" cy="142.0" r="7.5" fill="#FFFFFF" stroke="#18483C" stroke-width="2.2"/>
+<text x="645.3500968183009" y="180" font-size="11" text-anchor="middle" fill="#18483C" font-weight="bold">SR 0.04</text>
+<text x="200" y="476" font-size="12" text-anchor="start" fill="#6C786C">objective NEARLY PERFECT here</text>
+<text x="200" y="492" font-size="12" text-anchor="start" fill="#A83024" font-weight="bold">channel destroyed</text>
+<text x="920" y="170" font-size="12" text-anchor="end" fill="#6C786C">objective BARELY LEARNED here</text>
+<text x="920" y="186" font-size="12" text-anchor="end" fill="#18483C" font-weight="bold">channel survives</text>
+<line x1="645.4" y1="142.0" x2="420" y2="234" stroke="#6C786C" stroke-width="1.1" stroke-dasharray="3,3"/>
+<text x="196" y="186" font-size="11.5" text-anchor="start" fill="#6C786C">pushT s5: channel 1.12, ABOVE the</text>
+<text x="196" y="201" font-size="11.5" text-anchor="start" fill="#6C786C">inverted-U optimum. Contradicts the</text>
+<text x="196" y="216" font-size="11.5" text-anchor="start" fill="#6C786C">trend and is unexplained.</text>
+<text x="170" y="594" font-size="13.5" text-anchor="start" fill="#14231C" font-weight="bold">Forcing the code to carry inter-frame MOTION competes directly with carrying what ACTIONS do.</text>
+<text x="170" y="616" font-size="12.5" text-anchor="start" fill="#6C786C">A trade-off, not a null: the objective is not ignored, it is satisfied at the cost of the thing planning needs. 5 of 6 runs fit; pushT s5 does not.</text>
+<rect x="170" y="643" width="13" height="13" rx="2" fill="#18483C"/>
+<text x="190" y="654" font-size="12.5" text-anchor="start" fill="#14231C">channel intact</text>
+<rect x="170" y="663" width="13" height="13" rx="2" fill="#A83024"/>
+<text x="190" y="674" font-size="12.5" text-anchor="start" fill="#14231C">channel destroyed</text>
+<text x="490" y="656" font-size="12.5" text-anchor="start" fill="#6C786C">filled = wall     hollow = pushT</text>
+</svg>

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="800" viewBox="0 0 1180 800" font-family="Nimbus Sans, Liberation Sans, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="ar" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="am" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+  <marker id="e0" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#546060"/></marker>
+  <marker id="e1" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9.1" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0.6,1.6 L9.6,5 L0.6,8.4 z" fill="#A83024"/></marker>
+  <marker id="s2" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="0.9" refY="5" markerWidth="11" markerHeight="11" orient="auto"><path d="M9.4,1.6 L0.4,5 L9.4,8.4 z" fill="#A83024"/></marker>
+</defs>
+<rect width="1180" height="800" fill="#FFFFFF"/>
+<text x="590.0" y="44" font-size="21" text-anchor="middle" fill="#14231C" font-weight="bold">Why most arms carry no information: the action channel</text>
+<text x="590.0" y="68" font-size="13" text-anchor="middle" fill="#6C786C">d_action/|z| is how far the prediction moves when only the ACTION changes -- the quantity CEM consumes</text>
+<rect x="150" y="120" width="880" height="440" fill="#FFFFFF" stroke="#AAB4AF" stroke-width="1"/>
+<rect x="150" y="120" width="469.3" height="440" fill="#A83024" opacity="0.07"/>
+<line x1="619.3" y1="120" x2="619.3" y2="560" stroke="#A83024" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="164" y="144" font-size="13" text-anchor="start" fill="#A83024" font-weight="bold">DISQUALIFIED</text>
+<text x="164" y="162" font-size="11.5" text-anchor="start" fill="#6C786C">prediction barely responds to the action;</text>
+<text x="164" y="178" font-size="11.5" text-anchor="start" fill="#6C786C">CEM has nothing to optimise</text>
+<line x1="150.0" y1="120" x2="150.0" y2="560" stroke="#EEF1EF" stroke-width="1"/>
+<text x="150.0" y="580" font-size="12" text-anchor="middle" fill="#6C786C">0.00</text>
+<line x1="326.0" y1="120" x2="326.0" y2="560" stroke="#EEF1EF" stroke-width="1"/>
+<text x="326.0" y="580" font-size="12" text-anchor="middle" fill="#6C786C">0.15</text>
+<line x1="502.0" y1="120" x2="502.0" y2="560" stroke="#EEF1EF" stroke-width="1"/>
+<text x="501.99999999999994" y="580" font-size="12" text-anchor="middle" fill="#6C786C">0.30</text>
+<line x1="678.0" y1="120" x2="678.0" y2="560" stroke="#EEF1EF" stroke-width="1"/>
+<text x="678.0" y="580" font-size="12" text-anchor="middle" fill="#6C786C">0.45</text>
+<line x1="854.0" y1="120" x2="854.0" y2="560" stroke="#EEF1EF" stroke-width="1"/>
+<text x="853.9999999999999" y="580" font-size="12" text-anchor="middle" fill="#6C786C">0.60</text>
+<line x1="1030.0" y1="120" x2="1030.0" y2="560" stroke="#EEF1EF" stroke-width="1"/>
+<text x="1030.0" y="580" font-size="12" text-anchor="middle" fill="#6C786C">0.75</text>
+<line x1="150" y1="560.0" x2="1030" y2="560.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="138" y="564.0" font-size="12" text-anchor="end" fill="#6C786C">0.0</text>
+<line x1="150" y1="450.0" x2="1030" y2="450.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="138" y="454.0" font-size="12" text-anchor="end" fill="#6C786C">0.2</text>
+<line x1="150" y1="340.0" x2="1030" y2="340.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="138" y="344.0" font-size="12" text-anchor="end" fill="#6C786C">0.4</text>
+<line x1="150" y1="230.0" x2="1030" y2="230.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="138" y="233.99999999999994" font-size="12" text-anchor="end" fill="#6C786C">0.6</text>
+<line x1="150" y1="120.0" x2="1030" y2="120.0" stroke="#EEF1EF" stroke-width="1"/>
+<text x="138" y="124.0" font-size="12" text-anchor="end" fill="#6C786C">0.8</text>
+<text x="150" y="608" font-size="14" text-anchor="start" fill="#14231C">action channel   d_action / |z|</text>
+<text x="150" y="108" font-size="13" text-anchor="start" fill="#14231C">success rate</text>
+<circle cx="876.5" cy="189.7" r="6.5" fill="#2E7D6F" stroke="#2E7D6F" stroke-width="2.2"/>
+<circle cx="160.0" cy="527.0" r="6.5" fill="#A83024" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="175.0" cy="549.0" r="6.5" fill="#A83024" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="789.9" cy="534.3" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="922.0" cy="532.5" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="800.0" cy="472.0" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="858.7" cy="215.3" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="838.9" cy="230.0" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="833.8" cy="189.7" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="258.1" cy="541.7" r="6.5" fill="#A83024" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="870.2" cy="233.7" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="322.1" cy="530.7" r="6.5" fill="#A83024" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="826.3" cy="347.3" r="6.5" fill="#18483C" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="205.0" cy="550.0" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="220.0" cy="550.0" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="160.0" cy="535.0" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="487.7" cy="541.7" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="531.0" cy="457.3" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="623.8" cy="550.0" r="6.5" fill="#FFFFFF" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="383.8" cy="501.3" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="747.5" cy="310.7" r="6.5" fill="#FFFFFF" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="729.5" cy="384.0" r="6.5" fill="#FFFFFF" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="175.0" cy="535.0" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="650.0" cy="391.3" r="6.5" fill="#FFFFFF" stroke="#18483C" stroke-width="2.2"/>
+<circle cx="190.0" cy="535.0" r="6.5" fill="#FFFFFF" stroke="#A83024" stroke-width="2.2"/>
+<circle cx="647.1" cy="409.7" r="6.5" fill="#FFFFFF" stroke="#18483C" stroke-width="2.2"/>
+<line x1="876.5" y1="189.7" x2="700" y2="150" stroke="#2E7D6F" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.75"/>
+<text x="700" y="146" font-size="12" text-anchor="start" fill="#2E7D6F" font-weight="bold">baseline: healthy channel, plans</text>
+<line x1="258.1" y1="541.7" x2="250" y2="300" stroke="#A83024" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.75"/>
+<text x="250" y="296" font-size="12" text-anchor="start" fill="#A83024" font-weight="bold">8 arms pile up here: channel destroyed,</text>
+<text x="250" y="312" font-size="12" text-anchor="start" fill="#A83024">every one plans at ~0</text>
+<line x1="922.0" y1="532.5" x2="700" y2="496" stroke="#18483C" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.75"/>
+<text x="700" y="492" font-size="12" text-anchor="start" fill="#18483C" font-weight="bold">sinv2-shuf: channel 0.658, healthier than</text>
+<text x="700" y="508" font-size="12" text-anchor="start" fill="#18483C">the baseline -- and still plans at 0.050</text>
+<rect x="150" y="635" width="13" height="13" rx="2" fill="#18483C"/>
+<text x="170" y="646" font-size="12.5" text-anchor="start" fill="#14231C">channel intact (> 0.40) -- result is interpretable</text>
+<rect x="150" y="655" width="13" height="13" rx="2" fill="#A83024"/>
+<text x="170" y="666" font-size="12.5" text-anchor="start" fill="#14231C">channel destroyed -- result is not</text>
+<rect x="150" y="675" width="13" height="13" rx="2" fill="#2E7D6F"/>
+<text x="170" y="686" font-size="12.5" text-anchor="start" fill="#14231C">baseline</text>
+<text x="620" y="648" font-size="12.5" text-anchor="start" fill="#6C786C">filled = wall      hollow = pushT</text>
+<text x="620" y="668" font-size="12" text-anchor="start" fill="#14231C">NOTE: a healthy channel does NOT imply success -- it only licenses reading the number.</text>
+<text x="620" y="686" font-size="12" text-anchor="start" fill="#6C786C">sinv2-shuf sits at 0.658 and still plans at 0.050.</text>
+</svg>
